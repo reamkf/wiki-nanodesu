@@ -19,7 +19,7 @@ export default function Home() {
 					を補助するサイトなのです。
 				</p>
 				<p>
-					Seesaa Wikiの文字数制限などの都合で、Seesaa Wiki上での運用が難しいページをこちらで運用しているのです。
+					文字数上限などの都合で、Seesaa Wiki上での運用が難しいページをこちらで運用しているのです。
 				</p>
 
 				<Image

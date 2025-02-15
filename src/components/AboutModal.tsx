@@ -55,7 +55,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
 										を補助するサイトなのです。
 									</p>
 									<p className="text-sm text-gray-500 mb-2">
-										Seesaa Wikiの文字数制限などの都合で、Seesaa Wiki上での運用が難しいページをこちらで運用しているのです。
+										文字数上限などの都合で、Seesaa Wiki上での運用が難しいページをこちらで運用しているのです。
 									</p>
 									<p className="text-sm text-gray-500">
 										誤字・誤植の報告や情報提供は <Link href="https://seesaawiki.jp/kemono_friends3_5ch/" className="font-bold hover:underline text-green-500" target="_blank" rel="noopener noreferrer">アプリ版けものフレンズ３Wikiなのだ！</Link> のコメント欄または掲示板へお願いするのです。
