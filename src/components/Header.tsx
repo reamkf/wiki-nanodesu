@@ -42,7 +42,7 @@ export function Header() {
 					/>
 					<h1 className="text-sm sm:text-xl font-bold text-sky-600 leading-tight">
 						アプリ版けものフレンズ３wiki<br className="sm:hidden" />
-						補佐なのです
+						補佐なのです🦉
 					</h1>
 				</div>
 				<AboutButton onClick={() => setIsOpen(true)} />
