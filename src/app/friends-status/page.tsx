@@ -1,9 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSidebar } from '@/contexts/SidebarContext';
-
 export default function FriendsStatusPage() {
 	return (
 		<div className="min-h-screen">
