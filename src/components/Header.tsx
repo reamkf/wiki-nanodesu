@@ -12,8 +12,8 @@ export function Header() {
 
 	return (
 		<header className="bg-gradient-to-b from-sky-300 to-sky-200 text-white h-[63px] flex items-center">
-			<div className="w-full px-2 mx-auto flex justify-between items-center max-w-7xl">
-				<div className="flex items-center">
+			<div className="w-full px-2 flex justify-between items-center max-w-7xl">
+				<div className="flex items-center flex-1">
 					<button
 						className="md:hidden p-2 relative"
 						onClick={toggle}
@@ -41,7 +41,7 @@ export function Header() {
 						height={48}
 						className="sm:w-[60px] sm:h-[60px]"
 					/>
-					<h1 className="text-sm sm:text-xl font-bold text-sky-600 leading-tight pl-2">
+					<h1 className="text-sm sm:text-xl font-bold text-sky-600 leading-tight pl-1">
 						アプリ版けものフレンズ３wiki<br className="sm:hidden" />
 						なのです🦉
 					</h1>
