@@ -27,7 +27,7 @@ export function Sidebar() {
 			top-[63px] left-0
 			h-[calc(100vh-63px)]
 			bg-[#f1f9fff4] md:bg-sky-100
-			w-64 md:w-[32rem]
+			w-64 md:w-[20rem]
 			transform transition-transform duration-300 ease-in-out
 			${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
 			z-30 md:z-auto

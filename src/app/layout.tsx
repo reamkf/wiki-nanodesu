@@ -23,7 +23,7 @@ export default function RootLayout({
 						<Header />
 						<div className="container p-0 m-0 flex relative">
 							<Sidebar />
-							<main className="flex-grow md:ml-86 ml-0 p-4">
+							<main className="flex-grow flex-1 md:ml-86 ml-0 p-4">
 								{children}
 							</main>
 						</div>
