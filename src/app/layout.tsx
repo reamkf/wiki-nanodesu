@@ -21,9 +21,9 @@ export default function RootLayout({
 				<SidebarProvider>
 					<div className="min-h-screen bg-white">
 						<Header />
-						<div className="container mx-auto px-4 py-8 flex relative">
+						<div className="container mx-auto px-4 py-8 mx-0 flex relative">
 							<Sidebar />
-							<main className="flex-grow">
+							<main className="flex-grow md:ml-86 ml-0">
 								{children}
 							</main>
 						</div>
