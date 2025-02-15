@@ -35,7 +35,7 @@ export function Header() {
 						</div>
 					</button>
 					<Image
-						src="/no.png"
+						src="/no_blue.png"
 						alt="「の」のアイコン"
 						width={48}
 						height={48}

@@ -12,7 +12,7 @@ export function AboutButton({ onClick }: AboutButtonProps) {
 				onClick={onClick}
 				size="large"
 			>
-				<HelpOutlineIcon sx={{ fontSize: 32 }} />
+				<HelpOutlineIcon sx={{ fontSize: 32 }} className="text-sky-500" />
 			</IconButton>
 		</Tooltip>
 	);

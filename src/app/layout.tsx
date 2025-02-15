@@ -1,6 +1,7 @@
 // app/layout.tsx
 import type { Metadata } from 'next'
 import { Header } from '@/components/Header'
+import { Footer } from '@/components/Footer'
 import { Sidebar } from '@/components/Sidebar'
 import { SidebarProvider } from '@/contexts/SidebarContext'
 import './globals.css'
@@ -27,6 +28,7 @@ export default function RootLayout({
 								{children}
 							</main>
 						</div>
+						<Footer />
 					</div>
 				</SidebarProvider>
 			</body>
