@@ -1,10 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import { PageTitle } from "@/components/PageTitle";
 
 export default function Home() {
 	return (
 		<>
-			<h2 className="text-xl font-bold mb-4 border-b-2 border-sky-300">トップページ</h2>
+			<PageTitle title="トップページ" />
 			<div className="rounded mb-4">
 				<p className="mb-2">
 					<Link
