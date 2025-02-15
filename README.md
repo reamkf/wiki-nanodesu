@@ -1,4 +1,5 @@
 # Wiki Nanodesu
+https://reamkf.github.io/wiki-nanodesu/
 
 [**アプリ版けものフレンズ３wikiなのだ！**](https://seesaawiki.jp/kemono_friends3_5ch/) の補助サイトです。
 
