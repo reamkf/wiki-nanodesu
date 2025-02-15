@@ -2,6 +2,7 @@
 import type { Metadata } from 'next'
 import { Header } from '@/components/Header'
 import { Sidebar } from '@/components/Sidebar'
+import { SidebarProvider } from '@/contexts/SidebarContext'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -17,15 +18,17 @@ export default function RootLayout({
 	return (
 		<html lang="ja">
 			<body>
-				<div className="min-h-screen bg-white">
-					<Header />
-					<div className="container mx-auto px-4 py-8 flex">
-						<Sidebar />
-						<main className="flex-grow">
-							{children}
-						</main>
+				<SidebarProvider>
+					<div className="min-h-screen bg-white">
+						<Header />
+						<div className="container mx-auto px-4 py-8 flex relative">
+							<Sidebar />
+							<main className="flex-grow">
+								{children}
+							</main>
+						</div>
 					</div>
-				</div>
+				</SidebarProvider>
 			</body>
 		</html>
 	)
