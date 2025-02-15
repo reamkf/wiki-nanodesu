@@ -5,10 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useSidebar } from '@/contexts/SidebarContext';
 
 export default function FriendsStatusPage() {
-	const [isOpen, setIsOpen] = useState(false);
-	const { toggle } = useSidebar();
-	const router = useRouter();
-
 	return (
 		<div className="min-h-screen">
 			<div className="">
