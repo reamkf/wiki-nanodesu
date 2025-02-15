@@ -40,7 +40,7 @@ export function Header() {
 						height={48}
 						className="sm:w-[60px] sm:h-[60px]"
 					/>
-					<h1 className="text-sm sm:text-xl font-bold text-sky-600 leading-tight">
+					<h1 className="text-sm sm:text-xl font-bold text-sky-600 leading-tight pl-2">
 						アプリ版けものフレンズ３wiki<br className="sm:hidden" />
 						補佐なのです🦉
 					</h1>
