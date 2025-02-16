@@ -11,6 +11,7 @@ export function AboutButton({ onClick }: AboutButtonProps) {
 			<IconButton
 				onClick={onClick}
 				size="large"
+				className=""
 			>
 				<HelpOutlineIcon sx={{ fontSize: 32 }} className="text-sky-500" />
 			</IconButton>

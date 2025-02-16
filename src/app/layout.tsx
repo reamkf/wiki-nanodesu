@@ -22,7 +22,7 @@ export default function RootLayout({
 				<SidebarProvider>
 					<div className="min-h-screen bg-white flex flex-col">
 						<Header />
-						<div className="container p-0 m-0 flex flex-grow">
+						<div className="w-full max-w-[1920px] p-0 m-0 flex flex-grow">
 							<Sidebar />
 							<div className="flex flex-col flex-grow">
 								<main className="md:ml-86 ml-0 p-4 flex-grow">
