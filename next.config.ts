@@ -3,6 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
 	output: "export",
 	basePath: "/wiki-nanodesu",
+	assetPrefix: "/wiki-nanodesu",
 	images: {
 		unoptimized: true,
 		path: "https://reamkf.github.io/wiki-nanodesu/",

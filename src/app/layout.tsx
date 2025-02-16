@@ -9,6 +9,9 @@ import './globals.css'
 export const metadata: Metadata = {
 	title: 'アプリ版けものフレンズ３wikiなのです',
 	description: '非公式Wikiページ',
+	icons: {
+		icon: '/wiki-nanodesu/no_blue.png',
+	},
 }
 
 export default function RootLayout({
