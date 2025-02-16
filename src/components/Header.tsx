@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { AboutButton } from "@/components/AboutButton";
-import { AboutModal } from "@/components/AboutModal";
+import { AboutButton } from "@/components/about/AboutButton";
+import { AboutModal } from "@/components/about/AboutModal";
 import Image from "next/image";
 import { useSidebar } from '@/contexts/SidebarContext';
 
