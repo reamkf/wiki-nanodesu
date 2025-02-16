@@ -43,7 +43,7 @@ export function Sidebar() {
 			<nav className="space-y-1 p-4 md:p-0">
 				<div className="flex justify-center items-center block bg-green-200 hover:bg-green-300 hover:underline rounded-lg mb-2">
 					<Image
-						src="/no_green.png"
+						src="wiki-nanodesu/no_green.png"
 						alt="「の」のアイコン"
 						width={48}
 						height={48}
