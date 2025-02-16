@@ -14,7 +14,7 @@ export function FriendsNameLink({ friend }: FriendsNameLinkProps) {
 		<>
 			<Link
 				href={pageUrl}
-				className="text-sm text-gray-500 hover:underline"
+				className="text-md text-gray-500 hover:underline"
 				rel="noopener noreferrer"
 			>
 				{friend.second_name && (
