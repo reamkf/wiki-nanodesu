@@ -3,7 +3,6 @@ import { join } from "path";
 import Papa from "papaparse";
 import { RawFriendsCSV } from "@/types/friends";
 import { getFriendsData } from "@/utils/friends";
-import type { GetStaticPropsContext } from "next";
 
 const csvPath = join(process.cwd(), "csv", "フレンズデータ.csv");
 const csvFile = readFileSync(csvPath, "utf-8");
@@ -38,9 +37,9 @@ Papa.parse(csvFile, {
 
 		// FriendsDataRowへの変換結果
 		console.log("\n=== FriendsDataRowへの変換結果 ===");
-		const result = await getFriendsData({} as GetStaticPropsContext);
+		const result = await getFriendsData();
 		if ('props' in result) {
-			console.log(JSON.stringify(result.props.friends[0], null, 2));
+			console.log(JSON.stringify(result, null, 2));
 		}
 	}
 });

@@ -1,13 +1,9 @@
 import FriendsDataTable from "@/components/FriendsDataTable";
 import { PageTitle } from "@/components/PageTitle";
 import { getFriendsData } from "@/utils/friends";
-import type { GetStaticPropsContext } from "next";
 
 export default async function FriendsStatus() {
-	const data = await getFriendsData({} as GetStaticPropsContext);
-	if (!('props' in data)) {
-		throw new Error('Invalid data structure');
-	}
+	const friendsData = await getFriendsData();
 
 	return (
 		<main className="p-4">
@@ -15,7 +11,7 @@ export default async function FriendsStatus() {
 			<p className="mb-4 text-xl font-bold">
 				※このページは製作途中です。
 			</p>
-			<FriendsDataTable friendsData={data.props.friends} />
+			<FriendsDataTable friendsData={friendsData} />
 		</main>
 	);
 }

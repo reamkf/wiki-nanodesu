@@ -1,4 +1,3 @@
-import { GetStaticProps } from 'next'
 import { readFileSync } from "fs";
 import { join } from "path";
 import Papa from "papaparse";
@@ -109,21 +108,20 @@ const parseFriendsStatus = (data: RawFriendsCSV): FriendsStatus => {
 	};
 };
 
-export const getFriendsData: GetStaticProps<{ friends: FriendsDataRow[] }> = async () => {
-	const csvPath = join(process.cwd(), "csv", "フレンズデータ.csv");
-	const csvFile = readFileSync(csvPath, "utf-8");
+export async function getFriendsData(): Promise<FriendsDataRow[]> {
+    const csvPath = join(process.cwd(), "csv", "フレンズデータ.csv");
+    const csvFile = readFileSync(csvPath, "utf-8");
 
-	const data = await new Promise<FriendsDataRow[]>((resolve) => {
-		Papa.parse(csvFile, {
-			header: true,
-			dynamicTyping: true,
-			skipEmptyLines: true,
-			transformHeader: (header: string) => {
-				// 不要なヘッダーは空文字列に変換して無視
-				return RAW_FRIENDS_CSV_HEADERS.includes(header as typeof RAW_FRIENDS_CSV_HEADERS[number]) ? header : '';
-			},
-			complete: (results) => {
-				const parsedData = (results.data as RawFriendsCSV[]).map((row) => {
+    return new Promise<FriendsDataRow[]>((resolve) => {
+        Papa.parse(csvFile, {
+            header: true,
+            dynamicTyping: true,
+            skipEmptyLines: true,
+            transformHeader: (header: string) => {
+                return RAW_FRIENDS_CSV_HEADERS.includes(header as typeof RAW_FRIENDS_CSV_HEADERS[number]) ? header : '';
+            },
+            complete: (results) => {
+                const parsedData = (results.data as RawFriendsCSV[]).map((row) => {
 					// 野生大解放と12ポケの値を変換
 					const convertToBoolean = (value: unknown): boolean => {
 						if (typeof value === 'string') return value === '〇';
@@ -148,15 +146,9 @@ export const getFriendsData: GetStaticProps<{ friends: FriendsDataRow[] }> = asy
 						cv: row.CV || '',
 						status: parseFriendsStatus(row)
 					};
-				});
-				resolve(parsedData);
-			},
-		});
-	});
-
-	return {
-		props: {
-			friends: data
-		},
-	};
-};
+                });
+                resolve(parsedData);
+            },
+        });
+    });
+}
