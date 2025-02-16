@@ -2,74 +2,8 @@ import { GetStaticProps } from 'next'
 import { readFileSync } from "fs";
 import { join } from "path";
 import Papa from "papaparse";
-import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV } from "@/types/friends";
+import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV, RAW_FRIENDS_CSV_HEADERS } from "@/types/friends";
 import type { BasicStatus } from "@/types/common";
-
-// RawFriendsCSVのキーを定義
-const CSV_HEADERS = [
-	'ID',
-	'フレンズ名',
-	'属性違い二つ名',
-	'属性',
-	'実装日',
-	'実装種別',
-	'実装種別詳細',
-	'一覧順',
-	'アイコンURL',
-	'初期けも級',
-	'野生大解放',
-	'12ポケ',
-	'特別衣装数',
-	'CV',
-	'かいひ',
-	'かいひ野生5',
-	'ぷらずむ',
-	'Beatフラッグ',
-	'Actionフラッグ',
-	'Tryフラッグ',
-	'Beat補正',
-	'Action補正',
-	'Try補正',
-	'Beat補正野生5',
-	'Action補正野生5',
-	'Try補正野生5',
-	'Lv最大けもステ',
-	'Lv最大たいりょく',
-	'Lv最大こうげき',
-	'Lv最大まもり',
-	'Lv90けもステ',
-	'Lv90たいりょく',
-	'Lv90こうげき',
-	'Lv90まもり',
-	'Lv99けもステ',
-	'Lv99たいりょく',
-	'Lv99こうげき',
-	'Lv99まもり',
-	'Lv90野生5けもステ',
-	'Lv90野生5たいりょく',
-	'Lv90野生5こうげき',
-	'Lv90野生5まもり',
-	'Lv99野生5けもステ',
-	'Lv99野生5たいりょく',
-	'Lv99野生5こうげき',
-	'Lv99野生5まもり',
-	'☆1Lv1たいりょく',
-	'☆1Lv1こうげき',
-	'☆1Lv1まもり',
-	'☆1Lv90たいりょく',
-	'☆1Lv90こうげき',
-	'☆1Lv90まもり',
-	'☆1Lv99たいりょく',
-	'☆1Lv99こうげき',
-	'☆1Lv99まもり',
-	'☆1野生解放1-4合計たいりょく',
-	'☆1野生解放1-4合計こうげき',
-	'☆1野生解放1-4合計まもり',
-	'☆1野生解放1-5合計たいりょく',
-	'☆1野生解放1-5合計こうげき',
-	'☆1野生解放1-5合計まもり',
-	'Lv100+上昇パターン'
-] as const;
 
 const parseBasicStatus = (
 	kemosute: number,
@@ -186,7 +120,7 @@ export const getFriendsData: GetStaticProps<{ friends: FriendsDataRow[] }> = asy
 			skipEmptyLines: true,
 			transformHeader: (header: string) => {
 				// 不要なヘッダーは空文字列に変換して無視
-				return CSV_HEADERS.includes(header as typeof CSV_HEADERS[number]) ? header : '';
+				return RAW_FRIENDS_CSV_HEADERS.includes(header as typeof RAW_FRIENDS_CSV_HEADERS[number]) ? header : '';
 			},
 			complete: (results) => {
 				const parsedData = (results.data as RawFriendsCSV[]).map((row) => {
