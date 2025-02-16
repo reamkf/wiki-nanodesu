@@ -1,12 +1,20 @@
+# プロジェクト概要
+- 別で運用しているwikiの補助サイト
+- 大量のデータを扱う場合など、wikiでは運用しにくい部分を代わりに運用
+- Next.jsで静的サイトを生成し、GitHub Pagesでホスト
+
 # 技術スタック
 - パッケージマネージャー: bun 1.2.2
 - 言語: TypeScript 5.7.3
 - フレームワーク:
 	- Next.js 15.1.7
+		- App Routerを使用
+		- `output: "export"` を指定して静的サイトを生成
 	- React 19.0.0
 	- Tailwind CSS 3.4.1
 - リンター: ESLint 9.20.1
-- `output: "export"` を指定して静的サイトを生成し、GitHub Pagesでデプロイ
+- デプロイ先: GitHub Pages
+  - GitHub Actionsで自動デプロイ
 
 # コーディングルール
 - インデントにはタブを使う
