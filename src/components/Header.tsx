@@ -42,7 +42,7 @@ export function Header() {
 				<div className="flex items-center flex-1">
 					{sidebarButton()}
 					<Image
-						src="https://reamkf.github.io/wiki-nanodesu/no_blue.png"
+						src="/no_blue.png"
 						alt="「の」のアイコン"
 						width={55}
 						height={55}

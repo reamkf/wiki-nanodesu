@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
 	output: "export",
+	basePath: process.env.NODE_ENV === 'production'
+		? '/wiki-nanodesu'
+		: '',
 	images: {
 		unoptimized: true,
 		path: "https://reamkf.github.io/wiki-nanodesu/",
