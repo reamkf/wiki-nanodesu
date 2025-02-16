@@ -19,4 +19,6 @@ const nextConfig: NextConfig = {
 	},
 };
 
+console.log('NODE_ENV:', process.env.NODE_ENV)
+
 export default nextConfig;
