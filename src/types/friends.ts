@@ -17,7 +17,8 @@ export enum MegumiPattern {
 	hp50 = 'たいりょく+50型',
 	def50 = 'まもり+50型',
 	balanced = 'バランス型',
-	atkDef = 'こうげき・まもり増加型'
+	atkDef = 'こうげき・まもり増加型',
+	unknown = ''
 }
 
 export interface FriendsFlagDamageUp {
@@ -127,6 +128,18 @@ export interface RawFriendsCSV {
 	'☆1Lv1たいりょく': number;
 	'☆1Lv1こうげき': number;
 	'☆1Lv1まもり': number;
+	'☆1Lv90たいりょく': number,
+	'☆1Lv90こうげき': number,
+	'☆1Lv90まもり': number,
+	'☆1Lv99たいりょく': number,
+	'☆1Lv99こうげき': number,
+	'☆1Lv99まもり': number,
+	'☆1野生解放1-4合計たいりょく': number,
+	'☆1野生解放1-4合計こうげき': number,
+	'☆1野生解放1-4合計まもり': number,
+	'☆1野生解放1-5合計たいりょく': number,
+	'☆1野生解放1-5合計こうげき': number,
+	'☆1野生解放1-5合計まもり': number,
 	'Lv100+上昇パターン': MegumiPattern;
 	けものミラクル技名: string;
 	けものミラクル効果Lv1: string;

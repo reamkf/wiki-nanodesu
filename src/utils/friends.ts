@@ -56,6 +56,18 @@ const CSV_HEADERS = [
 	'☆1Lv1たいりょく',
 	'☆1Lv1こうげき',
 	'☆1Lv1まもり',
+	'☆1Lv90たいりょく',
+	'☆1Lv90こうげき',
+	'☆1Lv90まもり',
+	'☆1Lv99たいりょく',
+	'☆1Lv99こうげき',
+	'☆1Lv99まもり',
+	'☆1野生解放1-4合計たいりょく',
+	'☆1野生解放1-4合計こうげき',
+	'☆1野生解放1-4合計まもり',
+	'☆1野生解放1-5合計たいりょく',
+	'☆1野生解放1-5合計こうげき',
+	'☆1野生解放1-5合計まもり',
 	'Lv100+上昇パターン'
 ] as const;
 
@@ -65,46 +77,37 @@ const parseBasicStatus = (
 	atk: number,
 	def: number
 ): BasicStatus => ({
-	kemosute: kemosute || 0,
-	hp: hp || 0,
-	def: def || 0,
-	atk: atk || 0
+	kemosute: kemosute || -1,
+	hp: hp || -1,
+	def: def || -1,
+	atk: atk || -1
 });
 
-const convertToMegumiPattern = (value: string | number | null): MegumiPattern => {
+const convertToMegumiPattern = (value: string | null): MegumiPattern => {
 	if (typeof value === 'string') {
 		const pattern = Object.values(MegumiPattern).find(p => p === value);
 		return pattern || MegumiPattern.balanced;
 	}
-	if (typeof value === 'number') {
-		switch (value) {
-			case 65: return MegumiPattern.atk65;
-			case 60: return MegumiPattern.atk60;
-			case 50: return MegumiPattern.atk50;
-			case 40: return MegumiPattern.atk40;
-			default: return MegumiPattern.balanced;
-		}
-	}
-	return MegumiPattern.balanced;
+	return MegumiPattern.unknown;
 };
 
 const parseFriendsStatus = (data: RawFriendsCSV): FriendsStatus => {
 	return {
-		avoid: data.かいひ || 0,
-		avoidYasei5: data.かいひ野生5 || 0,
-		plasm: data.ぷらずむ || 0,
-		beatFlags: data.Beatフラッグ || 0,
+		avoid: data.かいひ || -1,
+		avoidYasei5: data.かいひ野生5 || -1,
+		plasm: data.ぷらずむ || -1,
+		beatFlags: data.Beatフラッグ || -1,
 		actionFlags: (typeof data.Actionフラッグ === 'string' ? data.Actionフラッグ.split(',') : [data.Actionフラッグ || 0]).map(Number),
 		tryFlags: (typeof data.Tryフラッグ === 'string' ? data.Tryフラッグ.split(',') : [data.Tryフラッグ || 0]).map(Number),
 		flagDamageUp: {
-			beat: data.Beat補正 || 0,
-			action: data.Action補正 || 0,
-			try: data.Try補正 || 0
+			beat: data.Beat補正 || -1,
+			action: data.Action補正 || -1,
+			try: data.Try補正 || -1
 		},
 		flagDamageUpYasei5: {
-			beat: data.Beat補正野生5 || 0,
-			action: data.Action補正野生5 || 0,
-			try: data.Try補正野生5 || 0
+			beat: data.Beat補正野生5 || -1,
+			action: data.Action補正野生5 || -1,
+			try: data.Try補正野生5 || -1
 		},
 		statusInitial: parseBasicStatus(
 			data['Lv最大けもステ'],
@@ -155,12 +158,17 @@ const parseFriendsStatus = (data: RawFriendsCSV): FriendsStatus => {
 				data['Lv99こうげき'],
 				data['Lv99まもり']
 			),
-			yasei4: parseBasicStatus(0, 0, 0, 0), // CSVにデータがない
+			yasei4: parseBasicStatus(
+				-1,
+				data['☆1野生解放1-4合計たいりょく'],
+				data['☆1野生解放1-4合計こうげき'],
+				data['☆1野生解放1-4合計まもり'],
+			),
 			yasei5: parseBasicStatus(
-				0,
-				data['Lv99野生5たいりょく'],
-				data['Lv99野生5こうげき'],
-				data['Lv99野生5まもり']
+				-1,
+				data['☆1野生解放1-5合計たいりょく'],
+				data['☆1野生解放1-5合計こうげき'],
+				data['☆1野生解放1-5合計まもり']
 			),
 			megumiPattern: convertToMegumiPattern(data['Lv100+上昇パターン'])
 		}
