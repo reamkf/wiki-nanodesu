@@ -154,10 +154,6 @@ export const getFriendsData: GetStaticProps<{ friends: FriendsDataRow[] }> = asy
 		});
 	});
 
-	console.log("FriendsData");
-	console.log(data[0]);
-	console.log(data[1]);
-
 	return {
 		props: {
 			friends: data
