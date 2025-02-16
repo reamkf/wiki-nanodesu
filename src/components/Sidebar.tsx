@@ -35,7 +35,7 @@ export function Sidebar() {
 			bg-[#f1f9fff4] md:bg-sky-50
 
 			transform transition-transform duration-300 ease-in-out
-			${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+			${isOpen ? 'translate-x-0' : '-translate-x-[110%] md:translate-x-0'}
 
 			rounded-lg
 		`}>

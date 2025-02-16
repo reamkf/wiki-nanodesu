@@ -11,7 +11,7 @@ export function Header() {
 	const { toggle, isOpen: isSidebarOpen } = useSidebar();
 
 	return (
-		<header className="bg-gradient-to-b from-sky-300 to-sky-200 text-white h-[63px] flex items-center">
+		<header className="bg-gradient-to-b from-sky-300 to-sky-200 text-white h-[63px]">
 			<div className="w-full px-2 flex justify-between items-center max-w-7xl">
 				<div className="flex items-center flex-1">
 					<button
