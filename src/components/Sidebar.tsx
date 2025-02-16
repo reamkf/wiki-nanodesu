@@ -31,6 +31,7 @@ export function Sidebar() {
 
 			w-64 md:w-[18rem]
 			h-[24rem] md:h-auto
+			flex-shrink-0
 
 			bg-[#f1f9fff4] md:bg-sky-50
 
