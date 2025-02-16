@@ -28,6 +28,7 @@ export default function Home() {
 					width={750}
 					height={300}
 					className="my-4"
+					referrerPolicy="no-referrer"
 				/>
 
 				<p>
