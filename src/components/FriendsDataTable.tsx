@@ -1,6 +1,6 @@
 import { FriendsDataRow } from "@/types/friends";
 import FriendsIcon from "./friends/FriendsIcon";
-
+import { FriendsNameLink } from "./friends/FriendsNameLink";
 interface DataTableProps {
 	friendsData: FriendsDataRow[];
 }
@@ -31,7 +31,7 @@ export default function FriendsDataTable({ friendsData }: DataTableProps) {
 						const cells = [
 							row.list_index,
 							icon,
-							row.name,
+							<FriendsNameLink friend={row} key={row.id} />,
 							row.attribute
 						];
 
