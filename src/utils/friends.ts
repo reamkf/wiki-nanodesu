@@ -182,7 +182,7 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
                 const parsedData = (results.data as RawFriendsCSV[]).map((row) => {
 					// 野生大解放と12ポケの値を変換
 					const convertToBoolean = (value: unknown): boolean => {
-						if (typeof value === 'string') return value === '〇';
+						if (typeof value === 'string') return value !== '';
 						if (typeof value === 'boolean') return value;
 						return false;
 					};
