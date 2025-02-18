@@ -129,7 +129,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 		}),
 		columnHelper.accessor("status.avoid", {
 			header: "かいひ",
-			cell: (info) => `${info.getValue().toFixed(1)}%`,
+			cell: (info) => `${(info.getValue() * 100).toFixed(1)}%`,
 			meta: {
 				align: "right" as const,
 				width: "120px",
