@@ -1,12 +1,30 @@
 import { BasicStatus } from "./common";
 
 export enum FriendsAttribute {
-	friendry = "friendry",
-	funny = "funny",
-	relax = "relax",
-	active = "active",
-	lovely = "lovely",
-	mypace = "mypace"
+	friendry = "フレンドリー",
+	funny = "ファニー",
+	relax = "リラックス",
+	active = "アクティブ",
+	lovely = "ラブリー",
+	mypace = "マイペース"
+}
+
+export const friendsAttributeColor = {
+	[FriendsAttribute.funny]: 'red',
+	[FriendsAttribute.relax]: '#0075c8',
+	[FriendsAttribute.friendry]: '#009e25',
+	[FriendsAttribute.lovely]: '#ffb3b3',
+	[FriendsAttribute.mypace]: '#88abda',
+	[FriendsAttribute.active]: '#a6cf00',
+}
+
+export const friendsAttributeIconUrl = {
+	[FriendsAttribute.funny]: 'https://image01.seesaawiki.jp/k/h/kemono_friends3_5ch/vXf03Kpfcp.png',
+	[FriendsAttribute.relax]: 'https://image01.seesaawiki.jp/k/h/kemono_friends3_5ch/OEyQU1TXsg.png',
+	[FriendsAttribute.friendry]: 'https://image02.seesaawiki.jp/k/h/kemono_friends3_5ch/1A7oOIefKg.png',
+	[FriendsAttribute.lovely]: 'https://image01.seesaawiki.jp/k/h/kemono_friends3_5ch/4NWcmHe3Ol.png',
+	[FriendsAttribute.mypace]: 'https://image01.seesaawiki.jp/k/h/kemono_friends3_5ch/w4NXdo915I.png',
+	[FriendsAttribute.active]: 'https://image01.seesaawiki.jp/k/h/kemono_friends3_5ch/sbHG16adu9.png',
 }
 
 export enum MegumiPattern {

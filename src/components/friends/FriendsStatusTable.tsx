@@ -17,7 +17,7 @@ import {
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import React from "react";
-
+import { FriendsAttributeIconAndName } from "./FriendsAttributeIconAndName";
 interface DataTableProps {
 	friendsData: FriendsDataRow[];
 }
@@ -83,12 +83,12 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			filterFn: customFilterFn,
 			meta: {
 				align: "left" as const,
-				width: "300px",
+				width: "250px",
 			},
 		}),
 		columnHelper.accessor("attribute", {
 			header: "属性",
-			cell: (info) => info.getValue(),
+			cell: (info) => <FriendsAttributeIconAndName attribute={info.getValue()} />,
 			meta: {
 				align: "center" as const,
 				width: "100px",
@@ -100,7 +100,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			cell: (info) => `${Math.round(info.getValue()).toLocaleString()}`,
 			meta: {
 				align: "right" as const,
-				width: "120px",
+				width: "100px",
 			},
 		}),
 		columnHelper.accessor("status.statusInitial.hp", {
@@ -108,7 +108,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			cell: (info) => info.getValue().toLocaleString(),
 			meta: {
 				align: "right" as const,
-				width: "120px",
+				width: "100px",
 			},
 		}),
 		columnHelper.accessor("status.statusInitial.atk", {
@@ -116,7 +116,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			cell: (info) => info.getValue().toLocaleString(),
 			meta: {
 				align: "right" as const,
-				width: "120px",
+				width: "100px",
 			},
 		}),
 		columnHelper.accessor("status.statusInitial.def", {
@@ -124,7 +124,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			cell: (info) => info.getValue().toLocaleString(),
 			meta: {
 				align: "right" as const,
-				width: "120px",
+				width: "100px",
 			},
 		}),
 		columnHelper.accessor("status.avoid", {
@@ -132,7 +132,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			cell: (info) => `${(info.getValue() * 100).toFixed(1)}%`,
 			meta: {
 				align: "right" as const,
-				width: "120px",
+				width: "100px",
 			},
 		}),
 	], [columnHelper]);

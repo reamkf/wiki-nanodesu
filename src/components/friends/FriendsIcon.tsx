@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { SeesaaWikiImage } from "@/components/SeesaaWikiImage";
 import { FriendsDataRow } from "@/types/friends";
 
 interface FriendsIconProps {
@@ -8,7 +8,7 @@ interface FriendsIconProps {
 
 export default function FriendsIcon({ friendsData, size }: FriendsIconProps) {
 	return (
-		<Image
+		<SeesaaWikiImage
 			src={friendsData.icon_url}
 			alt="Friends Icon"
 			width={size}

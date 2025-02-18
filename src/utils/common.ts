@@ -15,3 +15,7 @@ export function calcKemosute(hpOrStatus: number | BasicStatus, atk?: number, def
 		return kemosute;
 	}
 }
+
+export const getEnumKeyByValue = (enumObj: Record<string, string>, value: string): string => {
+	return Object.keys(enumObj).find(key => enumObj[key] === value) || '';
+}

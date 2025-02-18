@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { SeesaaWikiImage } from "@/components/SeesaaWikiImage";
 import Link from "next/link";
 import { PageTitle } from "@/components/PageTitle";
 
@@ -22,7 +22,7 @@ export default function Home() {
 					文字数上限などの都合で、Seesaa Wiki上での運用が難しいページをこちらで運用しているのです。
 				</p>
 
-				<Image
+				<SeesaaWikiImage
 					src="https://image02.seesaawiki.jp/k/h/kemono_friends3_5ch/qUJbC4v4sZ.jpg"
 					alt="メインビジュアル"
 					width={750}
