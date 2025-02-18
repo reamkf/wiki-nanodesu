@@ -155,7 +155,21 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 
 	return (
 		<div className="overflow-x-auto max-w-full">
-			<table className="min-w-full max-w-[1920px] border-collapse">
+			<table className="min-w-[720px] max-w-[1920px] border-collapse w-full">
+				<colgroup>
+					{table.getHeaderGroups()[0].headers.map((header) => {
+						const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
+						return (
+							<col
+								key={header.id}
+								className="table-column"
+								style={{
+									width: meta?.width,
+								}}
+							/>
+						);
+					})}
+				</colgroup>
 				<thead>
 					{table.getHeaderGroups().map((headerGroup) => (
 						<React.Fragment key={headerGroup.id}>
@@ -165,11 +179,12 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 									return (
 										<th
 											key={header.id}
-											className="border px-4 py-2"
+											className="border px-4 py-2 whitespace-nowrap"
 											style={{
 												textAlign: meta?.align || "left",
 												cursor: header.column.getCanSort() ? "pointer" : "default",
 												width: meta?.width,
+												minWidth: meta?.width,
 											}}
 											onClick={header.column.getToggleSortingHandler()}
 										>
