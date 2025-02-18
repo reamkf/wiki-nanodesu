@@ -47,7 +47,12 @@ const customFilterFn: FilterFn<FriendsDataRow> = (row, columnId, filterValue) =>
 };
 
 export default function FriendsStatusTable({ friendsData }: DataTableProps) {
-	const [sorting, setSorting] = useState<SortingState>([]);
+	const [sorting, setSorting] = useState<SortingState>([
+		{
+			id: "kemosute",
+			desc: true
+		}
+	]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
 	const columnHelper = createColumnHelper<FriendsDataRow>();
@@ -81,6 +86,9 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			header: "フレンズ名",
 			cell: (info) => <FriendsNameLink friend={info.getValue()} />,
 			filterFn: customFilterFn,
+			sortingFn: (rowA, rowB) => {
+				return rowA.original.name.localeCompare(rowB.original.name);
+			},
 			meta: {
 				align: "left" as const,
 				width: "250px",
