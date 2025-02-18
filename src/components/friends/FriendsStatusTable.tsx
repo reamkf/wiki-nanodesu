@@ -217,11 +217,13 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 									);
 								})}
 							</tr>
+							{/* 列ごとの検索欄 */}
 							<tr>
 								{headerGroup.headers.map((header) => (
 									<th key={header.id} className="border bg-gray-100 px-4 py-2">
 										{header.column.getCanFilter() && (
 											<input
+											className="w-full p-1 text-sm border rounded font-normal"
 												type="text"
 												value={
 													(header.column.getFilterValue() as string) ?? ""
@@ -230,7 +232,6 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 													header.column.setFilterValue(e.target.value)
 												}
 												placeholder="検索..."
-												className="w-full p-1 text-sm border rounded"
 											/>
 										)}
 									</th>

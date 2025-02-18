@@ -13,14 +13,13 @@ export function FriendsNameLink({ friend }: FriendsNameLinkProps) {
 		<>
 			<Link
 				href={pageUrl}
-				className="text-md text-gray-500 hover:underline"
+				className="text-md hover:underline"
 				rel="noopener noreferrer"
 			>
 				{friend.second_name && (
-					<span className="text-xs text-gray-500 text-red-500 p-0 m-0">
+					<div className="text-xs text-red-500 p-0 m-0">
 						【{friend.second_name}】
-						<br />
-					</span>
+					</div>
 				)}
 				{friend.name}
 			</Link>
