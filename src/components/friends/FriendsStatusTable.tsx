@@ -24,6 +24,7 @@ interface DataTableProps {
 type AlignType = "left" | "center" | "right";
 interface ColumnMeta {
 	align: AlignType;
+	width?: string;
 }
 
 // 検索対象のテキストを取得する関数
@@ -56,16 +57,22 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			cell: (info) => info.getValue(),
 			meta: {
 				align: "center" as const,
+				width: "50px",
 			},
 		}),
 		columnHelper.accessor((row) => row, {
 			id: "icon",
 			header: "アイコン",
-			cell: (info) => <FriendsIcon friendsData={info.getValue()} size={55} />,
+			cell: (info) => (
+				<div className="flex justify-center">
+					<FriendsIcon friendsData={info.getValue()} size={55} />
+				</div>
+			),
 			enableSorting: false,
 			filterFn: customFilterFn,
 			meta: {
 				align: "center" as const,
+				width: "100px",
 			},
 		}),
 		columnHelper.accessor((row) => row, {
@@ -75,6 +82,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			filterFn: customFilterFn,
 			meta: {
 				align: "left" as const,
+				width: "300px",
 			},
 		}),
 		columnHelper.accessor("attribute", {
@@ -82,14 +90,16 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			cell: (info) => info.getValue(),
 			meta: {
 				align: "center" as const,
+				width: "100px",
 			},
 		}),
 		columnHelper.accessor((row) => calcKemosute(row.status.statusInitial), {
 			id: "kemosute",
 			header: "けもステ",
-			cell: (info) => `${info.getValue().toFixed(1)}%`,
+			cell: (info) => `${Math.round(info.getValue()).toLocaleString()}`,
 			meta: {
 				align: "right" as const,
+				width: "120px",
 			},
 		}),
 		columnHelper.accessor("status.statusInitial.hp", {
@@ -97,6 +107,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			cell: (info) => info.getValue().toLocaleString(),
 			meta: {
 				align: "right" as const,
+				width: "120px",
 			},
 		}),
 		columnHelper.accessor("status.statusInitial.atk", {
@@ -104,6 +115,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			cell: (info) => info.getValue().toLocaleString(),
 			meta: {
 				align: "right" as const,
+				width: "120px",
 			},
 		}),
 		columnHelper.accessor("status.statusInitial.def", {
@@ -111,13 +123,15 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			cell: (info) => info.getValue().toLocaleString(),
 			meta: {
 				align: "right" as const,
+				width: "120px",
 			},
 		}),
 		columnHelper.accessor("status.avoid", {
 			header: "かいひ",
-			cell: (info) => info.getValue().toLocaleString(),
+			cell: (info) => `${info.getValue().toFixed(1)}%`,
 			meta: {
 				align: "right" as const,
+				width: "120px",
 			},
 		}),
 	], [columnHelper]);
@@ -144,45 +158,49 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 				<thead>
 					{table.getHeaderGroups().map((headerGroup) => (
 						<tr key={headerGroup.id} className="bg-gray-100">
-							{headerGroup.headers.map((header) => (
-								<th
-									key={header.id}
-									className="border px-4 py-2"
-									style={{
-										textAlign: (header.column.columnDef.meta as ColumnMeta)?.align || "left",
-										cursor: header.column.getCanSort() ? "pointer" : "default",
-									}}
-									onClick={header.column.getToggleSortingHandler()}
-								>
-									{flexRender(
-										header.column.columnDef.header,
-										header.getContext()
-									)}
-									{header.column.getCanSort() && (
-										<span className="ml-2">
-											{{
-												asc: "🔼",
-												desc: "🔽",
-											}[header.column.getIsSorted() as string] ?? ""}
-										</span>
-									)}
-									{header.column.getCanFilter() && (
-										<div>
-											<input
-												type="text"
-												value={
-													(header.column.getFilterValue() as string) ?? ""
-												}
-												onChange={(e) =>
-													header.column.setFilterValue(e.target.value)
-												}
-												placeholder="検索..."
-												className="w-full p-1 text-sm border rounded"
-											/>
-										</div>
-									)}
-								</th>
-							))}
+							{headerGroup.headers.map((header) => {
+								const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
+								return (
+									<th
+										key={header.id}
+										className="border px-4 py-2"
+										style={{
+											textAlign: meta?.align || "left",
+											cursor: header.column.getCanSort() ? "pointer" : "default",
+											width: meta?.width,
+										}}
+										onClick={header.column.getToggleSortingHandler()}
+									>
+										{flexRender(
+											header.column.columnDef.header,
+											header.getContext()
+										)}
+										{header.column.getCanSort() && (
+											<span className="ml-2">
+												{{
+													asc: "🔼",
+													desc: "🔽",
+												}[header.column.getIsSorted() as string] ?? ""}
+											</span>
+										)}
+										{header.column.getCanFilter() && (
+											<div>
+												<input
+													type="text"
+													value={
+														(header.column.getFilterValue() as string) ?? ""
+													}
+													onChange={(e) =>
+														header.column.setFilterValue(e.target.value)
+													}
+													placeholder="検索..."
+													className="w-full p-1 text-sm border rounded"
+												/>
+											</div>
+										)}
+									</th>
+								);
+							})}
 						</tr>
 					))}
 				</thead>
