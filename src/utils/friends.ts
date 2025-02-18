@@ -226,7 +226,7 @@ function calculateFriendsStatusRaw(
 	yasei4: number | null,
 	yasei5: number | null
 ): number | null {
-	const runkCorrection = 1 + (rank - 1) * 0.02;
+	const rankCorrection = 1 + (rank - 1) * 0.02;
 
 	const yaseiValue =
 		yasei === 0 ? 0
@@ -244,14 +244,14 @@ function calculateFriendsStatusRaw(
 			Math.floor(
 				(lv90Value - lv1Value) / 89 * (lv - 1)
 				+ lv1Value + yaseiValue
-			) * runkCorrection
+			) * rankCorrection
 		);
 	} else {
 		return Math.ceil(
 			Math.floor(
 				(lv99Value - lv90Value) / 9 * (lv - 90)
 				+ lv90Value + yaseiValue
-			) * runkCorrection
+			) * rankCorrection
 		);
 	}
 }
@@ -296,7 +296,7 @@ function calculateFriendsStatusRawForEachStatus(
  * @param friendsDataRow フレンズのデータ
  * @param lv レベル
  * @param rank けも級
- * @param yasei 野生解放の段階。0: 野生解放なし, 4: 野生解放14, 5: 野生解放5
+ * @param yasei 野生解放の段階。0: 野生解放なし, 4: 野生解放4, 5: 野生解放5
  * @returns ステータス。計算できない場合はhp, atk, defがnullのBasicStatusを返す
  */
 export function calculateFriendsStatus(
@@ -314,9 +314,9 @@ export function calculateFriendsStatus(
 	const initialLv = friendsDataRow.rarity * 10 + 3;
 
 	const isYaseiAvailable: boolean =
-		yasei === 4 ? friendsDataRow.status.statusBase.yasei4 !== null
-		: yasei === 5 ? friendsDataRow.status.statusBase.yasei5 !== null
-		: yasei === 0 ? friendsDataRow.status.statusBase.lv90 !== null
+		yasei === 4 ? !isStatusNull(friendsDataRow.status.statusBase.yasei4)
+		: yasei === 5 ? !isStatusNull(friendsDataRow.status.statusBase.yasei5)
+		: yasei === 0 ? true
 		: false;
 
 	// Lv.100以上はLv99のステータス+めぐみ上昇値で計算
@@ -342,7 +342,7 @@ export function calculateFriendsStatus(
 	}
 
 	// 初期ステータス: 計算なし
-	else if (lv === initialLv && yasei === 4) {
+	else if (lv === initialLv && rank === friendsDataRow.rarity && yasei === 4) {
 		return friendsDataRow.status.statusInitial;
 	}
 
@@ -379,12 +379,24 @@ export function calculateFriendsStatus(
 	}
 
 	// Lv 2-89
-	else if (
-		isYaseiAvailable
-		&& !isStatusNull(friendsDataRow.status.statusBase.lv1)
-		&& !isStatusNull(friendsDataRow.status.statusBase.lv90)
-	) {
-		return calculateFriendsStatusRawForEachStatus(friendsDataRow, lv, rank, yasei);
+	else if (isYaseiAvailable) {
+		// Lv 91-98
+		if (
+			lv >= 2 && lv <= 89
+			&& !isStatusNull(friendsDataRow.status.statusBase.lv1)
+			&& !isStatusNull(friendsDataRow.status.statusBase.lv90)
+		) {
+			return calculateFriendsStatusRawForEachStatus(friendsDataRow, lv, rank, yasei);
+		}
+
+		// Lv 91-98
+		if (
+			lv >= 91 && lv <= 98
+			&& !isStatusNull(friendsDataRow.status.statusBase.lv90)
+			&& !isStatusNull(friendsDataRow.status.statusBase.lv99)
+		) {
+			return calculateFriendsStatusRawForEachStatus(friendsDataRow, lv, rank, yasei);
+		}
 	}
 
 	return nullStatus;
