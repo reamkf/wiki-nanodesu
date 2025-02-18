@@ -159,7 +159,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 				<thead>
 					{table.getHeaderGroups().map((headerGroup) => (
 						<React.Fragment key={headerGroup.id}>
-							<tr className="bg-gray-100">
+							<tr className="bg-gray-200">
 								{headerGroup.headers.map((header) => {
 									const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
 									return (
@@ -173,25 +173,53 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 											}}
 											onClick={header.column.getToggleSortingHandler()}
 										>
-											{flexRender(
-												header.column.columnDef.header,
-												header.getContext()
-											)}
-											{header.column.getCanSort() && (
-												<span className="ml-2">
-													{{
-														asc: "🔼",
-														desc: "🔽",
-													}[header.column.getIsSorted() as string] ?? ""}
+											<div className="flex items-center justify-between gap-2">
+												<span>
+													{flexRender(
+														header.column.columnDef.header,
+														header.getContext()
+													)}
 												</span>
-											)}
+												{header.column.getCanSort() && (
+													<span className="inline-flex flex-col text-gray-700" style={{ height: '15px' }}>
+														{header.column.getIsSorted() === "asc" ? (
+															<>
+																<svg className="text-blue-600" style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
+																	<path d="M8 0L16 8H0z" />
+																</svg>
+																<svg className="text-gray-300" style={{ width: '10px', height: '10px' }} viewBox="0 0 16 8" fill="currentColor">
+																	<path d="M8 8L0 0h16z" />
+																</svg>
+															</>
+														) : header.column.getIsSorted() === "desc" ? (
+															<>
+																<svg className="text-gray-300" style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
+																	<path d="M8 0L16 8H0z" />
+																</svg>
+																<svg className="text-blue-600" style={{ width: '10px', height: '10px' }} viewBox="0 0 16 8" fill="currentColor">
+																	<path d="M8 8L0 0h16z" />
+																</svg>
+															</>
+														) : (
+															<>
+																<svg style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
+																	<path d="M8 0L16 8H0z" />
+																</svg>
+																<svg style={{ width: '10px', height: '10px' }} viewBox="0 0 16 8" fill="currentColor">
+																	<path d="M8 8L0 0h16z" />
+																</svg>
+															</>
+														)}
+													</span>
+												)}
+											</div>
 										</th>
 									);
 								})}
 							</tr>
 							<tr>
 								{headerGroup.headers.map((header) => (
-									<th key={header.id} className="border px-4 py-2">
+									<th key={header.id} className="border bg-gray-100 px-4 py-2">
 										{header.column.getCanFilter() && (
 											<input
 												type="text"
