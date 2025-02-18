@@ -39,6 +39,18 @@ export enum MegumiPattern {
 	unknown = ''
 }
 
+export const megumiRaiseStatus = {
+	[MegumiPattern.atk65]:    {hp: 10, atk: 65, def: 10},
+	[MegumiPattern.atk60]:    {hp:  5, atk: 60, def: 25},
+	[MegumiPattern.atk50]:    {hp: 25, atk: 50, def: 10},
+	[MegumiPattern.atk40]:    {hp: 35, atk: 40, def: 10},
+	[MegumiPattern.hp50]:     {hp: 50, atk: 10, def: 25},
+	[MegumiPattern.def50]:    {hp: 25, atk: 10, def: 50},
+	[MegumiPattern.atkDef]:   {hp:  0, atk: 45, def: 45},
+	[MegumiPattern.balanced]: {hp: 20, atk: 35, def: 35},
+	[MegumiPattern.unknown]:  {hp:  0, atk:  0, def:  0},
+}
+
 export interface FriendsFlagDamageUp {
 	beat: number | null;
 	action: number | null;

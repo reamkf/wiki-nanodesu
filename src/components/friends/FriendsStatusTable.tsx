@@ -105,7 +105,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 		columnHelper.accessor((row) => calcKemosute(row.status.statusInitial), {
 			id: "kemosute",
 			header: "けもステ",
-			cell: (info) => `${Math.round(info.getValue()).toLocaleString()}`,
+			cell: (info) => `${Math.round(info.getValue() ?? 0).toLocaleString()}`,
 			meta: {
 				align: "right" as const,
 				width: "100px",
@@ -113,7 +113,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 		}),
 		columnHelper.accessor("status.statusInitial.hp", {
 			header: "たいりょく",
-			cell: (info) => info.getValue().toLocaleString(),
+			cell: (info) => info.getValue()?.toLocaleString(),
 			meta: {
 				align: "right" as const,
 				width: "100px",
@@ -121,7 +121,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 		}),
 		columnHelper.accessor("status.statusInitial.atk", {
 			header: "こうげき",
-			cell: (info) => info.getValue().toLocaleString(),
+			cell: (info) => info.getValue()?.toLocaleString(),
 			meta: {
 				align: "right" as const,
 				width: "100px",
@@ -129,7 +129,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 		}),
 		columnHelper.accessor("status.statusInitial.def", {
 			header: "まもり",
-			cell: (info) => info.getValue().toLocaleString(),
+			cell: (info) => info.getValue()?.toLocaleString(),
 			meta: {
 				align: "right" as const,
 				width: "100px",
@@ -137,7 +137,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 		}),
 		columnHelper.accessor("status.avoid", {
 			header: "かいひ",
-			cell: (info) => `${(info.getValue() * 100).toFixed(1)}%`,
+			cell: (info) => `${(info.getValue() ?? 0 * 100).toFixed(1)}%`,
 			meta: {
 				align: "right" as const,
 				width: "100px",
