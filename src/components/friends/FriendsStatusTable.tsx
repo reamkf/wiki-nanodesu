@@ -155,7 +155,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 
 	return (
 		<div className="overflow-x-auto max-w-full">
-			<table className="min-w-full w-max border-collapse">
+			<table className="min-w-full max-w-[1920px] border-collapse">
 				<thead>
 					{table.getHeaderGroups().map((headerGroup) => (
 						<React.Fragment key={headerGroup.id}>
