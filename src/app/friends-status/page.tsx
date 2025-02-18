@@ -1,4 +1,4 @@
-import FriendsDataTable from "@/components/FriendsDataTable";
+import FriendsStatusTable from "@/components/friends/FriendsStatusTable";
 import { PageTitle } from "@/components/PageTitle";
 import { getFriendsData } from "@/utils/friends";
 
@@ -11,7 +11,7 @@ export default async function FriendsStatus() {
 			<p className="mb-4 text-xl font-bold">
 				※このページは製作途中です。
 			</p>
-			<FriendsDataTable friendsData={friendsData} />
+			<FriendsStatusTable friendsData={friendsData} />
 		</main>
 	);
 }

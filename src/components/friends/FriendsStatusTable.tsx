@@ -1,12 +1,12 @@
 import { FriendsDataRow } from "@/types/friends";
-import FriendsIcon from "./friends/FriendsIcon";
-import { FriendsNameLink } from "./friends/FriendsNameLink";
+import FriendsIcon from "..//friends/FriendsIcon";
+import { FriendsNameLink } from "../friends/FriendsNameLink";
 import { calcKemosute } from "@/utils/common";
 interface DataTableProps {
 	friendsData: FriendsDataRow[];
 }
 
-export default function FriendsDataTable({ friendsData }: DataTableProps) {
+export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 	if (friendsData.length === 0) return null;
 
 	const headers = [
