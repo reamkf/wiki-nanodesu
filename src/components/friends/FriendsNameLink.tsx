@@ -1,6 +1,6 @@
 import { FriendsDataRow } from "@/types/friends";
 import Link from "next/link";
-import { encodeEUCJP } from "@/utils/encoding";
+import { getWikiNanodaPageUrl } from "@/utils/encoding";
 
 interface FriendsNameLinkProps {
 	friend: FriendsDataRow;
@@ -8,8 +8,7 @@ interface FriendsNameLinkProps {
 
 export function FriendsNameLink({ friend }: FriendsNameLinkProps) {
 	const friendsName = friend.second_name ? `【${friend.second_name}】${friend.name}` : friend.name;
-	const encodedFriendsName = encodeEUCJP(friendsName);
-	const pageUrl = `https://seesaawiki.jp/kemono_friends3_5ch/d/${encodedFriendsName}`;
+	const pageUrl = getWikiNanodaPageUrl(friendsName);
 	return (
 		<>
 			<Link
