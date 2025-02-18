@@ -16,6 +16,7 @@ import {
 	FilterFn,
 } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
+import React from "react";
 
 interface DataTableProps {
 	friendsData: FriendsDataRow[];
@@ -157,51 +158,57 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 			<table className="min-w-full w-max border-collapse">
 				<thead>
 					{table.getHeaderGroups().map((headerGroup) => (
-						<tr key={headerGroup.id} className="bg-gray-100">
-							{headerGroup.headers.map((header) => {
-								const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
-								return (
-									<th
-										key={header.id}
-										className="border px-4 py-2"
-										style={{
-											textAlign: meta?.align || "left",
-											cursor: header.column.getCanSort() ? "pointer" : "default",
-											width: meta?.width,
-										}}
-										onClick={header.column.getToggleSortingHandler()}
-									>
-										{flexRender(
-											header.column.columnDef.header,
-											header.getContext()
-										)}
-										{header.column.getCanSort() && (
-											<span className="ml-2">
-												{{
-													asc: "🔼",
-													desc: "🔽",
-												}[header.column.getIsSorted() as string] ?? ""}
-											</span>
-										)}
+						<React.Fragment key={headerGroup.id}>
+							<tr className="bg-gray-100">
+								{headerGroup.headers.map((header) => {
+									const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
+									return (
+										<th
+											key={header.id}
+											className="border px-4 py-2"
+											style={{
+												textAlign: meta?.align || "left",
+												cursor: header.column.getCanSort() ? "pointer" : "default",
+												width: meta?.width,
+											}}
+											onClick={header.column.getToggleSortingHandler()}
+										>
+											{flexRender(
+												header.column.columnDef.header,
+												header.getContext()
+											)}
+											{header.column.getCanSort() && (
+												<span className="ml-2">
+													{{
+														asc: "🔼",
+														desc: "🔽",
+													}[header.column.getIsSorted() as string] ?? ""}
+												</span>
+											)}
+										</th>
+									);
+								})}
+							</tr>
+							<tr>
+								{headerGroup.headers.map((header) => (
+									<th key={header.id} className="border px-4 py-2">
 										{header.column.getCanFilter() && (
-											<div>
-												<input
-													type="text"
-													value={
-														(header.column.getFilterValue() as string) ?? ""
-													}
-													onChange={(e) =>
-														header.column.setFilterValue(e.target.value)
-													}
-													placeholder="検索..."
-													className="w-full p-1 text-sm border rounded"
-												/>
-											</div>
+											<input
+												type="text"
+												value={
+													(header.column.getFilterValue() as string) ?? ""
+												}
+												onChange={(e) =>
+													header.column.setFilterValue(e.target.value)
+												}
+												placeholder="検索..."
+												className="w-full p-1 text-sm border rounded"
+											/>
 										)}
 									</th>
-								);
-							})}
-						</tr>
+								))}
+							</tr>
+						</React.Fragment>
 					))}
 				</thead>
 				<tbody>
