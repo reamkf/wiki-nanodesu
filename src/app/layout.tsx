@@ -27,8 +27,8 @@ export default function RootLayout({
 						<Header />
 						<div className="w-full max-w-[1920px] p-0 m-0 flex flex-grow">
 							<Sidebar />
-							<div className="flex flex-col flex-grow">
-								<main className="md:ml-86 ml-0 p-4 flex-grow">
+							<div className="flex flex-col flex-grow overflow-hidden">
+								<main className="md:ml-86 ml-0 p-4 flex-grow overflow-x-hidden">
 									{children}
 								</main>
 								<Footer />

@@ -15,8 +15,8 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 	];
 
 	return (
-		<div className="overflow-x-auto">
-			<table className="min-w-full border-collapse">
+		<div className="overflow-x-auto max-w-full">
+			<table className="min-w-full w-max border-collapse">
 				<thead>
 					<tr className="bg-gray-100">
 						{headers.map((header) => (
