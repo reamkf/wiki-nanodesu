@@ -74,19 +74,19 @@ const parseFriendsStatus = (data: RawFriendsCSV): FriendsStatus => {
 		),
 		statusBase: {
 			lv1: parseBasicStatus(
-				0,
+				-1,
 				data['☆1Lv1たいりょく'],
 				data['☆1Lv1こうげき'],
 				data['☆1Lv1まもり']
 			),
 			lv90: parseBasicStatus(
-				0,
+				-1,
 				data['Lv90たいりょく'],
 				data['Lv90こうげき'],
 				data['Lv90まもり']
 			),
 			lv99: parseBasicStatus(
-				0,
+				-1,
 				data['Lv99たいりょく'],
 				data['Lv99こうげき'],
 				data['Lv99まもり']

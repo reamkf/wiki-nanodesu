@@ -1,6 +1,7 @@
 import { FriendsDataRow } from "@/types/friends";
 import FriendsIcon from "./friends/FriendsIcon";
 import { FriendsNameLink } from "./friends/FriendsNameLink";
+import { calcKemosute } from "@/utils/common";
 interface DataTableProps {
 	friendsData: FriendsDataRow[];
 }
@@ -32,8 +33,17 @@ export default function FriendsDataTable({ friendsData }: DataTableProps) {
 							row.list_index,
 							icon,
 							<FriendsNameLink friend={row} key={row.id} />,
-							row.attribute
+							row.attribute,
+							calcKemosute(row.status.statusInitial),
+							row.status.statusInitial.hp,
+							row.status.statusInitial.atk,
+							row.status.statusInitial.def,
+							row.status.avoid,
 						];
+
+						if(row.name === 'オジロヌー'){
+							console.log(row);
+						}
 
 						return (
 							<tr key={row.id} className="hover:bg-gray-50">
