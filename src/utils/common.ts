@@ -10,7 +10,7 @@ export function calcKemosute(hpOrStatus: number | BasicStatus | null, atk?: numb
 		if (atk === null || def === null || atk === undefined || def === undefined) {
 			throw new Error('atk and def are required when hp is a number');
 		}
-		return Math.floor(hpOrStatus * 0.8 + atk * 3 + def * 2);
+		return Math.ceil(hpOrStatus * 0.8 + atk * 3 + def * 2);
 	} else if (typeof hpOrStatus === 'object') {
 		if (hpOrStatus.hp === null || hpOrStatus.atk === null || hpOrStatus.def === null) {
 			return null;
