@@ -1,6 +1,7 @@
 export interface BasicStatus {
-	kemosute?: number;
-	hp: number;
-	atk: number;
-	def: number;
+	kemosute?: number | null;
+	hp: number | null;
+	atk: number | null;
+	def: number | null;
+	estimated?: boolean;
 }

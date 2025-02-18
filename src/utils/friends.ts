@@ -4,19 +4,35 @@ import Papa from "papaparse";
 import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV, RAW_FRIENDS_CSV_HEADERS } from "@/types/friends";
 import type { BasicStatus } from "@/types/common";
 
-const parseBasicStatus = (
-	kemosute: number,
-	hp: number,
-	atk: number,
-	def: number
-): BasicStatus => ({
-	kemosute: kemosute || -1,
-	hp: hp || -1,
-	def: def || -1,
-	atk: atk || -1
-});
 
-const convertToMegumiPattern = (value: string | null): MegumiPattern => {
+function convertToNumberElseNull(value: unknown): number | null {
+	if (typeof value === 'number') return value;
+	if (typeof value === 'string') return parseInt(value);
+	return null;
+}
+
+/**
+ * ベースステータスをパースする
+ * @param kemosute けもステ
+ * @param hp たいりょく
+ * @param atk こうげき
+ * @param def まもり
+ */
+function parseBasicStatus (
+	kemosute: number | null,
+	hp: number | null,
+	atk: number | null,
+	def: number | null
+): BasicStatus {
+	return {
+		kemosute: convertToNumberElseNull(kemosute),
+		hp: convertToNumberElseNull(hp),
+		def: convertToNumberElseNull(def),
+		atk: convertToNumberElseNull(atk)
+	};
+}
+
+const convertMegumiPattern = (value: string | null): MegumiPattern => {
 	if (typeof value === 'string') {
 		const pattern = Object.values(MegumiPattern).find(p => p === value);
 		return pattern || MegumiPattern.balanced;
@@ -26,84 +42,84 @@ const convertToMegumiPattern = (value: string | null): MegumiPattern => {
 
 const parseFriendsStatus = (data: RawFriendsCSV): FriendsStatus => {
 	return {
-		avoid: data.かいひ || -1,
-		avoidYasei5: data.かいひ野生5 || -1,
-		plasm: data.ぷらずむ || -1,
-		beatFlags: data.Beatフラッグ || -1,
+		avoid: convertToNumberElseNull(data.かいひ),
+		avoidYasei5: convertToNumberElseNull(data.かいひ野生5),
+		plasm: convertToNumberElseNull(data.ぷらずむ),
+		beatFlags: convertToNumberElseNull(data.Beatフラッグ),
 		actionFlags: (typeof data.Actionフラッグ === 'string' ? data.Actionフラッグ.split(',') : [data.Actionフラッグ || 0]).map(Number),
 		tryFlags: (typeof data.Tryフラッグ === 'string' ? data.Tryフラッグ.split(',') : [data.Tryフラッグ || 0]).map(Number),
 		flagDamageUp: {
-			beat: data.Beat補正 || -1,
-			action: data.Action補正 || -1,
-			try: data.Try補正 || -1
+			beat: convertToNumberElseNull(data.Beat補正),
+			action: convertToNumberElseNull(data.Action補正),
+			try: convertToNumberElseNull(data.Try補正)
 		},
 		flagDamageUpYasei5: {
-			beat: data.Beat補正野生5 || -1,
-			action: data.Action補正野生5 || -1,
-			try: data.Try補正野生5 || -1
+			beat: convertToNumberElseNull(data.Beat補正野生5),
+			action: convertToNumberElseNull(data.Action補正野生5),
+			try: convertToNumberElseNull(data.Try補正野生5)
 		},
 		statusInitial: parseBasicStatus(
-			data['Lv最大けもステ'],
-			data['Lv最大たいりょく'],
-			data['Lv最大こうげき'],
-			data['Lv最大まもり']
+			convertToNumberElseNull(data['Lv最大けもステ']),
+			convertToNumberElseNull(data['Lv最大たいりょく']),
+			convertToNumberElseNull(data['Lv最大こうげき']),
+			convertToNumberElseNull(data['Lv最大まもり'])
 		),
 		status90: parseBasicStatus(
 			data['Lv90けもステ'],
-			data['Lv90たいりょく'],
-			data['Lv90こうげき'],
-			data['Lv90まもり']
+			convertToNumberElseNull(data['Lv90たいりょく']),
+			convertToNumberElseNull(data['Lv90こうげき']),
+			convertToNumberElseNull(data['Lv90まもり'])
 		),
 		status99: parseBasicStatus(
 			data['Lv99けもステ'],
-			data['Lv99たいりょく'],
-			data['Lv99こうげき'],
-			data['Lv99まもり']
+			convertToNumberElseNull(data['Lv99たいりょく']),
+			convertToNumberElseNull(data['Lv99こうげき']),
+			convertToNumberElseNull(data['Lv99まもり'])
 		),
 		status90Yasei5: parseBasicStatus(
 			data['Lv90野生5けもステ'],
-			data['Lv90野生5たいりょく'],
-			data['Lv90野生5こうげき'],
-			data['Lv90野生5まもり']
+			convertToNumberElseNull(data['Lv90野生5たいりょく']),
+			convertToNumberElseNull(data['Lv90野生5こうげき']),
+			convertToNumberElseNull(data['Lv90野生5まもり'])
 		),
 		status99Yasei5: parseBasicStatus(
 			data['Lv99野生5けもステ'],
-			data['Lv99野生5たいりょく'],
-			data['Lv99野生5こうげき'],
-			data['Lv99野生5まもり']
+			convertToNumberElseNull(data['Lv99野生5たいりょく']),
+			convertToNumberElseNull(data['Lv99野生5こうげき']),
+			convertToNumberElseNull(data['Lv99野生5まもり'])
 		),
 		statusBase: {
 			lv1: parseBasicStatus(
-				-1,
-				data['☆1Lv1たいりょく'],
-				data['☆1Lv1こうげき'],
-				data['☆1Lv1まもり']
+				null,
+				convertToNumberElseNull(data['☆1Lv1たいりょく']),
+				convertToNumberElseNull(data['☆1Lv1こうげき']),
+				convertToNumberElseNull(data['☆1Lv1まもり'])
 			),
 			lv90: parseBasicStatus(
-				-1,
-				data['Lv90たいりょく'],
-				data['Lv90こうげき'],
-				data['Lv90まもり']
+				null,
+				convertToNumberElseNull(data['Lv90たいりょく']),
+				convertToNumberElseNull(data['Lv90こうげき']),
+				convertToNumberElseNull(data['Lv90まもり'])
 			),
 			lv99: parseBasicStatus(
-				-1,
-				data['Lv99たいりょく'],
-				data['Lv99こうげき'],
-				data['Lv99まもり']
+				null,
+				convertToNumberElseNull(data['Lv99たいりょく']),
+				convertToNumberElseNull(data['Lv99こうげき']),
+				convertToNumberElseNull(data['Lv99まもり'])
 			),
 			yasei4: parseBasicStatus(
-				-1,
-				data['☆1野生解放1-4合計たいりょく'],
-				data['☆1野生解放1-4合計こうげき'],
-				data['☆1野生解放1-4合計まもり'],
+				null,
+				convertToNumberElseNull(data['☆1野生解放1-4合計たいりょく']),
+				convertToNumberElseNull(data['☆1野生解放1-4合計こうげき']),
+				convertToNumberElseNull(data['☆1野生解放1-4合計まもり']),
 			),
 			yasei5: parseBasicStatus(
-				-1,
-				data['☆1野生解放1-5合計たいりょく'],
-				data['☆1野生解放1-5合計こうげき'],
-				data['☆1野生解放1-5合計まもり']
+				null,
+				convertToNumberElseNull(data['☆1野生解放1-5合計たいりょく']),
+				convertToNumberElseNull(data['☆1野生解放1-5合計こうげき']),
+				convertToNumberElseNull(data['☆1野生解放1-5合計まもり'])
 			),
-			megumiPattern: convertToMegumiPattern(data['Lv100+上昇パターン'])
+			megumiPattern: convertMegumiPattern(data['Lv100+上昇パターン'])
 		}
 	};
 };

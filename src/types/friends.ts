@@ -40,9 +40,9 @@ export enum MegumiPattern {
 }
 
 export interface FriendsFlagDamageUp {
-	beat: number;
-	action: number;
-	try: number;
+	beat: number | null;
+	action: number | null;
+	try: number | null;
 }
 
 export interface FriendsStatusBase {
@@ -55,14 +55,14 @@ export interface FriendsStatusBase {
 }
 
 export interface FriendsStatus {
-	avoid: number;
-	avoidYasei5: number;
+	avoid: number | null;
+	avoidYasei5: number | null;
 
-	plasm: number;
+	plasm: number | null;
 
-	beatFlags: number;
-	actionFlags: number[];
-	tryFlags: number[];
+	beatFlags: number | null;
+	actionFlags: number[] | null;
+	tryFlags: number[] | null;
 
 	flagDamageUp: FriendsFlagDamageUp;
 	flagDamageUpYasei5: FriendsFlagDamageUp;
