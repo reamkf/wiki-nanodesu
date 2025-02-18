@@ -8,7 +8,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
 	title: 'アプリ版けものフレンズ３wikiなのです',
-	description: '非公式Wikiページ',
+	description: 'アプリ版けものフレンズ３wikiなのだ！の補助ページ',
 	icons: {
 		icon: '/wiki-nanodesu/no_blue.png',
 	},
