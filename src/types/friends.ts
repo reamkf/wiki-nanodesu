@@ -84,6 +84,10 @@ export interface FriendsStatus {
 	status99: BasicStatus;
 	status90Yasei5: BasicStatus;
 	status99Yasei5: BasicStatus;
+	status150: BasicStatus;
+	status150Yasei5: BasicStatus;
+	status200: BasicStatus;
+	status200Yasei5: BasicStatus;
 
 	statusBase: FriendsStatusBase;
 }

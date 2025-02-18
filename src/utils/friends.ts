@@ -33,7 +33,7 @@ function parseBasicStatus (
 	};
 }
 
-const convertMegumiPattern = (value: string | null): MegumiPattern => {
+function convertMegumiPattern(value: string | null): MegumiPattern {
 	if (typeof value === 'string') {
 		const pattern = Object.values(MegumiPattern).find(p => p === value);
 		return pattern || MegumiPattern.balanced;
@@ -41,7 +41,13 @@ const convertMegumiPattern = (value: string | null): MegumiPattern => {
 	return MegumiPattern.unknown;
 };
 
-const parseFriendsStatus = (data: RawFriendsCSV): FriendsStatus => {
+function parseFriendsStatus(data: RawFriendsCSV): FriendsStatus {
+	const nullStatus = {
+		hp: null,
+		atk: null,
+		def: null
+	};
+
 	return {
 		avoid: convertToNumberElseNull(data.かいひ),
 		avoidYasei5: convertToNumberElseNull(data.かいひ野生5),
@@ -94,6 +100,10 @@ const parseFriendsStatus = (data: RawFriendsCSV): FriendsStatus => {
 			convertToNumberElseNull(data['Lv99野生5まもり']),
 			false
 		),
+		status150: nullStatus,
+		status150Yasei5: nullStatus,
+		status200: nullStatus,
+		status200Yasei5: nullStatus,
 		statusBase: {
 			lv1: parseBasicStatus(
 				null,
@@ -129,6 +139,32 @@ const parseFriendsStatus = (data: RawFriendsCSV): FriendsStatus => {
 		}
 	};
 };
+
+function fillStatuses(friendsDataRow: FriendsDataRow): FriendsDataRow {
+	const status90 = calculateFriendsStatus(friendsDataRow, 90, 1, 4);
+	const status99 = calculateFriendsStatus(friendsDataRow, 99, 1, 4);
+	const status150 = calculateFriendsStatus(friendsDataRow, 150, 1, 4);
+	const status200 = calculateFriendsStatus(friendsDataRow, 200, 1, 4);
+	const status90Yasei5 = calculateFriendsStatus(friendsDataRow, 90, 1, 5);
+	const status99Yasei5 = calculateFriendsStatus(friendsDataRow, 99, 1, 5);
+	const status150Yasei5 = calculateFriendsStatus(friendsDataRow, 150, 1, 5);
+	const status200Yasei5 = calculateFriendsStatus(friendsDataRow, 200, 1, 5);
+
+	return {
+		...friendsDataRow,
+		status: {
+			...friendsDataRow.status,
+			status90,
+			status99,
+			status150,
+			status200,
+			status90Yasei5,
+			status99Yasei5,
+			status150Yasei5,
+			status200Yasei5
+		}
+	};
+}
 
 export async function getFriendsData(): Promise<FriendsDataRow[]> {
     const csvPath = join(process.cwd(), "csv", "フレンズデータ.csv");
@@ -169,7 +205,8 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 						status: parseFriendsStatus(row)
 					};
                 });
-                resolve(parsedData);
+				const filledData = parsedData.map(fillStatuses);
+                resolve(filledData);
             },
         });
     });
@@ -191,7 +228,7 @@ function calculateFriendsStatusRaw(
 ): number | null {
 	const runkCorrection = 1 + (rank - 1) * 0.02;
 
-	const yaseiNum =
+	const yaseiValue =
 		yasei === 0 ? 0
 		: yasei === 4 ? (yasei4 ?? 0)
 		: yasei === 5 ? (yasei5 ?? 0)
@@ -206,14 +243,14 @@ function calculateFriendsStatusRaw(
 		return Math.ceil(
 			Math.floor(
 				(lv90Value - lv1Value) / 89 * (lv - 1)
-				+ lv1Value + yaseiNum
+				+ lv1Value + yaseiValue
 			) * runkCorrection
 		);
 	} else {
 		return Math.ceil(
 			Math.floor(
 				(lv99Value - lv90Value) / 9 * (lv - 90)
-				+ lv90Value + yaseiNum
+				+ lv90Value + yaseiValue
 			) * runkCorrection
 		);
 	}
@@ -259,7 +296,8 @@ function calculateFriendsStatusRawForEachStatus(
  * @param friendsDataRow フレンズのデータ
  * @param lv レベル
  * @param rank けも級
- * @param yasei 野生解放の段階
+ * @param yasei 野生解放の段階。0: 野生解放なし, 4: 野生解放14, 5: 野生解放5
+ * @returns ステータス。計算できない場合はhp, atk, defがnullのBasicStatusを返す
  */
 export function calculateFriendsStatus(
 	friendsDataRow: FriendsDataRow,
