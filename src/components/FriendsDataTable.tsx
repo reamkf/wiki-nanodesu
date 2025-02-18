@@ -41,10 +41,6 @@ export default function FriendsDataTable({ friendsData }: DataTableProps) {
 							row.status.avoid,
 						];
 
-						if(row.name === 'オジロヌー'){
-							console.log(row);
-						}
-
 						return (
 							<tr key={row.id} className="hover:bg-gray-50">
 								{cells.map((cell, index) => (
