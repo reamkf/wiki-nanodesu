@@ -110,6 +110,15 @@ export interface FriendsDataRow {
 	status: FriendsStatus;
 }
 
+export interface FriendsStatusListItem {
+	friendsDataRow: FriendsDataRow;
+	level: number;
+	rank: number;
+	yasei: 4 | 5;
+	status: BasicStatus;
+	statusType: '初期ステータス' | '☆6/Lv90/野生4' | '☆6/Lv99/野生4' | '☆6/Lv200/野生4' | '☆6/Lv90/野生5' | '☆6/Lv99/野生5' | '☆6/Lv200/野生5';
+}
+
 export interface RawFriendsCSV {
 	ID: string;
 	フレンズ名: string;
