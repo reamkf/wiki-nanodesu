@@ -9,7 +9,7 @@ interface FriendsIconProps {
 export default function FriendsIcon({ friendsData, size }: FriendsIconProps) {
 	return (
 		<SeesaaWikiImage
-			src={friendsData.icon_url}
+			src={friendsData.iconUrl}
 			alt="Friends Icon"
 			width={size}
 			height={size}

@@ -7,7 +7,7 @@ interface FriendsNameLinkProps {
 }
 
 export function FriendsNameLink({ friend }: FriendsNameLinkProps) {
-	const friendsName = friend.second_name ? `【${friend.second_name}】${friend.name}` : friend.name;
+	const friendsName = friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name;
 	const pageUrl = getWikiNanodaPageUrl(friendsName);
 	return (
 		<>
@@ -16,9 +16,9 @@ export function FriendsNameLink({ friend }: FriendsNameLinkProps) {
 				className="text-md hover:underline"
 				rel="noopener noreferrer"
 			>
-				{friend.second_name && (
+				{friend.secondName && (
 					<div className="text-xs text-red-500 p-0 m-0">
-						【{friend.second_name}】
+						【{friend.secondName}】
 					</div>
 				)}
 				{friend.name}

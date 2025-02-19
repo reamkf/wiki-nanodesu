@@ -190,17 +190,17 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 					return {
 						id: row.ID || '',
 						name: row.フレンズ名 || '',
-						second_name: row.属性違い二つ名 || '',
+						secondName: row.属性違い二つ名 || '',
 						attribute: (row.属性 as FriendsAttribute) || FriendsAttribute.friendry,
-						implement_date: row.実装日 || '',
-						implement_type: row.実装種別 || '',
-						implement_type_detail: row.実装種別詳細 || '',
-						list_index: row.一覧順 || 0,
-						icon_url: row.アイコンURL || '',
+						implementDate: row.実装日 || '',
+						implementType: row.実装種別 || '',
+						implementTypeDetail: row.実装種別詳細 || '',
+						listIndex: row.一覧順 || 0,
+						iconUrl: row.アイコンURL || '',
 						rarity: row.初期けも級 || 0,
-						has_yasei5: convertToBoolean(row.野生大解放),
-						has_12poke: convertToBoolean(row['12ポケ']),
-						num_of_clothes: row.特別衣装数 || 0,
+						hasYasei5: convertToBoolean(row.野生大解放),
+						has12poke: convertToBoolean(row['12ポケ']),
+						numOfClothes: row.特別衣装数 || 0,
 						cv: row.CV || '',
 						status: parseFriendsStatus(row)
 					};
@@ -400,4 +400,92 @@ export function calculateFriendsStatus(
 	}
 
 	return nullStatus;
+}
+
+export interface FriendsStatusListItem {
+	id: string;
+	name: string;
+	secondName: string;
+	level: number;
+	rank: number;
+	yasei: 4 | 5;
+	status: BasicStatus;
+	statusType: '初期ステータス' | '☆6Lv90野生4' | '☆6Lv99野生4' | '☆6Lv200野生4' | '☆6Lv90野生5' | '☆6Lv99野生5' | '☆6Lv200野生5';
+}
+
+export async function getFriendsStatusList(): Promise<FriendsStatusListItem[]> {
+	const friendsData = await getFriendsData();
+
+	return friendsData.flatMap(friend => [
+		{
+			id: friend.id,
+			name: friend.name,
+			secondName: friend.secondName,
+			level: friend.rarity * 10 + 3,
+			rank: friend.rarity,
+			yasei: 4,
+			status: friend.status.statusInitial,
+			statusType: '初期ステータス'
+		},
+		{
+			id: friend.id,
+			name: friend.name,
+			secondName: friend.secondName,
+			level: 90,
+			rank: 6,
+			yasei: 4,
+			status: friend.status.status90,
+			statusType: '☆6Lv90野生4'
+		},
+		{
+			id: friend.id,
+			name: friend.name,
+			secondName: friend.secondName,
+			level: 99,
+			rank: 6,
+			yasei: 4,
+			status: friend.status.status99,
+			statusType: '☆6Lv99野生4'
+		},
+		{
+			id: friend.id,
+			name: friend.name,
+			secondName: friend.secondName,
+			level: 200,
+			rank: 6,
+			yasei: 4,
+			status: friend.status.status200,
+			statusType: '☆6Lv200野生4'
+		},
+		{
+			id: friend.id,
+			name: friend.name,
+			secondName: friend.secondName,
+			level: 90,
+			rank: 6,
+			yasei: 5,
+			status: friend.status.status90Yasei5,
+			statusType: '☆6Lv90野生5'
+		},
+		{
+			id: friend.id,
+			name: friend.name,
+			secondName: friend.secondName,
+			level: 99,
+			rank: 6,
+			yasei: 5,
+			status: friend.status.status99Yasei5,
+			statusType: '☆6Lv99野生5'
+		},
+		{
+			id: friend.id,
+			name: friend.name,
+			secondName: friend.secondName,
+			level: 200,
+			rank: 6,
+			yasei: 5,
+			status: friend.status.status200Yasei5,
+			statusType: '☆6Lv200野生5'
+		}
+	]);
 }

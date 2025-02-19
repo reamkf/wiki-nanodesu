@@ -58,7 +58,7 @@ export default function FriendsStatusTable({ friendsData }: DataTableProps) {
 	const columnHelper = createColumnHelper<FriendsDataRow>();
 
 	const columns = useMemo(() => [
-		columnHelper.accessor("list_index", {
+		columnHelper.accessor("listIndex", {
 			header: "一覧順",
 			cell: (info) => info.getValue(),
 			meta: {

@@ -95,17 +95,17 @@ export interface FriendsStatus {
 export interface FriendsDataRow {
 	id: string;
 	name: string;
-	second_name: string;
+	secondName: string;
 	attribute: FriendsAttribute;
-	implement_date: string;
-	implement_type: string;
-	implement_type_detail: string;
-	list_index: number;
-	icon_url: string;
+	implementDate: string;
+	implementType: string;
+	implementTypeDetail: string;
+	listIndex: number;
+	iconUrl: string;
 	rarity: number;
-	has_yasei5: boolean;
-	has_12poke: boolean;
-	num_of_clothes: number;
+	hasYasei5: boolean;
+	has12poke: boolean;
+	numOfClothes: number;
 	cv: string;
 	status: FriendsStatus;
 }
