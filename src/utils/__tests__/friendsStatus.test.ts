@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { calculateFriendsStatus } from '../friends';
+import { calculateFriendsStatus } from '../friendsStatus';
 import { FriendsAttribute, FriendsDataRow, MegumiPattern } from '@/types/friends';
 import { BasicStatus } from '@/types/common';
 
@@ -223,7 +223,7 @@ describe('calculateFriendsStatus', () => {
 			const friendsData = createTestFriendsData(1);
 			friendsData.status.status90 = status90;
 
-			const status = calculateFriendsStatus(friendsData, 90, 1, 4);
+			const status = calculateFriendsStatus(friendsData, 90, 6, 4);
 			expect(status).toEqual(status90);
 		});
 
@@ -237,7 +237,7 @@ describe('calculateFriendsStatus', () => {
 			const friendsData = createTestFriendsData(1);
 			friendsData.status.status90Yasei5 = status90Yasei5;
 
-			const status = calculateFriendsStatus(friendsData, 90, 1, 5);
+			const status = calculateFriendsStatus(friendsData, 90, 6, 5);
 			expect(status).toEqual(status90Yasei5);
 		});
 
@@ -318,7 +318,7 @@ describe('calculateFriendsStatus', () => {
 			const friendsData = createTestFriendsData(1);
 			friendsData.status.status99 = status99;
 
-			const status = calculateFriendsStatus(friendsData, 99, 1, 4);
+			const status = calculateFriendsStatus(friendsData, 99, 6, 4);
 			expect(status).toEqual(status99);
 		});
 
@@ -332,7 +332,7 @@ describe('calculateFriendsStatus', () => {
 			const friendsData = createTestFriendsData(1);
 			friendsData.status.status99Yasei5 = status99Yasei5;
 
-			const status = calculateFriendsStatus(friendsData, 99, 1, 5);
+			const status = calculateFriendsStatus(friendsData, 99, 6, 5);
 			expect(status).toEqual(status99Yasei5);
 		});
 
