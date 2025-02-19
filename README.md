@@ -6,11 +6,11 @@ https://reamkf.github.io/wiki-nanodesu/
 1ページあたりの文字数制限にひっかかるなどの理由により、Seesaa Wikiでの運用が困難なページを代わりにをホストします。
 
 ## 技術スタック
-- Bun
-- Next.js
-- TypeScript
-- Tailwind CSS
-- React
+- Bun 1.2.2
+- Next.js 15.1.7 (App Router, SSG)
+- TypeScript 5.7.3
+- Tailwind CSS 3.4.11
+- React 19.0.0
 - GitHub Pages
 
 ## 開発環境
