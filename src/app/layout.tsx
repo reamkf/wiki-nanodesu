@@ -25,6 +25,12 @@ export const metadata: Metadata = {
 				height: 256,
 				alt: 'アプリ版けものフレンズ３wikiなのです',
 			},
+			{
+				url: 'https://reamkf.github.io/wiki-nanodesu/no_blue_1200x630.png',
+				width: 1200,
+				height: 630,
+				alt: 'アプリ版けものフレンズ３wikiなのです',
+			},
 		],
 		locale: 'ja_JP',
 		type: 'website',
@@ -33,7 +39,10 @@ export const metadata: Metadata = {
 		card: 'summary',
 		title: 'アプリ版けものフレンズ３wikiなのです',
 		description: 'アプリ版けものフレンズ３wikiなのだ！の補助ページ',
-		images: ['https://reamkf.github.io/wiki-nanodesu/no_blue.png'],
+		images: [
+			'https://reamkf.github.io/wiki-nanodesu/no_blue_1200x630.png',
+			'https://reamkf.github.io/wiki-nanodesu/no_blue.png',
+		],
 	},
 }
 
