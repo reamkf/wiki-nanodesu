@@ -31,13 +31,12 @@ interface ColumnMeta {
 	width?: string;
 }
 
-// 検索対象のテキストを取得する関数
 const getSearchableText = (row: FriendsStatusListItem, columnId: string): string => {
 	switch (columnId) {
 		case "name":
 			return row.friendsDataRow.name;
 		case "icon":
-			return row.friendsDataRow.name; // アイコンカラムもフレンズ名で検索可能
+			return row.friendsDataRow.name;
 		default:
 			return "";
 	}
