@@ -13,6 +13,28 @@ export const metadata: Metadata = {
 	icons: {
 		icon: '/wiki-nanodesu/no_blue.png',
 	},
+	openGraph: {
+		title: 'アプリ版けものフレンズ３wikiなのです',
+		description: 'アプリ版けものフレンズ３wikiなのだ！の補助ページ',
+		url: 'https://reamkf.github.io/wiki-nanodesu/',
+		siteName: 'アプリ版けものフレンズ３wikiなのです',
+		images: [
+			{
+				url: 'https://reamkf.github.io/wiki-nanodesu/no_blue.png',
+				width: 256,
+				height: 256,
+				alt: 'アプリ版けものフレンズ３wikiなのです',
+			},
+		],
+		locale: 'ja_JP',
+		type: 'website',
+	},
+	twitter: {
+		card: 'summary',
+		title: 'アプリ版けものフレンズ３wikiなのです',
+		description: 'アプリ版けものフレンズ３wikiなのだ！の補助ページ',
+		images: ['https://reamkf.github.io/wiki-nanodesu/no_blue.png'],
+	},
 }
 
 export default function RootLayout({
