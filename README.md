@@ -1,5 +1,5 @@
-# Wiki Nanodesu
-https://reamkf.github.io/wiki-nanodesu/
+# アプリ版けものフレンズ３wikiなのです🦉
+リンク: https://reamkf.github.io/wiki-nanodesu/
 
 [**アプリ版けものフレンズ３wikiなのだ！**](https://seesaawiki.jp/kemono_friends3_5ch/) の補助サイトです。
 
@@ -12,6 +12,11 @@ https://reamkf.github.io/wiki-nanodesu/
 - [フレンズデータ](https://docs.google.com/spreadsheets/d/1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk/edit?gid=2049658683#gid=2049658683)
 - [フォトデータ](https://docs.google.com/spreadsheets/d/1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk/edit?gid=442640506#gid=442640506)
 
+または、[アプリ版けものフレンズ３wikiなのだ！](https://seesaawiki.jp/kemono_friends3_5ch/) のコメントや掲示板へメッセージを投げていただければ修正します。
+
+## 貢献
+サイトに関するIssueやPull Requestを歓迎します。
+
 ## 技術スタック
 - Bun 1.2.2
 - Next.js 15.1.7 (App Router, SSG)
@@ -22,14 +27,15 @@ https://reamkf.github.io/wiki-nanodesu/
 
 ## 開発環境
 
-### 環境構築
-1. Bun 1.2.2をインストールする
-2. リポジトリをcloneする
+### セットアップ
+1. Gitをインストールする
+2. Bun 1.2.2をインストールする
+3. リポジトリをcloneする
 	```sh
 	git clone https://github.com/reamkf/wiki-nanodesu.git
 	cd wiki-nanodesu
 	```
-3. パッケージをインストールする
+4. パッケージをインストールする
 	```sh
 	bun install
 	```
