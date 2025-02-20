@@ -20,6 +20,7 @@ import { useMemo, useState, useEffect } from "react";
 import React from "react";
 import { FriendsAttributeIconAndName } from "./FriendsAttributeIconAndName";
 import { FormGroup, FormControlLabel, Checkbox, Paper, Grid2 } from '@mui/material';
+import { normalizeQuery } from "@/utils/queryNormalizer";
 
 // ステータスタイプの定義
 const STATUS_TYPES = [
@@ -43,10 +44,10 @@ interface ColumnMeta {
 
 const getSearchableText = (row: ProcessedFriendsStatusListItem, columnId: string): string => {
 	switch (columnId) {
-		case "name":
-			return row.friendsDataRow.name;
-		case "icon":
-			return row.friendsDataRow.name;
+		case "name": case 'icon':
+			return row.friendsDataRow.secondName ? `${row.friendsDataRow.secondName} ${row.friendsDataRow.name}` : row.friendsDataRow.name;
+		case "attribute":
+			return row.friendsDataRow.attribute;
 		default:
 			return "";
 	}
@@ -55,7 +56,7 @@ const getSearchableText = (row: ProcessedFriendsStatusListItem, columnId: string
 // カスタム検索関数
 const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = (row, columnId, filterValue) => {
 	const searchText = getSearchableText(row.original, columnId);
-	return searchText.toLowerCase().includes(filterValue.toLowerCase());
+	return normalizeQuery(searchText).includes(normalizeQuery(filterValue));
 };
 
 // statusTypeに応じた背景色のマッピング
@@ -124,18 +125,17 @@ const statusTypeBackgroundColor: { [key: string]: {
 	},
 };
 
-// 野生レベルの表示用ユーティリティ関数
 const renderYaseiLevel = (statusType: string) => {
 	const [, lv, yasei] = statusType.split('/');
 	const isYasei5 = statusType.includes('野生5');
 
 	return (
 		<>
-			{lv}/{isYasei5 ? (
-				<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded">{yasei}</span>
-			) : (
-				`${yasei}`
-			)}
+			{lv}/{
+				isYasei5 ?
+					<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded">{yasei}</span>
+					: `${yasei}`
+			}
 		</>
 	);
 };
@@ -243,6 +243,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 			id: "attribute",
 			header: "属性",
 			cell: (info) => <FriendsAttributeIconAndName attribute={info.getValue()} />,
+			filterFn: customFilterFn,
 			meta: {
 				align: "center" as const,
 				width: "100px",
@@ -396,6 +397,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 													</span>
 													{header.column.getCanSort() && (
 														<span className="inline-flex flex-col text-gray-700" style={{ height: '15px' }}>
+															{/* ソートインジケーター */}
 															{header.column.getIsSorted() === "asc" ? (
 																<>
 																	<svg className="text-blue-600" style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
