@@ -1,9 +1,8 @@
 'use client';
 
-import { FriendsStatusListItem } from "@/types/friends";
+import { ProcessedFriendsStatusListItem } from "@/utils/friendsStatus";
 import FriendsIcon from "../friends/FriendsIcon";
 import { FriendsNameLink } from "../friends/FriendsNameLink";
-import { calcKemosute } from "@/utils/common";
 import {
 	createColumnHelper,
 	flexRender,
@@ -22,7 +21,7 @@ import React from "react";
 import { FriendsAttributeIconAndName } from "./FriendsAttributeIconAndName";
 
 interface DataTableProps {
-	friendsStatusList: FriendsStatusListItem[];
+	friendsStatusList: ProcessedFriendsStatusListItem[];
 }
 
 type AlignType = "left" | "center" | "right";
@@ -31,7 +30,7 @@ interface ColumnMeta {
 	width?: string;
 }
 
-const getSearchableText = (row: FriendsStatusListItem, columnId: string): string => {
+const getSearchableText = (row: ProcessedFriendsStatusListItem, columnId: string): string => {
 	switch (columnId) {
 		case "name":
 			return row.friendsDataRow.name;
@@ -43,16 +42,16 @@ const getSearchableText = (row: FriendsStatusListItem, columnId: string): string
 };
 
 // カスタム検索関数
-const customFilterFn: FilterFn<FriendsStatusListItem> = (row, columnId, filterValue) => {
+const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = (row, columnId, filterValue) => {
 	const searchText = getSearchableText(row.original, columnId);
 	return searchText.toLowerCase().includes(filterValue.toLowerCase());
 };
 
 // メモ化された行コンポーネント
-const TableRow = React.memo(function TableRow({ row }: { row: Row<FriendsStatusListItem> }) {
+const TableRow = React.memo(function TableRow({ row }: { row: Row<ProcessedFriendsStatusListItem> }) {
 	return (
 		<tr className="hover:bg-gray-50">
-			{row.getVisibleCells().map((cell: Cell<FriendsStatusListItem, unknown>) => (
+			{row.getVisibleCells().map((cell: Cell<ProcessedFriendsStatusListItem, unknown>) => (
 				<td
 					key={cell.id}
 					className="border px-4 py-2"
@@ -82,7 +81,7 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 	]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
-	const columnHelper = createColumnHelper<FriendsStatusListItem>();
+	const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
 
 	const columns = useMemo(() => [
 		columnHelper.accessor((row) => row, {
@@ -100,95 +99,61 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 				width: "100px",
 			},
 		}),
-		columnHelper.accessor((row) => row, {
+		columnHelper.accessor((row) => row.sortValues.name, {
 			id: "name",
 			header: "フレンズ名",
 			cell: (info) => (
 				<div>
-					<FriendsNameLink friend={info.getValue().friendsDataRow} />
-					<div className="text-xs text-gray-500">{info.getValue().statusType}</div>
+					<FriendsNameLink friend={info.row.original.friendsDataRow} />
+					<div className="text-xs text-gray-500">{info.row.original.statusType}</div>
 				</div>
 			),
 			filterFn: customFilterFn,
-			sortingFn: (rowA, rowB) => {
-				return rowA.original.friendsDataRow.name.localeCompare(rowB.original.friendsDataRow.name);
-			},
 			meta: {
 				align: "left" as const,
 				width: "250px",
 			},
 		}),
-		columnHelper.accessor((row) => row, {
+		columnHelper.accessor((row) => row.sortValues.attribute, {
 			id: "attribute",
 			header: "属性",
-			cell: (info) => <FriendsAttributeIconAndName attribute={info.getValue().friendsDataRow.attribute} />,
+			cell: (info) => <FriendsAttributeIconAndName attribute={info.getValue()} />,
 			meta: {
 				align: "center" as const,
 				width: "100px",
 			},
 		}),
-		columnHelper.accessor((row) => calcKemosute(row.status), {
+		columnHelper.accessor((row) => row.sortValues.kemosute, {
 			id: "kemosute",
 			header: "けもステ",
-			cell: (info) => {
-				const value = info.getValue();
-				return value === null ? "?????" : Math.round(value).toLocaleString();
-			},
-			sortingFn: (rowA, rowB) => {
-				const a = rowA.getValue("kemosute") as number | null;
-				const b = rowB.getValue("kemosute") as number | null;
-				if (a === null) return -1;
-				if (b === null) return 1;
-				return (a ?? 0) - (b ?? 0);
-			},
+			cell: (info) => info.row.original.displayValues.kemosute,
 			meta: {
 				align: "right" as const,
 				width: "100px",
 			},
 		}),
-		columnHelper.accessor((row) => row.status.hp, {
+		columnHelper.accessor((row) => row.sortValues.hp, {
 			id: "hp",
 			header: "たいりょく",
-			cell: (info) => info.getValue() === null ? "?????" : info.getValue()?.toLocaleString(),
-			sortingFn: (rowA, rowB) => {
-				const a = rowA.getValue("hp") as number | null;
-				const b = rowB.getValue("hp") as number | null;
-				if (a === null) return -1;
-				if (b === null) return 1;
-				return (a ?? 0) - (b ?? 0);
-			},
+			cell: (info) => info.row.original.displayValues.hp,
 			meta: {
 				align: "right" as const,
 				width: "100px",
 			},
 		}),
-		columnHelper.accessor((row) => row.status.atk, {
+		columnHelper.accessor((row) => row.sortValues.atk, {
 			id: "atk",
 			header: "こうげき",
-			cell: (info) => info.getValue() === null ? "?????" : info.getValue()?.toLocaleString(),
-			sortingFn: (rowA, rowB) => {
-				const a = rowA.getValue("atk") as number | null;
-				const b = rowB.getValue("atk") as number | null;
-				if (a === null) return -1;
-				if (b === null) return 1;
-				return (a ?? 0) - (b ?? 0);
-			},
+			cell: (info) => info.row.original.displayValues.atk,
 			meta: {
 				align: "right" as const,
 				width: "100px",
 			},
 		}),
-		columnHelper.accessor((row) => row.status.def, {
+		columnHelper.accessor((row) => row.sortValues.def, {
 			id: "def",
 			header: "まもり",
-			cell: (info) => info.getValue() === null ? "?????" : info.getValue()?.toLocaleString(),
-			sortingFn: (rowA, rowB) => {
-				const a = rowA.getValue("def") as number | null;
-				const b = rowB.getValue("def") as number | null;
-				if (a === null) return -1;
-				if (b === null) return 1;
-				return (a ?? 0) - (b ?? 0);
-			},
+			cell: (info) => info.row.original.displayValues.def,
 			meta: {
 				align: "right" as const,
 				width: "100px",
@@ -208,6 +173,14 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
+		sortingFns: {
+			stable: (rowA, rowB, columnId) => {
+				const a = rowA.getValue(columnId) as number;
+				const b = rowB.getValue(columnId) as number;
+				const diff = a - b;
+				return diff === 0 ? rowA.original.originalIndex - rowB.original.originalIndex : diff;
+			},
+		},
 	});
 
 	if (friendsStatusList.length === 0) return null;

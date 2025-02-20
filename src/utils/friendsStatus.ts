@@ -2,6 +2,7 @@ import { BasicStatus } from "@/types/common";
 import { FriendsDataRow, MegumiPattern, megumiRaiseStatus } from "@/types/friends";
 import { FriendsStatusListItem } from "@/types/friends";
 import { getFriendsData } from "./friendsData";
+import { calcKemosute } from "./common";
 
 function isStatusNull(status: BasicStatus): boolean {
 	return status.hp === null || status.atk === null || status.def === null;
@@ -197,13 +198,36 @@ export function calculateFriendsStatus(
 	return nullStatus;
 }
 
-export async function getFriendsStatusList(): Promise<FriendsStatusListItem[]> {
+// 事前計算済みのデータ型
+export interface ProcessedFriendsStatusListItem extends FriendsStatusListItem {
+	sortValues: {
+		name: string;
+		attribute: FriendsDataRow["attribute"];
+		kemosute: number;
+		hp: number;
+		atk: number;
+		def: number;
+	};
+	displayValues: {
+		kemosute: string;
+		hp: string;
+		atk: string;
+		def: string;
+	};
+	originalIndex: number;
+}
+
+export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusListItem[]> {
 	const friendsData = await getFriendsData();
 
-	const result = await Promise.all(friendsData.map(async friend => {
-		return [
+	// メモリ効率のため、一度に1つのフレンズのデータを処理
+	const result: ProcessedFriendsStatusListItem[] = [];
+	let index = 0;
+
+	for (const friend of friendsData) {
+		// 各ステータスタイプのデータを生成
+		const statusTypes = [
 			{
-				friendsDataRow: friend,
 				level: 90,
 				rank: 6,
 				yasei: 4 as const,
@@ -211,7 +235,6 @@ export async function getFriendsStatusList(): Promise<FriendsStatusListItem[]> {
 				statusType: '☆6/Lv90/野生4' as const
 			},
 			{
-				friendsDataRow: friend,
 				level: 99,
 				rank: 6,
 				yasei: 4 as const,
@@ -219,7 +242,6 @@ export async function getFriendsStatusList(): Promise<FriendsStatusListItem[]> {
 				statusType: '☆6/Lv99/野生4' as const
 			},
 			{
-				friendsDataRow: friend,
 				level: 200,
 				rank: 6,
 				yasei: 4 as const,
@@ -227,7 +249,6 @@ export async function getFriendsStatusList(): Promise<FriendsStatusListItem[]> {
 				statusType: '☆6/Lv200/野生4' as const
 			},
 			{
-				friendsDataRow: friend,
 				level: 90,
 				rank: 6,
 				yasei: 5 as const,
@@ -235,7 +256,6 @@ export async function getFriendsStatusList(): Promise<FriendsStatusListItem[]> {
 				statusType: '☆6/Lv90/野生5' as const
 			},
 			{
-				friendsDataRow: friend,
 				level: 99,
 				rank: 6,
 				yasei: 5 as const,
@@ -243,7 +263,6 @@ export async function getFriendsStatusList(): Promise<FriendsStatusListItem[]> {
 				statusType: '☆6/Lv99/野生5' as const
 			},
 			{
-				friendsDataRow: friend,
 				level: 200,
 				rank: 6,
 				yasei: 5 as const,
@@ -251,7 +270,37 @@ export async function getFriendsStatusList(): Promise<FriendsStatusListItem[]> {
 				statusType: '☆6/Lv200/野生5' as const
 			}
 		];
-	}));
 
-	return result.flat();
+		for (const statusType of statusTypes) {
+			const kemosute = calcKemosute(statusType.status);
+
+			result.push({
+				friendsDataRow: friend,
+				level: statusType.level,
+				rank: statusType.rank,
+				yasei: statusType.yasei,
+				status: statusType.status,
+				statusType: statusType.statusType,
+				// ソート用の数値データを事前計算
+				sortValues: {
+					name: friend.name,
+					attribute: friend.attribute,
+					kemosute: kemosute === null ? -Infinity : kemosute,
+					hp: statusType.status.hp === null ? -Infinity : statusType.status.hp,
+					atk: statusType.status.atk === null ? -Infinity : statusType.status.atk,
+					def: statusType.status.def === null ? -Infinity : statusType.status.def,
+				},
+				// 表示用の文字列を事前計算
+				displayValues: {
+					kemosute: kemosute === null ? "?????" : Math.round(kemosute).toLocaleString(),
+					hp: statusType.status.hp === null ? "?????" : statusType.status.hp.toLocaleString(),
+					atk: statusType.status.atk === null ? "?????" : statusType.status.atk.toLocaleString(),
+					def: statusType.status.def === null ? "?????" : statusType.status.def.toLocaleString(),
+				},
+				originalIndex: index++,
+			});
+		}
+	}
+
+	return result;
 }
