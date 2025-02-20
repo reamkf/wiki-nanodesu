@@ -3,6 +3,7 @@ import { getFriendsData } from '@/utils/friendsData';
 import { SidebarClient } from './SidebarClient';
 import { FriendsDataRow } from '@/types/friends';
 import { getWikiNanodaPageUrl } from '@/utils/encoding';
+import { isHc } from '@/utils/friends';
 
 export interface SidebarLinkItem {
 	href: string;
@@ -11,7 +12,7 @@ export interface SidebarLinkItem {
 
 export async function Sidebar() {
 	const friendsData = await getFriendsData();
-	const friendsPageNameList = friendsData
+	const friendsPageNameList: string[] = friendsData
 		.sort(
 			(friend1, friend2) => friend1.name.localeCompare(friend2.name)
 		)
@@ -19,6 +20,9 @@ export async function Sidebar() {
 			friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name
 		);
 
+	const photoPageNameList: string[] = friendsData
+		.filter(friend => !isHc(friend))
+		.map((friend) => friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name + '(フォト)');
 
 	const sideBarLinksNanodesu: SidebarLinkItem[] = [
 		{
@@ -121,21 +125,25 @@ export async function Sidebar() {
 		'情報提供場'
 	];
 
-	// 通常表示用のリンクを生成
 	const sideBarLinksNanoda: SidebarLinkItem[] = sideBarPagesNanoda.map((page) => ({
 		href: getWikiNanodaPageUrl(page),
 		text: page,
 	}));
 
-	// 検索時のみ表示するフレンズ名リストのリンクを生成
 	const friendsLinks: SidebarLinkItem[] = friendsPageNameList.map((page) => ({
 		href: getWikiNanodaPageUrl(page),
 		text: page,
+	}));
+
+	const photoLinks: SidebarLinkItem[] = photoPageNameList.map((name) => ({
+		href: getWikiNanodaPageUrl(name),
+		text: name,
 	}));
 
 	return <SidebarClient
 		sideBarLinksNanodesu={sideBarLinksNanodesu}
 		sideBarLinksNanoda={sideBarLinksNanoda}
 		friendsLinks={friendsLinks}
+		photoLinks={photoLinks}
 	/>;
 }

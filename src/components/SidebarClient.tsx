@@ -12,9 +12,10 @@ interface SidebarClientProps {
 	sideBarLinksNanodesu: SidebarLinkItem[];
 	sideBarLinksNanoda: SidebarLinkItem[];
 	friendsLinks: SidebarLinkItem[];
+	photoLinks: SidebarLinkItem[];
 }
 
-export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friendsLinks }: SidebarClientProps) {
+export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friendsLinks, photoLinks }: SidebarClientProps) {
 	const { isOpen, close } = useSidebar();
 	const [searchQuery, setSearchQuery] = useState('');
 
@@ -28,6 +29,10 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 	);
 
 	const filteredFriendsLinks = friendsLinks.filter(link =>
+		normalizeQuery(link.text).includes(normalizeQuery(searchQuery))
+	);
+
+	const filteredPhotoLinks = photoLinks.filter(link =>
 		normalizeQuery(link.text).includes(normalizeQuery(searchQuery))
 	);
 
@@ -151,6 +156,32 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						<ul className="list-disc pl-6">
 							{filteredFriendsLinks.map((link) => (
 								<li key={`friend-${link.href}`}>
+									<Link
+										href={link.href}
+										className="block hover:text-sky-500 rounded hover:underline mb-1 leading-tight"
+										onClick={close}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										{link.text}
+									</Link>
+								</li>
+							))}
+						</ul>
+					</div>
+				)}
+
+				{/* 検索時のみフォトリストを表示 */}
+				{searchQuery && filteredPhotoLinks.length > 0 && (
+					<div className="mt-4">
+						<div className="flex items-center block border-b-2 border-green-700 mb-2 font-bold text-green-700 flex-grow mt-2">
+							<div className="">
+								フォト一覧
+							</div>
+						</div>
+						<ul className="list-disc pl-6">
+							{filteredPhotoLinks.map((link) => (
+								<li key={`photo-${link.href}`}>
 									<Link
 										href={link.href}
 										className="block hover:text-sky-500 rounded hover:underline mb-1 leading-tight"
