@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { SidebarLinkItem } from './Sidebar';
 import CancelIcon from '@mui/icons-material/Cancel';
+import { normalizeQuery } from '@/utils/queryNormalizer';
 
 interface SidebarClientProps {
 	sideBarLinksNanodesu: SidebarLinkItem[];
@@ -19,15 +20,15 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 
 
 	const filteredLinksNanodesu = sideBarLinksNanodesu.filter(link =>
-		link.text.toLowerCase().includes(searchQuery.toLowerCase())
+		normalizeQuery(link.text).includes(normalizeQuery(searchQuery))
 	);
 
 	const filteredLinksNanoda = sideBarLinksNanoda.filter(link =>
-		link.text.toLowerCase().includes(searchQuery.toLowerCase())
+		normalizeQuery(link.text).includes(normalizeQuery(searchQuery))
 	);
 
 	const filteredFriendsLinks = friendsLinks.filter(link =>
-		link.text.toLowerCase().includes(searchQuery.toLowerCase())
+		normalizeQuery(link.text).includes(normalizeQuery(searchQuery))
 	);
 
 	return (
