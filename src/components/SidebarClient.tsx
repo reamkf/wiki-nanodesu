@@ -140,8 +140,13 @@ export function SidebarClient({ friendsPageNameList }: SidebarClientProps) {
 			z-30 md:z-auto
 
 			w-[18rem]
-			h-auto
+			h-[calc(100vh-80px)]
 			flex-shrink-0
+			overflow-y-auto
+			scrollbar-thin
+			scrollbar-thumb-sky-200
+			scrollbar-track-transparent
+			hover:scrollbar-thumb-sky-300
 
 			bg-[#f1f9fff4] md:bg-sky-50
 
