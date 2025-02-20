@@ -5,6 +5,7 @@ import { Footer } from '@/components/Footer'
 import { Sidebar } from '@/components/Sidebar'
 import { SidebarProvider } from '@/contexts/SidebarContext'
 import './globals.css'
+import { ReactScan } from '@/utils/reactScan'
 
 export const metadata: Metadata = {
 	title: 'アプリ版けものフレンズ３wikiなのです',
@@ -21,6 +22,7 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang="ja">
+			<ReactScan />
 			<body>
 				<SidebarProvider>
 					<div className="min-h-screen bg-white flex flex-col">
