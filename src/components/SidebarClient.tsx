@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { SidebarLinkItem } from './Sidebar';
+import CancelIcon from '@mui/icons-material/Cancel';
 
 interface SidebarClientProps {
 	sideBarLinksNanodesu: SidebarLinkItem[];
@@ -56,7 +57,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 			rounded-lg
 		`}>
 			<nav className="space-y-1 p-4 md:p-0">
-				<div className="mb-4">
+				<div className="mb-4 relative">
 					<input
 						type="text"
 						placeholder="ページを検索..."
@@ -64,6 +65,15 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						onChange={(e) => setSearchQuery(e.target.value)}
 						className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
 					/>
+					{searchQuery && (
+						<button
+							onClick={() => setSearchQuery('')}
+							className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+							aria-label="検索をクリア"
+						>
+							<CancelIcon />
+						</button>
+					)}
 				</div>
 
 				<div className="flex justify-center items-center block bg-sky-200 hover:bg-sky-300 hover:underline rounded-lg mb-2 transition-colors duration-200">
