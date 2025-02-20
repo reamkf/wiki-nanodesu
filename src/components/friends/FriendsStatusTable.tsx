@@ -107,7 +107,17 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 		columnHelper.accessor((row) => calcKemosute(row.status), {
 			id: "kemosute",
 			header: "けもステ",
-			cell: (info) => `${Math.round(info.getValue() ?? 0).toLocaleString()}`,
+			cell: (info) => {
+				const value = info.getValue();
+				return value === null ? "?????" : Math.round(value).toLocaleString();
+			},
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.getValue("kemosute") as number | null;
+				const b = rowB.getValue("kemosute") as number | null;
+				if (a === null) return -1;
+				if (b === null) return 1;
+				return (a ?? 0) - (b ?? 0);
+			},
 			meta: {
 				align: "right" as const,
 				width: "100px",
@@ -115,7 +125,14 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 		}),
 		columnHelper.accessor("status.hp", {
 			header: "たいりょく",
-			cell: (info) => info.getValue()?.toLocaleString(),
+			cell: (info) => info.getValue() === null ? "?????" : info.getValue()?.toLocaleString(),
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.getValue("status.hp") as number | null;
+				const b = rowB.getValue("status.hp") as number | null;
+				if (a === null) return -1;
+				if (b === null) return 1;
+				return (a ?? 0) - (b ?? 0);
+			},
 			meta: {
 				align: "right" as const,
 				width: "100px",
@@ -123,7 +140,14 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 		}),
 		columnHelper.accessor("status.atk", {
 			header: "こうげき",
-			cell: (info) => info.getValue()?.toLocaleString(),
+			cell: (info) => info.getValue() === null ? "?????" : info.getValue()?.toLocaleString(),
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.getValue("status.atk") as number | null;
+				const b = rowB.getValue("status.atk") as number | null;
+				if (a === null) return -1;
+				if (b === null) return 1;
+				return (a ?? 0) - (b ?? 0);
+			},
 			meta: {
 				align: "right" as const,
 				width: "100px",
@@ -131,7 +155,14 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 		}),
 		columnHelper.accessor("status.def", {
 			header: "まもり",
-			cell: (info) => info.getValue()?.toLocaleString(),
+			cell: (info) => info.getValue() === null ? "?????" : info.getValue()?.toLocaleString(),
+			sortingFn: (rowA, rowB) => {
+				const a = rowA.getValue("status.def") as number | null;
+				const b = rowB.getValue("status.def") as number | null;
+				if (a === null) return -1;
+				if (b === null) return 1;
+				return (a ?? 0) - (b ?? 0);
+			},
 			meta: {
 				align: "right" as const,
 				width: "100px",
