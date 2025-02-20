@@ -1,9 +1,9 @@
 // サーバーコンポーネント
-import { getFriendsData } from '@/utils/friendsData';
 import { SidebarClient } from './SidebarClient';
+import { getFriendsData } from '@/utils/friendsData';
 import { FriendsDataRow } from '@/types/friends';
-import { getWikiNanodaPageUrl } from '@/utils/encoding';
 import { getPhotoData } from '@/utils/photoData';
+import { getWikiNanodaPageUrl } from '@/utils/encoding';
 import { isHc } from '@/utils/friends';
 
 export interface SidebarLinkItem {
