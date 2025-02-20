@@ -3,6 +3,7 @@ import { getFriendsData } from '@/utils/friendsData';
 import { SidebarClient } from './SidebarClient';
 import { FriendsDataRow } from '@/types/friends';
 import { getWikiNanodaPageUrl } from '@/utils/encoding';
+import { getPhotoData } from '@/utils/photoData';
 import { isHc } from '@/utils/friends';
 
 export interface SidebarLinkItem {
@@ -14,15 +15,19 @@ export async function Sidebar() {
 	const friendsData = await getFriendsData();
 	const friendsPageNameList: string[] = friendsData
 		.sort(
-			(friend1, friend2) => friend1.name.localeCompare(friend2.name)
+			(a, b) => a.name.localeCompare(b.name)
 		)
 		.map((friend: FriendsDataRow) =>
 			friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name
 		);
 
-	const photoPageNameList: string[] = friendsData
-		.filter(friend => !isHc(friend))
-		.map((friend) => friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name + '(フォト)');
+	const photoData = await getPhotoData();
+
+	const photoPageNameList: string[] = photoData.map((photo) => photo.name).concat(
+		friendsData
+			.filter(friend => !isHc(friend))
+			.map((friend) => friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name + '(フォト)')
+	).sort((a, b) => a.localeCompare(b));
 
 	const sideBarLinksNanodesu: SidebarLinkItem[] = [
 		{

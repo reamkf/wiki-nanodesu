@@ -7,7 +7,8 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
-		"test": "bun test"
+		"test": "bun test",
+		"precommit": "bun test && bun run build"
 	},
 	"dependencies": {
 		"@emotion/react": "^11.14.0",
