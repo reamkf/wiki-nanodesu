@@ -55,7 +55,7 @@ function calculateFriendsStatusRaw(
 	}
 }
 
-function calculateFriendsStatusRawForEachStatus(
+function calculateFriendsStatusRawForEachParam(
 	friendsDataRow: FriendsDataRow,
 	lv: number,
 	rank: number,
@@ -121,7 +121,6 @@ export function calculateFriendsStatus(
 
 	// Lv.100以上はLv99のステータス+めぐみ上昇値で計算
 	if (lv >= 100) {
-
 		if (friendsDataRow.status.statusBase.megumiPattern === MegumiPattern.unknown) {
 			return nullStatus;
 		}
@@ -155,7 +154,7 @@ export function calculateFriendsStatus(
 		}
 		// 計算
 		if (isYaseiAvailable && !isStatusNull(friendsDataRow.status.statusBase.lv90)) {
-			return calculateFriendsStatusRawForEachStatus(friendsDataRow, lv, rank, yasei);
+			return calculateFriendsStatusRawForEachParam(friendsDataRow, lv, rank, yasei);
 		}
 	}
 
@@ -168,34 +167,30 @@ export function calculateFriendsStatus(
 		}
 		// 計算
 		if (isYaseiAvailable && !isStatusNull(friendsDataRow.status.statusBase.lv99)) {
-			return calculateFriendsStatusRawForEachStatus(friendsDataRow, lv, rank, yasei);
+			return calculateFriendsStatusRawForEachParam(friendsDataRow, lv, rank, yasei);
 		}
 	}
 
 	else if (lv === 1){
 		if (isYaseiAvailable && !isStatusNull(friendsDataRow.status.statusBase.lv1)) {
-			return calculateFriendsStatusRawForEachStatus(friendsDataRow, lv, rank, yasei);
+			return calculateFriendsStatusRawForEachParam(friendsDataRow, lv, rank, yasei);
 		}
 	}
 
-	// Lv 2-89
-	else if (isYaseiAvailable) {
-		// Lv 91-98
+	// Lv 2-89, 91-98
+	else if (isYaseiAvailable && !isStatusNull(friendsDataRow.status.statusBase.lv90)) {
 		if (
 			lv >= 2 && lv <= 89
 			&& !isStatusNull(friendsDataRow.status.statusBase.lv1)
-			&& !isStatusNull(friendsDataRow.status.statusBase.lv90)
 		) {
-			return calculateFriendsStatusRawForEachStatus(friendsDataRow, lv, rank, yasei);
+			return calculateFriendsStatusRawForEachParam(friendsDataRow, lv, rank, yasei);
 		}
 
-		// Lv 91-98
 		if (
 			lv >= 91 && lv <= 98
-			&& !isStatusNull(friendsDataRow.status.statusBase.lv90)
 			&& !isStatusNull(friendsDataRow.status.statusBase.lv99)
 		) {
-			return calculateFriendsStatusRawForEachStatus(friendsDataRow, lv, rank, yasei);
+			return calculateFriendsStatusRawForEachParam(friendsDataRow, lv, rank, yasei);
 		}
 	}
 
