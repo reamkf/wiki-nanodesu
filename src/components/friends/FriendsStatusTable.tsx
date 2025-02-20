@@ -31,7 +31,7 @@ const STATUS_TYPES = [
 	'☆6/Lv90/野生5',
 ] as const;
 
-interface DataTableProps {
+interface FriendsStatusTableProps {
 	friendsStatusList: ProcessedFriendsStatusListItem[];
 }
 
@@ -162,7 +162,7 @@ const TableRow = React.memo(function TableRow({ row }: { row: Row<ProcessedFrien
 	);
 });
 
-export default function FriendsStatusTable({ friendsStatusList }: DataTableProps) {
+export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusTableProps) {
 	const [isMounted, setIsMounted] = useState(false);
 	const [selectedStatusTypes, setSelectedStatusTypes] = useState<Set<string>>(new Set(STATUS_TYPES));
 
