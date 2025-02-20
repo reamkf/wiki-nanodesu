@@ -47,14 +47,29 @@ const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = (row, columnId,
 	return searchText.toLowerCase().includes(filterValue.toLowerCase());
 };
 
+// statusTypeに応じた背景色のマッピング
+const statusTypeBackgroundColor: { [key: string]: string } = {
+	'☆6/Lv90/野生4': 'hover:bg-gray-50',
+	'☆6/Lv99/野生4': 'bg-blue-100 hover:bg-blue-50',
+	'☆6/Lv100/野生4': 'bg-red-100 hover:bg-red-50',
+	'☆6/Lv200/野生4': 'bg-red-100 hover:bg-red-50',
+	'☆6/Lv90/野生5': 'hover:bg-gray-50',
+	'☆6/Lv99/野生5': 'bg-blue-100 hover:bg-blue-50',
+	'☆6/Lv100/野生5': 'bg-red-100 hover:bg-red-50',
+	'☆6/Lv200/野生5': 'bg-red-100 hover:bg-red-50',
+};
+
 // メモ化された行コンポーネント
 const TableRow = React.memo(function TableRow({ row }: { row: Row<ProcessedFriendsStatusListItem> }) {
+	const statusType = row.original.statusType;
+	const bgColorClass = statusTypeBackgroundColor[statusType] || 'hover:bg-gray-50';
+
 	return (
-		<tr className="hover:bg-gray-50">
+		<tr className={bgColorClass}>
 			{row.getVisibleCells().map((cell: Cell<ProcessedFriendsStatusListItem, unknown>) => (
 				<td
 					key={cell.id}
-					className="border px-4 py-2"
+					className="border-[1px] border-gray-300 px-4 py-2"
 					style={{
 						textAlign: (cell.column.columnDef.meta as ColumnMeta)?.align || "left",
 					}}
@@ -102,12 +117,24 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 		columnHelper.accessor((row) => row.sortValues.name, {
 			id: "name",
 			header: "フレンズ名",
-			cell: (info) => (
-				<div>
-					<FriendsNameLink friend={info.row.original.friendsDataRow} />
-					<div className="text-xs text-gray-500">{info.row.original.statusType}</div>
-				</div>
-			),
+			cell: (info) => {
+				const statusType = info.row.original.statusType;
+				const isYasei5 = statusType.includes('野生5');
+				const [baseText, yasei] = statusType.split('/野生');
+				return (
+					<div>
+						<FriendsNameLink friend={info.row.original.friendsDataRow} />
+						<div className="text-xs text-gray-700">
+							{baseText}/
+							{isYasei5 ? (
+								<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded">野生{yasei}</span>
+							) : (
+								`野生${yasei}`
+							)}
+						</div>
+					</div>
+				);
+			},
 			filterFn: customFilterFn,
 			meta: {
 				align: "left" as const,
@@ -188,7 +215,7 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 
 	return (
 		<div className="overflow-x-auto max-w-full">
-			<table className="min-w-[720px] max-w-[1920px] border-collapse w-full">
+			<table className="min-w-[720px] max-w-[1920px] border-collapse w-full [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
 				<colgroup>
 					{table.getHeaderGroups()[0].headers.map((header) => {
 						const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
@@ -212,7 +239,7 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 									return (
 										<th
 											key={header.id}
-											className="border px-4 py-2 whitespace-nowrap"
+											className="px-4 py-2 whitespace-nowrap"
 											style={{
 												textAlign: meta?.align || "left",
 												cursor: header.column.getCanSort() ? "pointer" : "default",
@@ -268,10 +295,10 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 							{/* 列ごとの検索欄 */}
 							<tr>
 								{headerGroup.headers.map((header) => (
-									<th key={header.id} className="border bg-gray-100 px-4 py-2">
+									<th key={header.id} className="bg-gray-100 p-1">
 										{header.column.getCanFilter() && (
 											<input
-											className="w-full p-1 text-sm border rounded font-normal"
+												className="w-full p-1 text-sm border rounded font-normal"
 												type="text"
 												value={
 													(header.column.getFilterValue() as string) ?? ""
