@@ -9,9 +9,10 @@ import { SidebarLinkItem } from './Sidebar';
 interface SidebarClientProps {
 	sideBarLinksNanodesu: SidebarLinkItem[];
 	sideBarLinksNanoda: SidebarLinkItem[];
+	friendsLinks: SidebarLinkItem[];
 }
 
-export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda }: SidebarClientProps) {
+export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friendsLinks }: SidebarClientProps) {
 	const { isOpen, close } = useSidebar();
 	const [searchQuery, setSearchQuery] = useState('');
 
@@ -21,6 +22,10 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda }: Side
 	);
 
 	const filteredLinksNanoda = sideBarLinksNanoda.filter(link =>
+		link.text.toLowerCase().includes(searchQuery.toLowerCase())
+	);
+
+	const filteredFriendsLinks = friendsLinks.filter(link =>
 		link.text.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
@@ -67,11 +72,11 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda }: Side
 						alt="「の」のアイコン"
 						width={48}
 						height={48}
-						className="p-3 pr-1 w-[70px] h-[70px] flex-1"
+						className="p-2 pr-1 w-[50px] h-[50px] flex-1"
 					/>
 					<Link
 						href="/"
-						className="font-bold text-sky-700 p-3 pl-1 flex-grow"
+						className="font-bold text-sky-700 p-2 pl-0 flex-grow leading-tight"
 						onClick={close}
 					>
 						アプリ版けものフレンズ３wikiなのです
@@ -82,7 +87,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda }: Side
 						<li key={`nanodesu-${link.href}`}>
 							<Link
 								href={link.href}
-								className="block hover:text-sky-500 rounded hover:underline mb-1"
+								className="block hover:text-sky-500 rounded hover:underline mb-1 leading-tight"
 								onClick={close}
 							>
 								{link.text}
@@ -96,11 +101,11 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda }: Side
 						alt="「の」のアイコン"
 						width={48}
 						height={48}
-						className="p-3 pr-1 w-[70px] h-[70px] flex-1"
+						className="p-2 pr-1 w-[50px] h-[50px] flex-1"
 					/>
 					<Link
 						href="https://seesaawiki.jp/kemono_friends3_5ch/"
-						className="font-bold text-green-700 p-3 pl-1 flex-grow"
+						className="font-bold text-green-700 p-2 pl-0 flex-grow leading-tight"
 						target="_blank"
 						rel="noopener noreferrer"
 						onClick={close}
@@ -113,7 +118,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda }: Side
 						<li key={`nanoda-${link.href}`}>
 							<Link
 								href={link.href}
-								className="block hover:text-sky-500 rounded hover:underline mb-1"
+								className="block hover:text-sky-500 rounded hover:underline mb-1 leading-tight"
 								onClick={close}
 								target="_blank"
 								rel="noopener noreferrer"
@@ -123,6 +128,32 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda }: Side
 						</li>
 					))}
 				</ul>
+
+				{/* 検索時のみフレンズ名リストを表示 */}
+				{searchQuery && filteredFriendsLinks.length > 0 && (
+					<div className="mt-4">
+						<div className="flex items-center block border-b-2 border-green-700 mb-2 font-bold text-green-700 flex-grow mt-2">
+							<div className="">
+								フレンズ一覧
+							</div>
+						</div>
+						<ul className="list-disc pl-6">
+							{filteredFriendsLinks.map((link) => (
+								<li key={`friend-${link.href}`}>
+									<Link
+										href={link.href}
+										className="block hover:text-sky-500 rounded hover:underline mb-1 leading-tight"
+										onClick={close}
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										{link.text}
+									</Link>
+								</li>
+							))}
+						</ul>
+					</div>
+				)}
 			</nav>
 		</aside>
 	);
