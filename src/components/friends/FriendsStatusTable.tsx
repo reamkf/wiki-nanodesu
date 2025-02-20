@@ -14,8 +14,10 @@ import {
 	SortingState,
 	ColumnFiltersState,
 	FilterFn,
+	Row,
+	Cell,
 } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import React from "react";
 import { FriendsAttributeIconAndName } from "./FriendsAttributeIconAndName";
 
@@ -47,7 +49,32 @@ const customFilterFn: FilterFn<FriendsStatusListItem> = (row, columnId, filterVa
 	return searchText.toLowerCase().includes(filterValue.toLowerCase());
 };
 
+// メモ化された行コンポーネント
+const TableRow = React.memo(function TableRow({ row }: { row: Row<FriendsStatusListItem> }) {
+	return (
+		<tr className="hover:bg-gray-50">
+			{row.getVisibleCells().map((cell: Cell<FriendsStatusListItem, unknown>) => (
+				<td
+					key={cell.id}
+					className="border px-4 py-2"
+					style={{
+						textAlign: (cell.column.columnDef.meta as ColumnMeta)?.align || "left",
+					}}
+				>
+					{flexRender(cell.column.columnDef.cell, cell.getContext())}
+				</td>
+			))}
+		</tr>
+	);
+});
+
 export default function FriendsStatusTable({ friendsStatusList }: DataTableProps) {
+	const [isMounted, setIsMounted] = useState(false);
+
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
+
 	const [sorting, setSorting] = useState<SortingState>([
 		{
 			id: "kemosute",
@@ -120,12 +147,13 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 				width: "100px",
 			},
 		}),
-		columnHelper.accessor("status.hp", {
+		columnHelper.accessor((row) => row.status.hp, {
+			id: "hp",
 			header: "たいりょく",
 			cell: (info) => info.getValue() === null ? "?????" : info.getValue()?.toLocaleString(),
 			sortingFn: (rowA, rowB) => {
-				const a = rowA.getValue("status.hp") as number | null;
-				const b = rowB.getValue("status.hp") as number | null;
+				const a = rowA.getValue("hp") as number | null;
+				const b = rowB.getValue("hp") as number | null;
 				if (a === null) return -1;
 				if (b === null) return 1;
 				return (a ?? 0) - (b ?? 0);
@@ -135,12 +163,13 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 				width: "100px",
 			},
 		}),
-		columnHelper.accessor("status.atk", {
+		columnHelper.accessor((row) => row.status.atk, {
+			id: "atk",
 			header: "こうげき",
 			cell: (info) => info.getValue() === null ? "?????" : info.getValue()?.toLocaleString(),
 			sortingFn: (rowA, rowB) => {
-				const a = rowA.getValue("status.atk") as number | null;
-				const b = rowB.getValue("status.atk") as number | null;
+				const a = rowA.getValue("atk") as number | null;
+				const b = rowB.getValue("atk") as number | null;
 				if (a === null) return -1;
 				if (b === null) return 1;
 				return (a ?? 0) - (b ?? 0);
@@ -150,12 +179,13 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 				width: "100px",
 			},
 		}),
-		columnHelper.accessor("status.def", {
+		columnHelper.accessor((row) => row.status.def, {
+			id: "def",
 			header: "まもり",
 			cell: (info) => info.getValue() === null ? "?????" : info.getValue()?.toLocaleString(),
 			sortingFn: (rowA, rowB) => {
-				const a = rowA.getValue("status.def") as number | null;
-				const b = rowB.getValue("status.def") as number | null;
+				const a = rowA.getValue("def") as number | null;
+				const b = rowB.getValue("def") as number | null;
 				if (a === null) return -1;
 				if (b === null) return 1;
 				return (a ?? 0) - (b ?? 0);
@@ -182,6 +212,7 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 	});
 
 	if (friendsStatusList.length === 0) return null;
+	if (!isMounted) return null;
 
 	return (
 		<div className="overflow-x-auto max-w-full">
@@ -287,19 +318,7 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 				</thead>
 				<tbody>
 					{table.getRowModel().rows.map((row) => (
-						<tr key={row.id} className="hover:bg-gray-50">
-							{row.getVisibleCells().map((cell) => (
-								<td
-									key={cell.id}
-									className="border px-4 py-2"
-									style={{
-										textAlign: (cell.column.columnDef.meta as ColumnMeta)?.align || "left",
-									}}
-								>
-									{flexRender(cell.column.columnDef.cell, cell.getContext())}
-								</td>
-							))}
-						</tr>
+						<TableRow key={row.id} row={row} />
 					))}
 				</tbody>
 			</table>
