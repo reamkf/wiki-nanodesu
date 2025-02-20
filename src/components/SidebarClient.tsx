@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSidebar } from '@/contexts/SidebarContext';
@@ -18,7 +18,7 @@ interface SidebarClientProps {
 export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friendsLinks, photoLinks }: SidebarClientProps) {
 	const { isOpen, close } = useSidebar();
 	const [searchQuery, setSearchQuery] = useState('');
-
+	const searchInputRef = useRef<HTMLInputElement>(null);
 
 	const filteredLinksNanodesu = sideBarLinksNanodesu.filter(link =>
 		normalizeQuery(link.text).includes(normalizeQuery(searchQuery))
@@ -70,10 +70,14 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
 						className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+						ref={searchInputRef}
 					/>
 					{searchQuery && (
 						<button
-							onClick={() => setSearchQuery('')}
+							onClick={() => {
+								setSearchQuery('');
+								searchInputRef.current?.focus();
+							}}
 							className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
 							aria-label="検索をクリア"
 						>
