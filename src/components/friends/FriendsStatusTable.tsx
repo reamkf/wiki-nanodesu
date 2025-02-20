@@ -19,6 +19,17 @@ import {
 import { useMemo, useState, useEffect } from "react";
 import React from "react";
 import { FriendsAttributeIconAndName } from "./FriendsAttributeIconAndName";
+import { FormGroup, FormControlLabel, Checkbox, Paper, Grid2 } from '@mui/material';
+
+// ステータスタイプの定義
+const STATUS_TYPES = [
+	'☆6/Lv200/野生4',
+	'☆6/Lv200/野生5',
+	'☆6/Lv99/野生4',
+	'☆6/Lv99/野生5',
+	'☆6/Lv90/野生4',
+	'☆6/Lv90/野生5',
+] as const;
 
 interface DataTableProps {
 	friendsStatusList: ProcessedFriendsStatusListItem[];
@@ -48,21 +59,91 @@ const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = (row, columnId,
 };
 
 // statusTypeに応じた背景色のマッピング
-const statusTypeBackgroundColor: { [key: string]: string } = {
-	'☆6/Lv90/野生4': 'hover:bg-gray-50',
-	'☆6/Lv99/野生4': 'bg-blue-100 hover:bg-blue-50',
-	'☆6/Lv100/野生4': 'bg-red-100 hover:bg-red-50',
-	'☆6/Lv200/野生4': 'bg-red-100 hover:bg-red-50',
-	'☆6/Lv90/野生5': 'hover:bg-gray-50',
-	'☆6/Lv99/野生5': 'bg-blue-100 hover:bg-blue-50',
-	'☆6/Lv100/野生5': 'bg-red-100 hover:bg-red-50',
-	'☆6/Lv200/野生5': 'bg-red-100 hover:bg-red-50',
+const statusTypeBackgroundColor: { [key: string]: {
+	row: string;
+	checkbox: {
+		unchecked: string;
+		checked: string;
+		hover: string;
+		color: string;
+	};
+}} = {
+	'☆6/Lv90/野生4': {
+		row: 'bg-green-100 hover:bg-green-50',
+		checkbox: {
+			unchecked: '#f0fdf4',
+			checked: '#dcfce7',
+			hover: '#bbf7d0',
+			color: '#16a34a'
+		}
+	},
+	'☆6/Lv99/野生4': {
+		row: 'bg-blue-100 hover:bg-blue-50',
+		checkbox: {
+			unchecked: '#eff6ff',
+			checked: '#dbeafe',
+			hover: '#bfdbfe',
+			color: '#2563eb'
+		}
+	},
+	'☆6/Lv200/野生4': {
+		row: 'bg-red-100 hover:bg-red-50',
+		checkbox: {
+			unchecked: '#fef2f2',
+			checked: '#fee2e2',
+			hover: '#fecaca',
+			color: '#dc2626'
+		}
+	},
+	'☆6/Lv90/野生5': {
+		row: 'bg-green-100 hover:bg-green-50',
+		checkbox: {
+			unchecked: '#f0fdf4',
+			checked: '#dcfce7',
+			hover: '#bbf7d0',
+			color: '#16a34a'
+		}
+	},
+	'☆6/Lv99/野生5': {
+		row: 'bg-blue-100 hover:bg-blue-50',
+		checkbox: {
+			unchecked: '#eff6ff',
+			checked: '#dbeafe',
+			hover: '#bfdbfe',
+			color: '#2563eb'
+		}
+	},
+	'☆6/Lv200/野生5': {
+		row: 'bg-red-100 hover:bg-red-50',
+		checkbox: {
+			unchecked: '#fef2f2',
+			checked: '#fee2e2',
+			hover: '#fecaca',
+			color: '#dc2626'
+		}
+	},
+};
+
+// 野生レベルの表示用ユーティリティ関数
+const renderYaseiLevel = (statusType: string) => {
+	const [, lv, yasei] = statusType.split('/');
+	const isYasei5 = statusType.includes('野生5');
+
+	return (
+		<>
+			{lv}/{isYasei5 ? (
+				<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded">{yasei}</span>
+			) : (
+				`${yasei}`
+			)}
+		</>
+	);
 };
 
 // メモ化された行コンポーネント
 const TableRow = React.memo(function TableRow({ row }: { row: Row<ProcessedFriendsStatusListItem> }) {
 	const statusType = row.original.statusType;
-	const bgColorClass = statusTypeBackgroundColor[statusType] || 'hover:bg-gray-50';
+	const bgColorClass = statusTypeBackgroundColor[statusType]?.row || 'hover:bg-gray-50';
 
 	return (
 		<tr className={bgColorClass}>
@@ -83,6 +164,7 @@ const TableRow = React.memo(function TableRow({ row }: { row: Row<ProcessedFrien
 
 export default function FriendsStatusTable({ friendsStatusList }: DataTableProps) {
 	const [isMounted, setIsMounted] = useState(false);
+	const [selectedStatusTypes, setSelectedStatusTypes] = useState<Set<string>>(new Set(STATUS_TYPES));
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -95,6 +177,22 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 		}
 	]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+	const filteredData = useMemo(() => {
+		return friendsStatusList.filter(item => selectedStatusTypes.has(item.statusType));
+	}, [friendsStatusList, selectedStatusTypes]);
+
+	const handleStatusTypeChange = (statusType: string) => {
+		setSelectedStatusTypes(prev => {
+			const newSet = new Set(prev);
+			if (newSet.has(statusType)) {
+				newSet.delete(statusType);
+			} else {
+				newSet.add(statusType);
+			}
+			return newSet;
+		});
+	};
 
 	const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
 
@@ -189,7 +287,7 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 	], [columnHelper]);
 
 	const table = useReactTable({
-		data: friendsStatusList,
+		data: filteredData,
 		columns,
 		state: {
 			sorting,
@@ -214,113 +312,155 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 	if (!isMounted) return null;
 
 	return (
-		<div className="overflow-x-auto max-w-full">
-			<table className="min-w-[720px] max-w-[1920px] border-collapse w-full [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
-				<colgroup>
-					{table.getHeaderGroups()[0].headers.map((header) => {
-						const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
-						return (
-							<col
-								key={header.id}
-								className="table-column"
-								style={{
-									width: meta?.width,
-								}}
-							/>
-						);
-					})}
-				</colgroup>
-				<thead>
-					{table.getHeaderGroups().map((headerGroup) => (
-						<React.Fragment key={headerGroup.id}>
-							<tr className="bg-gray-200">
-								{headerGroup.headers.map((header) => {
-									const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
-									return (
-										<th
-											key={header.id}
-											className="px-4 py-2 whitespace-nowrap"
-											style={{
-												textAlign: meta?.align || "left",
-												cursor: header.column.getCanSort() ? "pointer" : "default",
-												width: meta?.width,
-												minWidth: meta?.width,
+		<div className="space-y-4">
+			<Paper sx={{ p: 0, mb: 1, boxShadow: 0 }}>
+				<FormGroup>
+					<Grid2 container spacing={1}>
+						{STATUS_TYPES.map((statusType) => (
+							<Grid2 key={statusType}>
+								<FormControlLabel
+									sx={{
+										backgroundColor: selectedStatusTypes.has(statusType)
+											? statusTypeBackgroundColor[statusType].checkbox.checked
+											: statusTypeBackgroundColor[statusType].checkbox.unchecked,
+										'&:hover': {
+											backgroundColor: statusTypeBackgroundColor[statusType].checkbox.hover,
+										},
+										borderRadius: 1,
+										width: 'fit-content',
+										margin: 0,
+										'& .MuiFormControlLabel-label': {
+											flex: 1,
+										},
+									}}
+									control={
+										<Checkbox
+											checked={selectedStatusTypes.has(statusType)}
+											onChange={() => handleStatusTypeChange(statusType)}
+											sx={{
+												'&.Mui-checked': {
+													color: statusTypeBackgroundColor[statusType].checkbox.color,
+												},
+												padding: '0.25rem',
+												paddingRight: 0,
 											}}
-											onClick={header.column.getToggleSortingHandler()}
-										>
-											<div className="flex items-center justify-between gap-2">
-												<span>
-													{flexRender(
-														header.column.columnDef.header,
-														header.getContext()
-													)}
-												</span>
-												{header.column.getCanSort() && (
-													<span className="inline-flex flex-col text-gray-700" style={{ height: '15px' }}>
-														{header.column.getIsSorted() === "asc" ? (
-															<>
-																<svg className="text-blue-600" style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
-																	<path d="M8 0L16 8H0z" />
-																</svg>
-																<svg className="text-gray-300" style={{ width: '10px', height: '10px' }} viewBox="0 0 16 8" fill="currentColor">
-																	<path d="M8 8L0 0h16z" />
-																</svg>
-															</>
-														) : header.column.getIsSorted() === "desc" ? (
-															<>
-																<svg className="text-gray-300" style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
-																	<path d="M8 0L16 8H0z" />
-																</svg>
-																<svg className="text-blue-600" style={{ width: '10px', height: '10px' }} viewBox="0 0 16 8" fill="currentColor">
-																	<path d="M8 8L0 0h16z" />
-																</svg>
-															</>
-														) : (
-															<>
-																<svg style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
-																	<path d="M8 0L16 8H0z" />
-																</svg>
-																<svg style={{ width: '10px', height: '10px' }} viewBox="0 0 16 8" fill="currentColor">
-																	<path d="M8 8L0 0h16z" />
-																</svg>
-															</>
+										/>
+									}
+									label={<div className="text-base p-1">{renderYaseiLevel(statusType)}</div>}
+								/>
+							</Grid2>
+						))}
+					</Grid2>
+				</FormGroup>
+			</Paper>
+			<div className="overflow-x-auto max-w-full">
+				<table className="min-w-[720px] max-w-[1920px] border-collapse w-full [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
+					<colgroup>
+						{table.getHeaderGroups()[0].headers.map((header) => {
+							const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
+							return (
+								<col
+									key={header.id}
+									className="table-column"
+									style={{
+										width: meta?.width,
+									}}
+								/>
+							);
+						})}
+					</colgroup>
+					<thead>
+						{table.getHeaderGroups().map((headerGroup) => (
+							<React.Fragment key={headerGroup.id}>
+								<tr className="bg-gray-200">
+									{headerGroup.headers.map((header) => {
+										const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
+										return (
+											<th
+												key={header.id}
+												className="px-4 py-2 whitespace-nowrap"
+												style={{
+													textAlign: meta?.align || "left",
+													cursor: header.column.getCanSort() ? "pointer" : "default",
+													width: meta?.width,
+													minWidth: meta?.width,
+												}}
+												onClick={header.column.getToggleSortingHandler()}
+											>
+												<div className="flex items-center justify-between gap-2">
+													<span>
+														{flexRender(
+															header.column.columnDef.header,
+															header.getContext()
 														)}
 													</span>
-												)}
-											</div>
+													{header.column.getCanSort() && (
+														<span className="inline-flex flex-col text-gray-700" style={{ height: '15px' }}>
+															{header.column.getIsSorted() === "asc" ? (
+																<>
+																	<svg className="text-blue-600" style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
+																		<path d="M8 0L16 8H0z" />
+																	</svg>
+																	<svg className="text-gray-300" style={{ width: '10px', height: '10px' }} viewBox="0 0 16 8" fill="currentColor">
+																		<path d="M8 8L0 0h16z" />
+																	</svg>
+																</>
+															) : header.column.getIsSorted() === "desc" ? (
+																<>
+																	<svg className="text-gray-300" style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
+																		<path d="M8 0L16 8H0z" />
+																	</svg>
+																	<svg className="text-blue-600" style={{ width: '10px', height: '10px' }} viewBox="0 0 16 8" fill="currentColor">
+																		<path d="M8 8L0 0h16z" />
+																	</svg>
+																</>
+															) : (
+																<>
+																	<svg style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
+																		<path d="M8 0L16 8H0z" />
+																	</svg>
+																	<svg style={{ width: '10px', height: '10px' }} viewBox="0 0 16 8" fill="currentColor">
+																		<path d="M8 8L0 0h16z" />
+																	</svg>
+																</>
+															)}
+														</span>
+													)}
+												</div>
+											</th>
+										);
+									})}
+								</tr>
+								{/* 列ごとの検索欄 */}
+								<tr>
+									{headerGroup.headers.map((header) => (
+										<th key={header.id} className="bg-gray-100 p-1">
+											{header.column.getCanFilter() && (
+												<input
+													className="w-full p-1 text-sm border rounded font-normal"
+													type="text"
+													value={
+														(header.column.getFilterValue() as string) ?? ""
+													}
+													onChange={(e) =>
+														header.column.setFilterValue(e.target.value)
+													}
+													placeholder="検索..."
+												/>
+											)}
 										</th>
-									);
-								})}
-							</tr>
-							{/* 列ごとの検索欄 */}
-							<tr>
-								{headerGroup.headers.map((header) => (
-									<th key={header.id} className="bg-gray-100 p-1">
-										{header.column.getCanFilter() && (
-											<input
-												className="w-full p-1 text-sm border rounded font-normal"
-												type="text"
-												value={
-													(header.column.getFilterValue() as string) ?? ""
-												}
-												onChange={(e) =>
-													header.column.setFilterValue(e.target.value)
-												}
-												placeholder="検索..."
-											/>
-										)}
-									</th>
-								))}
-							</tr>
-						</React.Fragment>
-					))}
-				</thead>
-				<tbody>
-					{table.getRowModel().rows.map((row) => (
-						<TableRow key={row.id} row={row} />
-					))}
-				</tbody>
-			</table>
+									))}
+								</tr>
+							</React.Fragment>
+						))}
+					</thead>
+					<tbody>
+						{table.getRowModel().rows.map((row) => (
+							<TableRow key={row.id} row={row} />
+						))}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	);
 }
