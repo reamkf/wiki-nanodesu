@@ -59,14 +59,6 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 	const columnHelper = createColumnHelper<FriendsStatusListItem>();
 
 	const columns = useMemo(() => [
-		columnHelper.accessor("statusType", {
-			header: "ステータス種別",
-			cell: (info) => info.getValue(),
-			meta: {
-				align: "center" as const,
-				width: "150px",
-			},
-		}),
 		columnHelper.accessor((row) => row, {
 			id: "icon",
 			header: "アイコン",
@@ -85,7 +77,12 @@ export default function FriendsStatusTable({ friendsStatusList }: DataTableProps
 		columnHelper.accessor((row) => row, {
 			id: "name",
 			header: "フレンズ名",
-			cell: (info) => <FriendsNameLink friend={info.getValue().friendsDataRow} />,
+			cell: (info) => (
+				<div>
+					<FriendsNameLink friend={info.getValue().friendsDataRow} />
+					<div className="text-xs text-gray-500">{info.getValue().statusType}</div>
+				</div>
+			),
 			filterFn: customFilterFn,
 			sortingFn: (rowA, rowB) => {
 				return rowA.original.friendsDataRow.name.localeCompare(rowB.original.friendsDataRow.name);
