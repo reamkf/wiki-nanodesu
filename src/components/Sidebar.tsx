@@ -26,8 +26,8 @@ export async function Sidebar() {
 	const photoPageNameList: string[] = photoData.map((photo) => photo.name).concat(
 		friendsData
 			.filter(friend => !isHc(friend))
-			.map((friend) => friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name + '(フォト)')
-	).sort((a, b) => a.localeCompare(b));
+			.map((friend) => (friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name) + '(フォト)')
+	).sort((a, b) => a.replace(/^【.*】/, '').localeCompare(b.replace(/^【.*】/, '')));
 
 	const sideBarLinksNanodesu: SidebarLinkItem[] = [
 		{
