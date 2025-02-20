@@ -5,6 +5,13 @@ https://reamkf.github.io/wiki-nanodesu/
 
 1ページあたりの文字数制限にひっかかるなどの理由により、Seesaa Wikiでの運用が困難なページを代わりにをホストします。
 
+## データ
+当サイトで使用するデータはGoogleスプレッドシートで管理しています。
+データを修正するには、Googleスプレッドシート上で修正してください。
+
+- [フレンズデータ](https://docs.google.com/spreadsheets/d/1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk/edit?gid=2049658683#gid=2049658683)
+- [フォトデータ](https://docs.google.com/spreadsheets/d/1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk/edit?gid=442640506#gid=442640506)
+
 ## 技術スタック
 - Bun 1.2.2
 - Next.js 15.1.7 (App Router, SSG)
