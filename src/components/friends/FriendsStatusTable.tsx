@@ -327,7 +327,8 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 	if (!isMounted) return null;
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-2">
+			{/* ステータスタイプ選択 */}
 			<FormGroup>
 				<Grid2 container spacing={2}>
 					{STATUS_TYPES.map((statusType) => (
@@ -366,8 +367,75 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 					))}
 				</Grid2>
 			</FormGroup>
+			{/* ページネーション */}
 			<div className="overflow-x-auto max-w-full">
-				<table className="min-w-[720px] max-w-[1920px] border-collapse w-full [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
+				<div className="flex items-center px-1 py-2 gap-4 min-w-[720px] max-w-[1920px]">
+					{/* ページサイズ指定 */}
+					<div className="flex items-center gap-2">
+						<span className="text-sm text-gray-700">1ページあたりの表示件数:</span>
+						<Select
+							value={table.getState().pagination.pageSize}
+							onChange={(e) => table.setPageSize(Number(e.target.value))}
+							size="small"
+							sx={{ minWidth: 80 }}
+						>
+							{[500, 200, 100, 50, 20, 10].map((pageSize) => (
+								<MenuItem key={pageSize} value={pageSize}>
+									{pageSize}
+								</MenuItem>
+							))}
+						</Select>
+					</div>
+					<div className="flex items-center gap-2">
+						{/* ページ異動ボタン */}
+						<div className="flex items-center gap-1">
+							<IconButton
+								size="small"
+								onClick={() => table.setPageIndex(0)}
+								disabled={!table.getCanPreviousPage()}
+							>
+								<FirstPage />
+							</IconButton>
+							<IconButton
+								size="small"
+								onClick={() => table.previousPage()}
+								disabled={!table.getCanPreviousPage()}
+							>
+								<NavigateBefore />
+							</IconButton>
+							<span className="text-sm text-gray-700 mx-2">
+								{table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+							</span>
+							<IconButton
+								size="small"
+								onClick={() => table.nextPage()}
+								disabled={!table.getCanNextPage()}
+							>
+								<NavigateNext />
+							</IconButton>
+							<IconButton
+								size="small"
+								onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+								disabled={!table.getCanNextPage()}
+							>
+								<LastPage />
+							</IconButton>
+						</div>
+						{/* ページ表示範囲 */}
+						{/* <div className="flex items-center gap-1 text-sm text-gray-700">
+							<span>{table.getFilteredRowModel().rows.length}件中</span>
+							<span>{table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-</span>
+							<span>
+								{Math.min(
+									(table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+									table.getFilteredRowModel().rows.length
+								)}
+							</span>
+							<span>件を表示中</span>
+						</div> */}
+					</div>
+				</div>
+				<table className="border-collapse w-full [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
 					<colgroup>
 						{table.getHeaderGroups()[0].headers.map((header) => {
 							const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
@@ -407,6 +475,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 															header.getContext()
 														)}
 													</span>
+													{/* ソートインジケーター */}
 													{header.column.getCanSort() && (
 														<span className="inline-flex flex-col text-gray-700" style={{ height: '15px' }}>
 															{header.column.getIsSorted() === "asc" ? (
@@ -468,69 +537,6 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 						))}
 					</tbody>
 				</table>
-			</div>
-			<div className="flex items-center justify-between px-4 py-2">
-				<div className="flex items-center gap-2">
-					<span className="text-sm text-gray-700">1ページあたりの表示件数:</span>
-					<Select
-						value={table.getState().pagination.pageSize}
-						onChange={(e) => table.setPageSize(Number(e.target.value))}
-						size="small"
-						sx={{ minWidth: 80 }}
-					>
-						{[500, 200, 100, 50, 20, 10].map((pageSize) => (
-							<MenuItem key={pageSize} value={pageSize}>
-								{pageSize}
-							</MenuItem>
-						))}
-					</Select>
-				</div>
-				<div className="flex items-center gap-2">
-					<div className="flex items-center gap-1 text-sm text-gray-700">
-						<span>{table.getFilteredRowModel().rows.length}件中</span>
-						<span>{table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-</span>
-						<span>
-							{Math.min(
-								(table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-								table.getFilteredRowModel().rows.length
-							)}
-						</span>
-						<span>件を表示中</span>
-					</div>
-					<div className="flex items-center gap-1">
-						<IconButton
-							size="small"
-							onClick={() => table.setPageIndex(0)}
-							disabled={!table.getCanPreviousPage()}
-						>
-							<FirstPage />
-						</IconButton>
-						<IconButton
-							size="small"
-							onClick={() => table.previousPage()}
-							disabled={!table.getCanPreviousPage()}
-						>
-							<NavigateBefore />
-						</IconButton>
-						<span className="text-sm text-gray-700 mx-2">
-							{table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
-						</span>
-						<IconButton
-							size="small"
-							onClick={() => table.nextPage()}
-							disabled={!table.getCanNextPage()}
-						>
-							<NavigateNext />
-						</IconButton>
-						<IconButton
-							size="small"
-							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-							disabled={!table.getCanNextPage()}
-						>
-							<LastPage />
-						</IconButton>
-					</div>
-				</div>
 			</div>
 		</div>
 	);
