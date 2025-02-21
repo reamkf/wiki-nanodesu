@@ -17,6 +17,7 @@ import {
 	Row,
 	Cell,
 	PaginationState,
+	filterFns
 } from "@tanstack/react-table";
 import { useMemo, useState, useEffect } from "react";
 import React from "react";
@@ -53,7 +54,8 @@ const getSearchableText = (row: ProcessedFriendsStatusListItem, columnId: string
 		case "attribute":
 			return row.friendsDataRow.attribute;
 		default:
-			return "";
+			console.log(row.displayValues[columnId as keyof typeof row.displayValues]);
+			return row.displayValues[columnId as keyof typeof row.displayValues] ?? '';
 	}
 };
 
@@ -315,6 +317,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 			id: "kemosute",
 			header: "けもステ",
 			cell: (info) => info.row.original.displayValues.kemosute,
+			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
 				width: "100px",
@@ -324,6 +327,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 			id: "hp",
 			header: "たいりょく",
 			cell: (info) => info.row.original.displayValues.hp,
+			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
 				width: "100px",
@@ -333,6 +337,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 			id: "atk",
 			header: "こうげき",
 			cell: (info) => info.row.original.displayValues.atk,
+			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
 				width: "100px",
@@ -342,6 +347,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 			id: "def",
 			header: "まもり",
 			cell: (info) => info.row.original.displayValues.def,
+			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
 				width: "100px",
