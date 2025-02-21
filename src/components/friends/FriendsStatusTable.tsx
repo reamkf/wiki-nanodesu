@@ -10,16 +10,18 @@ import {
 	useReactTable,
 	getSortedRowModel,
 	getFilteredRowModel,
+	getPaginationRowModel,
 	SortingState,
 	ColumnFiltersState,
 	FilterFn,
 	Row,
 	Cell,
+	PaginationState,
 } from "@tanstack/react-table";
 import { useMemo, useState, useEffect } from "react";
 import React from "react";
 import { FriendsAttributeIconAndName } from "./FriendsAttributeIconAndName";
-import { FormGroup, FormControlLabel, Checkbox, Paper, Grid2 } from '@mui/material';
+import { FormGroup, FormControlLabel, Checkbox, Paper, Grid2, Select, MenuItem, Button } from '@mui/material';
 import { normalizeQuery } from "@/utils/queryNormalizer";
 
 // ステータスタイプの定義
@@ -165,18 +167,16 @@ const TableRow = React.memo(function TableRow({ row }: { row: Row<ProcessedFrien
 export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusTableProps) {
 	const [isMounted, setIsMounted] = useState(false);
 	const [selectedStatusTypes, setSelectedStatusTypes] = useState<Set<string>>(new Set(STATUS_TYPES));
+	const [sorting, setSorting] = useState<SortingState>([]);
+	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+	const [pagination, setPagination] = useState<PaginationState>({
+		pageIndex: 0,
+		pageSize: 20,
+	});
 
 	useEffect(() => {
 		setIsMounted(true);
 	}, []);
-
-	const [sorting, setSorting] = useState<SortingState>([
-		{
-			id: "kemosute",
-			desc: true
-		}
-	]);
-	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
 	const filteredData = useMemo(() => {
 		return friendsStatusList.filter(item => selectedStatusTypes.has(item.statusType));
@@ -293,12 +293,20 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 		state: {
 			sorting,
 			columnFilters,
+			pagination,
 		},
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
+		onPaginationChange: setPagination,
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		enableSorting: true,
+		enableFilters: true,
+		enableColumnFilters: true,
+		manualSorting: false,
+		manualFiltering: false,
 		sortingFns: {
 			stable: (rowA, rowB, columnId) => {
 				const a = rowA.getValue(columnId) as number;
@@ -307,6 +315,11 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 				return diff === 0 ? rowA.original.originalIndex - rowB.original.originalIndex : diff;
 			},
 		},
+		defaultColumn: {
+			minSize: 100,
+			size: 150,
+			maxSize: 400,
+		},
 	});
 
 	if (friendsStatusList.length === 0) return null;
@@ -314,46 +327,44 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 
 	return (
 		<div className="space-y-4">
-			<Paper sx={{ p: 0, mb: 1, boxShadow: 0 }}>
-				<FormGroup>
-					<Grid2 container spacing={1}>
-						{STATUS_TYPES.map((statusType) => (
-							<Grid2 key={statusType}>
-								<FormControlLabel
-									sx={{
-										backgroundColor: selectedStatusTypes.has(statusType)
-											? statusTypeBackgroundColor[statusType].checkbox.checked
-											: statusTypeBackgroundColor[statusType].checkbox.unchecked,
-										'&:hover': {
-											backgroundColor: statusTypeBackgroundColor[statusType].checkbox.hover,
-										},
-										borderRadius: 1,
-										width: 'fit-content',
-										margin: 0,
-										'& .MuiFormControlLabel-label': {
-											flex: 1,
-										},
-									}}
-									control={
-										<Checkbox
-											checked={selectedStatusTypes.has(statusType)}
-											onChange={() => handleStatusTypeChange(statusType)}
-											sx={{
-												'&.Mui-checked': {
-													color: statusTypeBackgroundColor[statusType].checkbox.color,
-												},
-												padding: '0.25rem',
-												paddingRight: 0,
-											}}
-										/>
-									}
-									label={<div className="text-base p-1">{renderYaseiLevel(statusType)}</div>}
-								/>
-							</Grid2>
-						))}
-					</Grid2>
-				</FormGroup>
-			</Paper>
+			<FormGroup>
+				<Grid2 container spacing={2}>
+					{STATUS_TYPES.map((statusType) => (
+						<Grid2 key={statusType}>
+							<FormControlLabel
+								sx={{
+									backgroundColor: selectedStatusTypes.has(statusType)
+										? statusTypeBackgroundColor[statusType].checkbox.checked
+										: statusTypeBackgroundColor[statusType].checkbox.unchecked,
+									'&:hover': {
+										backgroundColor: statusTypeBackgroundColor[statusType].checkbox.hover,
+									},
+									borderRadius: 2,
+									width: 'fit-content',
+									margin: 0,
+									'& .MuiFormControlLabel-label': {
+										flex: 1,
+									},
+								}}
+								control={
+									<Checkbox
+										checked={selectedStatusTypes.has(statusType)}
+										onChange={() => handleStatusTypeChange(statusType)}
+										sx={{
+											'&.Mui-checked': {
+												color: statusTypeBackgroundColor[statusType].checkbox.color,
+											},
+											padding: '0.25rem',
+											paddingRight: 0,
+										}}
+									/>
+								}
+								label={<div className="text-base p-1">{renderYaseiLevel(statusType)}</div>}
+							/>
+						</Grid2>
+					))}
+				</Grid2>
+			</FormGroup>
 			<div className="overflow-x-auto max-w-full">
 				<table className="min-w-[720px] max-w-[1920px] border-collapse w-full [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
 					<colgroup>
@@ -373,13 +384,13 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 					<thead>
 						{table.getHeaderGroups().map((headerGroup) => (
 							<React.Fragment key={headerGroup.id}>
-								<tr className="bg-gray-200">
+								<tr className="bg-gray-100">
 									{headerGroup.headers.map((header) => {
 										const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
 										return (
 											<th
 												key={header.id}
-												className="px-4 py-2 whitespace-nowrap"
+												className="px-4 py-3 whitespace-nowrap"
 												style={{
 													textAlign: meta?.align || "left",
 													cursor: header.column.getCanSort() ? "pointer" : "default",
@@ -389,7 +400,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 												onClick={header.column.getToggleSortingHandler()}
 											>
 												<div className="flex items-center justify-between gap-2">
-													<span>
+													<span className="font-semibold">
 														{flexRender(
 															header.column.columnDef.header,
 															header.getContext()
@@ -397,31 +408,30 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 													</span>
 													{header.column.getCanSort() && (
 														<span className="inline-flex flex-col text-gray-700" style={{ height: '15px' }}>
-															{/* ソートインジケーター */}
 															{header.column.getIsSorted() === "asc" ? (
 																<>
-																	<svg className="text-blue-600" style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
+																	<svg className="text-blue-600" style={{ width: '12px', height: '12px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
 																		<path d="M8 0L16 8H0z" />
 																	</svg>
-																	<svg className="text-gray-300" style={{ width: '10px', height: '10px' }} viewBox="0 0 16 8" fill="currentColor">
+																	<svg className="text-gray-300" style={{ width: '12px', height: '12px' }} viewBox="0 0 16 8" fill="currentColor">
 																		<path d="M8 8L0 0h16z" />
 																	</svg>
 																</>
 															) : header.column.getIsSorted() === "desc" ? (
 																<>
-																	<svg className="text-gray-300" style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
+																	<svg className="text-gray-300" style={{ width: '12px', height: '12px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
 																		<path d="M8 0L16 8H0z" />
 																	</svg>
-																	<svg className="text-blue-600" style={{ width: '10px', height: '10px' }} viewBox="0 0 16 8" fill="currentColor">
+																	<svg className="text-blue-600" style={{ width: '12px', height: '12px' }} viewBox="0 0 16 8" fill="currentColor">
 																		<path d="M8 8L0 0h16z" />
 																	</svg>
 																</>
 															) : (
 																<>
-																	<svg style={{ width: '10px', height: '10px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
+																	<svg className="text-gray-400" style={{ width: '12px', height: '12px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
 																		<path d="M8 0L16 8H0z" />
 																	</svg>
-																	<svg style={{ width: '10px', height: '10px' }} viewBox="0 0 16 8" fill="currentColor">
+																	<svg className="text-gray-400" style={{ width: '12px', height: '12px' }} viewBox="0 0 16 8" fill="currentColor">
 																		<path d="M8 8L0 0h16z" />
 																	</svg>
 																</>
@@ -433,20 +443,15 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 										);
 									})}
 								</tr>
-								{/* 列ごとの検索欄 */}
 								<tr>
 									{headerGroup.headers.map((header) => (
-										<th key={header.id} className="bg-gray-100 p-1">
+										<th key={header.id} className="bg-gray-50 p-1">
 											{header.column.getCanFilter() && (
 												<input
-													className="w-full p-1 text-sm border rounded font-normal"
+													className="w-full p-2 text-sm border rounded font-normal bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
 													type="text"
-													value={
-														(header.column.getFilterValue() as string) ?? ""
-													}
-													onChange={(e) =>
-														header.column.setFilterValue(e.target.value)
-													}
+													value={(header.column.getFilterValue() as string) ?? ""}
+													onChange={(e) => header.column.setFilterValue(e.target.value)}
 													placeholder="検索..."
 												/>
 											)}
@@ -462,6 +467,73 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 						))}
 					</tbody>
 				</table>
+			</div>
+			<div className="flex items-center justify-between px-4 py-2">
+				<div className="flex items-center gap-2">
+					<span className="text-sm text-gray-700">1ページあたりの表示件数:</span>
+					<Select
+						value={table.getState().pagination.pageSize}
+						onChange={(e) => table.setPageSize(Number(e.target.value))}
+						size="small"
+						sx={{ minWidth: 80 }}
+					>
+						{[500, 200, 100, 50, 20, 10].map((pageSize) => (
+							<MenuItem key={pageSize} value={pageSize}>
+								{pageSize}
+							</MenuItem>
+						))}
+					</Select>
+				</div>
+				<div className="flex items-center gap-2">
+					<div className="flex items-center gap-1 text-sm text-gray-700">
+						<span>{table.getFilteredRowModel().rows.length}件中</span>
+						<span>{table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-</span>
+						<span>
+							{Math.min(
+								(table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+								table.getFilteredRowModel().rows.length
+							)}
+						</span>
+						<span>件を表示</span>
+					</div>
+					<div className="flex items-center gap-1">
+						<Button
+							variant="outlined"
+							size="small"
+							onClick={() => table.setPageIndex(0)}
+							disabled={!table.getCanPreviousPage()}
+						>
+							{'<<'}
+						</Button>
+						<Button
+							variant="outlined"
+							size="small"
+							onClick={() => table.previousPage()}
+							disabled={!table.getCanPreviousPage()}
+						>
+							{'<'}
+						</Button>
+						<span className="text-sm text-gray-700 mx-2">
+							{table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+						</span>
+						<Button
+							variant="outlined"
+							size="small"
+							onClick={() => table.nextPage()}
+							disabled={!table.getCanNextPage()}
+						>
+							{'>'}
+						</Button>
+						<Button
+							variant="outlined"
+							size="small"
+							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+							disabled={!table.getCanNextPage()}
+						>
+							{'>>'}
+						</Button>
+					</div>
+				</div>
 			</div>
 		</div>
 	);
