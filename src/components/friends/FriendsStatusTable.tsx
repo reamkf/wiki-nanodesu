@@ -168,21 +168,60 @@ const TableRow = React.memo(function TableRow({ row }: { row: Row<ProcessedFrien
 
 export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusTableProps) {
 	const [isMounted, setIsMounted] = useState(false);
-	const [selectedStatusTypes, setSelectedStatusTypes] = useState<Set<string>>(new Set(STATUS_TYPES));
-	const [sorting, setSorting] = useState<SortingState>([]);
+
+	const [selectedStatusTypes, setSelectedStatusTypes] = useState<Set<string>>(() => {
+		if (typeof window !== 'undefined') {
+			const saved = localStorage.getItem('selectedStatusTypes');
+			return saved ? new Set(JSON.parse(saved)) : new Set(STATUS_TYPES);
+		}
+		return new Set(STATUS_TYPES);
+	});
+	const [hideNullStatus, setHideNullStatus] = useState(() => {
+		if (typeof window !== 'undefined') {
+			const saved = localStorage.getItem('hideNullStatus');
+			return saved ? JSON.parse(saved) : false;
+		}
+		return false;
+	});
+	const [sorting, setSorting] = useState<SortingState>([{
+		id: 'kemosute',
+		desc: true
+	}]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-	const [pagination, setPagination] = useState<PaginationState>({
-		pageIndex: 0,
-		pageSize: 20,
+	const [pagination, setPagination] = useState<PaginationState>(() => {
+		if (typeof window !== 'undefined') {
+			const saved = localStorage.getItem('pagination');
+			return saved ? JSON.parse(saved) : { pageIndex: 0, pageSize: 100 };
+		}
+		return { pageIndex: 0, pageSize: 100 };
 	});
 
 	useEffect(() => {
 		setIsMounted(true);
 	}, []);
 
+	// 設定の永続化
+	useEffect(() => {
+		if (typeof window !== 'undefined') {
+			localStorage.setItem('hideNullStatus', JSON.stringify(hideNullStatus));
+			localStorage.setItem('selectedStatusTypes', JSON.stringify(Array.from(selectedStatusTypes)));
+			localStorage.setItem('pagination', JSON.stringify(pagination));
+		}
+	}, [hideNullStatus, selectedStatusTypes, pagination]);
+
 	const filteredData = useMemo(() => {
-		return friendsStatusList.filter(item => selectedStatusTypes.has(item.statusType));
-	}, [friendsStatusList, selectedStatusTypes]);
+		return friendsStatusList.filter(item => {
+			if (hideNullStatus && (
+				item.displayValues.kemosute === '?????' ||
+				item.displayValues.hp === '?????' ||
+				item.displayValues.atk === '?????' ||
+				item.displayValues.def === '?????'
+			)) {
+				return false;
+			}
+			return selectedStatusTypes.has(item.statusType);
+		});
+	}, [friendsStatusList, selectedStatusTypes, hideNullStatus]);
 
 	const handleStatusTypeChange = (statusType: string) => {
 		setSelectedStatusTypes(prev => {
@@ -194,6 +233,27 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 			}
 			return newSet;
 		});
+	};
+
+	const handleSortingChange = (updaterOrValue: SortingState | ((old: SortingState) => SortingState)) => {
+		const newSorting = typeof updaterOrValue === 'function' ? updaterOrValue([]) : updaterOrValue;
+		// 昇順・降順のみに制限（複数カラムのソートを無効化）
+		if (newSorting.length > 0) {
+			const currentSorting = sorting[0];
+			if (currentSorting && currentSorting.id === newSorting[0].id) {
+				// 同じカラムがクリックされた場合、昇順→降順→昇順のサイクル
+				setSorting([{ id: currentSorting.id, desc: !currentSorting.desc }]);
+			} else {
+				// 異なるカラムがクリックされた場合、昇順から開始
+				setSorting([{ id: newSorting[0].id, desc: true }]);
+			}
+		} else {
+			// ソートなしの状態は作らない（降順をデフォルトとする）
+			const lastSorting = sorting[0];
+			if (lastSorting) {
+				setSorting([{ id: lastSorting.id, desc: true }]);
+			}
+		}
 	};
 
 	const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
@@ -297,7 +357,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 			columnFilters,
 			pagination,
 		},
-		onSortingChange: setSorting,
+		onSortingChange: handleSortingChange,
 		onColumnFiltersChange: setColumnFilters,
 		onPaginationChange: setPagination,
 		getCoreRowModel: getCoreRowModel(),
@@ -328,7 +388,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 	if (!isMounted) return null;
 
 	return (
-		<div className="space-y-2">
+		<div className="space-y-4">
 			{/* ステータスタイプ選択 */}
 			<FormGroup>
 				<Grid2 container spacing={2}>
@@ -368,6 +428,39 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 					))}
 				</Grid2>
 			</FormGroup>
+
+			{/* ステータス不明を非表示オプション */}
+			<FormGroup>
+				<FormControlLabel
+					sx={{
+						backgroundColor: hideNullStatus ? '#e5e7eb' : '#f3f4f6',
+						'&:hover': {
+							backgroundColor: '#d1d5db',
+						},
+						borderRadius: 2,
+						width: 'fit-content',
+						margin: 0,
+						'& .MuiFormControlLabel-label': {
+							flex: 1,
+						},
+					}}
+					control={
+						<Checkbox
+							checked={hideNullStatus}
+							onChange={(e) => setHideNullStatus(e.target.checked)}
+							sx={{
+								'&.Mui-checked': {
+									color: '#4b5563',
+								},
+								padding: '0.25rem',
+								paddingRight: 0,
+							}}
+						/>
+					}
+					label={<div className="text-base p-1">ステータス不明を非表示</div>}
+				/>
+			</FormGroup>
+
 			{/* ページネーション */}
 			<div className="overflow-x-auto max-w-full">
 				<div className="flex items-center px-1 py-2 gap-4 min-w-[720px] max-w-[1920px]">
