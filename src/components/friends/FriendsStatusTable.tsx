@@ -24,6 +24,7 @@ import { FriendsAttributeIconAndName } from "./FriendsAttributeIconAndName";
 import { FormGroup, FormControlLabel, Checkbox, Grid2, Select, MenuItem, IconButton } from '@mui/material';
 import { FirstPage, LastPage, NavigateNext, NavigateBefore } from '@mui/icons-material';
 import { normalizeQuery } from "@/utils/queryNormalizer";
+import CancelIcon from '@mui/icons-material/Cancel';
 
 // ステータスタイプの定義
 const STATUS_TYPES = [
@@ -515,15 +516,26 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 								</tr>
 								<tr>
 									{headerGroup.headers.map((header) => (
-										<th key={header.id} className="bg-gray-50 p-1">
+										<th key={header.id} className="bg-gray-50 p-2 py-2">
 											{header.column.getCanFilter() && (
-												<input
-													className="w-full p-2 text-sm border rounded font-normal bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-													type="text"
-													value={(header.column.getFilterValue() as string) ?? ""}
-													onChange={(e) => header.column.setFilterValue(e.target.value)}
-													placeholder="検索..."
-												/>
+												<div className="relative">
+													<input
+														className="w-full p-2 text-sm border rounded font-normal bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+														type="text"
+														value={(header.column.getFilterValue() as string) ?? ""}
+														onChange={(e) => header.column.setFilterValue(e.target.value)}
+														placeholder="検索..."
+													/>
+													{(header.column.getFilterValue() as string | undefined) && (
+														<button
+															onClick={() => header.column.setFilterValue("")}
+															className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+															aria-label="検索をクリア"
+														>
+															<CancelIcon />
+														</button>
+													)}
+												</div>
 											)}
 										</th>
 									))}
