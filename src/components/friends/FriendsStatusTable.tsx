@@ -21,7 +21,8 @@ import {
 import { useMemo, useState, useEffect } from "react";
 import React from "react";
 import { FriendsAttributeIconAndName } from "./FriendsAttributeIconAndName";
-import { FormGroup, FormControlLabel, Checkbox, Paper, Grid2, Select, MenuItem, Button } from '@mui/material';
+import { FormGroup, FormControlLabel, Checkbox, Grid2, Select, MenuItem, IconButton } from '@mui/material';
+import { FirstPage, LastPage, NavigateNext, NavigateBefore } from '@mui/icons-material';
 import { normalizeQuery } from "@/utils/queryNormalizer";
 
 // ステータスタイプの定義
@@ -494,44 +495,40 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 								table.getFilteredRowModel().rows.length
 							)}
 						</span>
-						<span>件を表示</span>
+						<span>件を表示中</span>
 					</div>
 					<div className="flex items-center gap-1">
-						<Button
-							variant="outlined"
+						<IconButton
 							size="small"
 							onClick={() => table.setPageIndex(0)}
 							disabled={!table.getCanPreviousPage()}
 						>
-							{'<<'}
-						</Button>
-						<Button
-							variant="outlined"
+							<FirstPage />
+						</IconButton>
+						<IconButton
 							size="small"
 							onClick={() => table.previousPage()}
 							disabled={!table.getCanPreviousPage()}
 						>
-							{'<'}
-						</Button>
+							<NavigateBefore />
+						</IconButton>
 						<span className="text-sm text-gray-700 mx-2">
 							{table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
 						</span>
-						<Button
-							variant="outlined"
+						<IconButton
 							size="small"
 							onClick={() => table.nextPage()}
 							disabled={!table.getCanNextPage()}
 						>
-							{'>'}
-						</Button>
-						<Button
-							variant="outlined"
+							<NavigateNext />
+						</IconButton>
+						<IconButton
 							size="small"
 							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
 							disabled={!table.getCanNextPage()}
 						>
-							{'>>'}
-						</Button>
+							<LastPage />
+						</IconButton>
 					</div>
 				</div>
 			</div>
