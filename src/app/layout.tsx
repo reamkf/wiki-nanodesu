@@ -52,10 +52,10 @@ export default function RootLayout({
 				<SidebarProvider>
 					<div className="min-h-screen bg-white flex flex-col">
 						<Header />
-						<div className="w-full max-w-[1920px] p-0 m-0 flex flex-grow">
+						<div className="w-full max-w-[1920px] p-0 m-0 mt-2 flex flex-grow">
 							<Sidebar />
 							<div className="flex flex-col flex-grow overflow-hidden">
-								<main className="md:ml-86 ml-0 p-4 flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent hover:scrollbar-thumb-gray-300">
+								<main className="md:ml-86 ml-0 p-3 flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent hover:scrollbar-thumb-gray-300">
 									{children}
 								</main>
 								<Footer />

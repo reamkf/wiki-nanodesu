@@ -40,9 +40,8 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 		<aside className={`
 			fixed md:sticky
 
-			md:mr-4
 			p-1 md:p-4
-			m-2
+			m-3
 			top-[63px] left-0
 			z-30 md:z-auto
 
