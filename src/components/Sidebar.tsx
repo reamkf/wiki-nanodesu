@@ -4,7 +4,6 @@ import { getFriendsData } from '@/utils/friendsData';
 import { FriendsDataRow } from '@/types/friends';
 import { getPhotoData } from '@/utils/photoData';
 import { getWikiNanodaPageUrl } from '@/utils/encoding';
-import { isHc } from '@/utils/friends';
 
 export interface SidebarLinkItem {
 	href: string;
@@ -23,11 +22,13 @@ export async function Sidebar() {
 
 	const photoData = await getPhotoData();
 
-	const photoPageNameList: string[] = photoData.map((photo) => photo.name).concat(
-		friendsData
-			.filter(friend => !isHc(friend))
-			.map((friend) => (friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name) + '(フォト)')
-	).sort((a, b) => a.replace(/^【.*】/, '').localeCompare(b.replace(/^【.*】/, '')));
+	const photoPageNameList: string[] = photoData.map((photo) => photo.name)
+		.sort((a, b) => a.localeCompare(b));
+		// .concat(
+		// 	friendsData
+		// 		.filter(friend => !isHc(friend))
+		// 		.map((friend) => (friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name) + '(フォト)')
+		// ).sort((a, b) => a.replace(/^【.*】/, '').localeCompare(b.replace(/^【.*】/, '')));
 
 	const sideBarLinksNanodesu: SidebarLinkItem[] = [
 		{
