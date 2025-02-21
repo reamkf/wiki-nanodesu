@@ -17,10 +17,8 @@ import {
 	Row,
 	Cell,
 	PaginationState,
-	filterFns
 } from "@tanstack/react-table";
-import { useMemo, useState, useEffect } from "react";
-import React from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { FriendsAttributeIconAndName } from "./FriendsAttributeIconAndName";
 import { FormGroup, FormControlLabel, Checkbox, Grid2, Select, MenuItem, IconButton } from '@mui/material';
 import { FirstPage, LastPage, NavigateNext, NavigateBefore } from '@mui/icons-material';
@@ -347,6 +345,16 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 			id: "def",
 			header: "まもり",
 			cell: (info) => info.row.original.displayValues.def,
+			filterFn: customFilterFn,
+			meta: {
+				align: "right" as const,
+				width: "100px",
+			},
+		}),
+		columnHelper.accessor((row) => row.sortValues.avoid, {
+			id: "avoid",
+			header: "かいひ",
+			cell: (info) => info.row.original.displayValues.avoid,
 			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
