@@ -1,6 +1,12 @@
+import { Metadata } from 'next'
 import FriendsStatusTable from "@/components/friends/FriendsStatusTable";
 import { PageTitle } from "@/components/PageTitle";
 import { getFriendsStatusList } from "@/utils/friendsStatus";
+
+export const metadata: Metadata = {
+	title: "フレンズステータスランキング - アプリ版けものフレンズ３wikiなのです🦉",
+	description: "フレンズステータスランキング",
+};
 
 export default async function FriendsStatus() {
 	const friendsStatusList = await getFriendsStatusList();
