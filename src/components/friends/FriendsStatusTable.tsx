@@ -310,7 +310,13 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 		columnHelper.accessor((row) => row.sortValues.kemosute, {
 			id: "kemosute",
 			header: "けもステ",
-			cell: (info) => info.row.original.displayValues.kemosute,
+			cell: (info) => (
+				<div
+					className={`${info.row.original.status.estimated ? "italic text-gray-600 bg-red-200" : ""} inline-block ml-auto px-1`}
+				>
+					{info.row.original.displayValues.kemosute}
+				</div>
+			),
 			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
@@ -320,7 +326,13 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 		columnHelper.accessor((row) => row.sortValues.hp, {
 			id: "hp",
 			header: "たいりょく",
-			cell: (info) => info.row.original.displayValues.hp,
+			cell: (info) => (
+				<div
+					className={`${info.row.original.status.estimated ? "italic text-gray-600 bg-red-200" : ""} inline-block ml-auto px-1`}
+				>
+					{info.row.original.displayValues.hp}
+				</div>
+			),
 			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
@@ -330,7 +342,13 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 		columnHelper.accessor((row) => row.sortValues.atk, {
 			id: "atk",
 			header: "こうげき",
-			cell: (info) => info.row.original.displayValues.atk,
+			cell: (info) => (
+				<div
+					className={`${info.row.original.status.estimated ? "italic text-gray-600 bg-red-200" : ""} inline-block ml-auto px-1`}
+				>
+					{info.row.original.displayValues.atk}
+				</div>
+			),
 			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
@@ -340,7 +358,13 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 		columnHelper.accessor((row) => row.sortValues.def, {
 			id: "def",
 			header: "まもり",
-			cell: (info) => info.row.original.displayValues.def,
+			cell: (info) => (
+				<div
+					className={`${info.row.original.status.estimated ? "italic text-gray-600 bg-red-200" : ""} inline-block ml-auto px-1`}
+				>
+					{info.row.original.displayValues.def}
+				</div>
+			),
 			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
@@ -539,6 +563,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 						</div> */}
 					</div>
 				</div>
+
 				<table className="border-collapse w-full [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
 					<colgroup>
 						{table.getHeaderGroups()[0].headers.map((header) => {
