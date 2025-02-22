@@ -98,7 +98,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						className="font-bold text-sky-700 p-2 pl-0 flex-grow leading-tight"
 						onClick={close}
 					>
-						アプリ版けものフレンズ３wikiなのです
+						アプリ版けものフレンズ３wikiなのです🦉
 					</Link>
 				</div>
 				<ul className="list-disc pl-6">
