@@ -208,6 +208,11 @@ export interface ProcessedFriendsStatusListItem extends FriendsStatusListItem {
 		atk: number;
 		def: number;
 		avoid: number;
+		// 衣装補正込みのステータス
+		kemosuteWithCostume: number;
+		hpWithCostume: number;
+		atkWithCostume: number;
+		defWithCostume: number;
 	};
 	displayValues: {
 		kemosute: string;
@@ -217,6 +222,28 @@ export interface ProcessedFriendsStatusListItem extends FriendsStatusListItem {
 		avoid: string;
 	};
 	originalIndex: number;
+}
+
+// 衣装補正の計算
+function calculateCostumeBonus(numCostumes: number): BasicStatus {
+	const n = numCostumes + 2;
+	return {
+		kemosute: 280 * n,
+		hp: 100 * n,
+		atk: 50 * n,
+		def: 25 * n,
+	};
+}
+
+// 衣装補正込みのステータスを計算
+function calculateStatusWithCostume(
+	baseValue: number | null,
+	costumeBonus: number
+): { value: number | null; bonus: number } {
+	if (baseValue === null) {
+		return { value: null, bonus: costumeBonus };
+	}
+	return { value: baseValue + costumeBonus, bonus: costumeBonus };
 }
 
 export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusListItem[]> {
@@ -276,6 +303,15 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 		for (const statusType of statusTypes) {
 			const kemosute = calcKemosute(statusType.status);
 
+			// 衣装補正の計算（仮の衣装数として2を使用）
+			const costumeBonus = calculateCostumeBonus(friend.numOfClothes);
+
+			// 衣装補正込みのステータスを計算
+			const kemosuteWithCostume = calculateStatusWithCostume(kemosute, costumeBonus.kemosute ?? 0);
+			const hpWithCostume = calculateStatusWithCostume(statusType.status.hp, costumeBonus.hp ?? 0);
+			const atkWithCostume = calculateStatusWithCostume(statusType.status.atk, costumeBonus.atk ?? 0);
+			const defWithCostume = calculateStatusWithCostume(statusType.status.def, costumeBonus.def ?? 0);
+
 			result.push({
 				friendsDataRow: friend,
 				level: statusType.level,
@@ -292,6 +328,10 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 					atk: statusType.status.atk === null ? -Infinity : statusType.status.atk,
 					def: statusType.status.def === null ? -Infinity : statusType.status.def,
 					avoid: friend.status.avoid === null ? -Infinity : friend.status.avoid,
+					kemosuteWithCostume: kemosuteWithCostume.value === null ? -Infinity : kemosuteWithCostume.value,
+					hpWithCostume: hpWithCostume.value === null ? -Infinity : hpWithCostume.value,
+					atkWithCostume: atkWithCostume.value === null ? -Infinity : atkWithCostume.value,
+					defWithCostume: defWithCostume.value === null ? -Infinity : defWithCostume.value,
 				},
 				// 表示用の文字列を事前計算
 				displayValues: {
@@ -299,7 +339,7 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 					hp: statusType.status.hp === null ? "?????" : statusType.status.hp.toLocaleString(),
 					atk: statusType.status.atk === null ? "?????" : statusType.status.atk.toLocaleString(),
 					def: statusType.status.def === null ? "?????" : statusType.status.def.toLocaleString(),
-					avoid: friend.status.avoid === null ? "???%" : friend.status.avoid.toLocaleString(undefined, {style: 'percent', minimumFractionDigits:1}),
+					avoid: friend.status.avoid === null ? "???%" : friend.status.avoid.toLocaleString(undefined, {style: 'percent', minimumFractionDigits:1})
 				},
 				originalIndex: index++,
 			});

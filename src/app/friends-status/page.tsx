@@ -13,9 +13,9 @@ export default async function FriendsStatus() {
 			</p> */}
 
 			<p className="mb-4">
-				<div className="flex items-center gap-2">
+				<span className="flex items-center gap-2">
 					<span className="italic text-gray-600 bg-red-200 inline-block px-1">斜体・赤背景</span>は推測値です。
-				</div>
+				</span>
 			</p>
 
 			<FriendsStatusTable friendsStatusList={friendsStatusList} />

@@ -35,6 +35,8 @@ const STATUS_TYPES = [
 	'☆6/Lv90/野生5',
 ] as const;
 
+const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
+
 interface FriendsStatusTableProps {
 	friendsStatusList: ProcessedFriendsStatusListItem[];
 }
@@ -143,6 +145,38 @@ const renderYaseiLevel = (statusType: string) => {
 	);
 };
 
+// ステータスセルの内容を表示するコンポーネント
+interface StatusCellProps {
+	value: number;
+	isEstimated: boolean;
+	showCostumeBonus: boolean;
+	costumeBonus?: number;
+}
+
+const StatusCell: React.FC<StatusCellProps> = ({
+	value,
+	isEstimated,
+	showCostumeBonus,
+	costumeBonus,
+}) => {
+	return (
+		<>
+			<div
+				className={`${isEstimated ? "italic text-gray-600 bg-red-200" : ""} inline-block ml-auto px-1`}
+			>
+				<span>{value === -Infinity ? "?????" : value.toLocaleString()}</span>
+			</div>
+			{showCostumeBonus && (
+				<div>
+					{value !== -Infinity && costumeBonus && (
+						<span className="block text-xs text-gray-600 px-1">[+{(costumeBonus).toLocaleString()}]</span>
+					)}
+				</div>
+			)}
+		</>
+	);
+};
+
 // メモ化された行コンポーネント
 const TableRow = React.memo(function TableRow({ row }: { row: Row<ProcessedFriendsStatusListItem> }) {
 	const statusType = row.original.statusType;
@@ -182,6 +216,13 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 		}
 		return false;
 	});
+	const [showCostumeBonus, setShowCostumeBonus] = useState<boolean>(() => {
+		if (typeof window !== 'undefined') {
+			const saved = localStorage.getItem('showCostumeBonus');
+			return saved ? JSON.parse(saved) : false;
+		}
+		return false;
+	});
 	const [sorting, setSorting] = useState<SortingState>([{
 		id: 'kemosute',
 		desc: true
@@ -195,6 +236,9 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 		return { pageIndex: 0, pageSize: 100 };
 	});
 
+	// showCostumeBonusのデフォルト値を設定
+	const showCostumeBonusValue = showCostumeBonus ?? false;
+
 	useEffect(() => {
 		setIsMounted(true);
 	}, []);
@@ -205,8 +249,9 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 			localStorage.setItem('hideNullStatus', JSON.stringify(hideNullStatus));
 			localStorage.setItem('selectedStatusTypes', JSON.stringify(Array.from(selectedStatusTypes)));
 			localStorage.setItem('pagination', JSON.stringify(pagination));
+			localStorage.setItem('showCostumeBonus', JSON.stringify(showCostumeBonus));
 		}
-	}, [hideNullStatus, selectedStatusTypes, pagination]);
+	}, [hideNullStatus, selectedStatusTypes, pagination, showCostumeBonus]);
 
 	const filteredData = useMemo(() => {
 		return friendsStatusList.filter(item => {
@@ -252,7 +297,15 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 		}
 	};
 
-	const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
+	// showCostumeBonusの変更時にソート状態を更新するハンドラー
+	const handleShowCostumeBonusChange = (checked: boolean) => {
+		setShowCostumeBonus(checked);
+		// 現在のソート状態を維持しながら再ソート
+		setSorting(prev => {
+			if (prev.length === 0) return [{ id: 'kemosute', desc: true }];
+			return [{ ...prev[0], desc: true }]; // 降順で再ソート
+		});
+	};
 
 	const columns = useMemo(() => [
 		columnHelper.accessor((row) => row, {
@@ -307,64 +360,84 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 				width: "100px",
 			},
 		}),
-		columnHelper.accessor((row) => row.sortValues.kemosute, {
+		columnHelper.accessor((row) => showCostumeBonusValue ? row.sortValues.kemosuteWithCostume : row.sortValues.kemosute, {
 			id: "kemosute",
 			header: "けもステ",
-			cell: (info) => (
-				<div
-					className={`${info.row.original.status.estimated ? "italic text-gray-600 bg-red-200" : ""} inline-block ml-auto px-1`}
-				>
-					{info.row.original.displayValues.kemosute}
-				</div>
-			),
+			cell: (info) => {
+				const baseValue = info.row.original.sortValues.kemosute;
+				const withCostume = info.row.original.sortValues.kemosuteWithCostume;
+				return (
+					<StatusCell
+						value={showCostumeBonusValue ? withCostume : baseValue}
+						isEstimated={info.row.original.status.estimated ?? false}
+						showCostumeBonus={showCostumeBonusValue}
+						costumeBonus={withCostume - baseValue}
+					/>
+				);
+			},
 			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
 				width: "100px",
 			},
 		}),
-		columnHelper.accessor((row) => row.sortValues.hp, {
+		columnHelper.accessor((row) => showCostumeBonusValue ? row.sortValues.hpWithCostume : row.sortValues.hp, {
 			id: "hp",
 			header: "たいりょく",
-			cell: (info) => (
-				<div
-					className={`${info.row.original.status.estimated ? "italic text-gray-600 bg-red-200" : ""} inline-block ml-auto px-1`}
-				>
-					{info.row.original.displayValues.hp}
-				</div>
-			),
+			cell: (info) => {
+				const baseValue = info.row.original.sortValues.hp;
+				const withCostume = info.row.original.sortValues.hpWithCostume;
+				return (
+					<StatusCell
+						value={showCostumeBonusValue ? withCostume : baseValue}
+						isEstimated={info.row.original.status.estimated ?? false}
+						showCostumeBonus={showCostumeBonusValue}
+						costumeBonus={withCostume - baseValue}
+					/>
+				);
+			},
 			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
 				width: "100px",
 			},
 		}),
-		columnHelper.accessor((row) => row.sortValues.atk, {
+		columnHelper.accessor((row) => showCostumeBonusValue ? row.sortValues.atkWithCostume : row.sortValues.atk, {
 			id: "atk",
 			header: "こうげき",
-			cell: (info) => (
-				<div
-					className={`${info.row.original.status.estimated ? "italic text-gray-600 bg-red-200" : ""} inline-block ml-auto px-1`}
-				>
-					{info.row.original.displayValues.atk}
-				</div>
-			),
+			cell: (info) => {
+				const baseValue = info.row.original.sortValues.atk;
+				const withCostume = info.row.original.sortValues.atkWithCostume;
+				return (
+					<StatusCell
+						value={showCostumeBonusValue ? withCostume : baseValue}
+						isEstimated={info.row.original.status.estimated ?? false}
+						showCostumeBonus={showCostumeBonusValue}
+						costumeBonus={withCostume - baseValue}
+					/>
+				);
+			},
 			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
 				width: "100px",
 			},
 		}),
-		columnHelper.accessor((row) => row.sortValues.def, {
+		columnHelper.accessor((row) => showCostumeBonusValue ? row.sortValues.defWithCostume : row.sortValues.def, {
 			id: "def",
 			header: "まもり",
-			cell: (info) => (
-				<div
-					className={`${info.row.original.status.estimated ? "italic text-gray-600 bg-red-200" : ""} inline-block ml-auto px-1`}
-				>
-					{info.row.original.displayValues.def}
-				</div>
-			),
+			cell: (info) => {
+				const baseValue = info.row.original.sortValues.def;
+				const withCostume = info.row.original.sortValues.defWithCostume;
+				return (
+					<StatusCell
+						value={showCostumeBonusValue ? withCostume : baseValue}
+						isEstimated={info.row.original.status.estimated ?? false}
+						showCostumeBonus={showCostumeBonusValue}
+						costumeBonus={withCostume - baseValue}
+					/>
+				);
+			},
 			filterFn: customFilterFn,
 			meta: {
 				align: "right" as const,
@@ -381,7 +454,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 				width: "100px",
 			},
 		}),
-	], [columnHelper]);
+	], [showCostumeBonusValue]);
 
 	const table = useReactTable({
 		data: filteredData,
@@ -463,36 +536,72 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 				</Grid2>
 			</FormGroup>
 
-			{/* ステータス不明を非表示オプション */}
+			{/* オプション */}
 			<FormGroup>
-				<FormControlLabel
-					sx={{
-						backgroundColor: hideNullStatus ? '#e5e7eb' : '#f3f4f6',
-						'&:hover': {
-							backgroundColor: '#d1d5db',
-						},
-						borderRadius: 2,
-						width: 'fit-content',
-						margin: 0,
-						'& .MuiFormControlLabel-label': {
-							flex: 1,
-						},
-					}}
-					control={
-						<Checkbox
-							checked={hideNullStatus}
-							onChange={(e) => setHideNullStatus(e.target.checked)}
+				<Grid2 container spacing={2}>
+					{/* 衣装補正の表示オプション */}
+					<Grid2>
+						<FormControlLabel
 							sx={{
-								'&.Mui-checked': {
-									color: '#4b5563',
+								backgroundColor: showCostumeBonusValue ? '#fef9c3' : '#fefce8',
+								'&:hover': {
+									backgroundColor: '#fef08a',
 								},
-								padding: '0.25rem',
-								paddingRight: 0,
+								borderRadius: 2,
+								width: 'fit-content',
+								margin: 0,
+								'& .MuiFormControlLabel-label': {
+									flex: 1,
+								},
 							}}
+							control={
+								<Checkbox
+									checked={showCostumeBonusValue}
+									onChange={(e) => handleShowCostumeBonusChange(e.target.checked)}
+									sx={{
+										'&.Mui-checked': {
+											color: '#ca8a04',
+										},
+										padding: '0.25rem',
+										paddingRight: 0,
+									}}
+								/>
+							}
+							label={<div className="text-base p-1">衣装補正を含む</div>}
 						/>
-					}
-					label={<div className="text-base p-1">ステータス不明を非表示</div>}
-				/>
+					</Grid2>
+					{/* ステータス不明を非表示オプション */}
+					<Grid2>
+						<FormControlLabel
+							sx={{
+								backgroundColor: hideNullStatus ? '#e5e7eb' : '#f3f4f6',
+								'&:hover': {
+									backgroundColor: '#d1d5db',
+								},
+								borderRadius: 2,
+								width: 'fit-content',
+								margin: 0,
+								'& .MuiFormControlLabel-label': {
+									flex: 1,
+								},
+							}}
+							control={
+								<Checkbox
+									checked={hideNullStatus}
+									onChange={(e) => setHideNullStatus(e.target.checked)}
+									sx={{
+										'&.Mui-checked': {
+											color: '#4b5563',
+										},
+										padding: '0.25rem',
+										paddingRight: 0,
+									}}
+								/>
+							}
+							label={<div className="text-base p-1">不明なステータスを非表示</div>}
+						/>
+					</Grid2>
+				</Grid2>
 			</FormGroup>
 
 			{/* ページネーション */}
