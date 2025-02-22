@@ -52,7 +52,6 @@ const getSearchableText = (row: ProcessedFriendsStatusListItem, columnId: string
 		case "attribute":
 			return row.friendsDataRow.attribute;
 		default:
-			console.log(row.displayValues[columnId as keyof typeof row.displayValues]);
 			return row.displayValues[columnId as keyof typeof row.displayValues] ?? '';
 	}
 };
@@ -212,10 +211,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 	const filteredData = useMemo(() => {
 		return friendsStatusList.filter(item => {
 			if (hideNullStatus && (
-				item.displayValues.kemosute === '?????' ||
-				item.displayValues.hp === '?????' ||
-				item.displayValues.atk === '?????' ||
-				item.displayValues.def === '?????'
+				[item.status.hp, item.status.atk, item.status.def].some(status => status === null)
 			)) {
 				return false;
 			}
