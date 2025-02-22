@@ -277,12 +277,13 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 				status: friend.status.status200,
 				statusType: '☆6/Lv200/野生4' as const
 			},
-			{
-				level: 90,
-				rank: 6,
-				yasei: 5 as const,
-				status: friend.status.status90Yasei5,
-				statusType: '☆6/Lv90/野生5' as const
+			...(friend.hasYasei5 ? [
+				{
+					level: 90,
+					rank: 6,
+					yasei: 5 as const,
+					status: friend.status.status90Yasei5,
+					statusType: '☆6/Lv90/野生5' as const
 			},
 			{
 				level: 99,
@@ -296,8 +297,9 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 				rank: 6,
 				yasei: 5 as const,
 				status: friend.status.status200Yasei5,
-				statusType: '☆6/Lv200/野生5' as const
-			}
+					statusType: '☆6/Lv200/野生5' as const
+				}
+			] : [])
 		];
 
 		for (const statusType of statusTypes) {
