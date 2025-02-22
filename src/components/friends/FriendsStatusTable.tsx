@@ -495,7 +495,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 	if (!isMounted) return null;
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-2">
 			{/* ステータスタイプ選択 */}
 			<FormGroup>
 				<Grid2 container spacing={2}>
