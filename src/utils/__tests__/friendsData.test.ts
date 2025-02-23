@@ -152,7 +152,6 @@ describe('getFriendsData', () => {
 			it('めぐみパターンが正しい', () => {
 				expect(sampleFriendsData?.status.statusBase.megumiPattern).toBe(MegumiPattern.atk50);
 			});
-
 		});
 	});
 });

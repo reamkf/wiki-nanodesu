@@ -3,7 +3,7 @@ import { join } from "path";
 import Papa from "papaparse";
 import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV, RAW_FRIENDS_CSV_HEADERS } from "@/types/friends";
 import type { BasicStatus } from "@/types/common";
-import { calculateFriendsStatus } from "./friendsStatus";
+import { calculateFriendsStatus, getLv99FromLv90, isStatusNull } from "./friendsStatus";
 
 function convertToNumberElseNull(value: unknown): number | null {
 	if (typeof value === 'number') return value;
@@ -142,6 +142,9 @@ export async function parseFriendsStatus(data: RawFriendsCSV): Promise<FriendsSt
 }
 
 export async function fillStatuses(friendsDataRow: FriendsDataRow): Promise<FriendsDataRow> {
+	if(isStatusNull(friendsDataRow.status.statusBase.lv99) && !isStatusNull(friendsDataRow.status.statusBase.lv90)) {
+		friendsDataRow.status.statusBase.lv99 = getLv99FromLv90(friendsDataRow.status.statusBase.lv90);
+	}
 	const status90 = await calculateFriendsStatus(friendsDataRow, 90, 6, 4);
 	const status99 = await calculateFriendsStatus(friendsDataRow, 99, 6, 4);
 	const status150 = await calculateFriendsStatus(friendsDataRow, 150, 6, 4);

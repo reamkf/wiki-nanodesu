@@ -4,7 +4,7 @@ import { FriendsStatusListItem } from "@/types/friends";
 import { getFriendsData } from "./friendsData";
 import { calcKemosute } from "./common";
 
-function isStatusNull(status: BasicStatus): boolean {
+export function isStatusNull(status: BasicStatus): boolean {
 	return status.hp === null || status.atk === null || status.def === null;
 }
 
@@ -14,6 +14,24 @@ export function getInitialLv(rarityOrFriendsDataRow: number | FriendsDataRow): n
 	} else {
 		return rarityOrFriendsDataRow.rarity * 10 + 3;
 	}
+}
+
+const lv99Correction = 1.093632809;
+
+export function getLv99FromLv90(lv90: BasicStatus): BasicStatus {
+	if (lv90.hp === null || lv90.atk === null || lv90.def === null) {
+		return {
+			hp: null,
+			atk: null,
+			def: null,
+		} as BasicStatus;
+	}
+	return {
+		hp: Math.ceil(lv90.hp * lv99Correction),
+		atk: Math.ceil(lv90.atk * lv99Correction),
+		def: Math.ceil(lv90.def * lv99Correction),
+		estimated: true
+	} as BasicStatus;
 }
 
 function calculateFriendsStatusRaw(

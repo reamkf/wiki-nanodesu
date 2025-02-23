@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { calculateFriendsStatus } from '../friendsStatus';
+import { calculateFriendsStatus, getLv99FromLv90 } from '../friendsStatus';
 import { FriendsAttribute, FriendsDataRow, MegumiPattern } from '@/types/friends';
 import { BasicStatus } from '@/types/common';
 
@@ -675,6 +675,25 @@ describe('calculateFriendsStatus', () => {
 
 			const status = calculateFriendsStatus(friendsData, 95, 6, 4);
 			expect(isStatusNull(status)).toBe(true);
+		});
+	});
+
+	describe('Lv99からLv90への変換', () => {
+		it('Lv99からLv90への変換を計算する', () => {
+			const lv99 = {
+				hp: 1000,
+				atk: 2000,
+				def: 3000,
+				estimated: false
+			};
+
+			const lv90 = getLv99FromLv90(lv99);
+			expect(lv90).toEqual({
+				hp: 1094,
+				atk: 2188,
+				def: 3281,
+				estimated: true
+			});
 		});
 	});
 });
