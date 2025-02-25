@@ -63,7 +63,7 @@ export async function getSkillsData(): Promise<SkillEffect[]> {
 				skillsDataCache = validData;
 				resolve(validData);
 			},
-			error: (error) => {
+			error: (error: Error) => {
 				console.error("Error parsing CSV:", error);
 				resolve([]);
 			}
