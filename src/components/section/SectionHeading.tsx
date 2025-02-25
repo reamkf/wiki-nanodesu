@@ -48,7 +48,7 @@ export function SectionHeading({
 				backgroundColor: 'transparent', // 背景なし
 			};
 			case 3: return {
-				borderBottom: '2px solid #909090', // 灰色ボーダー
+				borderBottom: '1px solid #808080', // 灰色ボーダー
 				backgroundColor: 'transparent', // 背景なし
 			};
 			default: return {
@@ -69,8 +69,9 @@ export function SectionHeading({
 				alignItems: 'center',
 				justifyContent: 'space-between',
 				pt: 0.5,
-				pb: 0.25,
-				pl: 1,
+				pb: level === 1 ? 0.25 : level === 2 ? 0.125 : 0,
+				pl: level === 1 ? 1 : 0.5,
+				mb: 2,
 				scrollMarginTop: '2rem',
 				transition: 'all 0.3s ease',
 				...borderStyle,
@@ -83,12 +84,12 @@ export function SectionHeading({
 				variant={getVariant()}
 				component={`h${level}`}
 				sx={{
-					fontWeight: level <= 2 ? 600 : 500,
+					fontWeight: 600,
 					fontSize: level === 1 ? '1.1rem' : level === 2 ? '1rem' : '0.9rem',
 					flexGrow: 1,
 					cursor: 'pointer',
 					letterSpacing: '0.01em',
-					color: level === 1 ? '#424242' : '#616161',
+					color: level < 3 ? '#424242' : '#101010',
 				}}
 				onClick={onToggle}
 			>

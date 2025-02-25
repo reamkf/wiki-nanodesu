@@ -405,27 +405,27 @@ export default function ClientTabs({
 				const hasChildren = category.children && category.children.length > 0;
 
 				return (
-					<Box key={category.id} sx={{ mt: level === 0 ? 4 : 2, mb: 2 }}>
+					<Box key={category.id} sx={{ mt: level === 0 ? 4 : level === 1 ? 1 : 2, mb: level === 0 ? 2 : 0 }}>
 						{/* カテゴリー見出し */}
 						{level === 0 && (
 							<Box id={`section-${category.id}`} sx={{ mb: 2 }}>
 								<SectionHeading
 									title={category.name}
 									id={`heading-${category.id}`}
-									isOpen={true}
-									onToggle={() => {}}
+									isOpen={openSections[category.id] === true}
+									onToggle={() => toggleSection(category.id)}
 									level={1}
 								/>
 							</Box>
 						)}
 
 						{level === 1 && (
-							<Box id={`section-${category.id}`} sx={{ mb: 2 }}>
+							<Box id={`section-${category.id}`}>
 								<SectionHeading
 									title={category.name}
 									id={`heading-${category.id}`}
-									isOpen={true}
-									onToggle={() => {}}
+									isOpen={openSections[category.id] === true}
+									onToggle={() => toggleSection(category.id)}
 									level={2}
 								/>
 							</Box>
@@ -440,7 +440,7 @@ export default function ClientTabs({
 
 						{/* リーフノード（実際のスキル効果）の場合はテーブルを表示 */}
 						{!hasChildren && effectTypes.includes(category.id) && (
-							<Box id={`section-${category.id}`} sx={{ mb: 4 }}>
+							<Box id={`section-${category.id}`}>
 								{level >= 2 && (
 									<SectionHeading
 										title={category.name}
@@ -448,6 +448,7 @@ export default function ClientTabs({
 										isOpen={openSections[category.id] === true}
 										onToggle={() => toggleSection(category.id)}
 										level={3}
+										className="mt-1"
 									/>
 								)}
 
