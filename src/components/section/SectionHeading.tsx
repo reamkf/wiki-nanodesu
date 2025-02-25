@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Typography, Box, IconButton } from '@mui/material';
+import { Typography, Box, IconButton, Collapse } from '@mui/material';
 import { ExpandMore, ExpandLess } from '@mui/icons-material';
 
 interface SectionHeadingProps {
@@ -13,10 +13,12 @@ interface SectionHeadingProps {
 	onToggle: () => void;
 
 	className?: string;
+	children?: React.ReactNode; // 子要素を追加
 }
 
 /**
  * 折りたたみ可能なセクション見出しコンポーネント
+ * 子要素が渡された場合、それを折りたたみコンテンツとして表示する
  */
 export function SectionHeading({
 	title,
@@ -24,7 +26,8 @@ export function SectionHeading({
 	isOpen,
 	onToggle,
 	level = 1,
-	className
+	className,
+	children
 }: SectionHeadingProps) {
 	// 見出しレベルに応じたMUIのvariantを取得
 	const getVariant = () => {
@@ -61,54 +64,63 @@ export function SectionHeading({
 	const borderStyle = getBorderStyle();
 
 	return (
-		<Box
-			id={id}
-			className={className}
-			sx={{
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'space-between',
-				pt: 0.5,
-				pb: level === 1 ? 0.25 : level === 2 ? 0.125 : 0,
-				pl: level === 1 ? 1 : 0.5,
-				mb: 2,
-				scrollMarginTop: '2rem',
-				transition: 'all 0.3s ease',
-				...borderStyle,
-				'&:hover': {
-					boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-				}
-			}}
-		>
-			<Typography
-				variant={getVariant()}
-				component={`h${level}`}
+		<>
+			<Box
+				id={id}
+				className={className}
 				sx={{
-					fontWeight: 600,
-					fontSize: level === 1 ? '1.1rem' : level === 2 ? '1rem' : '0.9rem',
-					flexGrow: 1,
-					cursor: 'pointer',
-					letterSpacing: '0.01em',
-					color: level < 3 ? '#424242' : '#101010',
-				}}
-				onClick={onToggle}
-			>
-				{title}
-			</Typography>
-
-			<IconButton
-				onClick={onToggle}
-				size="small"
-				aria-label={isOpen ? '折りたたむ' : '展開する'}
-				sx={{
-					color: '#757575',
+					display: 'flex',
+					alignItems: 'center',
+					justifyContent: 'space-between',
+					pt: 0.5,
+					pb: level === 1 ? 0.25 : level === 2 ? 0.125 : 0,
+					pl: level === 1 ? 1 : 0.5,
+					mb: children ? 1 : 2, // 子要素がある場合はマージンを調整
+					scrollMarginTop: '2rem',
+					transition: 'all 0.3s ease',
+					...borderStyle,
 					'&:hover': {
-						backgroundColor: 'rgba(0, 0, 0, 0.04)',
+						boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
 					}
 				}}
 			>
-				{isOpen ? <ExpandLess /> : <ExpandMore />}
-			</IconButton>
-		</Box>
+				<Typography
+					variant={getVariant()}
+					component={`h${level}`}
+					sx={{
+						fontWeight: 600,
+						fontSize: level === 1 ? '1.1rem' : level === 2 ? '1rem' : '0.9rem',
+						flexGrow: 1,
+						cursor: 'pointer',
+						letterSpacing: '0.01em',
+						color: level < 3 ? '#424242' : '#101010',
+					}}
+					onClick={onToggle}
+				>
+					{title}
+				</Typography>
+
+				<IconButton
+					onClick={onToggle}
+					size="small"
+					aria-label={isOpen ? '折りたたむ' : '展開する'}
+					sx={{
+						color: '#757575',
+						'&:hover': {
+							backgroundColor: 'rgba(0, 0, 0, 0.04)',
+						}
+					}}
+				>
+					{isOpen ? <ExpandLess /> : <ExpandMore />}
+				</IconButton>
+			</Box>
+
+			{/* 子要素が渡された場合、Collapseコンポーネントで囲む */}
+			{children && (
+				<Collapse in={isOpen} sx={{ mb: 2 }}>
+					{children}
+				</Collapse>
+			)}
+		</>
 	);
 }

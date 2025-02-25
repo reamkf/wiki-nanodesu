@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from "react";
-import { Box, Paper, Pagination, Collapse } from "@mui/material";
+import { Box, Paper, Pagination } from "@mui/material";
 import { SkillEffect } from "@/types/friendsSkills";
 import { FriendsDataRow } from "@/types/friends";
 import { SortableTable } from "@/components/table/SortableTable";
@@ -180,30 +180,19 @@ export default function ClientTabs({
 	});
 
 	// セクションの開閉状態を管理
-	const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
-
-	// マウント時に全てのセクションを閉じる
-	useEffect(() => {
-		// 全てのセクションのIDを取得して閉じた状態にする
-		const categoryIds = getAllCategoryIds(skillCategories);
-		const initialOpenState: Record<string, boolean> = {};
-		categoryIds.forEach(id => {
-			initialOpenState[id] = false; // デフォルトで折りたたむ
-		});
-		setOpenSections(initialOpenState);
-	}, [skillCategories]);
-
-	// 再帰的に全てのカテゴリーIDを取得
-	const getAllCategoryIds = (categories: SkillCategory[]): string[] => {
-		let result: string[] = [];
-		categories.forEach(category => {
-			result.push(category.id);
-			if (category.children && category.children.length > 0) {
-				result = [...result, ...getAllCategoryIds(category.children)];
-			}
-		});
-		return result;
-	};
+	const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+		buff: true,
+		"buff-damage-increase": true,
+		"buff-damage-reduction": true,
+		debuff: true,
+		"debuff-damage-increase": true,
+		"debuff-damage-reduction": true,
+		"hp-recovery": true,
+		mp: true,
+		"buff-removal": true,
+		"debuff-removal": true,
+		others: true,
+	});
 
 	// 効果種別を選択したときの処理
 	const handleEffectTypeSelect = (effectType: string) => {
@@ -246,8 +235,8 @@ export default function ClientTabs({
 								<Image
 									src={skill.friend.iconUrl}
 									alt={skill.friend.name}
-									width={40}
-									height={40}
+									width={45}
+									height={45}
 									className="rounded-sm"
 								/>
 							</div>
@@ -403,10 +392,11 @@ export default function ClientTabs({
 		const renderCategorySections = (categories: SkillCategory[], level = 0) => {
 			return categories.map(category => {
 				const hasChildren = category.children && category.children.length > 0;
+				const isLeafNode = !hasChildren && effectTypes.includes(category.id);
 
 				return (
 					<Box key={category.id} sx={{ mt: level === 0 ? 4 : level === 1 ? 1 : 2, mb: level === 0 ? 2 : 0 }}>
-						{/* カテゴリー見出し */}
+						{/* レベル0の見出し (トップレベル) */}
 						{level === 0 && (
 							<Box id={`section-${category.id}`} sx={{ mb: 2 }}>
 								<SectionHeading
@@ -415,10 +405,18 @@ export default function ClientTabs({
 									isOpen={openSections[category.id] === true}
 									onToggle={() => toggleSection(category.id)}
 									level={1}
-								/>
+								>
+									{hasChildren && (
+										<Box>
+											{renderCategorySections(category.children || [], level + 1)}
+										</Box>
+									)}
+									{isLeafNode && renderSkillTable(category.id)}
+								</SectionHeading>
 							</Box>
 						)}
 
+						{/* レベル1の見出し */}
 						{level === 1 && (
 							<Box id={`section-${category.id}`}>
 								<SectionHeading
@@ -427,34 +425,30 @@ export default function ClientTabs({
 									isOpen={openSections[category.id] === true}
 									onToggle={() => toggleSection(category.id)}
 									level={2}
-								/>
+								>
+									{hasChildren && (
+										<Box>
+											{renderCategorySections(category.children || [], level + 1)}
+										</Box>
+									)}
+									{isLeafNode && renderSkillTable(category.id)}
+								</SectionHeading>
 							</Box>
 						)}
 
-						{/* 子カテゴリーを再帰的にレンダリング */}
-						{hasChildren && (
-							<Box>
-								{renderCategorySections(category.children || [], level + 1)}
-							</Box>
-						)}
-
-						{/* リーフノード（実際のスキル効果）の場合はテーブルを表示 */}
-						{!hasChildren && effectTypes.includes(category.id) && (
+						{/* レベル2以上の見出し */}
+						{level >= 2 && isLeafNode && (
 							<Box id={`section-${category.id}`}>
-								{level >= 2 && (
-									<SectionHeading
-										title={category.name}
-										id={`heading-${category.id}`}
-										isOpen={openSections[category.id] === true}
-										onToggle={() => toggleSection(category.id)}
-										level={3}
-										className="mt-1"
-									/>
-								)}
-
-								<Collapse in={openSections[category.id] === true}>
+								<SectionHeading
+									title={category.name}
+									id={`heading-${category.id}`}
+									isOpen={openSections[category.id] === true}
+									onToggle={() => toggleSection(category.id)}
+									level={3}
+									className="mt-1"
+								>
 									{renderSkillTable(category.id)}
-								</Collapse>
+								</SectionHeading>
 							</Box>
 						)}
 					</Box>
