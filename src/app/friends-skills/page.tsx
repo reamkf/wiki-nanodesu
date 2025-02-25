@@ -1,4 +1,4 @@
-import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/skillsData";
+import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friendsSkillsData";
 import { Typography } from "@mui/material";
 import ClientTabs from "./client-components";
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useCallback } from "react";
 import { Tabs, Tab, Box, Paper } from "@mui/material";
-import { SkillEffect } from "@/types/skills";
+import { SkillEffect } from "@/types/friendsSkills";
 import { FriendsDataRow } from "@/types/friends";
 import { SortableTable } from "@/components/table/SortableTable";
 import { FriendsNameLink } from "@/components/friends/FriendsNameLink";

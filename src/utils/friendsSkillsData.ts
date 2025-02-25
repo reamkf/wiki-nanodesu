@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import Papa from "papaparse";
-import { SkillEffect, RawSkillCSV, RAW_SKILL_CSV_HEADERS } from "@/types/skills";
+import { SkillEffect, RawSkillCSV, RAW_SKILL_CSV_HEADERS } from "@/types/friendsSkills";
 import { getFriendsData } from "@/utils/friendsData";
 import { FriendsDataRow } from "@/types/friends";
 
