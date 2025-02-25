@@ -1,11 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
-import { Tabs, Tab, Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
+import React, { useState, useMemo, useCallback } from "react";
+import { Tabs, Tab, Box, Paper } from "@mui/material";
 import { SkillEffect } from "@/types/skills";
+import { FriendsDataRow } from "@/types/friends";
+import { SortableTable } from "@/components/table/SortableTable";
+import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
+import Image from "next/image";
+import { ColumnDef, Row, flexRender, SortingState, ColumnFiltersState } from "@tanstack/react-table";
 
 // CSV内の「~~」を改行に変換する関数
-function formatText(text: string): React.ReactElement {
+function formatTextContent(text: string): React.ReactElement {
 	const parts = text.split('~~');
 
 	return (
@@ -20,12 +25,171 @@ function formatText(text: string): React.ReactElement {
 	);
 }
 
-export default function ClientTabs({ effectTypes, skillsData }: { effectTypes: string[], skillsData: SkillEffect[] }) {
-	const [selectedTab, setSelectedTab] = useState(0);
+// スキルとフレンズデータを含む結合型
+type SkillWithFriend = SkillEffect & {
+	friend?: FriendsDataRow
+}
 
-	const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+export default function ClientTabs({
+	effectTypes,
+	skillsData
+}: {
+	effectTypes: string[],
+	skillsData: SkillWithFriend[]
+}) {
+	// formatText関数をメモ化
+	const formatText = useCallback((text: string): React.ReactElement => {
+		return formatTextContent(text);
+	}, []);
+
+	// 効果種別ごとにデータをメモ化
+	const effectTypeData = useMemo(() => {
+		const result: Record<string, SkillWithFriend[]> = {};
+
+		// 各効果種別ごとにデータをフィルタリング
+		effectTypes.forEach(effectType => {
+			result[effectType] = skillsData.filter(
+				skill => skill.effectType === effectType
+			);
+		});
+
+		return result;
+	}, [effectTypes, skillsData]);
+
+	const [selectedTab, setSelectedTab] = useState(0);
+	const [sorting, setSorting] = useState<SortingState>([]);
+	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+	const [pagination, setPagination] = useState({
+		pageIndex: 0,
+		pageSize: 50
+	});
+
+	const handleTabChange = useCallback((_: React.SyntheticEvent, newValue: number) => {
 		setSelectedTab(newValue);
-	};
+		// タブ切り替え時にソートとフィルターをリセット
+		setSorting([]);
+		setColumnFilters([]);
+		setPagination({ pageIndex: 0, pageSize: 50 });
+	}, []);
+
+	// テーブルのカラム定義
+	const columns = useMemo<ColumnDef<SkillWithFriend>[]>(() => [
+		{
+			accessorKey: 'friendsId',
+			header: 'フレンズ',
+			cell: ({ row }) => {
+				const skill = row.original;
+				if (!skill.friend) {
+					return <div>{skill.friendsId}</div>;
+				}
+
+				return (
+					<div className="flex items-center space-x-2">
+						{skill.friend.iconUrl && (
+							<div className="flex-shrink-0">
+								<Image
+									src={skill.friend.iconUrl}
+									alt={skill.friend.name}
+									width={40}
+									height={40}
+									className="rounded-sm"
+								/>
+							</div>
+						)}
+						<FriendsNameLink friend={skill.friend} />
+					</div>
+				);
+			},
+			meta: {
+				width: '250px'
+			}
+		},
+		{
+			accessorKey: 'skillType',
+			header: 'わざ種別',
+			meta: {
+				width: '120px'
+			}
+		},
+		{
+			accessorKey: 'power',
+			header: '威力',
+			meta: {
+				width: '100px'
+			}
+		},
+		{
+			accessorKey: 'target',
+			header: '対象',
+			cell: ({ row }) => {
+				const text = row.original.target;
+				if (!text) return null;
+				return formatText(text);
+			},
+			meta: {
+				width: '150px'
+			}
+		},
+		{
+			accessorKey: 'condition',
+			header: '条件',
+			cell: ({ row }) => {
+				const text = row.original.condition;
+				if (!text) return null;
+				return formatText(text);
+			},
+			meta: {
+				width: '200px'
+			}
+		},
+		{
+			accessorKey: 'effectTurn',
+			header: '効果ターン',
+			meta: {
+				width: '100px'
+			}
+		},
+		{
+			accessorKey: 'activationRate',
+			header: '発動率',
+			meta: {
+				width: '100px'
+			}
+		},
+		{
+			accessorKey: 'activationCount',
+			header: '発動回数',
+			meta: {
+				width: '100px'
+			}
+		},
+		{
+			accessorKey: 'note',
+			header: '備考',
+			meta: {
+				width: '200px'
+			}
+		},
+	], [formatText]);
+
+	// カスタム行コンポーネント
+	const CustomRowComponent = useCallback(({ row }: { row: Row<SkillWithFriend> }) => (
+		<tr
+			key={row.id}
+			className="hover:bg-gray-50"
+		>
+			{row.getVisibleCells().map(cell => (
+				<td key={cell.id} className="p-2 border-b">
+					{flexRender(cell.column.columnDef.cell, cell.getContext())}
+				</td>
+			))}
+		</tr>
+	), []);
+
+	// 現在選択されている効果種別
+	const currentEffectType = effectTypes[selectedTab];
+	// 現在の効果種別のデータ
+	const currentData = currentEffectType ? effectTypeData[currentEffectType] || [] : [];
 
 	return (
 		<>
@@ -43,68 +207,23 @@ export default function ClientTabs({ effectTypes, skillsData }: { effectTypes: s
 				</Tabs>
 			</Box>
 
-			{effectTypes.map((effectType, index) => (
-				<TabPanel key={index} value={selectedTab} index={index}>
-					<SkillTable skills={skillsData.filter(skill => skill.effectType === effectType)} />
-				</TabPanel>
-			))}
+			<Box sx={{ p: 0 }}>
+				<Paper className="mb-6 overflow-auto">
+					<SortableTable
+						data={currentData}
+						columns={columns}
+						state={{
+							sorting,
+							columnFilters,
+							pagination
+						}}
+						onSortingChange={setSorting}
+						onColumnFiltersChange={setColumnFilters}
+						onPaginationChange={setPagination}
+						rowComponent={CustomRowComponent}
+					/>
+				</Paper>
+			</Box>
 		</>
-	);
-}
-
-function TabPanel(props: { children: React.ReactNode, value: number, index: number }) {
-	const { children, value, index, ...other } = props;
-
-	return (
-		<div
-			role="tabpanel"
-			hidden={value !== index}
-			id={`effect-tabpanel-${index}`}
-			aria-labelledby={`effect-tab-${index}`}
-			{...other}
-		>
-			{value === index && (
-				<Box>
-					{children}
-				</Box>
-			)}
-		</div>
-	);
-}
-
-function SkillTable({ skills }: { skills: SkillEffect[] }) {
-	return (
-		<TableContainer component={Paper} className="mb-6">
-			<Table sx={{ minWidth: 650 }} aria-label="スキルテーブル">
-				<TableHead>
-					<TableRow>
-						<TableCell>フレンズID</TableCell>
-						<TableCell>わざ種別</TableCell>
-						<TableCell>威力</TableCell>
-						<TableCell>対象</TableCell>
-						<TableCell>条件</TableCell>
-						<TableCell>効果ターン</TableCell>
-						<TableCell>発動率</TableCell>
-						<TableCell>発動回数</TableCell>
-						<TableCell>備考</TableCell>
-					</TableRow>
-				</TableHead>
-				<TableBody>
-					{skills.map((skill, index) => (
-						<TableRow key={index}>
-							<TableCell>{skill.friendsId}</TableCell>
-							<TableCell>{skill.skillType}</TableCell>
-							<TableCell>{skill.power}</TableCell>
-							<TableCell>{formatText(skill.target)}</TableCell>
-							<TableCell>{formatText(skill.condition)}</TableCell>
-							<TableCell>{skill.effectTurn}</TableCell>
-							<TableCell>{skill.activationRate}</TableCell>
-							<TableCell>{skill.activationCount}</TableCell>
-							<TableCell>{skill.note}</TableCell>
-						</TableRow>
-					))}
-				</TableBody>
-			</Table>
-		</TableContainer>
 	);
 }

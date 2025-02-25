@@ -37,7 +37,7 @@ export async function Sidebar() {
 		},
 		{
 			href: '/friends-skills',
-			text: 'フレンズスキル一覧',
+			text: 'スキル別フレンズ一覧',
 		},
 	];
 
