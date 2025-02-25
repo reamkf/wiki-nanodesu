@@ -1,38 +1,42 @@
-'use client';
+"use client";
 
 import { ProcessedFriendsStatusListItem } from "@/utils/friendsStatus";
-import FriendsIcon from "../friends/FriendsIcon";
-import { FriendsNameLink } from "../friends/FriendsNameLink";
+import FriendsIcon from "./FriendsIcon";
+import { FriendsNameLink } from "./FriendsNameLink";
 import {
 	createColumnHelper,
+	SortingState,
+	ColumnFiltersState,
+	PaginationState,
+	Row,
+	Cell,
 	flexRender,
-	getCoreRowModel,
 	useReactTable,
+	getCoreRowModel,
 	getSortedRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
-	SortingState,
-	ColumnFiltersState,
-	FilterFn,
-	Row,
-	Cell,
-	PaginationState,
+	ColumnDef,
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect } from "react";
 import { FriendsAttributeIconAndName } from "./FriendsAttributeIconAndName";
-import { FormGroup, FormControlLabel, Checkbox, Grid2, Select, MenuItem, IconButton } from '@mui/material';
-import { FirstPage, LastPage, NavigateNext, NavigateBefore } from '@mui/icons-material';
 import { normalizeQuery } from "@/utils/queryNormalizer";
-import CancelIcon from '@mui/icons-material/Cancel';
+import { SortableTable } from "../table/SortableTable";
+import { TablePagination } from "../table/TablePagination";
+import {
+	FilterCheckboxGroup,
+	CheckboxOption,
+} from "../table/FilterCheckboxGroup";
+import { ColumnMeta } from "@/types/common";
 
 // ステータスタイプの定義
 const STATUS_TYPES = [
-	'☆6/Lv200/野生4',
-	'☆6/Lv200/野生5',
-	'☆6/Lv99/野生4',
-	'☆6/Lv99/野生5',
-	'☆6/Lv90/野生4',
-	'☆6/Lv90/野生5',
+	"☆6/Lv200/野生4",
+	"☆6/Lv200/野生5",
+	"☆6/Lv99/野生4",
+	"☆6/Lv99/野生5",
+	"☆6/Lv90/野生4",
+	"☆6/Lv90/野生5",
 ] as const;
 
 const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
@@ -41,106 +45,107 @@ interface FriendsStatusTableProps {
 	friendsStatusList: ProcessedFriendsStatusListItem[];
 }
 
-type AlignType = "left" | "center" | "right";
-interface ColumnMeta {
-	align: AlignType;
-	width?: string;
-}
+// statusTypeに応じた背景色のマッピング
+const statusTypeBackgroundColor: {
+	[key: string]: {
+		row: string;
+		checkbox: {
+			unchecked: string;
+			checked: string;
+			hover: string;
+			color: string;
+		};
+	};
+} = {
+	"☆6/Lv90/野生4": {
+		row: "bg-green-100 hover:bg-green-50",
+		checkbox: {
+			unchecked: "#f0fdf4",
+			checked: "#dcfce7",
+			hover: "#bbf7d0",
+			color: "#16a34a",
+		},
+	},
+	"☆6/Lv99/野生4": {
+		row: "bg-blue-100 hover:bg-blue-50",
+		checkbox: {
+			unchecked: "#eff6ff",
+			checked: "#dbeafe",
+			hover: "#bfdbfe",
+			color: "#2563eb",
+		},
+	},
+	"☆6/Lv200/野生4": {
+		row: "bg-red-100 hover:bg-red-50",
+		checkbox: {
+			unchecked: "#fef2f2",
+			checked: "#fee2e2",
+			hover: "#fecaca",
+			color: "#dc2626",
+		},
+	},
+	"☆6/Lv90/野生5": {
+		row: "bg-green-100 hover:bg-green-50",
+		checkbox: {
+			unchecked: "#f0fdf4",
+			checked: "#dcfce7",
+			hover: "#bbf7d0",
+			color: "#16a34a",
+		},
+	},
+	"☆6/Lv99/野生5": {
+		row: "bg-blue-100 hover:bg-blue-50",
+		checkbox: {
+			unchecked: "#eff6ff",
+			checked: "#dbeafe",
+			hover: "#bfdbfe",
+			color: "#2563eb",
+		},
+	},
+	"☆6/Lv200/野生5": {
+		row: "bg-red-100 hover:bg-red-50",
+		checkbox: {
+			unchecked: "#fef2f2",
+			checked: "#fee2e2",
+			hover: "#fecaca",
+			color: "#dc2626",
+		},
+	},
+};
 
-const getSearchableText = (row: ProcessedFriendsStatusListItem, columnId: string): string => {
+const getSearchableText = (
+	row: ProcessedFriendsStatusListItem,
+	columnId: string
+): string => {
 	switch (columnId) {
-		case "name": case 'icon':
-			return row.friendsDataRow.secondName ? `${row.friendsDataRow.secondName} ${row.friendsDataRow.name}` : row.friendsDataRow.name;
+		case "name":
+		case "icon":
+			return row.friendsDataRow.secondName
+				? `${row.friendsDataRow.secondName} ${row.friendsDataRow.name}`
+				: row.friendsDataRow.name;
 		case "attribute":
 			return row.friendsDataRow.attribute;
 		default:
-			return row.displayValues[columnId as keyof typeof row.displayValues] ?? '';
+			return (
+				row.displayValues[columnId as keyof typeof row.displayValues] ?? ""
+			);
 	}
 };
 
-// カスタム検索関数
-const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = (row, columnId, filterValue) => {
-	const searchText = getSearchableText(row.original, columnId);
-	return normalizeQuery(searchText).includes(normalizeQuery(filterValue));
-};
-
-// statusTypeに応じた背景色のマッピング
-const statusTypeBackgroundColor: { [key: string]: {
-	row: string;
-	checkbox: {
-		unchecked: string;
-		checked: string;
-		hover: string;
-		color: string;
-	};
-}} = {
-	'☆6/Lv90/野生4': {
-		row: 'bg-green-100 hover:bg-green-50',
-		checkbox: {
-			unchecked: '#f0fdf4',
-			checked: '#dcfce7',
-			hover: '#bbf7d0',
-			color: '#16a34a'
-		}
-	},
-	'☆6/Lv99/野生4': {
-		row: 'bg-blue-100 hover:bg-blue-50',
-		checkbox: {
-			unchecked: '#eff6ff',
-			checked: '#dbeafe',
-			hover: '#bfdbfe',
-			color: '#2563eb'
-		}
-	},
-	'☆6/Lv200/野生4': {
-		row: 'bg-red-100 hover:bg-red-50',
-		checkbox: {
-			unchecked: '#fef2f2',
-			checked: '#fee2e2',
-			hover: '#fecaca',
-			color: '#dc2626'
-		}
-	},
-	'☆6/Lv90/野生5': {
-		row: 'bg-green-100 hover:bg-green-50',
-		checkbox: {
-			unchecked: '#f0fdf4',
-			checked: '#dcfce7',
-			hover: '#bbf7d0',
-			color: '#16a34a'
-		}
-	},
-	'☆6/Lv99/野生5': {
-		row: 'bg-blue-100 hover:bg-blue-50',
-		checkbox: {
-			unchecked: '#eff6ff',
-			checked: '#dbeafe',
-			hover: '#bfdbfe',
-			color: '#2563eb'
-		}
-	},
-	'☆6/Lv200/野生5': {
-		row: 'bg-red-100 hover:bg-red-50',
-		checkbox: {
-			unchecked: '#fef2f2',
-			checked: '#fee2e2',
-			hover: '#fecaca',
-			color: '#dc2626'
-		}
-	},
-};
-
 const renderYaseiLevel = (statusType: string) => {
-	const [, lv, yasei] = statusType.split('/');
-	const isYasei5 = statusType.includes('野生5');
+	const [, lv, yasei] = statusType.split("/");
+	const isYasei5 = statusType.includes("野生5");
 
 	return (
 		<>
-			{lv}/{
-				isYasei5 ?
-					<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded">{yasei}</span>
-					: `${yasei}`
-			}
+			{lv}/
+			{isYasei5 ? (
+				<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded">
+					{yasei}
+				</span>
+			) : (
+				`${yasei}`
+			)}
 		</>
 	);
 };
@@ -162,14 +167,18 @@ const StatusCell: React.FC<StatusCellProps> = ({
 	return (
 		<>
 			<div
-				className={`${isEstimated ? "italic text-gray-600 bg-red-200" : ""} inline-block ml-auto px-1`}
+				className={`${
+					isEstimated ? "italic text-gray-600 bg-red-200" : ""
+				} inline-block ml-auto px-1`}
 			>
 				<span>{value === -Infinity ? "?????" : value.toLocaleString()}</span>
 			</div>
 			{showCostumeBonus && (
 				<div>
 					{value !== -Infinity && costumeBonus && (
-						<span className="block text-xs text-gray-600 px-1">[+{(costumeBonus).toLocaleString()}]</span>
+						<span className="block text-xs text-gray-600 px-1">
+							[+{costumeBonus.toLocaleString()}]
+						</span>
 					)}
 				</div>
 			)}
@@ -177,67 +186,93 @@ const StatusCell: React.FC<StatusCellProps> = ({
 	);
 };
 
+// カスタム検索関数
+const customFilterFn = (
+	row: Row<ProcessedFriendsStatusListItem>,
+	columnId: string,
+	filterValue: string
+) => {
+	const searchText = getSearchableText(row.original, columnId);
+	return normalizeQuery(searchText).includes(normalizeQuery(filterValue));
+};
+
 // メモ化された行コンポーネント
-const TableRow = React.memo(function TableRow({ row }: { row: Row<ProcessedFriendsStatusListItem> }) {
+const TableRow = React.memo(function TableRow({
+	row,
+}: {
+	row: Row<ProcessedFriendsStatusListItem>;
+}) {
 	const statusType = row.original.statusType;
-	const bgColorClass = statusTypeBackgroundColor[statusType]?.row || 'hover:bg-gray-50';
+	const bgColorClass =
+		statusTypeBackgroundColor[statusType]?.row || "hover:bg-gray-50";
 
 	return (
 		<tr className={bgColorClass}>
-			{row.getVisibleCells().map((cell: Cell<ProcessedFriendsStatusListItem, unknown>) => (
-				<td
-					key={cell.id}
-					className="border-[1px] border-gray-300 px-4 py-2"
-					style={{
-						textAlign: (cell.column.columnDef.meta as ColumnMeta)?.align || "left",
-					}}
-				>
-					{flexRender(cell.column.columnDef.cell, cell.getContext())}
-				</td>
-			))}
+			{row
+				.getVisibleCells()
+				.map((cell: Cell<ProcessedFriendsStatusListItem, unknown>) => (
+					<td
+						key={cell.id}
+						className="border-[1px] border-gray-300 px-4 py-2"
+						style={{
+							textAlign:
+								(cell.column.columnDef.meta as ColumnMeta)?.align || "left",
+						}}
+					>
+						{flexRender(cell.column.columnDef.cell, cell.getContext())}
+					</td>
+				))}
 		</tr>
 	);
 });
 
-export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusTableProps) {
+export default function FriendsStatusTable({
+	friendsStatusList,
+}: FriendsStatusTableProps) {
 	const [isMounted, setIsMounted] = useState(false);
 
-	const [selectedStatusTypes, setSelectedStatusTypes] = useState<Set<string>>(() => {
-		if (typeof window !== 'undefined') {
-			const saved = localStorage.getItem('selectedStatusTypes');
-			return saved ? new Set(JSON.parse(saved)) : new Set(STATUS_TYPES);
+	const [selectedStatusTypes, setSelectedStatusTypes] = useState<Set<string>>(
+		() => {
+			if (typeof window !== "undefined") {
+				const saved = localStorage.getItem("selectedStatusTypes");
+				return saved ? new Set(JSON.parse(saved)) : new Set(STATUS_TYPES);
+			}
+			return new Set(STATUS_TYPES);
 		}
-		return new Set(STATUS_TYPES);
-	});
+	);
+
 	const [hideNullStatus, setHideNullStatus] = useState(() => {
-		if (typeof window !== 'undefined') {
-			const saved = localStorage.getItem('hideNullStatus');
+		if (typeof window !== "undefined") {
+			const saved = localStorage.getItem("hideNullStatus");
 			return saved ? JSON.parse(saved) : false;
 		}
 		return false;
 	});
+
 	const [showCostumeBonus, setShowCostumeBonus] = useState<boolean>(() => {
-		if (typeof window !== 'undefined') {
-			const saved = localStorage.getItem('showCostumeBonus');
+		if (typeof window !== "undefined") {
+			const saved = localStorage.getItem("showCostumeBonus");
 			return saved ? JSON.parse(saved) : false;
 		}
 		return false;
 	});
-	const [sorting, setSorting] = useState<SortingState>([{
-		id: 'kemosute',
-		desc: true
-	}]);
+
+	const [sorting, setSorting] = useState<SortingState>([
+		{
+			id: "kemosute",
+			desc: true,
+		},
+	]);
+
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
 	const [pagination, setPagination] = useState<PaginationState>(() => {
-		if (typeof window !== 'undefined') {
-			const saved = localStorage.getItem('pagination');
+		if (typeof window !== "undefined") {
+			const saved = localStorage.getItem("pagination");
 			return saved ? JSON.parse(saved) : { pageIndex: 0, pageSize: 100 };
 		}
 		return { pageIndex: 0, pageSize: 100 };
 	});
-
-	// showCostumeBonusのデフォルト値を設定
-	const showCostumeBonusValue = showCostumeBonus ?? false;
 
 	useEffect(() => {
 		setIsMounted(true);
@@ -245,19 +280,30 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 
 	// 設定の永続化
 	useEffect(() => {
-		if (typeof window !== 'undefined') {
-			localStorage.setItem('hideNullStatus', JSON.stringify(hideNullStatus));
-			localStorage.setItem('selectedStatusTypes', JSON.stringify(Array.from(selectedStatusTypes)));
-			localStorage.setItem('pagination', JSON.stringify(pagination));
-			localStorage.setItem('showCostumeBonus', JSON.stringify(showCostumeBonus));
+		if (typeof window !== "undefined") {
+			localStorage.setItem("hideNullStatus", JSON.stringify(hideNullStatus));
+			localStorage.setItem(
+				"selectedStatusTypes",
+				JSON.stringify(Array.from(selectedStatusTypes))
+			);
+			localStorage.setItem("pagination", JSON.stringify(pagination));
+			localStorage.setItem(
+				"showCostumeBonus",
+				JSON.stringify(showCostumeBonus)
+			);
 		}
 	}, [hideNullStatus, selectedStatusTypes, pagination, showCostumeBonus]);
 
 	const filteredData = useMemo(() => {
-		return friendsStatusList.filter(item => {
-			if (hideNullStatus && (
-				[item.status.hp, item.status.atk, item.status.def].some(status => status === null)
-			)) {
+		if (friendsStatusList.length === 0) return [];
+
+		return friendsStatusList.filter((item) => {
+			if (
+				hideNullStatus &&
+				[item.status.hp, item.status.atk, item.status.def].some(
+					(status) => status === null
+				)
+			) {
 				return false;
 			}
 			return selectedStatusTypes.has(item.statusType);
@@ -265,7 +311,7 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 	}, [friendsStatusList, selectedStatusTypes, hideNullStatus]);
 
 	const handleStatusTypeChange = (statusType: string) => {
-		setSelectedStatusTypes(prev => {
+		setSelectedStatusTypes((prev) => {
 			const newSet = new Set(prev);
 			if (newSet.has(statusType)) {
 				newSet.delete(statusType);
@@ -276,195 +322,199 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 		});
 	};
 
-	const handleSortingChange = (updaterOrValue: SortingState | ((old: SortingState) => SortingState)) => {
-		const newSorting = typeof updaterOrValue === 'function' ? updaterOrValue([]) : updaterOrValue;
-		// 昇順・降順のみに制限（複数カラムのソートを無効化）
-		if (newSorting.length > 0) {
-			const currentSorting = sorting[0];
-			if (currentSorting && currentSorting.id === newSorting[0].id) {
-				// 同じカラムがクリックされた場合、昇順→降順→昇順のサイクル
-				setSorting([{ id: currentSorting.id, desc: !currentSorting.desc }]);
-			} else {
-				// 異なるカラムがクリックされた場合、昇順から開始
-				setSorting([{ id: newSorting[0].id, desc: true }]);
-			}
-		} else {
-			// ソートなしの状態は作らない（降順をデフォルトとする）
-			const lastSorting = sorting[0];
-			if (lastSorting) {
-				setSorting([{ id: lastSorting.id, desc: true }]);
-			}
-		}
-	};
-
 	// showCostumeBonusの変更時にソート状態を更新するハンドラー
 	const handleShowCostumeBonusChange = (checked: boolean) => {
 		setShowCostumeBonus(checked);
 		// 現在のソート状態を維持しながら再ソート
-		setSorting(prev => {
-			if (prev.length === 0) return [{ id: 'kemosute', desc: true }];
+		setSorting((prev) => {
+			if (prev.length === 0) return [{ id: "kemosute", desc: true }];
 			return [{ ...prev[0], desc: true }]; // 降順で再ソート
 		});
 	};
 
-	const columns = useMemo(() => [
-		columnHelper.accessor((row) => row, {
-			id: "icon",
-			header: "アイコン",
-			cell: (info) => (
-				<div className="flex justify-center">
-					<FriendsIcon friendsData={info.getValue().friendsDataRow} size={55} />
-				</div>
-			),
-			enableSorting: false,
-			filterFn: customFilterFn,
-			meta: {
-				align: "center" as const,
-				width: "100px",
-			},
-		}),
-		columnHelper.accessor((row) => row.sortValues.name, {
-			id: "name",
-			header: "フレンズ名",
-			cell: (info) => {
-				const statusType = info.row.original.statusType;
-				const isYasei5 = statusType.includes('野生5');
-				const [baseText, yasei] = statusType.split('/野生');
-				return (
-					<div>
-						<FriendsNameLink friend={info.row.original.friendsDataRow} />
-						<div className="text-xs text-gray-700">
-							{baseText}/
-							{isYasei5 ? (
-								<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded">野生{yasei}</span>
-							) : (
-								`野生${yasei}`
-							)}
-						</div>
+	const columns = useMemo(() => {
+		const cols = [
+			columnHelper.accessor((row) => row, {
+				id: "icon",
+				header: "アイコン",
+				cell: (info) => (
+					<div className="flex justify-center">
+						<FriendsIcon
+							friendsData={info.getValue().friendsDataRow}
+							size={55}
+						/>
 					</div>
-				);
-			},
-			filterFn: customFilterFn,
-			meta: {
-				align: "left" as const,
-				width: "250px",
-			},
-		}),
-		columnHelper.accessor((row) => row.sortValues.attribute, {
-			id: "attribute",
-			header: "属性",
-			cell: (info) => <FriendsAttributeIconAndName attribute={info.getValue()} />,
-			filterFn: customFilterFn,
-			meta: {
-				align: "center" as const,
-				width: "100px",
-			},
-		}),
-		columnHelper.accessor((row) => showCostumeBonusValue ? row.sortValues.kemosuteWithCostume : row.sortValues.kemosute, {
-			id: "kemosute",
-			header: "けもステ",
-			cell: (info) => {
-				const baseValue = info.row.original.sortValues.kemosute;
-				const withCostume = info.row.original.sortValues.kemosuteWithCostume;
-				return (
-					<StatusCell
-						value={showCostumeBonusValue ? withCostume : baseValue}
-						isEstimated={info.row.original.status.estimated ?? false}
-						showCostumeBonus={showCostumeBonusValue}
-						costumeBonus={withCostume - baseValue}
-					/>
-				);
-			},
-			filterFn: customFilterFn,
-			meta: {
-				align: "right" as const,
-				width: "100px",
-			},
-		}),
-		columnHelper.accessor((row) => showCostumeBonusValue ? row.sortValues.hpWithCostume : row.sortValues.hp, {
-			id: "hp",
-			header: "たいりょく",
-			cell: (info) => {
-				const baseValue = info.row.original.sortValues.hp;
-				const withCostume = info.row.original.sortValues.hpWithCostume;
-				return (
-					<StatusCell
-						value={showCostumeBonusValue ? withCostume : baseValue}
-						isEstimated={info.row.original.status.estimated ?? false}
-						showCostumeBonus={showCostumeBonusValue}
-						costumeBonus={withCostume - baseValue}
-					/>
-				);
-			},
-			filterFn: customFilterFn,
-			meta: {
-				align: "right" as const,
-				width: "100px",
-			},
-		}),
-		columnHelper.accessor((row) => showCostumeBonusValue ? row.sortValues.atkWithCostume : row.sortValues.atk, {
-			id: "atk",
-			header: "こうげき",
-			cell: (info) => {
-				const baseValue = info.row.original.sortValues.atk;
-				const withCostume = info.row.original.sortValues.atkWithCostume;
-				return (
-					<StatusCell
-						value={showCostumeBonusValue ? withCostume : baseValue}
-						isEstimated={info.row.original.status.estimated ?? false}
-						showCostumeBonus={showCostumeBonusValue}
-						costumeBonus={withCostume - baseValue}
-					/>
-				);
-			},
-			filterFn: customFilterFn,
-			meta: {
-				align: "right" as const,
-				width: "100px",
-			},
-		}),
-		columnHelper.accessor((row) => showCostumeBonusValue ? row.sortValues.defWithCostume : row.sortValues.def, {
-			id: "def",
-			header: "まもり",
-			cell: (info) => {
-				const baseValue = info.row.original.sortValues.def;
-				const withCostume = info.row.original.sortValues.defWithCostume;
-				return (
-					<StatusCell
-						value={showCostumeBonusValue ? withCostume : baseValue}
-						isEstimated={info.row.original.status.estimated ?? false}
-						showCostumeBonus={showCostumeBonusValue}
-						costumeBonus={withCostume - baseValue}
-					/>
-				);
-			},
-			filterFn: customFilterFn,
-			meta: {
-				align: "right" as const,
-				width: "100px",
-			},
-		}),
-		columnHelper.accessor((row) => row.sortValues.avoid, {
-			id: "avoid",
-			header: "かいひ",
-			cell: (info) => info.row.original.displayValues.avoid,
-			filterFn: customFilterFn,
-			meta: {
-				align: "right" as const,
-				width: "100px",
-			},
-		}),
-	], [showCostumeBonusValue]);
+				),
+				enableSorting: false,
+				filterFn: customFilterFn,
+				meta: {
+					align: "center" as const,
+					width: "100px",
+				},
+			}),
+			columnHelper.accessor((row) => row.sortValues.name, {
+				id: "name",
+				header: "フレンズ名",
+				cell: (info) => {
+					const statusType = info.row.original.statusType;
+					const isYasei5 = statusType.includes("野生5");
+					const [baseText, yasei] = statusType.split("/野生");
+					return (
+						<div>
+							<FriendsNameLink friend={info.row.original.friendsDataRow} />
+							<div className="text-xs text-gray-700">
+								{baseText}/
+								{isYasei5 ? (
+									<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded">
+										野生{yasei}
+									</span>
+								) : (
+									`野生${yasei}`
+								)}
+							</div>
+						</div>
+					);
+				},
+				filterFn: customFilterFn,
+				meta: {
+					align: "left" as const,
+					width: "250px",
+				},
+			}),
+			columnHelper.accessor((row) => row.sortValues.attribute, {
+				id: "attribute",
+				header: "属性",
+				cell: (info) => (
+					<FriendsAttributeIconAndName attribute={info.getValue()} />
+				),
+				filterFn: customFilterFn,
+				meta: {
+					align: "center" as const,
+					width: "100px",
+				},
+			}),
+			columnHelper.accessor(
+				(row) =>
+					showCostumeBonus
+						? row.sortValues.kemosuteWithCostume
+						: row.sortValues.kemosute,
+				{
+					id: "kemosute",
+					header: "けもステ",
+					cell: (info) => {
+						const baseValue = info.row.original.sortValues.kemosute;
+						const withCostume =
+							info.row.original.sortValues.kemosuteWithCostume;
+						return (
+							<StatusCell
+								value={showCostumeBonus ? withCostume : baseValue}
+								isEstimated={info.row.original.status.estimated ?? false}
+								showCostumeBonus={showCostumeBonus}
+								costumeBonus={withCostume - baseValue}
+							/>
+						);
+					},
+					filterFn: customFilterFn,
+					meta: {
+						align: "right" as const,
+						width: "100px",
+					},
+				}
+			),
+			columnHelper.accessor(
+				(row) =>
+					showCostumeBonus ? row.sortValues.hpWithCostume : row.sortValues.hp,
+				{
+					id: "hp",
+					header: "たいりょく",
+					cell: (info) => {
+						const baseValue = info.row.original.sortValues.hp;
+						const withCostume = info.row.original.sortValues.hpWithCostume;
+						return (
+							<StatusCell
+								value={showCostumeBonus ? withCostume : baseValue}
+								isEstimated={info.row.original.status.estimated ?? false}
+								showCostumeBonus={showCostumeBonus}
+								costumeBonus={withCostume - baseValue}
+							/>
+						);
+					},
+					filterFn: customFilterFn,
+					meta: {
+						align: "right" as const,
+						width: "100px",
+					},
+				}
+			),
+			columnHelper.accessor(
+				(row) =>
+					showCostumeBonus ? row.sortValues.atkWithCostume : row.sortValues.atk,
+				{
+					id: "atk",
+					header: "こうげき",
+					cell: (info) => {
+						const baseValue = info.row.original.sortValues.atk;
+						const withCostume = info.row.original.sortValues.atkWithCostume;
+						return (
+							<StatusCell
+								value={showCostumeBonus ? withCostume : baseValue}
+								isEstimated={info.row.original.status.estimated ?? false}
+								showCostumeBonus={showCostumeBonus}
+								costumeBonus={withCostume - baseValue}
+							/>
+						);
+					},
+					filterFn: customFilterFn,
+					meta: {
+						align: "right" as const,
+						width: "100px",
+					},
+				}
+			),
+			columnHelper.accessor(
+				(row) =>
+					showCostumeBonus ? row.sortValues.defWithCostume : row.sortValues.def,
+				{
+					id: "def",
+					header: "まもり",
+					cell: (info) => {
+						const baseValue = info.row.original.sortValues.def;
+						const withCostume = info.row.original.sortValues.defWithCostume;
+						return (
+							<StatusCell
+								value={showCostumeBonus ? withCostume : baseValue}
+								isEstimated={info.row.original.status.estimated ?? false}
+								showCostumeBonus={showCostumeBonus}
+								costumeBonus={withCostume - baseValue}
+							/>
+						);
+					},
+					filterFn: customFilterFn,
+					meta: {
+						align: "right" as const,
+						width: "100px",
+					},
+				}
+			),
+			columnHelper.accessor((row) => row.sortValues.avoid, {
+				id: "avoid",
+				header: "かいひ",
+				cell: (info) => info.row.original.displayValues.avoid,
+				filterFn: customFilterFn,
+				meta: {
+					align: "right" as const,
+					width: "100px",
+				},
+			}),
+		];
+		return cols as ColumnDef<ProcessedFriendsStatusListItem, unknown>[];
+	}, [showCostumeBonus]);
 
 	const table = useReactTable({
 		data: filteredData,
 		columns,
-		state: {
-			sorting,
-			columnFilters,
-			pagination,
-		},
-		onSortingChange: handleSortingChange,
+		state: { sorting, columnFilters, pagination },
+		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
 		onPaginationChange: setPagination,
 		getCoreRowModel: getCoreRowModel(),
@@ -476,316 +526,94 @@ export default function FriendsStatusTable({ friendsStatusList }: FriendsStatusT
 		enableColumnFilters: true,
 		manualSorting: false,
 		manualFiltering: false,
-		sortingFns: {
-			stable: (rowA, rowB, columnId) => {
-				const a = rowA.getValue(columnId) as number;
-				const b = rowB.getValue(columnId) as number;
-				const diff = a - b;
-				return diff === 0 ? rowA.original.originalIndex - rowB.original.originalIndex : diff;
-			},
-		},
-		defaultColumn: {
-			minSize: 100,
-			size: 150,
-			maxSize: 400,
-		},
 	});
 
-	if (friendsStatusList.length === 0) return null;
 	if (!isMounted) return null;
+
+	// FilterCheckboxGroup用のオプションを作成
+	const statusTypeOptions: CheckboxOption[] = STATUS_TYPES.map(
+		(statusType) => ({
+			id: statusType,
+			label: renderYaseiLevel(statusType),
+			styles: {
+				backgroundColor: {
+					unchecked: statusTypeBackgroundColor[statusType].checkbox.unchecked,
+					checked: statusTypeBackgroundColor[statusType].checkbox.checked,
+					hover: statusTypeBackgroundColor[statusType].checkbox.hover,
+				},
+				textColor: statusTypeBackgroundColor[statusType].checkbox.color,
+			},
+		})
+	);
+
+	// オプション用のチェックボックスオプション
+	const otherOptions: CheckboxOption[] = [
+		{
+			id: "showCostumeBonus",
+			label: "衣装補正を含む",
+			styles: {
+				backgroundColor: {
+					unchecked: "#fefce8",
+					checked: "#fef9c3",
+					hover: "#fef08a",
+				},
+				textColor: "#ca8a04",
+			},
+		},
+		{
+			id: "hideNullStatus",
+			label: "不明なステータスを非表示",
+			styles: {
+				backgroundColor: {
+					unchecked: "#f3f4f6",
+					checked: "#e5e7eb",
+					hover: "#d1d5db",
+				},
+				textColor: "#4b5563",
+			},
+		},
+	];
 
 	return (
 		<div className="space-y-2">
 			{/* ステータスタイプ選択 */}
-			<FormGroup>
-				<Grid2 container spacing={2}>
-					{STATUS_TYPES.map((statusType) => (
-						<Grid2 key={statusType}>
-							<FormControlLabel
-								sx={{
-									backgroundColor: selectedStatusTypes.has(statusType)
-										? statusTypeBackgroundColor[statusType].checkbox.checked
-										: statusTypeBackgroundColor[statusType].checkbox.unchecked,
-									'&:hover': {
-										backgroundColor: statusTypeBackgroundColor[statusType].checkbox.hover,
-									},
-									borderRadius: 2,
-									width: 'fit-content',
-									margin: 0,
-									'& .MuiFormControlLabel-label': {
-										flex: 1,
-									},
-								}}
-								control={
-									<Checkbox
-										checked={selectedStatusTypes.has(statusType)}
-										onChange={() => handleStatusTypeChange(statusType)}
-										sx={{
-											'&.Mui-checked': {
-												color: statusTypeBackgroundColor[statusType].checkbox.color,
-											},
-											padding: '0.25rem',
-											paddingRight: 0,
-										}}
-									/>
-								}
-								label={<div className="text-base p-1">{renderYaseiLevel(statusType)}</div>}
-							/>
-						</Grid2>
-					))}
-				</Grid2>
-			</FormGroup>
+			<FilterCheckboxGroup
+				options={statusTypeOptions}
+				selectedIds={selectedStatusTypes}
+				onChange={handleStatusTypeChange}
+			/>
 
 			{/* オプション */}
-			<FormGroup>
-				<Grid2 container spacing={2}>
-					{/* 衣装補正の表示オプション */}
-					<Grid2>
-						<FormControlLabel
-							sx={{
-								backgroundColor: showCostumeBonusValue ? '#fef9c3' : '#fefce8',
-								'&:hover': {
-									backgroundColor: '#fef08a',
-								},
-								borderRadius: 2,
-								width: 'fit-content',
-								margin: 0,
-								'& .MuiFormControlLabel-label': {
-									flex: 1,
-								},
-							}}
-							control={
-								<Checkbox
-									checked={showCostumeBonusValue}
-									onChange={(e) => handleShowCostumeBonusChange(e.target.checked)}
-									sx={{
-										'&.Mui-checked': {
-											color: '#ca8a04',
-										},
-										padding: '0.25rem',
-										paddingRight: 0,
-									}}
-								/>
-							}
-							label={<div className="text-base p-1">衣装補正を含む</div>}
-						/>
-					</Grid2>
-					{/* ステータス不明を非表示オプション */}
-					<Grid2>
-						<FormControlLabel
-							sx={{
-								backgroundColor: hideNullStatus ? '#e5e7eb' : '#f3f4f6',
-								'&:hover': {
-									backgroundColor: '#d1d5db',
-								},
-								borderRadius: 2,
-								width: 'fit-content',
-								margin: 0,
-								'& .MuiFormControlLabel-label': {
-									flex: 1,
-								},
-							}}
-							control={
-								<Checkbox
-									checked={hideNullStatus}
-									onChange={(e) => setHideNullStatus(e.target.checked)}
-									sx={{
-										'&.Mui-checked': {
-											color: '#4b5563',
-										},
-										padding: '0.25rem',
-										paddingRight: 0,
-									}}
-								/>
-							}
-							label={<div className="text-base p-1">不明なステータスを非表示</div>}
-						/>
-					</Grid2>
-				</Grid2>
-			</FormGroup>
+			<FilterCheckboxGroup
+				options={otherOptions}
+				selectedIds={
+					new Set([
+						...(showCostumeBonus ? ["showCostumeBonus"] : []),
+						...(hideNullStatus ? ["hideNullStatus"] : []),
+					])
+				}
+				onChange={(id) => {
+					if (id === "showCostumeBonus") {
+						handleShowCostumeBonusChange(!showCostumeBonus);
+					} else if (id === "hideNullStatus") {
+						setHideNullStatus(!hideNullStatus);
+					}
+				}}
+			/>
 
-			{/* ページネーション */}
+			{/* テーブルとページネーション */}
 			<div className="overflow-x-auto max-w-full">
-				<div className="flex items-center px-1 py-2 gap-4 min-w-[720px] max-w-[1920px]">
-					{/* ページサイズ指定 */}
-					<div className="flex items-center gap-2">
-						<span className="text-sm text-gray-700">1ページあたりの表示件数:</span>
-						<Select
-							value={table.getState().pagination.pageSize}
-							onChange={(e) => table.setPageSize(Number(e.target.value))}
-							size="small"
-							sx={{ minWidth: 80 }}
-						>
-							{[500, 200, 100, 50, 20, 10].map((pageSize) => (
-								<MenuItem key={pageSize} value={pageSize}>
-									{pageSize}
-								</MenuItem>
-							))}
-						</Select>
-					</div>
-					<div className="flex items-center gap-2">
-						{/* ページ異動ボタン */}
-						<div className="flex items-center gap-1">
-							<IconButton
-								size="small"
-								onClick={() => table.setPageIndex(0)}
-								disabled={!table.getCanPreviousPage()}
-							>
-								<FirstPage />
-							</IconButton>
-							<IconButton
-								size="small"
-								onClick={() => table.previousPage()}
-								disabled={!table.getCanPreviousPage()}
-							>
-								<NavigateBefore />
-							</IconButton>
-							<span className="text-sm text-gray-700 mx-2">
-								{table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
-							</span>
-							<IconButton
-								size="small"
-								onClick={() => table.nextPage()}
-								disabled={!table.getCanNextPage()}
-							>
-								<NavigateNext />
-							</IconButton>
-							<IconButton
-								size="small"
-								onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-								disabled={!table.getCanNextPage()}
-							>
-								<LastPage />
-							</IconButton>
-						</div>
-						{/* ページ表示範囲 */}
-						{/* <div className="flex items-center gap-1 text-sm text-gray-700">
-							<span>{table.getFilteredRowModel().rows.length}件中</span>
-							<span>{table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-</span>
-							<span>
-								{Math.min(
-									(table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
-									table.getFilteredRowModel().rows.length
-								)}
-							</span>
-							<span>件を表示中</span>
-						</div> */}
-					</div>
-				</div>
+				<TablePagination table={table} />
 
-				<table className="border-collapse w-full [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
-					<colgroup>
-						{table.getHeaderGroups()[0].headers.map((header) => {
-							const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
-							return (
-								<col
-									key={header.id}
-									className="table-column"
-									style={{
-										width: meta?.width,
-									}}
-								/>
-							);
-						})}
-					</colgroup>
-					<thead>
-						{table.getHeaderGroups().map((headerGroup) => (
-							<React.Fragment key={headerGroup.id}>
-								<tr className="bg-gray-100">
-									{headerGroup.headers.map((header) => {
-										const meta = header.column.columnDef.meta as ColumnMeta & { width?: string };
-										return (
-											<th
-												key={header.id}
-												className="px-4 py-3 whitespace-nowrap"
-												style={{
-													textAlign: meta?.align || "left",
-													cursor: header.column.getCanSort() ? "pointer" : "default",
-													width: meta?.width,
-													minWidth: meta?.width,
-												}}
-												onClick={header.column.getToggleSortingHandler()}
-											>
-												<div className="flex items-center justify-between gap-2">
-													<span className="font-semibold">
-														{flexRender(
-															header.column.columnDef.header,
-															header.getContext()
-														)}
-													</span>
-													{/* ソートインジケーター */}
-													{header.column.getCanSort() && (
-														<span className="inline-flex flex-col text-gray-700" style={{ height: '15px' }}>
-															{header.column.getIsSorted() === "asc" ? (
-																<>
-																	<svg className="text-blue-600" style={{ width: '12px', height: '12px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
-																		<path d="M8 0L16 8H0z" />
-																	</svg>
-																	<svg className="text-gray-300" style={{ width: '12px', height: '12px' }} viewBox="0 0 16 8" fill="currentColor">
-																		<path d="M8 8L0 0h16z" />
-																	</svg>
-																</>
-															) : header.column.getIsSorted() === "desc" ? (
-																<>
-																	<svg className="text-gray-300" style={{ width: '12px', height: '12px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
-																		<path d="M8 0L16 8H0z" />
-																	</svg>
-																	<svg className="text-blue-600" style={{ width: '12px', height: '12px' }} viewBox="0 0 16 8" fill="currentColor">
-																		<path d="M8 8L0 0h16z" />
-																	</svg>
-																</>
-															) : (
-																<>
-																	<svg className="text-gray-400" style={{ width: '12px', height: '12px', marginBottom: '1px' }} viewBox="0 0 16 8" fill="currentColor">
-																		<path d="M8 0L16 8H0z" />
-																	</svg>
-																	<svg className="text-gray-400" style={{ width: '12px', height: '12px' }} viewBox="0 0 16 8" fill="currentColor">
-																		<path d="M8 8L0 0h16z" />
-																	</svg>
-																</>
-															)}
-														</span>
-													)}
-												</div>
-											</th>
-										);
-									})}
-								</tr>
-								<tr>
-									{headerGroup.headers.map((header) => (
-										<th key={header.id} className="bg-gray-50 p-2 py-2">
-											{header.column.getCanFilter() && (
-												<div className="relative">
-													<input
-														className="w-full p-2 text-sm border rounded font-normal bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-														type="text"
-														value={(header.column.getFilterValue() as string) ?? ""}
-														onChange={(e) => header.column.setFilterValue(e.target.value)}
-														placeholder="検索..."
-													/>
-													{(header.column.getFilterValue() as string | undefined) && (
-														<button
-															onClick={() => header.column.setFilterValue("")}
-															className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-															aria-label="検索をクリア"
-														>
-															<CancelIcon />
-														</button>
-													)}
-												</div>
-											)}
-										</th>
-									))}
-								</tr>
-							</React.Fragment>
-						))}
-					</thead>
-					<tbody>
-						{table.getRowModel().rows.map((row) => (
-							<TableRow key={row.id} row={row} />
-						))}
-					</tbody>
-				</table>
+				<SortableTable<ProcessedFriendsStatusListItem, unknown>
+					data={filteredData}
+					columns={columns}
+					state={{ sorting, columnFilters, pagination }}
+					onSortingChange={setSorting}
+					onColumnFiltersChange={setColumnFilters}
+					onPaginationChange={setPagination}
+					rowComponent={TableRow}
+				/>
 			</div>
 		</div>
 	);
