@@ -3,6 +3,7 @@ import { FriendsDataRow, MegumiPattern, megumiRaiseStatus } from "@/types/friend
 import { FriendsStatusListItem } from "@/types/friends";
 import { getFriendsData } from "./friendsData";
 import { calcKemosute } from "./common";
+import { toPercent } from "./common";
 
 export function isStatusNull(status: BasicStatus): boolean {
 	return status.hp === null || status.atk === null || status.def === null;
@@ -360,7 +361,7 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 					hp: statusType.status.hp === null ? "?????" : statusType.status.hp.toLocaleString(),
 					atk: statusType.status.atk === null ? "?????" : statusType.status.atk.toLocaleString(),
 					def: statusType.status.def === null ? "?????" : statusType.status.def.toLocaleString(),
-					avoid: friend.status.avoid === null ? "???%" : friend.status.avoid.toLocaleString(undefined, {style: 'percent', minimumFractionDigits:1})
+					avoid: friend.status.avoid === null ? "???%" : toPercent(friend.status.avoid, 0)
 				},
 				originalIndex: index++,
 			});

@@ -26,6 +26,7 @@ import {
 	PaginationState
 } from "@tanstack/react-table";
 import { TablePagination } from "@/components/table/TablePagination";
+import { toPercent } from "@/utils/common";
 
 // CSV内の「~~」を改行に変換する関数
 function formatTextContent(text: string): React.ReactElement {
@@ -330,7 +331,7 @@ export default function ClientTabs({
 
 				// 1未満の場合は%表示
 				if (powerNum < 1) {
-					return `${(powerNum * 100).toFixed(0)}%`;
+					return toPercent(powerNum, 0);
 				}
 
 				return power;
@@ -404,7 +405,7 @@ export default function ClientTabs({
 
 				// 数値の場合は%表記
 				if (!isNaN(rateNum)) {
-					return `${rateNum}%`;
+					return toPercent(rateNum, 0);
 				}
 
 				return rate;
