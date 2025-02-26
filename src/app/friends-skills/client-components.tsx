@@ -7,10 +7,10 @@ import { FriendsDataRow } from "@/types/friends";
 import { SortableTable } from "@/components/table/SortableTable";
 import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
+import { TableOfContents } from "@/components/section/TableOfContents";
 import { Heading } from "@/components/section/Heading";
 import { FoldingSection } from "@/components/section/FoldingSection";
-import { TableOfContents } from "@/components/section/TableOfContents";
-import Image from "next/image";
+import { SeesaaWikiImage } from "@/components/SeesaaWikiImage";
 import { ColumnDef, Row, flexRender, SortingState, ColumnFiltersState } from "@tanstack/react-table";
 
 // CSV内の「~~」を改行に変換する関数
@@ -233,7 +233,7 @@ export default function ClientTabs({
 					<div className="flex items-center space-x-2">
 						{skill.friend.iconUrl && (
 							<div className="flex-shrink-0">
-								<Image
+								<SeesaaWikiImage
 									src={skill.friend.iconUrl}
 									alt={skill.friend.name}
 									width={45}

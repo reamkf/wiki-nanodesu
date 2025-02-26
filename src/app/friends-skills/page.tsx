@@ -2,6 +2,12 @@ import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friendsSkillsD
 import ClientTabs from "./client-components";
 import { PageTitle } from '@/components/PageTitle';
 
+import { Metadata } from 'next'
+export const metadata: Metadata = {
+	title: "スキル別フレンズ一覧 - アプリ版けものフレンズ３wikiなのです🦉",
+	description: "スキル別フレンズ一覧",
+};
+
 export default async function FriendsSkillsPage() {
 	// スキルデータとフレンズデータを結合したデータを取得
 	const skillsData = await getSkillsWithFriendsData();
