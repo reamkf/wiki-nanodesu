@@ -26,4 +26,5 @@ export default {
 	plugins: [
 		scrollbar({ nocompatible: true }),
 	],
+	important: true,
 } satisfies Config;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import { Box, Paper, Pagination } from "@mui/material";
 import { SkillEffect } from "@/types/friendsSkills";
 import { FriendsDataRow } from "@/types/friends";
@@ -8,6 +8,7 @@ import { SortableTable } from "@/components/table/SortableTable";
 import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
 import { SectionHeading } from "@/components/section/SectionHeading";
+import { FoldingSection } from "@/components/section/FoldingSection";
 import { TableOfContents } from "@/components/section/TableOfContents";
 import Image from "next/image";
 import { ColumnDef, Row, flexRender, SortingState, ColumnFiltersState } from "@tanstack/react-table";
@@ -402,9 +403,11 @@ export default function ClientTabs({
 								<SectionHeading
 									title={category.name}
 									id={`heading-${category.id}`}
-									isOpen={openSections[category.id] === true}
-									onToggle={() => toggleSection(category.id)}
 									level={1}
+								/>
+								<FoldingSection
+									isOpen={openSections[category.id]}
+									onToggle={() => toggleSection(category.id)}
 								>
 									{hasChildren && (
 										<Box>
@@ -412,7 +415,7 @@ export default function ClientTabs({
 										</Box>
 									)}
 									{isLeafNode && renderSkillTable(category.id)}
-								</SectionHeading>
+								</FoldingSection>
 							</Box>
 						)}
 
@@ -422,9 +425,11 @@ export default function ClientTabs({
 								<SectionHeading
 									title={category.name}
 									id={`heading-${category.id}`}
-									isOpen={openSections[category.id] === true}
-									onToggle={() => toggleSection(category.id)}
 									level={2}
+								/>
+								<FoldingSection
+									isOpen={openSections[category.id]}
+									onToggle={() => toggleSection(category.id)}
 								>
 									{hasChildren && (
 										<Box>
@@ -432,7 +437,7 @@ export default function ClientTabs({
 										</Box>
 									)}
 									{isLeafNode && renderSkillTable(category.id)}
-								</SectionHeading>
+								</FoldingSection>
 							</Box>
 						)}
 
@@ -442,13 +447,15 @@ export default function ClientTabs({
 								<SectionHeading
 									title={category.name}
 									id={`heading-${category.id}`}
-									isOpen={openSections[category.id] === true}
-									onToggle={() => toggleSection(category.id)}
 									level={3}
 									className="mt-1"
+								/>
+								<FoldingSection
+									isOpen={openSections[category.id]}
+									onToggle={() => toggleSection(category.id)}
 								>
 									{renderSkillTable(category.id)}
-								</SectionHeading>
+								</FoldingSection>
 							</Box>
 						)}
 					</Box>
