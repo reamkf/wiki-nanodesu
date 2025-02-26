@@ -18,6 +18,10 @@ export default async function FriendsSkillsPage() {
 		<div className="min-h-screen p-4">
 			<PageTitle title="スキル別フレンズ一覧" />
 
+			<p className="text-2xl font-bold text-red-500">
+				このページは製作途中です。
+			</p>
+
 			<ClientTabs effectTypes={effectTypes} skillsData={skillsData} />
 		</div>
 	);
