@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { Box, Button, Collapse } from '@mui/material';
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 interface FoldingSectionProps {
 	isOpenByDefault?: boolean;
