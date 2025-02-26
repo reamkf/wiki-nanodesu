@@ -1,6 +1,6 @@
 import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friendsSkillsData";
-import { Typography } from "@mui/material";
 import ClientTabs from "./client-components";
+import { PageTitle } from '@/components/PageTitle';
 
 export default async function FriendsSkillsPage() {
 	// スキルデータとフレンズデータを結合したデータを取得
@@ -10,9 +10,7 @@ export default async function FriendsSkillsPage() {
 
 	return (
 		<div className="min-h-screen p-4">
-			<Typography variant="h4" component="h1" className="mb-6">
-				スキル別フレンズ一覧
-			</Typography>
+			<PageTitle title="スキル別フレンズ一覧" />
 
 			<ClientTabs effectTypes={effectTypes} skillsData={skillsData} />
 		</div>
