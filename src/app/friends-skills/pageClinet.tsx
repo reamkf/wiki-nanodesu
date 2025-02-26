@@ -28,7 +28,7 @@ import { TablePagination } from "@/components/table/TablePagination";
 import { toPercent } from "@/utils/common";
 
 // CSV内の「~~」を改行に変換する関数
-function formatTextContent(text: string): React.ReactElement {
+function parseSeesaaWikiNewLine(text: string): React.ReactElement {
 	const parts = text.split('~~');
 
 	return (
@@ -171,7 +171,7 @@ export default function ClientTabs({
 }) {
 	// formatText関数をメモ化
 	const formatText = useCallback((text: string): React.ReactElement => {
-		return formatTextContent(text);
+		return parseSeesaaWikiNewLine(text);
 	}, []);
 
 	// 効果種別ごとにデータをメモ化
@@ -343,6 +343,11 @@ export default function ClientTabs({
 		{
 			accessorKey: 'skillType',
 			header: 'わざ種別',
+			cell: ({ row }) => {
+				const text = row.original.skillType;
+				if (!text) return null;
+				return formatText(text);
+			},
 			meta: {
 				width: '120px'
 			},
@@ -364,7 +369,7 @@ export default function ClientTabs({
 				const powerNum = parseFloat(power);
 
 				// 数値でない場合はそのまま表示
-				if (!isNumber(power)) return power;
+				if (!isNumber(power)) return formatText(power);
 
 				// MP関連のスキルかどうかを判断
 				const intFormatEffectTypes = [
@@ -427,6 +432,11 @@ export default function ClientTabs({
 		{
 			accessorKey: 'effectTurn',
 			header: '効果ターン',
+			cell: ({ row }) => {
+				const text = row.original.effectTurn;
+				if (!text) return null;
+				return formatText(text);
+			},
 			meta: {
 				width: '100px'
 			}
@@ -452,7 +462,7 @@ export default function ClientTabs({
 					return toPercent(rateNum, 0);
 				}
 
-				return rate;
+				return formatText(rate);
 			},
 			sortingFn: (rowA, rowB, columnId) => {
 				const valueA = rowA.getValue(columnId);
@@ -477,6 +487,11 @@ export default function ClientTabs({
 		{
 			accessorKey: 'activationCount',
 			header: '発動回数',
+			cell: ({ row }) => {
+				const text = row.original.activationCount;
+				if (!text) return null;
+				return formatText(text);
+			},
 			meta: {
 				width: '100px'
 			}
@@ -484,6 +499,11 @@ export default function ClientTabs({
 		{
 			accessorKey: 'note',
 			header: '備考',
+			cell: ({ row }) => {
+				const text = row.original.note;
+				if (!text) return null;
+				return formatText(text);
+			},
 			meta: {
 				width: '200px'
 			}
