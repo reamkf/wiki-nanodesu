@@ -77,8 +77,7 @@ export function FoldingSection({
 				unmountOnExit={true}
 				className="ml-[0.6rem] pl-4 border-l-[1px] border-gray-400"
 			>
-				{/* isOpenがfalseでも、一度開いたことがあればDOMには存在（非表示）*/}
-				{isOpened && children}
+				{children}
 			</Collapse>
 
 			{/* 下部閉じるボタン(セクションが開いている場合のみ表示) */}
