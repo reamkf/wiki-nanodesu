@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Box, List, ListItemButton, ListItemText } from '@mui/material';
-import { Heading } from './Heading';
+import { FoldingSection } from './FoldingSection';
 
 // スキルカテゴリーの階層構造を表す型
 interface SkillCategory {
@@ -45,7 +45,7 @@ export function TableOfContents({
 							hover:bg-sky-100
 							rounded flex items-center
 						`}
-						style={{ paddingLeft: `${level * 1.5 + 1}rem` }}
+						style={{ paddingLeft: `${level * 1.5}rem` }}
 					>
 						{/* 箇条書きの点を表示 */}
 						<Box
@@ -75,25 +75,21 @@ export function TableOfContents({
 	};
 
 	return (
-		<Box className="">
-			<Heading
-				title="目次"
-				id="table-of-contents"
-				level={3}
-			/>
-
-			<Box
-				className="pb-1 w-fit"
-			>
-				<List
-					dense
-					component="div"
-					disablePadding
-					className="pt-0"
+		<FoldingSection toggleButtonLabel="目次">
+			<>
+				<Box
+					className="pb-1 w-fit"
 				>
-					{renderCategoryTree(categories)}
-				</List>
-			</Box>
-		</Box>
+					<List
+						dense
+						component="div"
+						disablePadding
+						className="pt-0"
+					>
+						{renderCategoryTree(categories)}
+					</List>
+				</Box>
+			</>
+		</FoldingSection>
 	);
 }
