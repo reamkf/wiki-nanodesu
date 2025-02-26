@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import { Box, Paper, Pagination } from "@mui/material";
+import { Box, Paper } from "@mui/material";
 import { SkillEffect } from "@/types/friendsSkills";
 import { FriendsDataRow } from "@/types/friends";
 import { SortableTable } from "@/components/table/SortableTable";
@@ -11,7 +11,19 @@ import { TableOfContents } from "@/components/section/TableOfContents";
 import { Heading } from "@/components/section/Heading";
 import { FoldingSection } from "@/components/section/FoldingSection";
 import { SeesaaWikiImage } from "@/components/SeesaaWikiImage";
-import { ColumnDef, Row, flexRender, SortingState, ColumnFiltersState } from "@tanstack/react-table";
+import {
+	ColumnDef,
+	Row,
+	flexRender,
+	SortingState,
+	ColumnFiltersState,
+	useReactTable,
+	getCoreRowModel,
+	getSortedRowModel,
+	getFilteredRowModel,
+	getPaginationRowModel
+} from "@tanstack/react-table";
+import { TablePagination } from "@/components/table/TablePagination";
 
 // CSV内の「~~」を改行に変換する関数
 function formatTextContent(text: string): React.ReactElement {
@@ -474,6 +486,84 @@ export default function ClientTabs({
 		return renderCategorySections(skillCategories);
 	};
 
+	// スキル効果テーブルコンポーネント
+	const SkillEffectTable = React.memo(({
+		data,
+		columns,
+		isActive,
+		sorting,
+		setSorting,
+		columnFilters,
+		setColumnFilters,
+		pagination,
+		setPagination,
+		rowComponent
+	}: {
+		data: SkillWithFriend[];
+		columns: ColumnDef<SkillWithFriend>[];
+		isActive: boolean;
+		sorting: SortingState;
+		setSorting: React.Dispatch<React.SetStateAction<SortingState>>;
+		columnFilters: ColumnFiltersState;
+		setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>;
+		pagination: { pageIndex: number; pageSize: number };
+		setPagination: React.Dispatch<React.SetStateAction<{ pageIndex: number; pageSize: number }>>;
+		rowComponent: React.FC<{ row: Row<SkillWithFriend> }>;
+	}) => {
+		const currentSorting = isActive ? sorting : [];
+		const currentColumnFilters = isActive ? columnFilters : [];
+		const currentPagination = isActive ? pagination : { pageIndex: 0, pageSize: 50 };
+
+		// テーブルインスタンスを作成
+		const table = useReactTable({
+			data,
+			columns,
+			state: {
+				sorting: currentSorting,
+				columnFilters: currentColumnFilters,
+				pagination: currentPagination
+			},
+			onSortingChange: isActive ? setSorting : () => {},
+			onColumnFiltersChange: isActive ? setColumnFilters : () => {},
+			onPaginationChange: isActive ? setPagination : () => {},
+			getCoreRowModel: getCoreRowModel(),
+			getSortedRowModel: getSortedRowModel(),
+			getFilteredRowModel: getFilteredRowModel(),
+			getPaginationRowModel: getPaginationRowModel(),
+			manualPagination: false,
+			debugTable: false,
+		});
+
+		const pageCount = table.getPageCount();
+
+		return (
+			<>
+				{/* TablePaginationコンポーネントを使用 */}
+				{pageCount > 1 && (
+					<TablePagination table={table} />
+				)}
+
+				{/* SortableTableコンポーネントを使用 */}
+				<SortableTable
+					data={data}
+					columns={columns}
+					state={{
+						sorting: currentSorting,
+						columnFilters: currentColumnFilters,
+						pagination: currentPagination
+					}}
+					onSortingChange={isActive ? setSorting : () => {}}
+					onColumnFiltersChange={isActive ? setColumnFilters : () => {}}
+					onPaginationChange={isActive ? setPagination : () => {}}
+					rowComponent={rowComponent}
+				/>
+			</>
+		);
+	});
+
+	// 表示名を設定
+	SkillEffectTable.displayName = "SkillEffectTable";
+
 	// スキル効果のテーブルをレンダリング
 	const renderSkillTable = (effectType: string) => {
 		const data = effectTypeData[effectType] || [];
@@ -481,60 +571,22 @@ export default function ClientTabs({
 
 		// 現在のページに表示するデータ
 		const isActive = selectedEffectType === effectType;
-		const currentPagination = isActive ? pagination : { pageIndex: 0, pageSize: 50 };
-		const pageCount = Math.ceil(data.length / currentPagination.pageSize);
-
-		// ページネーション用のハンドラー
-		const handlePageChange = (_: React.ChangeEvent<unknown>, page: number) => {
-			if (isActive) {
-				setPagination({
-					...pagination,
-					pageIndex: page - 1
-				});
-			}
-		};
 
 		return (
-			<>
-				<Paper className="mb-4 overflow-auto">
-					<SortableTable
-						data={data}
-						columns={columns}
-						state={{
-							sorting: isActive ? sorting : [],
-							columnFilters: isActive ? columnFilters : [],
-							pagination: currentPagination
-						}}
-						onSortingChange={isActive ?
-							(val) => setSorting(val) :
-							() => {}
-						}
-						onColumnFiltersChange={isActive ?
-							(val) => setColumnFilters(val) :
-							() => {}
-						}
-						onPaginationChange={isActive ?
-							(val) => setPagination(val) :
-							() => {}
-						}
-						rowComponent={CustomRowComponent}
-					/>
-				</Paper>
-
-				{/* ページネーション */}
-				{pageCount > 1 && (
-					<Box className="flex justify-center mt-2 mb-4">
-						<Pagination
-							count={pageCount}
-							page={currentPagination.pageIndex + 1}
-							onChange={handlePageChange}
-							color="primary"
-							showFirstButton
-							showLastButton
-						/>
-					</Box>
-				)}
-			</>
+			<Paper className="mb-4 overflow-auto">
+				<SkillEffectTable
+					data={data}
+					columns={columns}
+					isActive={isActive}
+					sorting={sorting}
+					setSorting={setSorting}
+					columnFilters={columnFilters}
+					setColumnFilters={setColumnFilters}
+					pagination={pagination}
+					setPagination={setPagination}
+					rowComponent={CustomRowComponent}
+				/>
+			</Paper>
 		);
 	};
 
