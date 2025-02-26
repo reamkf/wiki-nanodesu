@@ -126,12 +126,10 @@ const SkillTypeTable = React.memo(({
 
 	return (
 		<>
-			{/* TablePaginationコンポーネントを使用 */}
 			{pageCount > 1 && (
 				<TablePagination table={table} />
 			)}
 
-			{/* SortableTableコンポーネントを使用 */}
 			<SortableTable
 				data={data}
 				columns={columns}
@@ -149,7 +147,6 @@ const SkillTypeTable = React.memo(({
 	);
 });
 
-// 表示名を設定
 SkillTypeTable.displayName = "SkillTypeTable";
 
 export default function ClientTabs({
@@ -178,7 +175,6 @@ export default function ClientTabs({
 		return result;
 	}, [effectTypes, skillsData]);
 
-	// スキルカテゴリーの階層構造（静的に定義）
 	const skillCategories: SkillCategory[] = useMemo(() => [
 		{
 			name: "バフ",
@@ -594,7 +590,6 @@ export default function ClientTabs({
 		return renderCategorySections(skillCategories);
 	};
 
-	// スキル効果のテーブルをレンダリング
 	const renderSkillTable = (effectType: string) => {
 		const data = effectTypeData[effectType] || [];
 		if (data.length === 0) return null;
