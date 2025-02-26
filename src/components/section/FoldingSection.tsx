@@ -10,8 +10,8 @@ interface FoldingSectionProps {
 	onToggle?: () => void;
 	className?: string;
 	children?: React.ReactNode;
-	toggleButtonLabel?: string | null,
-	closeButtonLabel?: string | null,
+	toggleButtonLabel?: string | React.ReactNode | null,
+	closeButtonLabel?: string | React.ReactNode | null,
 }
 
 /**
@@ -46,7 +46,7 @@ export function FoldingSection({
 		labelText = null,
 	}: {
 		useIcon?: boolean;
-		labelText?: string | null;
+		labelText?: string | React.ReactNode | null;
 	}) => {
 		return (
 			<Button
