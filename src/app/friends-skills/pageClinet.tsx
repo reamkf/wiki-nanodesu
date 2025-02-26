@@ -21,7 +21,9 @@ import {
 	getCoreRowModel,
 	getSortedRowModel,
 	getFilteredRowModel,
-	getPaginationRowModel
+	getPaginationRowModel,
+	OnChangeFn,
+	PaginationState
 } from "@tanstack/react-table";
 import { TablePagination } from "@/components/table/TablePagination";
 
@@ -184,13 +186,17 @@ export default function ClientTabs({
 		},
 	], []);
 
-	const [selectedEffectType, setSelectedEffectType] = useState<string | null>(null);
-	const [sorting, setSorting] = useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-	const [pagination, setPagination] = useState({
-		pageIndex: 0,
-		pageSize: 50
-	});
+	// 各スキルタイプごとのソート状態を管理する
+	const [sortingStates, setSortingStates] = useState<Record<string, SortingState>>({});
+
+	// 各スキルタイプごとのフィルター状態を管理する
+	const [columnFiltersStates, setColumnFiltersStates] = useState<Record<string, ColumnFiltersState>>({});
+
+	// 各スキルタイプごとのページネーション状態を管理する
+	const [paginationStates, setPaginationStates] = useState<Record<string, { pageIndex: number; pageSize: number }>>({});
+
+	// 共通のデフォルト値
+	const defaultPagination = { pageIndex: 0, pageSize: 50 };
 
 	// セクションの開閉状態を管理
 	const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -209,12 +215,6 @@ export default function ClientTabs({
 
 	// 効果種別を選択したときの処理
 	const handleEffectTypeSelect = (effectType: string) => {
-		setSelectedEffectType(effectType);
-		// 選択時にソートとフィルターをリセット
-		setSorting([]);
-		setColumnFilters([]);
-		setPagination({ pageIndex: 0, pageSize: 50 });
-
 		// 該当セクションを開く
 		setOpenSections(prev => ({
 			...prev,
@@ -229,6 +229,30 @@ export default function ClientTabs({
 			}
 		}, 100);
 	};
+
+	// 特定のスキルタイプのソート状態を更新する
+	const updateSortingForType = useCallback((effectType: string, newSorting: SortingState | ((prev: SortingState) => SortingState)) => {
+		setSortingStates(prev => ({
+			...prev,
+			[effectType]: typeof newSorting === 'function' ? newSorting(prev[effectType] || []) : newSorting
+		}));
+	}, []);
+
+	// 特定のスキルタイプのフィルター状態を更新する
+	const updateColumnFiltersForType = useCallback((effectType: string, newFilters: ColumnFiltersState | ((prev: ColumnFiltersState) => ColumnFiltersState)) => {
+		setColumnFiltersStates(prev => ({
+			...prev,
+			[effectType]: typeof newFilters === 'function' ? newFilters(prev[effectType] || []) : newFilters
+		}));
+	}, []);
+
+	// 特定のスキルタイプのページネーション状態を更新する
+	const updatePaginationForType = useCallback((effectType: string, newPagination: { pageIndex: number; pageSize: number } | ((prev: { pageIndex: number; pageSize: number }) => { pageIndex: number; pageSize: number })) => {
+		setPaginationStates(prev => ({
+			...prev,
+			[effectType]: typeof newPagination === 'function' ? newPagination(prev[effectType] || defaultPagination) : newPagination
+		}));
+	}, [defaultPagination]);
 
 	// テーブルのカラム定義
 	const columns = useMemo<ColumnDef<SkillWithFriend>[]>(() => [
@@ -286,7 +310,13 @@ export default function ClientTabs({
 			},
 		},
 		{
-			accessorKey: 'power',
+			accessorFn: (row) => {
+				const power = row.power;
+				if (!power) return -Infinity;
+				const powerNum = parseFloat(power);
+				return isNaN(powerNum) ? power : powerNum;
+			},
+			id: 'power',
 			header: '威力',
 			cell: ({ row }) => {
 				const power = row.original.power;
@@ -304,6 +334,22 @@ export default function ClientTabs({
 				}
 
 				return power;
+			},
+			sortingFn: (rowA, rowB, columnId) => {
+				const valueA = rowA.getValue(columnId);
+				const valueB = rowB.getValue(columnId);
+
+				// どちらかがnullやundefinedの場合
+				if (valueA == null) return 1;
+				if (valueB == null) return -1;
+
+				// 両方とも数値の場合は数値比較
+				if (typeof valueA === 'number' && typeof valueB === 'number') {
+					return valueA - valueB;
+				}
+
+				// 文字列の場合は文字列比較
+				return String(valueA).localeCompare(String(valueB));
 			},
 			meta: {
 				width: '100px'
@@ -341,7 +387,13 @@ export default function ClientTabs({
 			}
 		},
 		{
-			accessorKey: 'activationRate',
+			accessorFn: (row) => {
+				const rate = row.activationRate;
+				if (!rate) return -Infinity;
+				const rateNum = parseFloat(rate);
+				return isNaN(rateNum) ? rate : rateNum;
+			},
+			id: 'activationRate',
 			header: '発動率',
 			cell: ({ row }) => {
 				const rate = row.original.activationRate;
@@ -356,6 +408,22 @@ export default function ClientTabs({
 				}
 
 				return rate;
+			},
+			sortingFn: (rowA, rowB, columnId) => {
+				const valueA = rowA.getValue(columnId);
+				const valueB = rowB.getValue(columnId);
+
+				// どちらかがnullやundefinedの場合
+				if (valueA == null) return 1;
+				if (valueB == null) return -1;
+
+				// 両方とも数値の場合は数値比較
+				if (typeof valueA === 'number' && typeof valueB === 'number') {
+					return valueA - valueB;
+				}
+
+				// 文字列の場合は文字列比較
+				return String(valueA).localeCompare(String(valueB));
 			},
 			meta: {
 				width: '100px'
@@ -490,42 +558,46 @@ export default function ClientTabs({
 	const SkillEffectTable = React.memo(({
 		data,
 		columns,
-		isActive,
-		sorting,
-		setSorting,
-		columnFilters,
-		setColumnFilters,
-		pagination,
-		setPagination,
+		effectType,
 		rowComponent
 	}: {
 		data: SkillWithFriend[];
 		columns: ColumnDef<SkillWithFriend>[];
-		isActive: boolean;
-		sorting: SortingState;
-		setSorting: React.Dispatch<React.SetStateAction<SortingState>>;
-		columnFilters: ColumnFiltersState;
-		setColumnFilters: React.Dispatch<React.SetStateAction<ColumnFiltersState>>;
-		pagination: { pageIndex: number; pageSize: number };
-		setPagination: React.Dispatch<React.SetStateAction<{ pageIndex: number; pageSize: number }>>;
+		effectType: string;
 		rowComponent: React.FC<{ row: Row<SkillWithFriend> }>;
 	}) => {
-		const currentSorting = isActive ? sorting : [];
-		const currentColumnFilters = isActive ? columnFilters : [];
-		const currentPagination = isActive ? pagination : { pageIndex: 0, pageSize: 50 };
+		// この効果タイプ用のソート状態を取得
+		const sorting = sortingStates[effectType] || [];
+		const columnFilters = columnFiltersStates[effectType] || [];
+		const pagination = paginationStates[effectType] || defaultPagination;
+
+		// この効果タイプ用のソート状態を更新する関数
+		const handleSortingChange: OnChangeFn<SortingState> = (updaterOrValue) => {
+			updateSortingForType(effectType, updaterOrValue);
+		};
+
+		// この効果タイプ用のフィルター状態を更新する関数
+		const handleColumnFiltersChange: OnChangeFn<ColumnFiltersState> = (updaterOrValue) => {
+			updateColumnFiltersForType(effectType, updaterOrValue);
+		};
+
+		// この効果タイプ用のページネーション状態を更新する関数
+		const handlePaginationChange: OnChangeFn<PaginationState> = (updaterOrValue) => {
+			updatePaginationForType(effectType, updaterOrValue);
+		};
 
 		// テーブルインスタンスを作成
 		const table = useReactTable({
 			data,
 			columns,
 			state: {
-				sorting: currentSorting,
-				columnFilters: currentColumnFilters,
-				pagination: currentPagination
+				sorting,
+				columnFilters,
+				pagination
 			},
-			onSortingChange: isActive ? setSorting : () => {},
-			onColumnFiltersChange: isActive ? setColumnFilters : () => {},
-			onPaginationChange: isActive ? setPagination : () => {},
+			onSortingChange: handleSortingChange,
+			onColumnFiltersChange: handleColumnFiltersChange,
+			onPaginationChange: handlePaginationChange,
 			getCoreRowModel: getCoreRowModel(),
 			getSortedRowModel: getSortedRowModel(),
 			getFilteredRowModel: getFilteredRowModel(),
@@ -548,13 +620,13 @@ export default function ClientTabs({
 					data={data}
 					columns={columns}
 					state={{
-						sorting: currentSorting,
-						columnFilters: currentColumnFilters,
-						pagination: currentPagination
+						sorting,
+						columnFilters,
+						pagination
 					}}
-					onSortingChange={isActive ? setSorting : () => {}}
-					onColumnFiltersChange={isActive ? setColumnFilters : () => {}}
-					onPaginationChange={isActive ? setPagination : () => {}}
+					onSortingChange={handleSortingChange}
+					onColumnFiltersChange={handleColumnFiltersChange}
+					onPaginationChange={handlePaginationChange}
 					rowComponent={rowComponent}
 				/>
 			</>
@@ -569,21 +641,12 @@ export default function ClientTabs({
 		const data = effectTypeData[effectType] || [];
 		if (data.length === 0) return null;
 
-		// 現在のページに表示するデータ
-		const isActive = selectedEffectType === effectType;
-
 		return (
 			<Paper className="mb-4 overflow-auto">
 				<SkillEffectTable
 					data={data}
 					columns={columns}
-					isActive={isActive}
-					sorting={sorting}
-					setSorting={setSorting}
-					columnFilters={columnFilters}
-					setColumnFilters={setColumnFilters}
-					pagination={pagination}
-					setPagination={setPagination}
+					effectType={effectType}
 					rowComponent={CustomRowComponent}
 				/>
 			</Paper>
