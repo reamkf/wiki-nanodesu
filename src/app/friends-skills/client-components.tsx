@@ -409,7 +409,7 @@ export default function ClientTabs({
 									level={1}
 								/>
 								<FoldingSection
-									isOpen={openSections[category.id]}
+									isOpenByDefault={openSections[category.id]}
 									onToggle={() => toggleSection(category.id)}
 								>
 									{hasChildren && (
@@ -431,7 +431,7 @@ export default function ClientTabs({
 									level={2}
 								/>
 								<FoldingSection
-									isOpen={openSections[category.id]}
+									isOpenByDefault={openSections[category.id]}
 									onToggle={() => toggleSection(category.id)}
 								>
 									{hasChildren && (
@@ -454,7 +454,7 @@ export default function ClientTabs({
 									className="mt-1"
 								/>
 								<FoldingSection
-									isOpen={openSections[category.id]}
+									isOpenByDefault={openSections[category.id]}
 									onToggle={() => toggleSection(category.id)}
 								>
 									{renderSkillTable(category.id)}
@@ -538,7 +538,6 @@ export default function ClientTabs({
 			{/* 上部の目次 */}
 			<TableOfContents
 				categories={skillCategories}
-				selectedId={selectedEffectType}
 				onSelect={handleEffectTypeSelect}
 			/>
 

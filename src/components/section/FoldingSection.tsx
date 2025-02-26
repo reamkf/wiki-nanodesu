@@ -6,8 +6,8 @@ import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 
 interface FoldingSectionProps {
-	isOpen: boolean;
-	onToggle: () => void;
+	isOpenByDefault?: boolean;
+	onToggle?: () => void;
 	className?: string;
 	children?: React.ReactNode;
 	toggleButtonLabel?: string | null,
@@ -22,22 +22,22 @@ interface FoldingSectionProps {
  * - 上部と下部に折りたたみボタンを配置
  */
 export function FoldingSection({
-	isOpen,
-	onToggle,
+	isOpenByDefault: isOpenByDefault = false,
+	onToggle = () => {},
 	className,
 	children,
 	toggleButtonLabel = '',
 	closeButtonLabel = '[閉じる]',
 }: FoldingSectionProps) {
 	// コンテンツが一度でも開かれたかどうかを追跡
-	const [hasBeenOpened, setHasBeenOpened] = useState(isOpen);
+	const [isOpened, setIsOpened] = useState(isOpenByDefault);
 
 	// 開く際に追跡状態を更新
 	const handleToggle = () => {
-		if (!isOpen) {
-			setHasBeenOpened(true);
+		setIsOpened(!isOpened);
+		if (onToggle) {
+			onToggle();
 		}
-		onToggle();
 	};
 
 	// トグルボタンコンポーネント - 上部と下部で再利用
@@ -56,7 +56,7 @@ export function FoldingSection({
 				className="text-gray-500 flex flex-1 m-0 p-0 min-w-0"
 			>
 				{useIcon && (
-					isOpen ?
+					isOpened ?
 						<IndeterminateCheckBoxOutlinedIcon className='text-[1.2rem]' /> :
 						<AddBoxOutlinedIcon className='text-[1.2rem]' />
 				)}
@@ -72,17 +72,17 @@ export function FoldingSection({
 
 			{/* コンテンツ部分 */}
 			<Collapse
-				in={isOpen}
+				in={isOpened}
 				timeout={300}
-				unmountOnExit={!hasBeenOpened}
+				unmountOnExit={true}
 				className="ml-[0.6rem] pl-4 border-l-[1px] border-gray-400"
 			>
 				{/* isOpenがfalseでも、一度開いたことがあればDOMには存在（非表示）*/}
-				{(isOpen || hasBeenOpened) && children}
+				{isOpened && children}
 			</Collapse>
 
 			{/* 下部閉じるボタン(セクションが開いている場合のみ表示) */}
-			{isOpen && <ToggleButton useIcon={false} labelText={closeButtonLabel} />}
+			{isOpened && <ToggleButton useIcon={false} labelText={closeButtonLabel} />}
 		</Box>
 	);
 }
