@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { Box, Paper } from "@mui/material";
 import { SkillEffect } from "@/types/friendsSkills";
 import { FriendsDataRow } from "@/types/friends";
@@ -22,7 +22,6 @@ import {
 	getSortedRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
-	OnChangeFn,
 	PaginationState
 } from "@tanstack/react-table";
 import { TablePagination } from "@/components/table/TablePagination";
@@ -55,6 +54,103 @@ interface SkillCategory {
 	id: string;
 	children?: SkillCategory[];
 }
+
+// 各スキルタイプのテーブルを管理する独立したコンポーネント
+const SkillTypeTable = React.memo(({
+	data,
+	columns,
+	effectType,
+}: {
+	data: SkillWithFriend[];
+	columns: ColumnDef<SkillWithFriend, unknown>[];
+	effectType: string;
+}) => {
+	// 各テーブル独自の状態を管理
+	const [sorting, setSorting] = useState<SortingState>([]);
+	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+	const [pagination, setPagination] = useState<PaginationState>(() => {
+		if (typeof window !== "undefined") {
+			const saved = localStorage.getItem(`wiki-nanodesu.friends-skills.pagination.${effectType}`);
+			return saved ? JSON.parse(saved) : { pageIndex: 0, pageSize: 50 };
+		}
+		return { pageIndex: 0, pageSize: 50 };
+	});
+
+	// ローカルストレージへの保存
+	useEffect(() => {
+		if (typeof window !== "undefined") {
+			localStorage.setItem(`wiki-nanodesu.friends-skills.pagination.${effectType}`, JSON.stringify(pagination));
+		}
+	}, [pagination, effectType]);
+
+	// カスタム行コンポーネント
+	const CustomRowComponent = useCallback(({ row }: { row: Row<SkillWithFriend> }) => (
+		<tr
+			key={row.id}
+			className="hover:bg-gray-50"
+		>
+			{row.getVisibleCells().map(cell => {
+				return (
+					<td
+						key={cell.id}
+						className={`p-2 border-b text-sm`}
+					>
+						{flexRender(cell.column.columnDef.cell, cell.getContext())}
+					</td>
+				);
+			})}
+		</tr>
+	), []);
+
+	// テーブルインスタンスを作成
+	const table = useReactTable({
+		data,
+		columns,
+		state: {
+			sorting,
+			columnFilters,
+			pagination
+		},
+		onSortingChange: setSorting,
+		onColumnFiltersChange: setColumnFilters,
+		onPaginationChange: setPagination,
+		getCoreRowModel: getCoreRowModel(),
+		getSortedRowModel: getSortedRowModel(),
+		getFilteredRowModel: getFilteredRowModel(),
+		getPaginationRowModel: getPaginationRowModel(),
+		manualPagination: false,
+		debugTable: false,
+	});
+
+	const pageCount = table.getPageCount();
+
+	return (
+		<>
+			{/* TablePaginationコンポーネントを使用 */}
+			{pageCount > 1 && (
+				<TablePagination table={table} />
+			)}
+
+			{/* SortableTableコンポーネントを使用 */}
+			<SortableTable
+				data={data}
+				columns={columns}
+				state={{
+					sorting,
+					columnFilters,
+					pagination
+				}}
+				onSortingChange={setSorting}
+				onColumnFiltersChange={setColumnFilters}
+				onPaginationChange={setPagination}
+				rowComponent={CustomRowComponent}
+			/>
+		</>
+	);
+});
+
+// 表示名を設定
+SkillTypeTable.displayName = "SkillTypeTable";
 
 export default function ClientTabs({
 	effectTypes,
@@ -187,18 +283,6 @@ export default function ClientTabs({
 		},
 	], []);
 
-	// 各スキルタイプごとのソート状態を管理する
-	const [sortingStates, setSortingStates] = useState<Record<string, SortingState>>({});
-
-	// 各スキルタイプごとのフィルター状態を管理する
-	const [columnFiltersStates, setColumnFiltersStates] = useState<Record<string, ColumnFiltersState>>({});
-
-	// 各スキルタイプごとのページネーション状態を管理する
-	const [paginationStates, setPaginationStates] = useState<Record<string, { pageIndex: number; pageSize: number }>>({});
-
-	// 共通のデフォルト値
-	const defaultPagination = { pageIndex: 0, pageSize: 50 };
-
 	// セクションの開閉状態を管理
 	const [openSections, setOpenSections] = useState<Record<string, boolean>>({
 		buff: true,
@@ -231,29 +315,12 @@ export default function ClientTabs({
 		}, 100);
 	};
 
-	// 特定のスキルタイプのソート状態を更新する
-	const updateSortingForType = useCallback((effectType: string, newSorting: SortingState | ((prev: SortingState) => SortingState)) => {
-		setSortingStates(prev => ({
+	const toggleSection = (effectType: string) => {
+		setOpenSections(prev => ({
 			...prev,
-			[effectType]: typeof newSorting === 'function' ? newSorting(prev[effectType] || []) : newSorting
+			[effectType]: !prev[effectType]
 		}));
-	}, []);
-
-	// 特定のスキルタイプのフィルター状態を更新する
-	const updateColumnFiltersForType = useCallback((effectType: string, newFilters: ColumnFiltersState | ((prev: ColumnFiltersState) => ColumnFiltersState)) => {
-		setColumnFiltersStates(prev => ({
-			...prev,
-			[effectType]: typeof newFilters === 'function' ? newFilters(prev[effectType] || []) : newFilters
-		}));
-	}, []);
-
-	// 特定のスキルタイプのページネーション状態を更新する
-	const updatePaginationForType = useCallback((effectType: string, newPagination: { pageIndex: number; pageSize: number } | ((prev: { pageIndex: number; pageSize: number }) => { pageIndex: number; pageSize: number })) => {
-		setPaginationStates(prev => ({
-			...prev,
-			[effectType]: typeof newPagination === 'function' ? newPagination(prev[effectType] || defaultPagination) : newPagination
-		}));
-	}, [defaultPagination]);
+	};
 
 	// テーブルのカラム定義
 	const columns = useMemo<ColumnDef<SkillWithFriend>[]>(() => [
@@ -446,34 +513,6 @@ export default function ClientTabs({
 		},
 	], [formatText]);
 
-	// カスタム行コンポーネント
-	const CustomRowComponent = useCallback(({ row }: { row: Row<SkillWithFriend> }) => (
-		<tr
-			key={row.id}
-			className="hover:bg-gray-50"
-		>
-			{row.getVisibleCells().map(cell => {
-				return (
-					<td
-						key={cell.id}
-						className={`p-2 border-b text-sm`}
-					>
-						{flexRender(cell.column.columnDef.cell, cell.getContext())}
-					</td>
-				);
-			})}
-		</tr>
-	), []);
-
-	// セクションの開閉を切り替える
-	const toggleSection = (effectType: string) => {
-		setOpenSections(prev => ({
-			...prev,
-			[effectType]: !prev[effectType]
-		}));
-	};
-
-	// 各カテゴリーのセクションをレンダリング
 	const renderSkillSections = () => {
 		// 親カテゴリーごとのセクションを作成
 		const renderCategorySections = (categories: SkillCategory[], level = 0) => {
@@ -555,88 +594,6 @@ export default function ClientTabs({
 		return renderCategorySections(skillCategories);
 	};
 
-	// スキル効果テーブルコンポーネント
-	const SkillEffectTable = React.memo(({
-		data,
-		columns,
-		effectType,
-		rowComponent
-	}: {
-		data: SkillWithFriend[];
-		columns: ColumnDef<SkillWithFriend>[];
-		effectType: string;
-		rowComponent: React.FC<{ row: Row<SkillWithFriend> }>;
-	}) => {
-		// この効果タイプ用のソート状態を取得
-		const sorting = sortingStates[effectType] || [];
-		const columnFilters = columnFiltersStates[effectType] || [];
-		const pagination = paginationStates[effectType] || defaultPagination;
-
-		// この効果タイプ用のソート状態を更新する関数
-		const handleSortingChange: OnChangeFn<SortingState> = (updaterOrValue) => {
-			updateSortingForType(effectType, updaterOrValue);
-		};
-
-		// この効果タイプ用のフィルター状態を更新する関数
-		const handleColumnFiltersChange: OnChangeFn<ColumnFiltersState> = (updaterOrValue) => {
-			updateColumnFiltersForType(effectType, updaterOrValue);
-		};
-
-		// この効果タイプ用のページネーション状態を更新する関数
-		const handlePaginationChange: OnChangeFn<PaginationState> = (updaterOrValue) => {
-			updatePaginationForType(effectType, updaterOrValue);
-		};
-
-		// テーブルインスタンスを作成
-		const table = useReactTable({
-			data,
-			columns,
-			state: {
-				sorting,
-				columnFilters,
-				pagination
-			},
-			onSortingChange: handleSortingChange,
-			onColumnFiltersChange: handleColumnFiltersChange,
-			onPaginationChange: handlePaginationChange,
-			getCoreRowModel: getCoreRowModel(),
-			getSortedRowModel: getSortedRowModel(),
-			getFilteredRowModel: getFilteredRowModel(),
-			getPaginationRowModel: getPaginationRowModel(),
-			manualPagination: false,
-			debugTable: false,
-		});
-
-		const pageCount = table.getPageCount();
-
-		return (
-			<>
-				{/* TablePaginationコンポーネントを使用 */}
-				{pageCount > 1 && (
-					<TablePagination table={table} />
-				)}
-
-				{/* SortableTableコンポーネントを使用 */}
-				<SortableTable
-					data={data}
-					columns={columns}
-					state={{
-						sorting,
-						columnFilters,
-						pagination
-					}}
-					onSortingChange={handleSortingChange}
-					onColumnFiltersChange={handleColumnFiltersChange}
-					onPaginationChange={handlePaginationChange}
-					rowComponent={rowComponent}
-				/>
-			</>
-		);
-	});
-
-	// 表示名を設定
-	SkillEffectTable.displayName = "SkillEffectTable";
-
 	// スキル効果のテーブルをレンダリング
 	const renderSkillTable = (effectType: string) => {
 		const data = effectTypeData[effectType] || [];
@@ -644,11 +601,10 @@ export default function ClientTabs({
 
 		return (
 			<Paper className="mb-4 overflow-auto">
-				<SkillEffectTable
+				<SkillTypeTable
 					data={data}
 					columns={columns}
 					effectType={effectType}
-					rowComponent={CustomRowComponent}
 				/>
 			</Paper>
 		);
@@ -656,13 +612,11 @@ export default function ClientTabs({
 
 	return (
 		<>
-			{/* 上部の目次 */}
 			<TableOfContents
 				categories={skillCategories}
 				onSelect={handleEffectTypeSelect}
 			/>
 
-			{/* メインコンテンツ */}
 			<Box>
 				{renderSkillSections()}
 			</Box>
