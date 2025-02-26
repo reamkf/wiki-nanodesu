@@ -12,15 +12,9 @@ interface SkillCategory {
 }
 
 interface TableOfContentsProps {
-	/**
-	 * 階層化されたカテゴリーの配列
-	 */
 	categories: SkillCategory[];
-
-	/**
-	 * カテゴリー選択時のコールバック
-	 */
 	onSelect: (id: string) => void;
+	sectionId?: string;
 }
 
 /**
@@ -28,7 +22,8 @@ interface TableOfContentsProps {
  */
 export function TableOfContents({
 	categories,
-	onSelect
+	onSelect,
+	sectionId,
 }: TableOfContentsProps) {
 	// 再帰的にカテゴリーをレンダリングする関数
 	const renderCategoryTree = (items: SkillCategory[], level = 0) => {
@@ -75,7 +70,10 @@ export function TableOfContents({
 	};
 
 	return (
-		<FoldingSection toggleButtonLabel={<span className="font-bold">目次</span>}>
+		<FoldingSection
+			toggleButtonLabel={<span className="font-bold">目次</span>}
+			sectionId={sectionId}
+		>
 			<>
 				<Box
 					className="pb-1 w-fit"

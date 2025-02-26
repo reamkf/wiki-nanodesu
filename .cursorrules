@@ -34,5 +34,5 @@
 - インデントにはタブを使う
 - クォーテーションは必要がない限りシングルクォーテーションを使う
 - コメントは日本語で記載
-- `localStorage`のキーは`wiki-nanodesu.${page-name}.${key}`のように命名する
+- `localStorage`のキーは`wiki-nanodesu.${page-name or ComponentName}.${key}`のように命名する
 - テストコードは`__tests__`フォルダに記載し、拡張子を`*.test.ts`とする

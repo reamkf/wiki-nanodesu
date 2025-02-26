@@ -28,6 +28,7 @@ import {
 	CheckboxOption,
 } from "../table/FilterCheckboxGroup";
 import { ColumnMeta } from "@/types/common";
+import { FoldingSection } from "../section/FoldingSection";
 
 // ステータスタイプの定義
 const STATUS_TYPES = [
@@ -575,29 +576,41 @@ export default function FriendsStatusTable({
 	return (
 		<div className="space-y-2">
 			{/* ステータスタイプ選択 */}
-			<FilterCheckboxGroup
-				options={statusTypeOptions}
-				selectedIds={selectedStatusTypes}
-				onChange={handleSelectedStatusTypeChange}
-			/>
+			<FoldingSection
+				sectionId="friends-status-table-filter-status-types"
+				isOpenByDefault={true}
+				toggleButtonLabel="ステータスタイプ選択"
+			>
+				<FilterCheckboxGroup
+					options={statusTypeOptions}
+					selectedIds={selectedStatusTypes}
+					onChange={handleSelectedStatusTypeChange}
+				/>
+			</FoldingSection>
 
 			{/* オプション */}
-			<FilterCheckboxGroup
-				options={otherOptions}
-				selectedIds={
-					new Set([
-						...(showCostumeBonus ? ["showCostumeBonus"] : []),
-						...(hideNullStatus ? ["hideNullStatus"] : []),
-					])
-				}
-				onChange={(id) => {
-					if (id === "showCostumeBonus") {
-						handleShowCostumeBonusChange(!showCostumeBonus);
-					} else if (id === "hideNullStatus") {
-						setHideNullStatus(!hideNullStatus);
+			<FoldingSection
+				sectionId="friends-status-table-filter-options"
+				isOpenByDefault={true}
+				toggleButtonLabel="表示オプション"
+			>
+				<FilterCheckboxGroup
+					options={otherOptions}
+					selectedIds={
+						new Set([
+							...(showCostumeBonus ? ["showCostumeBonus"] : []),
+							...(hideNullStatus ? ["hideNullStatus"] : []),
+						])
 					}
-				}}
-			/>
+					onChange={(id) => {
+						if (id === "showCostumeBonus") {
+							handleShowCostumeBonusChange(!showCostumeBonus);
+						} else if (id === "hideNullStatus") {
+							setHideNullStatus(!hideNullStatus);
+						}
+					}}
+				/>
+			</FoldingSection>
 
 			{/* テーブルとページネーション */}
 			<div className="overflow-x-auto max-w-full">

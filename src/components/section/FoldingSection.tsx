@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, Collapse } from '@mui/material';
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
@@ -12,6 +12,7 @@ interface FoldingSectionProps {
 	children?: React.ReactNode;
 	toggleButtonLabel?: string | React.ReactNode | null,
 	closeButtonLabel?: string | React.ReactNode | null,
+	sectionId?: string; // セクションの固有ID
 }
 
 /**
@@ -20,6 +21,7 @@ interface FoldingSectionProps {
  * - 開閉アニメーション付き
  * - 折りたたまれた状態では子コンテンツをレンダリングしない
  * - 上部と下部に折りたたみボタンを配置
+ * - sectionIdを指定するとlocalStorageに開閉状態を保存
  */
 export function FoldingSection({
 	isOpenByDefault: isOpenByDefault = false,
@@ -28,9 +30,30 @@ export function FoldingSection({
 	children,
 	toggleButtonLabel = null,
 	closeButtonLabel = '[閉じる]',
+	sectionId,
 }: FoldingSectionProps) {
-	// コンテンツが一度でも開かれたかどうかを追跡
+	const storageKey = sectionId ? `wiki-nanodesu.foldingSection.${sectionId}` : null;
+
+	// 初期状態をデフォルト値から設定し、localStorageの読み込みはuseEffectで行う
 	const [isOpened, setIsOpened] = useState(isOpenByDefault);
+
+	// クライアント側でのみ実行される初期化用Effect
+	useEffect(() => {
+		// クライアント側でlocalStorageから状態を読み込む
+		if (typeof window !== 'undefined' && storageKey) {
+			const savedState = localStorage.getItem(storageKey);
+			if (savedState !== null) {
+				setIsOpened(JSON.parse(savedState));
+			}
+		}
+	}, [storageKey, isOpenByDefault]);
+
+	// 開閉状態が変更されたらlocalStorageに保存
+	useEffect(() => {
+		if (typeof window !== 'undefined' && storageKey) {
+			localStorage.setItem(storageKey, JSON.stringify(isOpened));
+		}
+	}, [isOpened, storageKey]);
 
 	// 開く際に追跡状態を更新
 	const handleToggle = () => {

@@ -68,13 +68,17 @@ const SkillTypeTable = React.memo(({
 	// 各テーブル独自の状態を管理
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-	const [pagination, setPagination] = useState<PaginationState>(() => {
+	const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 50 });
+
+	// 初期化時にlocalStorageから値を読み込む
+	useEffect(() => {
 		if (typeof window !== "undefined") {
 			const saved = localStorage.getItem(`wiki-nanodesu.friends-skills.pagination.${effectType}`);
-			return saved ? JSON.parse(saved) : { pageIndex: 0, pageSize: 50 };
+			if (saved) {
+				setPagination(JSON.parse(saved));
+			}
 		}
-		return { pageIndex: 0, pageSize: 50 };
-	});
+	}, [effectType]);
 
 	// ローカルストレージへの保存
 	useEffect(() => {
@@ -279,45 +283,6 @@ export default function ClientTabs({
 		},
 	], []);
 
-	// セクションの開閉状態を管理
-	const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-		buff: true,
-		"buff-damage-increase": true,
-		"buff-damage-reduction": true,
-		debuff: true,
-		"debuff-damage-increase": true,
-		"debuff-damage-reduction": true,
-		"hp-recovery": true,
-		mp: true,
-		"buff-removal": true,
-		"debuff-removal": true,
-		others: true,
-	});
-
-	// 効果種別を選択したときの処理
-	const handleEffectTypeSelect = (effectType: string) => {
-		// 該当セクションを開く
-		setOpenSections(prev => ({
-			...prev,
-			[effectType]: true
-		}));
-
-		// スクロール処理
-		setTimeout(() => {
-			const element = document.getElementById(`section-${effectType}`);
-			if (element) {
-				element.scrollIntoView({ behavior: 'smooth' });
-			}
-		}, 100);
-	};
-
-	const toggleSection = (effectType: string) => {
-		setOpenSections(prev => ({
-			...prev,
-			[effectType]: !prev[effectType]
-		}));
-	};
-
 	// テーブルのカラム定義
 	const columns = useMemo<ColumnDef<SkillWithFriend>[]>(() => [
 		{
@@ -509,6 +474,17 @@ export default function ClientTabs({
 		},
 	], [formatText]);
 
+	// 効果種別を選択したときの処理
+	const handleEffectTypeSelect = (effectType: string) => {
+		// スクロール処理
+		setTimeout(() => {
+			const element = document.getElementById(`section-${effectType}`);
+			if (element) {
+				element.scrollIntoView({ behavior: 'smooth' });
+			}
+		}, 100);
+	};
+
 	const renderSkillSections = () => {
 		// 親カテゴリーごとのセクションを作成
 		const renderCategorySections = (categories: SkillCategory[], level = 0) => {
@@ -530,8 +506,8 @@ export default function ClientTabs({
 									level={1}
 								/>
 								<FoldingSection
-									isOpenByDefault={openSections[category.id]}
-									onToggle={() => toggleSection(category.id)}
+									isOpenByDefault={true}
+									sectionId={`friends-skills.skill-${category.id}`}
 								>
 									{hasChildren && (
 										<Box>
@@ -552,8 +528,8 @@ export default function ClientTabs({
 									level={2}
 								/>
 								<FoldingSection
-									isOpenByDefault={openSections[category.id]}
-									onToggle={() => toggleSection(category.id)}
+									isOpenByDefault={true}
+									sectionId={`friends-skills.skill-${category.id}`}
 								>
 									{hasChildren && (
 										<Box>
@@ -575,8 +551,8 @@ export default function ClientTabs({
 									className="mt-1"
 								/>
 								<FoldingSection
-									isOpenByDefault={openSections[category.id]}
-									onToggle={() => toggleSection(category.id)}
+									isOpenByDefault={true}
+									sectionId={`friends-skills.skill-${category.id}`}
 								>
 									{renderSkillTable(category.id)}
 								</FoldingSection>
@@ -610,6 +586,7 @@ export default function ClientTabs({
 			<TableOfContents
 				categories={skillCategories}
 				onSelect={handleEffectTypeSelect}
+				sectionId="friends-skills.tableOfContents"
 			/>
 
 			<Box>
