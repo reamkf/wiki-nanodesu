@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Box, Button, Collapse } from '@mui/material';
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
@@ -17,9 +17,7 @@ interface FoldingSectionProps {
 
 /**
  * 折りたたみ可能なセクションコンポーネント
- * - ヘッダーから完全に独立
  * - 開閉アニメーション付き
- * - 折りたたまれた状態では子コンテンツをレンダリングしない
  * - 上部と下部に折りたたみボタンを配置
  * - sectionIdを指定するとlocalStorageに開閉状態を保存
  */
@@ -33,6 +31,7 @@ export function FoldingSection({
 	sectionId,
 }: FoldingSectionProps) {
 	const storageKey = sectionId ? `wiki-nanodesu.foldingSection.${sectionId}` : null;
+	const sectionRef = useRef<HTMLDivElement>(null);
 
 	// 初期状態をデフォルト値から設定し、localStorageの読み込みはuseEffectで行う
 	const [isOpened, setIsOpened] = useState(isOpenByDefault);
@@ -58,12 +57,28 @@ export function FoldingSection({
 	// 開く際に追跡状態を更新
 	const handleToggle = () => {
 		setIsOpened(!isOpened);
+
+		// クローズ時、セクションの上部までスクロール
+		if (isOpened && sectionRef.current) {
+			setTimeout(() => {
+				// 要素の位置情報を取得
+				const rect = sectionRef.current?.getBoundingClientRect();
+
+				// 要素が画面上部外にある場合のみスクロール
+				if (rect && rect.top < 0) {
+					sectionRef.current?.scrollIntoView({
+						behavior: 'smooth',
+						block: 'start'
+					});
+				}
+			}, 100);
+		}
+
 		if (onToggle) {
 			onToggle();
 		}
 	};
 
-	const iconClassName = 'text-xl min-w-0 p-0 m-0';
 
 	// トグルボタンコンポーネント - 上部と下部で再利用
 	const ToggleButton = ({
@@ -73,6 +88,8 @@ export function FoldingSection({
 		useIcon?: boolean;
 		labelText?: string | React.ReactNode | null;
 	}) => {
+		const iconClassName = 'text-xl min-w-0 p-0 m-0';
+
 		return (
 			<Button
 				onClick={handleToggle}
@@ -91,7 +108,7 @@ export function FoldingSection({
 	};
 
 	return (
-		<Box className={className}>
+		<Box className={className} ref={sectionRef}>
 			{/* 上部トグルボタン+ラベル */}
 			<ToggleButton useIcon={true} labelText={toggleButtonLabel}/>
 
