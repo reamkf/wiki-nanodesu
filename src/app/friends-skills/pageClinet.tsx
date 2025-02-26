@@ -230,7 +230,7 @@ export default function ClientTabs({
 				}
 
 				return (
-					<div className="flex items-center space-x-2">
+					<div className="text-sm flex items-center space-x-2">
 						{skill.friend.iconUrl && (
 							<div className="flex-shrink-0">
 								<SeesaaWikiImage
@@ -271,7 +271,7 @@ export default function ClientTabs({
 			header: 'わざ種別',
 			meta: {
 				width: '120px'
-			}
+			},
 		},
 		{
 			accessorKey: 'power',

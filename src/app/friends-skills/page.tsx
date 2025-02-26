@@ -1,5 +1,5 @@
 import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friendsSkillsData";
-import ClientTabs from "./client-components";
+import ClientTabs from "./pageClinet";
 import { PageTitle } from '@/components/PageTitle';
 
 import { Metadata } from 'next'
