@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Box, Button, Collapse } from '@mui/material';
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 
 interface FoldingSectionProps {
 	isOpenByDefault?: boolean;
@@ -40,7 +41,7 @@ export function FoldingSection({
 		}
 	};
 
-	const iconClassName = 'text-[1.2rem] min-w-0 p-0 m-0';
+	const iconClassName = 'text-xl min-w-0 p-0 m-0';
 
 	// トグルボタンコンポーネント - 上部と下部で再利用
 	const ToggleButton = ({
@@ -55,14 +56,14 @@ export function FoldingSection({
 				onClick={handleToggle}
 				variant="text"
 				size="small"
-				className="text-gray-500 hover:bg-gray-100 flex flex-1 m-0 p-0 my-1 min-w-0"
+				className="text-gray-500 hover:bg-gray-100 m-0 p-0 my-1 min-w-0"
 			>
 				{useIcon && (
 					isOpened ?
 						<IndeterminateCheckBoxOutlinedIcon className={iconClassName} /> :
 						<AddBoxOutlinedIcon className={iconClassName} />
 				)}
-				{labelText && <span className='ml-1 text-black'>{labelText}</span>}
+				{labelText && <span className='ml-1 text-black translate-y-[1px]'>{labelText}</span>}
 			</Button>
 		);
 	};
