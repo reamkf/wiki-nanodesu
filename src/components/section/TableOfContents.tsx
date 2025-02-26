@@ -75,7 +75,7 @@ export function TableOfContents({
 	};
 
 	return (
-		<FoldingSection toggleButtonLabel="目次">
+		<FoldingSection toggleButtonLabel={<span className="font-bold">目次</span>}>
 			<>
 				<Box
 					className="pb-1 w-fit"
