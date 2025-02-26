@@ -45,7 +45,6 @@ interface FriendsStatusTableProps {
 	friendsStatusList: ProcessedFriendsStatusListItem[];
 }
 
-// statusTypeに応じた背景色のマッピング
 const statusTypeBackgroundColor: {
 	[key: string]: {
 		row: string;
@@ -150,7 +149,6 @@ const renderYaseiLevel = (statusType: string) => {
 	);
 };
 
-// ステータスセルの内容を表示するコンポーネント
 interface StatusCellProps {
 	value: number;
 	isEstimated: boolean;
@@ -234,7 +232,7 @@ export default function FriendsStatusTable({
 	const [selectedStatusTypes, setSelectedStatusTypes] = useState<Set<string>>(
 		() => {
 			if (typeof window !== "undefined") {
-				const saved = localStorage.getItem("selectedStatusTypes");
+				const saved = localStorage.getItem("wiki-nanodesu.friends-status.selectedStatusTypes");
 				return saved ? new Set(JSON.parse(saved)) : new Set(STATUS_TYPES);
 			}
 			return new Set(STATUS_TYPES);
@@ -243,7 +241,7 @@ export default function FriendsStatusTable({
 
 	const [hideNullStatus, setHideNullStatus] = useState(() => {
 		if (typeof window !== "undefined") {
-			const saved = localStorage.getItem("hideNullStatus");
+			const saved = localStorage.getItem("wiki-nanodesu.friends-status.hideNullStatus");
 			return saved ? JSON.parse(saved) : false;
 		}
 		return false;
@@ -251,7 +249,7 @@ export default function FriendsStatusTable({
 
 	const [showCostumeBonus, setShowCostumeBonus] = useState<boolean>(() => {
 		if (typeof window !== "undefined") {
-			const saved = localStorage.getItem("showCostumeBonus");
+			const saved = localStorage.getItem("wiki-nanodesu.friends-status.showCostumeBonus");
 			return saved ? JSON.parse(saved) : false;
 		}
 		return false;
@@ -268,7 +266,7 @@ export default function FriendsStatusTable({
 
 	const [pagination, setPagination] = useState<PaginationState>(() => {
 		if (typeof window !== "undefined") {
-			const saved = localStorage.getItem("pagination");
+			const saved = localStorage.getItem("wiki-nanodesu.friends-status.pagination");
 			return saved ? JSON.parse(saved) : { pageIndex: 0, pageSize: 100 };
 		}
 		return { pageIndex: 0, pageSize: 100 };
@@ -281,14 +279,14 @@ export default function FriendsStatusTable({
 	// 設定の永続化
 	useEffect(() => {
 		if (typeof window !== "undefined") {
-			localStorage.setItem("hideNullStatus", JSON.stringify(hideNullStatus));
+			localStorage.setItem("wiki-nanodesu.friends-status.hideNullStatus", JSON.stringify(hideNullStatus));
 			localStorage.setItem(
-				"selectedStatusTypes",
+				"wiki-nanodesu.friends-status.selectedStatusTypes",
 				JSON.stringify(Array.from(selectedStatusTypes))
 			);
-			localStorage.setItem("pagination", JSON.stringify(pagination));
+			localStorage.setItem("wiki-nanodesu.friends-status.pagination", JSON.stringify(pagination));
 			localStorage.setItem(
-				"showCostumeBonus",
+				"wiki-nanodesu.friends-status.showCostumeBonus",
 				JSON.stringify(showCostumeBonus)
 			);
 		}
