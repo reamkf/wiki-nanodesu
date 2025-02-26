@@ -371,11 +371,16 @@ export default function ClientTabs({
 			key={row.id}
 			className="hover:bg-gray-50"
 		>
-			{row.getVisibleCells().map(cell => (
-				<td key={cell.id} className="p-2 border-b">
-					{flexRender(cell.column.columnDef.cell, cell.getContext())}
-				</td>
-			))}
+			{row.getVisibleCells().map(cell => {
+				return (
+					<td
+						key={cell.id}
+						className={`p-2 border-b text-sm`}
+					>
+						{flexRender(cell.column.columnDef.cell, cell.getContext())}
+					</td>
+				);
+			})}
 		</tr>
 	), []);
 
