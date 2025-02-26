@@ -25,3 +25,7 @@ export function calcKemosute(hpOrStatus: number | BasicStatus | null, atk?: numb
 export const getEnumKeyByValue = (enumObj: Record<string, string>, value: string): string => {
 	return Object.keys(enumObj).find(key => enumObj[key] === value) || '';
 }
+
+export function toPercent(value: number, minimumFractionDigits = 0): string {
+	return `${value.toLocaleString(undefined, {style: 'percent', minimumFractionDigits: minimumFractionDigits})}`;
+}

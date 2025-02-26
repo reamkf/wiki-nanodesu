@@ -35,6 +35,10 @@ export async function Sidebar() {
 			href: '/friends-status',
 			text: 'フレンズステータスランキング',
 		},
+		{
+			href: '/friends-skills',
+			text: 'スキル別フレンズ一覧',
+		},
 	];
 
 	const sideBarPagesNanoda = [
