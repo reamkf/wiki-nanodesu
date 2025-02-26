@@ -26,7 +26,7 @@ export function FoldingSection({
 	onToggle = () => {},
 	className,
 	children,
-	toggleButtonLabel = '',
+	toggleButtonLabel = null,
 	closeButtonLabel = '[閉じる]',
 }: FoldingSectionProps) {
 	// コンテンツが一度でも開かれたかどうかを追跡
@@ -39,6 +39,8 @@ export function FoldingSection({
 			onToggle();
 		}
 	};
+
+	const iconClassName = 'text-[1.2rem] min-w-0 p-0 m-0';
 
 	// トグルボタンコンポーネント - 上部と下部で再利用
 	const ToggleButton = ({
@@ -53,14 +55,14 @@ export function FoldingSection({
 				onClick={handleToggle}
 				variant="text"
 				size="small"
-				className="text-gray-500 flex flex-1 m-0 p-0 min-w-0"
+				className="text-gray-500 hover:bg-gray-100 flex flex-1 m-0 p-0 my-1 min-w-0"
 			>
 				{useIcon && (
 					isOpened ?
-						<IndeterminateCheckBoxOutlinedIcon className='text-[1.2rem]' /> :
-						<AddBoxOutlinedIcon className='text-[1.2rem]' />
+						<IndeterminateCheckBoxOutlinedIcon className={iconClassName} /> :
+						<AddBoxOutlinedIcon className={iconClassName} />
 				)}
-				<span className='m-1 text-yellow-900'>{labelText}</span>
+				{labelText && <span className='ml-1 text-black'>{labelText}</span>}
 			</Button>
 		);
 	};
