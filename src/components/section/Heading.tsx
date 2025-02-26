@@ -29,60 +29,47 @@ export function Heading({
 		}
 	};
 
-	// レベルに応じたスタイルを取得
-	const getBorderStyle = () => {
+	const getBorderClasses = () => {
 		switch (level) {
-			case 1: return {
-				borderBottom: '3px solid #2196f3', // 青いボーダー
-				backgroundColor: '#f5f5f5', // 薄い灰色背景
-			};
-			case 2: return {
-				borderBottom: '2px solid #2196f3', // 細い青いボーダー
-				backgroundColor: 'transparent', // 背景なし
-			};
-			case 3: return {
-				borderBottom: '1px solid #808080', // 灰色ボーダー
-				backgroundColor: 'transparent', // 背景なし
-			};
-			default: return {
-				borderBottom: '2px solid #2196f3',
-				backgroundColor: '#f5f5f5',
-			};
+			case 1: return 'border-b-[3px] border-[#2196f3] bg-[#f5f5f5]';
+			case 2: return 'border-b-[2px] border-[#2196f3] bg-transparent';
+			case 3: return 'border-b-[1px] border-[#808080] bg-transparent';
+			default: return 'border-b-[2px] border-[#2196f3] bg-[#f5f5f5]';
 		}
 	};
 
-	const borderStyle = getBorderStyle();
+	const getSpacingClasses = () => {
+		const paddingTop = 'pt-2'; // 共通のpadding-top
+		const paddingBottom = `pb-${level === 1 ? 2 : level === 2 ? 0.5 : 0}`;
+		const paddingLeft = `pl-${level === 1 ? 2 : 1}`;
+
+		return `${paddingTop} ${paddingBottom} ${paddingLeft} mb-1`;
+	};
+
+	const getTypographyClasses = () => {
+		const fontSize = level === 1 ? 'text-[1.1rem]' : level === 2 ? 'text-[1rem]' : 'text-[0.9rem]';
+		const textColor = level < 3 ? 'text-[#424242]' : 'text-[#101010]';
+
+		return `font-semibold ${fontSize} flex-grow tracking-[0.01em] ${textColor}`;
+	};
 
 	return (
 		<Box
 			id={id}
-			className={className}
-			sx={{
-				display: 'flex',
-				alignItems: 'center',
-				justifyContent: 'space-between',
-				pt: 0.5,
-				pb: level === 1 ? 0.25 : level === 2 ? 0.125 : 0,
-				pl: level === 1 ? 1 : 0.5,
-				mb: 2,
-				scrollMarginTop: '2rem',
-				transition: 'all 0.3s ease',
-				...borderStyle,
-				'&:hover': {
-					boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-				}
-			}}
+			className={`
+				flex items-center justify-between
+				${getSpacingClasses()}
+				scroll-mt-8
+				transition-all duration-300 ease-in-out
+				border-b border-solid ${getBorderClasses()}
+				hover:shadow-sm
+				${className || ''}
+			`}
 		>
 			<Typography
 				variant={getVariant()}
 				component={`h${level}`}
-				sx={{
-					fontWeight: 600,
-					fontSize: level === 1 ? '1.1rem' : level === 2 ? '1rem' : '0.9rem',
-					flexGrow: 1,
-					letterSpacing: '0.01em',
-					color: level < 3 ? '#424242' : '#101010',
-				}}
+				className={getTypographyClasses()}
 			>
 				{title}
 			</Typography>
