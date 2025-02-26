@@ -45,26 +45,18 @@ export function TableOfContents({
 				<React.Fragment key={item.id}>
 					<ListItemButton
 						onClick={() => onSelect(item.id)}
-						sx={{
-							py: 0,
-							pl: level * 4 + 1,
-							pr: 1,
-							backgroundColor: isSelected ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
-							'&:hover': {
-								backgroundColor: isSelected ? 'rgba(25, 118, 210, 0.12)' : 'rgba(0, 0, 0, 0.04)'
-							},
-							borderRadius: '4px',
-							display: 'flex',
-							alignItems: 'center'
-						}}
+						className={`
+							py-0
+							${level * 4 + 1 === 1 ? 'pl-1' : level * 4 + 1 === 5 ? 'pl-5' : level * 4 + 1 === 9 ? 'pl-9' : 'pl-[' + (level * 4 + 1) + 'px]'}
+							pr-1
+							${isSelected ? 'bg-blue-50 hover:bg-blue-100' : 'bg-transparent hover:bg-gray-100'}
+							rounded flex items-center
+						`}
 					>
 						{/* 箇条書きの点を表示 */}
 						<Box
 							component="span"
-							sx={{
-								mr: 1,
-								color: isSelected ? 'primary.main' : 'text.secondary'
-							}}
+							className={`mr-1 ${isSelected ? 'text-blue-600' : 'text-gray-500'}`}
 						>
 							•
 						</Box>
@@ -72,11 +64,13 @@ export function TableOfContents({
 						<ListItemText
 							primary={item.name}
 							primaryTypographyProps={{
-								fontSize: level === 0 ? '0.9rem' : '0.85rem',
-								fontWeight: isSelected ? 'bold' : (level === 0 ? 600 : 400),
-								color: isSelected ? 'primary.main' : 'text.primary'
+								className: `
+									${level === 0 ? 'text-[0.9rem]' : 'text-[0.85rem]'}
+									${isSelected ? 'font-bold' : (level === 0 ? 'font-semibold' : 'font-normal')}
+									${isSelected ? 'text-blue-600' : 'text-gray-900'}
+								`
 							}}
-							sx={{ my: 0 }}
+							className="my-0"
 						/>
 					</ListItemButton>
 
@@ -89,21 +83,19 @@ export function TableOfContents({
 	return (
 		<>
 			<Box>
-				<Typography variant="subtitle1" fontWeight="bold">
+				<Typography variant="subtitle1" className="font-bold">
 					目次
 				</Typography>
 			</Box>
 
 			<Box
-				sx={{
-					pb: 1
-				}}
+				className="pb-1"
 			>
 				<List
 					dense
 					component="div"
 					disablePadding
-					sx={{ pt: 0 }}
+					className="pt-0"
 				>
 					{renderCategoryTree(categories)}
 				</List>

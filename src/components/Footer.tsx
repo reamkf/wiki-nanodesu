@@ -14,7 +14,7 @@ export function Footer() {
 						href="https://github.com/reamkf/wiki-nanodesu" target="_blank" rel="noopener noreferrer"
 						className="flex items-center gap-1"
 					>
-						<GitHub className="w-5 h-5 text-[#202328]" sx={{ height: '1.2rem' }} />
+						<GitHub className="w-5 h-5 text-[#202328]" />
 					</Link>
 				</div>
 			</div>

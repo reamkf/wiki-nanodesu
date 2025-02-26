@@ -33,6 +33,7 @@ export function FilterCheckboxGroup({
 				{options.map((option) => (
 					<Grid2 key={option.id}>
 						<FormControlLabel
+							className="w-fit rounded-md m-0 transition-colors duration-200"
 							sx={{
 								backgroundColor: selectedIds.has(option.id)
 									? option.styles.backgroundColor.checked
@@ -40,9 +41,6 @@ export function FilterCheckboxGroup({
 								"&:hover": {
 									backgroundColor: option.styles.backgroundColor.hover,
 								},
-								borderRadius: 2,
-								width: "fit-content",
-								margin: 0,
 								"& .MuiFormControlLabel-label": {
 									flex: 1,
 								},
@@ -51,12 +49,12 @@ export function FilterCheckboxGroup({
 								<Checkbox
 									checked={selectedIds.has(option.id)}
 									onChange={() => onChange(option.id)}
+									className={`p-1 pr-0`}
 									sx={{
+										color: option.styles.textColor,
 										"&.Mui-checked": {
 											color: option.styles.textColor,
-										},
-										padding: "0.25rem",
-										paddingRight: 0,
+										}
 									}}
 								/>
 							}

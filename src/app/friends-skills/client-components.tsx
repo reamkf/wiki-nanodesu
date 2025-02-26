@@ -396,10 +396,13 @@ export default function ClientTabs({
 				const isLeafNode = !hasChildren && effectTypes.includes(category.id);
 
 				return (
-					<Box key={category.id} sx={{ mt: level === 0 ? 4 : level === 1 ? 1 : 2, mb: level === 0 ? 2 : 0 }}>
+					<Box key={category.id} className={`
+						${level === 0 ? 'mt-4' : level === 1 ? 'mt-1' : 'mt-2'}
+						${level === 0 ? 'mb-2' : 'mb-0'}
+					`}>
 						{/* レベル0の見出し (トップレベル) */}
 						{level === 0 && (
-							<Box id={`section-${category.id}`} sx={{ mb: 2 }}>
+							<Box id={`section-${category.id}`} className="mb-2">
 								<Heading
 									title={category.name}
 									id={`heading-${category.id}`}
@@ -515,7 +518,7 @@ export default function ClientTabs({
 
 				{/* ページネーション */}
 				{pageCount > 1 && (
-					<Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 4 }}>
+					<Box className="flex justify-center mt-2 mb-4">
 						<Pagination
 							count={pageCount}
 							page={currentPagination.pageIndex + 1}

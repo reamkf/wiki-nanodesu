@@ -31,7 +31,7 @@ export function TablePagination<T>({
 						value={table.getState().pagination.pageSize}
 						onChange={(e) => table.setPageSize(Number(e.target.value))}
 						size="small"
-						sx={{ minWidth: 80 }}
+						className="min-w-[80px]"
 					>
 						{pageSizes.map((pageSize) => (
 							<MenuItem key={pageSize} value={pageSize}>
