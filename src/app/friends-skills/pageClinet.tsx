@@ -43,6 +43,15 @@ function formatTextContent(text: string): React.ReactElement {
 	);
 }
 
+function isNumber(value: string): boolean {
+	if(typeof value === 'number') {
+		return true;
+	}
+
+	const regex = /^[0-9,]+(\.[0-9]+)?%?$/;
+	return regex.test(value);
+}
+
 // スキルとフレンズデータを含む結合型
 type SkillWithFriend = SkillEffect & {
 	friend?: FriendsDataRow
@@ -343,7 +352,7 @@ export default function ClientTabs({
 				const power = row.power;
 				if (!power) return -Infinity;
 				const powerNum = parseFloat(power);
-				return isNaN(powerNum) ? power : powerNum;
+				return isNumber(power) ? power : powerNum;
 			},
 			id: 'power',
 			header: '威力',
@@ -355,14 +364,21 @@ export default function ClientTabs({
 				const powerNum = parseFloat(power);
 
 				// 数値でない場合はそのまま表示
-				if (isNaN(powerNum)) return power;
+				if (!isNumber(power)) return power;
 
-				// 1未満の場合は%表示
-				if (powerNum < 1) {
+				// MP関連のスキルかどうかを判断
+				const intFormatEffectTypes = [
+					'MP増加', 'MP減少', '毎ターンMP増加', '毎ターンMP減少',
+					'プラズムチャージ効果回数追加'
+				];
+				const isIntFormat = intFormatEffectTypes.some(effectType => row.original.effectType?.includes(effectType));
+
+				// MP関連は整数表示、それ以外は%表示
+				if (isIntFormat) {
+					return Math.round(powerNum).toString();
+				} else {
 					return toPercent(powerNum, 0);
 				}
-
-				return power;
 			},
 			sortingFn: (rowA, rowB, columnId) => {
 				const valueA = rowA.getValue(columnId);
@@ -420,7 +436,7 @@ export default function ClientTabs({
 				const rate = row.activationRate;
 				if (!rate) return -Infinity;
 				const rateNum = parseFloat(rate);
-				return isNaN(rateNum) ? rate : rateNum;
+				return isNumber(rate) ? rateNum : rate;
 			},
 			id: 'activationRate',
 			header: '発動率',
@@ -432,7 +448,7 @@ export default function ClientTabs({
 				const rateNum = parseFloat(rate);
 
 				// 数値の場合は%表記
-				if (!isNaN(rateNum)) {
+				if (isNumber(rate)) {
 					return toPercent(rateNum, 0);
 				}
 
