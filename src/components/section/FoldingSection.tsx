@@ -30,7 +30,7 @@ export function FoldingSection({
 	closeButtonLabel = '[閉じる]',
 	sectionId,
 }: FoldingSectionProps) {
-	const storageKey = sectionId ? `wiki-nanodesu.foldingSection.${sectionId}` : null;
+	const storageKey = sectionId ? `wiki-nanodesu.FoldingSection.${sectionId}` : null;
 	const sectionRef = useRef<HTMLDivElement>(null);
 
 	// 初期状態をデフォルト値から設定し、localStorageの読み込みはuseEffectで行う
