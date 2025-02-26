@@ -1,7 +1,8 @@
 "use client";
 
 import React from 'react';
-import { Box, Typography, List, ListItemButton, ListItemText } from '@mui/material';
+import { Box, List, ListItemButton, ListItemText } from '@mui/material';
+import { Heading } from './Heading';
 
 // スキルカテゴリーの階層構造を表す型
 interface SkillCategory {
@@ -17,11 +18,6 @@ interface TableOfContentsProps {
 	categories: SkillCategory[];
 
 	/**
-	 * 現在選択されているカテゴリーのID
-	 */
-	selectedId: string | null;
-
-	/**
 	 * カテゴリー選択時のコールバック
 	 */
 	onSelect: (id: string) => void;
@@ -32,14 +28,12 @@ interface TableOfContentsProps {
  */
 export function TableOfContents({
 	categories,
-	selectedId,
 	onSelect
 }: TableOfContentsProps) {
 	// 再帰的にカテゴリーをレンダリングする関数
 	const renderCategoryTree = (items: SkillCategory[], level = 0) => {
 		return items.map(item => {
 			const hasChildren = item.children && item.children.length > 0;
-			const isSelected = selectedId === item.id;
 
 			return (
 				<React.Fragment key={item.id}>
@@ -47,28 +41,28 @@ export function TableOfContents({
 						onClick={() => onSelect(item.id)}
 						className={`
 							py-0
-							${level * 4 + 1 === 1 ? 'pl-1' : level * 4 + 1 === 5 ? 'pl-5' : level * 4 + 1 === 9 ? 'pl-9' : 'pl-[' + (level * 4 + 1) + 'px]'}
-							pr-1
-							${isSelected ? 'bg-blue-50 hover:bg-blue-100' : 'bg-transparent hover:bg-gray-100'}
+							pr-8
+							hover:bg-sky-100
 							rounded flex items-center
 						`}
+						style={{ paddingLeft: `${level * 1.5 + 1}rem` }}
 					>
 						{/* 箇条書きの点を表示 */}
 						<Box
 							component="span"
-							className={`mr-1 ${isSelected ? 'text-blue-600' : 'text-gray-500'}`}
+							className='mr-2'
 						>
 							•
 						</Box>
 
 						<ListItemText
 							primary={item.name}
-							primaryTypographyProps={{
-								className: `
-									${level === 0 ? 'text-[0.9rem]' : 'text-[0.85rem]'}
-									${isSelected ? 'font-bold' : (level === 0 ? 'font-semibold' : 'font-normal')}
-									${isSelected ? 'text-blue-600' : 'text-gray-900'}
-								`
+							slotProps={{
+								primary: {
+									className: `
+										${level === 0 ? 'text-[0.9rem] font-bold' : 'text-[0.85rem]'}
+									`
+								}
 							}}
 							className="my-0"
 						/>
@@ -81,15 +75,15 @@ export function TableOfContents({
 	};
 
 	return (
-		<>
-			<Box>
-				<Typography variant="subtitle1" className="font-bold">
-					目次
-				</Typography>
-			</Box>
+		<Box className="">
+			<Heading
+				title="目次"
+				id="table-of-contents"
+				level={3}
+			/>
 
 			<Box
-				className="pb-1"
+				className="pb-1 w-fit"
 			>
 				<List
 					dense
@@ -100,6 +94,6 @@ export function TableOfContents({
 					{renderCategoryTree(categories)}
 				</List>
 			</Box>
-		</>
+		</Box>
 	);
 }
