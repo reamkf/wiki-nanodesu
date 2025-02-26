@@ -13,7 +13,7 @@ interface SectionHeadingProps {
 /**
  * シンプルなセクション見出しコンポーネント
  */
-export function SectionHeading({
+export function Heading({
 	title,
 	id,
 	level = 1,

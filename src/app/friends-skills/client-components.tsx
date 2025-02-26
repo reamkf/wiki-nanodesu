@@ -7,7 +7,7 @@ import { FriendsDataRow } from "@/types/friends";
 import { SortableTable } from "@/components/table/SortableTable";
 import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
-import { SectionHeading } from "@/components/section/SectionHeading";
+import { Heading } from "@/components/section/Heading";
 import { FoldingSection } from "@/components/section/FoldingSection";
 import { TableOfContents } from "@/components/section/TableOfContents";
 import Image from "next/image";
@@ -400,7 +400,7 @@ export default function ClientTabs({
 						{/* レベル0の見出し (トップレベル) */}
 						{level === 0 && (
 							<Box id={`section-${category.id}`} sx={{ mb: 2 }}>
-								<SectionHeading
+								<Heading
 									title={category.name}
 									id={`heading-${category.id}`}
 									level={1}
@@ -422,7 +422,7 @@ export default function ClientTabs({
 						{/* レベル1の見出し */}
 						{level === 1 && (
 							<Box id={`section-${category.id}`}>
-								<SectionHeading
+								<Heading
 									title={category.name}
 									id={`heading-${category.id}`}
 									level={2}
@@ -444,7 +444,7 @@ export default function ClientTabs({
 						{/* レベル2以上の見出し */}
 						{level >= 2 && isLeafNode && (
 							<Box id={`section-${category.id}`}>
-								<SectionHeading
+								<Heading
 									title={category.name}
 									id={`heading-${category.id}`}
 									level={3}
