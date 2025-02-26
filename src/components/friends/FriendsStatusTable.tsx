@@ -308,7 +308,7 @@ export default function FriendsStatusTable({
 		});
 	}, [friendsStatusList, selectedStatusTypes, hideNullStatus]);
 
-	const handleStatusTypeChange = (statusType: string) => {
+	const handleSelectedStatusTypeChange = (statusType: string) => {
 		setSelectedStatusTypes((prev) => {
 			const newSet = new Set(prev);
 			if (newSet.has(statusType)) {
@@ -578,7 +578,7 @@ export default function FriendsStatusTable({
 			<FilterCheckboxGroup
 				options={statusTypeOptions}
 				selectedIds={selectedStatusTypes}
-				onChange={handleStatusTypeChange}
+				onChange={handleSelectedStatusTypeChange}
 			/>
 
 			{/* オプション */}
