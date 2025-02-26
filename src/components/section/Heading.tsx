@@ -32,16 +32,16 @@ export function Heading({
 	const getBorderClasses = () => {
 		switch (level) {
 			case 1: return 'border-b-[3px] border-[#2196f3] bg-[#f5f5f5]';
-			case 2: return 'border-b-[2px] border-[#2196f3] bg-transparent';
-			case 3: return 'border-b-[1px] border-[#808080] bg-transparent';
-			default: return 'border-b-[2px] border-[#2196f3] bg-[#f5f5f5]';
+			case 2: return 'border-b-2 border-[#2196f3] bg-transparent';
+			case 3: return 'border-b border-[#808080] bg-transparent';
+			default: return 'border-b-2 border-[#2196f3] bg-[#f5f5f5]';
 		}
 	};
 
 	const getSpacingClasses = () => {
-		const paddingTop = 'pt-2'; // 共通のpadding-top
-		const paddingBottom = `pb-${level === 1 ? 2 : level === 2 ? 0.5 : 0}`;
-		const paddingLeft = `pl-${level === 1 ? 2 : 1}`;
+		const paddingTop = 'pt-2';
+		const paddingBottom = level === 1 ? 'pb-2' : level === 2 ? 'pb-0.5' : 'pb-0';
+		const paddingLeft = level === 1 ? 'pl-2' : level === 2 ? 'pl-1' : 'pl-0';
 
 		return `${paddingTop} ${paddingBottom} ${paddingLeft} mb-1`;
 	};
