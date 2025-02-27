@@ -9,7 +9,7 @@ import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttribu
 import { TableOfContents } from "@/components/section/TableOfContents";
 import { Heading } from "@/components/section/Heading";
 import { FoldingSection } from "@/components/section/FoldingSection";
-import { SeesaaWikiImage } from "@/components/SeesaaWikiImage";
+import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
 import { FriendsAttribute } from "@/types/friends";
 import {
 	ColumnDef,

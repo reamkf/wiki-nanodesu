@@ -1,4 +1,4 @@
-import { SeesaaWikiImage } from "@/components/SeesaaWikiImage";
+import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
 import { FriendsDataRow } from "@/types/friends";
 
 interface FriendsIconProps {

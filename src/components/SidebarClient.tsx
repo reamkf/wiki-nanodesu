@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
+import { SeesaaWikiLink } from '@/components/seesaawiki/SeesaaWikiLink';
 import Image from 'next/image';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { SidebarLinkItem } from './Sidebar';
@@ -122,28 +123,24 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						height={48}
 						className="p-2 pr-1 w-[50px] h-[50px] flex-1"
 					/>
-					<Link
+					<SeesaaWikiLink
 						href="https://seesaawiki.jp/kemono_friends3_5ch/"
 						className="font-bold text-green-700 p-2 pl-0 flex-grow leading-tight"
-						target="_blank"
-						rel="noopener noreferrer"
 						onClick={close}
 					>
 						アプリ版けものフレンズ３wikiなのだ！
-					</Link>
+					</SeesaaWikiLink>
 				</div>
 				<ul className="list-disc pl-6">
 					{filteredLinksNanoda.map((link) => (
 						<li key={`nanoda-${link.href}`}>
-							<Link
+							<SeesaaWikiLink
 								href={link.href}
 								className="block hover:text-sky-500 rounded hover:underline mb-1 leading-tight"
 								onClick={close}
-								target="_blank"
-								rel="noopener noreferrer"
 							>
 								{link.text}
-							</Link>
+							</SeesaaWikiLink>
 						</li>
 					))}
 				</ul>
@@ -159,15 +156,13 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						<ul className="list-disc pl-6">
 							{filteredFriendsLinks.map((link) => (
 								<li key={`friend-${link.href}`}>
-									<Link
+									<SeesaaWikiLink
 										href={link.href}
 										className="block hover:text-sky-500 rounded hover:underline mb-1 leading-tight"
 										onClick={close}
-										target="_blank"
-										rel="noopener noreferrer"
 									>
 										{link.text}
-									</Link>
+									</SeesaaWikiLink>
 								</li>
 							))}
 						</ul>
@@ -185,15 +180,13 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						<ul className="list-disc pl-6">
 							{filteredPhotoLinks.map((link) => (
 								<li key={`photo-${link.href}`}>
-									<Link
+									<SeesaaWikiLink
 										href={link.href}
 										className="block hover:text-sky-500 rounded hover:underline mb-1 leading-tight"
 										onClick={close}
-										target="_blank"
-										rel="noopener noreferrer"
 									>
 										{link.text}
-									</Link>
+									</SeesaaWikiLink>
 								</li>
 							))}
 						</ul>

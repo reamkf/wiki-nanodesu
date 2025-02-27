@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { DialogTitle, DialogPanel, TransitionChild } from "@headlessui/react";
 import { Fragment } from "react";
-import Link from "next/link";
+import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 
 interface AboutModalProps {
 	isOpen: boolean;
@@ -44,21 +44,19 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
 								</DialogTitle>
 								<div className="mt-2">
 									<p className="text-base mb-2">
-										<Link
+										<SeesaaWikiLink
 											href="https://seesaawiki.jp/kemono_friends3_5ch/"
 											className="font-bold hover:underline text-green-500"
-											target="_blank"
-											rel="noopener noreferrer"
 										>
 											アプリ版けものフレンズ３Wikiなのだ！
-										</Link>
+										</SeesaaWikiLink>
 										を補助するサイトなのです。
 									</p>
 									<p className="text-sm text-gray-500 mb-2">
 										文字数上限などの都合で、Seesaa Wiki上での運用が難しいページをこちらで運用しているのです。
 									</p>
 									<p className="text-sm text-gray-500">
-										誤字・誤植の報告や情報提供は <Link href="https://seesaawiki.jp/kemono_friends3_5ch/" className="font-bold hover:underline text-green-500" target="_blank" rel="noopener noreferrer">アプリ版けものフレンズ３Wikiなのだ！</Link> のコメント欄または掲示板へお願いするのです。
+										誤字・誤植の報告や情報提供は <SeesaaWikiLink href="https://seesaawiki.jp/kemono_friends3_5ch/" className="font-bold hover:underline text-green-500">アプリ版けものフレンズ３Wikiなのだ！</SeesaaWikiLink> のコメント欄または掲示板へお願いするのです。
 									</p>
 								</div>
 

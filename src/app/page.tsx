@@ -1,5 +1,5 @@
-import { SeesaaWikiImage } from "@/components/SeesaaWikiImage";
-import Link from "next/link";
+import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
+import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 import { PageTitle } from "@/components/PageTitle";
 
 export default function Home() {
@@ -8,14 +8,12 @@ export default function Home() {
 			<PageTitle title="トップページ" />
 			<div className="rounded mb-4">
 				<p className="mb-2">
-					<Link
+					<SeesaaWikiLink
 						href="https://seesaawiki.jp/kemono_friends3_5ch/"
 						className="font-bold hover:underline text-green-500"
-						target="_blank"
-						rel="noopener noreferrer"
 					>
 						アプリ版けものフレンズ３Wikiなのだ！
-					</Link>
+					</SeesaaWikiLink>
 					を補助するサイトなのです。
 				</p>
 				<p>
@@ -32,7 +30,14 @@ export default function Home() {
 				/>
 
 				<p>
-					誤字・誤植の報告や情報提供は <Link href="https://seesaawiki.jp/kemono_friends3_5ch/" className="font-bold hover:underline text-green-500" target="_blank" rel="noopener noreferrer">アプリ版けものフレンズ３Wikiなのだ！</Link> のコメント欄または掲示板へお願いするのです。
+					誤字・誤植の報告や情報提供は
+					<SeesaaWikiLink
+						href="https://seesaawiki.jp/kemono_friends3_5ch/"
+						className="font-bold hover:underline text-green-500"
+					>
+						アプリ版けものフレンズ３Wikiなのだ！
+					</SeesaaWikiLink>
+					のコメント欄または掲示板へお願いするのです。
 				</p>
 			</div>
 		</>
