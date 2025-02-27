@@ -7,7 +7,7 @@ import { FriendsDataRow } from "@/types/friends";
 
 // キャッシュ用の変数
 let skillsDataCache: SkillEffect[] | null = null;
-let skillsWithFriendsCache: (SkillEffect & { friend?: FriendsDataRow })[] | null = null;
+let skillsWithFriendsCache: (SkillEffect & { friendsDataRow: FriendsDataRow })[] | null = null;
 let effectTypesCache: string[] | null = null;
 
 /**
@@ -74,7 +74,7 @@ export async function getSkillsData(): Promise<SkillEffect[]> {
 /**
  * スキルデータとフレンズデータを結合したデータを取得する
  */
-export async function getSkillsWithFriendsData(): Promise<(SkillEffect & { friendsDataRow?: FriendsDataRow })[]> {
+export async function getSkillsWithFriendsData(): Promise<(SkillEffect & { friendsDataRow: FriendsDataRow })[]> {
 	// キャッシュがあればそれを返す
 	if (skillsWithFriendsCache) {
 		return skillsWithFriendsCache;
@@ -110,13 +110,11 @@ export async function getSkillsWithFriendsData(): Promise<(SkillEffect & { frien
 
 		// スキルデータとフレンズデータを結合
 		const enrichedData = skillsData.map(skill => {
-			if (!skill.friendsId || skill.friendsId.trim() === '') {
-				return { ...skill, friendsDataRow: undefined };
-			}
-
 			const friendsDataRow = friendsIdMap.get(skill.friendsId);
 			return { ...skill, friendsDataRow: friendsDataRow };
-		});
+		}).filter((item): item is SkillEffect & { friendsDataRow: FriendsDataRow } =>
+			item.friendsDataRow !== undefined
+		);
 
 		// キャッシュを更新
 		skillsWithFriendsCache = enrichedData;
