@@ -14,7 +14,7 @@ export const FriendsNameLink = memo(function FriendsNameLink({ friend }: Friends
 		<>
 			<SeesaaWikiLink
 				href={pageUrl}
-				className="text-md hover:underline"
+				className="text-md"
 			>
 				{friend.secondName && (
 					<div className="text-xs text-red-500 p-0 m-0">

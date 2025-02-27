@@ -137,7 +137,6 @@ export default async function FriendsSkillsPage() {
 				ただし、自身のみの与ダメージ増加は省略しています。また、状態異常・状態変化関連は
 				<SeesaaWikiLink
 					href="https://seesaawiki.jp/kemono_friends3_5ch/d/%BE%F5%C2%D6%B0%DB%BE%EF"
-					className="hover:underline"
 				>
 					状態異常のページ
 				</SeesaaWikiLink>
@@ -150,7 +149,7 @@ export default async function FriendsSkillsPage() {
 				<Link
 					href="https://docs.google.com/spreadsheets/d/1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk/edit?gid=308387785#gid=308387785"
 					target="_blank"
-					className="hover:underline text-sky-700"
+					className="text-sky-700"
 				>
 					https://docs.google.com/spreadsheets/d/1p-C3wbkYZ...
 					<OpenInNewIcon className="inline-block text-[1rem]" />
@@ -160,12 +159,12 @@ export default async function FriendsSkillsPage() {
 				誤字・誤植の報告は
 				<SeesaaWikiLink
 					href="スキル効果別フレンズ一覧"
-					className="hover:underline text-blue-800"
 				>
 					こちら
 				</SeesaaWikiLink>
 				のコメント欄へお願いします。
 			</p>
+
 			<ClientTabs
 				effectTypes={effectTypes}
 				effectTypeData={effectTypeData}
