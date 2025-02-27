@@ -119,6 +119,11 @@ const SkillTypeTable = React.memo(({
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
+		enableSorting: true,
+		enableFilters: true,
+		enableColumnFilters: true,
+		manualSorting: false,
+		manualFiltering: false,
 		manualPagination: false,
 		debugTable: false,
 	});
@@ -338,7 +343,8 @@ export default function ClientTabs({
 			}
 		},
 		{
-			accessorKey: 'attribute',
+			accessorFn: (row) => row.friendsDataRow?.attribute || '',
+			id: 'attribute',
 			header: '属性',
 			cell: ({ row }) => {
 				const skill = row.original;
