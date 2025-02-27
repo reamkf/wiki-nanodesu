@@ -183,133 +183,17 @@ SkillTypeTable.displayName = "SkillTypeTable";
 
 export default function ClientTabs({
 	effectTypes,
-	skillsData
+	effectTypeData,
+	skillCategories
 }: {
 	effectTypes: string[],
-	skillsData: SkillWithFriend[]
+	effectTypeData: Record<string, SkillWithFriend[]>,
+	skillCategories: SkillCategory[]
 }) {
 	// formatText関数をメモ化
 	const formatText = useCallback((text: string): React.ReactElement => {
 		return parseSeesaaWikiNewLine(text);
 	}, []);
-
-	// 効果種別ごとにデータをメモ化
-	const effectTypeData = useMemo(() => {
-		const result: Record<string, SkillWithFriend[]> = {};
-
-		// 各効果種別ごとにデータをフィルタリング
-		effectTypes.forEach(effectType => {
-			result[effectType] = skillsData.filter(
-				skill => skill.effectType === effectType
-			);
-		});
-
-		return result;
-	}, [effectTypes, skillsData]);
-
-	const skillCategories: SkillCategory[] = useMemo(() => [
-		{
-			name: "バフ",
-			id: "buff",
-			children: [
-				{
-					name: "与ダメージ増加",
-					id: "buff-damage-increase",
-					children: [
-						{ name: "与ダメージ増加", id: "与ダメージ増加" },
-						{ name: "Beat!!!与ダメージ増加", id: "Beat!!!与ダメージ増加" },
-						{ name: "Action!与ダメージ増加", id: "Action!与ダメージ増加" },
-						{ name: "Try!!与ダメージ増加", id: "Try!!与ダメージ増加" },
-					]
-				},
-				{
-					name: "被ダメージ減少",
-					id: "buff-damage-reduction",
-					children: [
-						{ name: "被ダメージ減少", id: "被ダメージ減少" },
-						{ name: "全体攻撃による被ダメージ減少", id: "全体攻撃による被ダメージ減少" },
-					]
-				},
-				{ name: "攻撃命中率増加", id: "攻撃命中率増加" },
-				{ name: "かいひ増加", id: "かいひ増加" },
-			]
-		},
-		{
-			name: "デバフ",
-			id: "debuff",
-			children: [
-				{ name: "与ダメージ減少", id: "与ダメージ減少" },
-				{
-					name: "被ダメージ増加",
-					id: "debuff-damage-increase",
-					children: [
-						{ name: "被ダメージ増加", id: "被ダメージ増加" },
-						{ name: "全体攻撃による被ダメージ増加", id: "全体攻撃による被ダメージ増加" },
-					]
-				},
-				{ name: "攻撃命中率減少", id: "攻撃命中率減少" },
-				{ name: "かいひ減少", id: "かいひ減少" },
-			]
-		},
-		{
-			name: "たいりょく回復",
-			id: "hp-recovery",
-			children: [
-				{ name: "回復", id: "回復" },
-				{ name: "毎ターン回復", id: "毎ターン回復" },
-				{ name: "吸収", id: "吸収" },
-				{ name: "毎ターン回復解除", id: "毎ターン回復解除" },
-				{ name: "たいりょく回復量増加", id: "たいりょく回復量増加" },
-				{ name: "たいりょく回復量減少", id: "たいりょく回復量減少" },
-				{ name: "たいりょく回復量減少状態解除", id: "たいりょく回復量減少状態解除" },
-			]
-		},
-		{
-			name: "MP",
-			id: "mp",
-			children: [
-				{ name: "MP増加", id: "MP増加" },
-				{ name: "毎ターンMP増加", id: "毎ターンMP増加" },
-				{ name: "MP減少", id: "MP減少" },
-				{ name: "毎ターンMP減少状態解除", id: "毎ターンMP減少状態解除" },
-				{ name: "MP増加量減少状態解除", id: "MP増加量減少状態解除" },
-			]
-		},
-		{
-			name: "バフ解除",
-			id: "buff-removal",
-			children: [
-				{ name: "与ダメージ増加状態解除", id: "与ダメージ増加状態解除" },
-				{ name: "被ダメージ減少状態解除", id: "被ダメージ減少状態解除" },
-				{ name: "攻撃命中率増加状態解除", id: "攻撃命中率増加状態解除" },
-				{ name: "かいひ増加状態解除", id: "かいひ増加状態解除" },
-			]
-		},
-		{
-			name: "デバフ解除",
-			id: "debuff-removal",
-			children: [
-				{ name: "与ダメージ減少状態解除", id: "与ダメージ減少状態解除" },
-				{ name: "被ダメージ増加状態解除", id: "被ダメージ増加状態解除" },
-				{ name: "攻撃命中率減少状態解除", id: "攻撃命中率減少状態解除" },
-				{ name: "かいひ減少状態解除", id: "かいひ減少状態解除" },
-			]
-		},
-		{
-			name: "その他",
-			id: "others",
-			children: [
-				{ name: "プラズムチャージ効果回数追加", id: "プラズムチャージ効果回数追加" },
-				{ name: "全体Beat", id: "全体Beat" },
-				{ name: "均等割ダメージ", id: "均等割ダメージ" },
-				{ name: "コーラス参加", id: "コーラス参加" },
-				{ name: "おかわり増加", id: "おかわり増加" },
-				{ name: "おかわり最大値増加", id: "おかわり最大値増加" },
-				{ name: "たいりょく1で耐える", id: "たいりょく1で耐える" },
-				{ name: "ギブアップ復帰", id: "ギブアップ復帰" },
-			]
-		},
-	], []);
 
 	// テーブルのカラム定義
 	const columns = useMemo<ColumnDef<SkillWithFriend>[]>(() => [
