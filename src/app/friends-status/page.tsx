@@ -1,15 +1,43 @@
 import { Metadata } from 'next'
 import FriendsStatusTable from "@/app/friends-status/pageClient";
 import { PageTitle } from "@/components/PageTitle";
-import { getFriendsStatusList } from "@/utils/friendsStatus";
+import { getFriendsStatusList, ProcessedFriendsStatusListItem } from "@/utils/friendsStatus";
+import { STATUS_TYPES, getFilteredAndSortedData } from "@/utils/friendsStatusHelpers";
 
 export const metadata: Metadata = {
 	title: "フレンズステータスランキング - アプリ版けものフレンズ３wikiなのです🦉",
 	description: "フレンズステータスランキング",
 };
 
+// デフォルトのフィルタリングとソートをサーバー側で実行
+async function getProcessedStatusList(): Promise<{
+	allData: ProcessedFriendsStatusListItem[];
+	filteredData: ProcessedFriendsStatusListItem[];
+}> {
+	const allData = await getFriendsStatusList();
+
+	// デフォルトのフィルター設定
+	const defaultStatusTypesSet = new Set(STATUS_TYPES);
+	const hideNullStatus = false;
+	const sortBy = "kemosute";
+	const sortDesc = true;
+	const showCostumeBonus = false;
+
+	// サーバー側でフィルタリングとソートを実行
+	const filteredData = getFilteredAndSortedData(
+		allData,
+		defaultStatusTypesSet,
+		hideNullStatus,
+		sortBy,
+		sortDesc,
+		showCostumeBonus
+	);
+
+	return { allData, filteredData };
+}
+
 export default async function FriendsStatus() {
-	const friendsStatusList = await getFriendsStatusList();
+	const { allData, filteredData } = await getProcessedStatusList();
 
 	return (
 		<div>
@@ -24,7 +52,11 @@ export default async function FriendsStatus() {
 				</span>
 			</p>
 
-			<FriendsStatusTable friendsStatusList={friendsStatusList} />
+			<FriendsStatusTable
+				friendsStatusList={allData}
+				preFilteredData={filteredData}
+				defaultStatusTypes={Array.from(STATUS_TYPES)}
+			/>
 		</div>
 	);
 }

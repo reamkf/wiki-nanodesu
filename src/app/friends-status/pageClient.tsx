@@ -30,21 +30,14 @@ import {
 	CheckboxOption,
 } from "../../components/table/FilterCheckboxGroup";
 import { ColumnMeta } from "@/types/common";
-
-// ステータスタイプの定義
-const STATUS_TYPES = [
-	"☆6/Lv200/野生4",
-	"☆6/Lv200/野生5",
-	"☆6/Lv99/野生4",
-	"☆6/Lv99/野生5",
-	"☆6/Lv90/野生4",
-	"☆6/Lv90/野生5",
-] as const;
+import { STATUS_TYPES, getSearchableText, getFilteredAndSortedData } from "@/utils/friendsStatusHelpers";
 
 const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
 
 interface FriendsStatusTableProps {
 	friendsStatusList: ProcessedFriendsStatusListItem[];
+	preFilteredData?: ProcessedFriendsStatusListItem[];
+	defaultStatusTypes?: string[];
 }
 
 const statusTypeBackgroundColor: {
@@ -112,25 +105,6 @@ const statusTypeBackgroundColor: {
 			color: "#dc2626",
 		},
 	},
-};
-
-const getSearchableText = (
-	row: ProcessedFriendsStatusListItem,
-	columnId: string
-): string => {
-	switch (columnId) {
-		case "name":
-		case "icon":
-			return row.friendsDataRow.secondName
-				? `${row.friendsDataRow.secondName} ${row.friendsDataRow.name}`
-				: row.friendsDataRow.name;
-		case "attribute":
-			return row.friendsDataRow.attribute;
-		default:
-			return (
-				row.displayValues[columnId as keyof typeof row.displayValues] ?? ""
-			);
-	}
 };
 
 const renderYaseiLevel = (statusType: string) => {
@@ -228,16 +202,23 @@ const TableRow = React.memo(function TableRow({
 
 export default function FriendsStatusTable({
 	friendsStatusList,
+	preFilteredData,
+	defaultStatusTypes,
 }: FriendsStatusTableProps) {
 	const [isMounted, setIsMounted] = useState(false);
+
+	const defaultStatusTypesSet = useMemo(() =>
+		new Set(defaultStatusTypes || STATUS_TYPES),
+		[defaultStatusTypes]
+	);
 
 	const [selectedStatusTypes, setSelectedStatusTypes] = useState<Set<string>>(
 		() => {
 			if (typeof window !== "undefined") {
 				const saved = localStorage.getItem("wiki-nanodesu.friends-status.selectedStatusTypes");
-				return saved ? new Set(JSON.parse(saved)) : new Set(STATUS_TYPES);
+				return saved ? new Set(JSON.parse(saved)) : defaultStatusTypesSet;
 			}
-			return new Set(STATUS_TYPES);
+			return defaultStatusTypesSet;
 		}
 	);
 
@@ -274,6 +255,7 @@ export default function FriendsStatusTable({
 		return { pageIndex: 0, pageSize: 100 };
 	});
 
+	// 初回レンダリング時に設定を読み込む
 	useEffect(() => {
 		setIsMounted(true);
 	}, []);
@@ -295,20 +277,29 @@ export default function FriendsStatusTable({
 	}, [hideNullStatus, selectedStatusTypes, pagination, showCostumeBonus]);
 
 	const filteredData = useMemo(() => {
-		if (friendsStatusList.length === 0) return [];
+		// まだマウントされていない場合は、サーバーからのプリフィルターデータを使用
+		if (!isMounted && preFilteredData) {
+			return preFilteredData;
+		}
 
-		return friendsStatusList.filter((item) => {
-			if (
-				hideNullStatus &&
-				[item.status.hp, item.status.atk, item.status.def].some(
-					(status) => status === null
-				)
-			) {
-				return false;
-			}
-			return selectedStatusTypes.has(item.statusType);
-		});
-	}, [friendsStatusList, selectedStatusTypes, hideNullStatus]);
+		// クライアント側でフィルタリングとソートを行う
+		return getFilteredAndSortedData(
+			friendsStatusList,
+			selectedStatusTypes,
+			hideNullStatus,
+			sorting[0]?.id || "kemosute",
+			sorting[0]?.desc ?? true,
+			showCostumeBonus
+		);
+	}, [
+		friendsStatusList,
+		selectedStatusTypes,
+		hideNullStatus,
+		isMounted,
+		preFilteredData,
+		sorting,
+		showCostumeBonus
+	]);
 
 	const handleSelectedStatusTypeChange = (statusType: string) => {
 		setSelectedStatusTypes((prev) => {
