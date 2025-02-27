@@ -2,8 +2,10 @@ import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friendsSkillsD
 import ClientTabs from "./pageClient";
 import { PageTitle } from '@/components/PageTitle';
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
+import Link from "next/link";
 import { Metadata } from 'next'
 import { SkillCategory, SkillWithFriend } from "@/types/friendsSkills";
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 
 export const metadata: Metadata = {
 	title: "スキル別フレンズ一覧 - アプリ版けものフレンズ３wikiなのです🦉",
@@ -142,7 +144,28 @@ export default async function FriendsSkillsPage() {
 				と被るため、このページではまとめていません。<br />
 				けものミラクルのものは、全てLv.5での効果を記載しています。
 			</p>
-
+			<p className="p-1">
+				このページのデータは以下のスプレッドシートで管理しています。
+				データの修正はスプレッドシートで行ってください。<br />
+				<Link
+					href="https://docs.google.com/spreadsheets/d/1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk/edit?gid=308387785#gid=308387785"
+					target="_blank"
+					className="hover:underline text-sky-700"
+				>
+					https://docs.google.com/spreadsheets/d/1p-C3wbkYZ...
+					<OpenInNewIcon className="inline-block text-[1rem]" />
+				</Link>
+			</p>
+			<p className="p-1">
+				誤字・誤植の報告は
+				<SeesaaWikiLink
+					href="スキル効果別フレンズ一覧"
+					className="hover:underline text-blue-800"
+				>
+					こちら
+				</SeesaaWikiLink>
+				のコメント欄へお願いします。
+			</p>
 			<ClientTabs
 				effectTypes={effectTypes}
 				effectTypeData={effectTypeData}
