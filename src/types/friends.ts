@@ -9,6 +9,15 @@ export enum FriendsAttribute {
 	mypace = "マイペース"
 }
 
+export const FriendsAttributeOrder = {
+	[FriendsAttribute.friendry]: 0,
+	[FriendsAttribute.funny]: 1,
+	[FriendsAttribute.relax]: 2,
+	[FriendsAttribute.active]: 3,
+	[FriendsAttribute.lovely]: 4,
+	[FriendsAttribute.mypace]: 5,
+}
+
 export const friendsAttributeColor = {
 	[FriendsAttribute.funny]: 'red',
 	[FriendsAttribute.relax]: '#0075c8',

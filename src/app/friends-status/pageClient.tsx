@@ -20,7 +20,9 @@ import {
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
-import {includesNormalizeQuery } from "@/utils/queryNormalizer";
+import { sortFriendsAttribute } from "@/utils/friends";
+import { FriendsAttribute } from "@/types/friends";
+import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 import { SortableTable } from "../../components/table/SortableTable";
 import { TablePagination } from "../../components/table/TablePagination";
 import {
@@ -383,9 +385,14 @@ export default function FriendsStatusTable({
 				id: "attribute",
 				header: "属性",
 				cell: (info) => (
-					<FriendsAttributeIconAndName attribute={info.getValue()} />
+					<FriendsAttributeIconAndName attribute={info.getValue() as FriendsAttribute} />
 				),
 				filterFn: customFilterFn,
+				sortingFn: (rowA, rowB, columnId) => {
+					const attributeA = rowA.getValue(columnId) as FriendsAttribute;
+					const attributeB = rowB.getValue(columnId) as FriendsAttribute;
+					return sortFriendsAttribute(attributeA, attributeB);
+				},
 				meta: {
 					align: "center" as const,
 					width: "100px",

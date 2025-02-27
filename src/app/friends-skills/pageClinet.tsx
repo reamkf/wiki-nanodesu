@@ -10,6 +10,7 @@ import { TableOfContents } from "@/components/section/TableOfContents";
 import { Heading } from "@/components/section/Heading";
 import { FoldingSection } from "@/components/section/FoldingSection";
 import { SeesaaWikiImage } from "@/components/SeesaaWikiImage";
+import { FriendsAttribute } from "@/types/friends";
 import {
 	ColumnDef,
 	Row,
@@ -26,6 +27,7 @@ import {
 import { TablePagination } from "@/components/table/TablePagination";
 import { toPercent } from "@/utils/common";
 import { includesNormalizeQuery } from "@/utils/queryNormalizer";
+import { sortFriendsAttribute } from "@/utils/friends";
 
 // CSV内の「~~」を改行に変換する関数
 function parseSeesaaWikiNewLine(text: string): React.ReactElement {
@@ -356,6 +358,11 @@ export default function ClientTabs({
 				);
 			},
 			filterFn: customFilterFn,
+			sortingFn: (rowA, rowB, columnId) => {
+				const attributeA = rowA.getValue(columnId) as FriendsAttribute;
+				const attributeB = rowB.getValue(columnId) as FriendsAttribute;
+				return sortFriendsAttribute(attributeA, attributeB);
+			},
 			meta: {
 				width: '80px'
 			}
