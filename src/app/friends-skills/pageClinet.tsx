@@ -26,6 +26,7 @@ import {
 } from "@tanstack/react-table";
 import { TablePagination } from "@/components/table/TablePagination";
 import { toPercent } from "@/utils/common";
+import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 
 // CSV内の「~~」を改行に変換する関数
 function parseSeesaaWikiNewLine(text: string): React.ReactElement {
@@ -54,7 +55,7 @@ function isNumber(value: string): boolean {
 
 // スキルとフレンズデータを含む結合型
 type SkillWithFriend = SkillEffect & {
-	friend?: FriendsDataRow
+	friendsDataRow: FriendsDataRow
 }
 
 // スキルカテゴリーの階層構造を表す型
@@ -159,6 +160,30 @@ const SkillTypeTable = React.memo(({
 		</>
 	);
 });
+
+const getSearchableText = (
+	row: SkillWithFriend,
+	columnId: string
+): string => {
+	switch (columnId) {
+		case "name":
+		case "icon":
+			return row.friendsDataRow.secondName
+				? `${row.friendsDataRow.secondName} ${row.friendsDataRow.name}`
+				: row.friendsDataRow.name;
+		case "attribute":
+			return row.friendsDataRow.attribute;
+		default:
+			return (
+				row[columnId as keyof SkillWithFriend].toString() ?? ""
+			);
+	}
+};
+
+const customFilterFn = (row: Row<SkillWithFriend>, columnId: string, filterValue: string) => {
+	const value = getSearchableText(row.original, columnId);
+	return includesNormalizeQuery(value, filterValue);
+};
 
 SkillTypeTable.displayName = "SkillTypeTable";
 
@@ -299,27 +324,28 @@ export default function ClientTabs({
 			header: 'フレンズ',
 			cell: ({ row }) => {
 				const skill = row.original;
-				if (!skill.friend) {
+				if (!skill.friendsDataRow) {
 					return <div>{skill.friendsId}</div>;
 				}
 
 				return (
 					<div className="text-sm flex items-center space-x-2">
-						{skill.friend.iconUrl && (
+						{skill.friendsDataRow.iconUrl && (
 							<div className="flex-shrink-0">
 								<SeesaaWikiImage
-									src={skill.friend.iconUrl}
-									alt={skill.friend.name}
+									src={skill.friendsDataRow.iconUrl}
+									alt={skill.friendsDataRow.name}
 									width={45}
 									height={45}
 									className="rounded-sm"
 								/>
 							</div>
 						)}
-						<FriendsNameLink friend={skill.friend} />
+						<FriendsNameLink friend={skill.friendsDataRow} />
 					</div>
 				);
 			},
+			filterFn: customFilterFn,
 			meta: {
 				width: '250px'
 			}
@@ -329,13 +355,14 @@ export default function ClientTabs({
 			header: '属性',
 			cell: ({ row }) => {
 				const skill = row.original;
-				if (!skill.friend || !skill.friend.attribute) {
+				if (!skill.friendsDataRow || !skill.friendsDataRow.attribute) {
 					return null;
 				}
 				return (
-					<FriendsAttributeIconAndName attribute={skill.friend.attribute} />
+					<FriendsAttributeIconAndName attribute={skill.friendsDataRow.attribute} />
 				);
 			},
+			filterFn: customFilterFn,
 			meta: {
 				width: '80px'
 			}
@@ -348,6 +375,7 @@ export default function ClientTabs({
 				if (!text) return null;
 				return formatText(text);
 			},
+			filterFn: customFilterFn,
 			meta: {
 				width: '120px'
 			},
@@ -376,7 +404,7 @@ export default function ClientTabs({
 					'MP増加', 'MP減少', '毎ターンMP増加', '毎ターンMP減少',
 					'プラズムチャージ効果回数追加'
 				];
-				const isPercentFormat = intFormatEffectTypes.some(effectType => row.original.effectType?.includes(effectType));
+				const isPercentFormat = !intFormatEffectTypes.some(effectType => row.original.effectType?.includes(effectType));
 
 				if (isPercentFormat) {
 					return toPercent(powerNum, 0);
@@ -400,6 +428,7 @@ export default function ClientTabs({
 				// 文字列の場合は文字列比較
 				return String(valueA).localeCompare(String(valueB));
 			},
+			filterFn: customFilterFn,
 			meta: {
 				width: '100px'
 			}
@@ -412,6 +441,7 @@ export default function ClientTabs({
 				if (!text) return null;
 				return formatText(text);
 			},
+			filterFn: customFilterFn,
 			meta: {
 				width: '150px'
 			}
@@ -424,6 +454,7 @@ export default function ClientTabs({
 				if (!text) return null;
 				return formatText(text);
 			},
+			filterFn: customFilterFn,
 			meta: {
 				width: '200px'
 			}
@@ -436,6 +467,7 @@ export default function ClientTabs({
 				if (!text) return null;
 				return formatText(text);
 			},
+			filterFn: customFilterFn,
 			meta: {
 				width: '100px'
 			}
@@ -479,6 +511,7 @@ export default function ClientTabs({
 				// 文字列の場合は文字列比較
 				return String(valueA).localeCompare(String(valueB));
 			},
+			filterFn: customFilterFn,
 			meta: {
 				width: '100px'
 			}
@@ -491,6 +524,7 @@ export default function ClientTabs({
 				if (!text) return null;
 				return formatText(text);
 			},
+			filterFn: customFilterFn,
 			meta: {
 				width: '100px'
 			}
@@ -503,6 +537,7 @@ export default function ClientTabs({
 				if (!text) return null;
 				return formatText(text);
 			},
+			filterFn: customFilterFn,
 			meta: {
 				width: '200px'
 			}

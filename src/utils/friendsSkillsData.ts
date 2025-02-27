@@ -74,7 +74,7 @@ export async function getSkillsData(): Promise<SkillEffect[]> {
 /**
  * スキルデータとフレンズデータを結合したデータを取得する
  */
-export async function getSkillsWithFriendsData(): Promise<(SkillEffect & { friend?: FriendsDataRow })[]> {
+export async function getSkillsWithFriendsData(): Promise<(SkillEffect & { friendsDataRow?: FriendsDataRow })[]> {
 	// キャッシュがあればそれを返す
 	if (skillsWithFriendsCache) {
 		return skillsWithFriendsCache;
@@ -111,11 +111,11 @@ export async function getSkillsWithFriendsData(): Promise<(SkillEffect & { frien
 		// スキルデータとフレンズデータを結合
 		const enrichedData = skillsData.map(skill => {
 			if (!skill.friendsId || skill.friendsId.trim() === '') {
-				return { ...skill, friend: undefined };
+				return { ...skill, friendsDataRow: undefined };
 			}
 
-			const friend = friendsIdMap.get(skill.friendsId);
-			return { ...skill, friend };
+			const friendsDataRow = friendsIdMap.get(skill.friendsId);
+			return { ...skill, friendsDataRow: friendsDataRow };
 		});
 
 		// キャッシュを更新

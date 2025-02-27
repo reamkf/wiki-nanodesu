@@ -55,3 +55,7 @@ export function normalizeQuery(text: string): string {
 
 	return result.join('').toLowerCase();
 }
+
+export function includesNormalizeQuery(text: string, query: string): boolean {
+	return normalizeQuery(text).includes(normalizeQuery(query));
+}

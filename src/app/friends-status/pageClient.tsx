@@ -20,7 +20,7 @@ import {
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
-import { normalizeQuery } from "@/utils/queryNormalizer";
+import {includesNormalizeQuery } from "@/utils/queryNormalizer";
 import { SortableTable } from "../../components/table/SortableTable";
 import { TablePagination } from "../../components/table/TablePagination";
 import {
@@ -191,7 +191,7 @@ const customFilterFn = (
 	filterValue: string
 ) => {
 	const searchText = getSearchableText(row.original, columnId);
-	return normalizeQuery(searchText).includes(normalizeQuery(filterValue));
+	return includesNormalizeQuery(searchText, filterValue);
 };
 
 // メモ化された行コンポーネント
