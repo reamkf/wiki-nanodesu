@@ -26,6 +26,12 @@ export const getEnumKeyByValue = (enumObj: Record<string, string>, value: string
 	return Object.keys(enumObj).find(key => enumObj[key] === value) || '';
 }
 
-export function toPercent(value: number, minimumFractionDigits = 0): string {
-	return `${value.toLocaleString(undefined, {style: 'percent', minimumFractionDigits: minimumFractionDigits})}`;
+export function toPercent(value: number, minimumFractionDigits: number | null = null): string {
+	if (minimumFractionDigits === null) {
+		// 小数点以下の桁数を計算
+		const decimalPlaces = (Math.round(value * 100 * 100000) / 100000).toString().split('.')[1]?.length || 0;
+		return `${value.toLocaleString(undefined, {style: 'percent', minimumFractionDigits: decimalPlaces})}`;
+	} else {
+		return `${value.toLocaleString(undefined, {style: 'percent', minimumFractionDigits: minimumFractionDigits})}`;
+	}
 }

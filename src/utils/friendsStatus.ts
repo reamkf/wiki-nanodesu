@@ -361,7 +361,7 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 					hp: statusType.status.hp === null ? "?????" : statusType.status.hp.toLocaleString(),
 					atk: statusType.status.atk === null ? "?????" : statusType.status.atk.toLocaleString(),
 					def: statusType.status.def === null ? "?????" : statusType.status.def.toLocaleString(),
-					avoid: friend.status.avoid === null ? "???%" : toPercent(friend.status.avoid, 0)
+					avoid: friend.status.avoid === null ? "???%" : toPercent((statusType.yasei === 5 ? friend.status.avoidYasei5 : friend.status.avoid) ?? -1, 1)
 				},
 				originalIndex: index++,
 			});

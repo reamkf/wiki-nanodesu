@@ -384,8 +384,7 @@ export default function ClientTabs({
 			accessorFn: (row) => {
 				const power = row.power;
 				if (!power) return -Infinity;
-				const powerNum = parseFloat(power);
-				return isNumber(power) ? power : powerNum;
+				return isNumber(power) ? parseFloat(power) : power;
 			},
 			id: 'power',
 			header: '威力',
@@ -407,7 +406,7 @@ export default function ClientTabs({
 				const isPercentFormat = !intFormatEffectTypes.some(effectType => row.original.effectType?.includes(effectType));
 
 				if (isPercentFormat) {
-					return toPercent(powerNum, 0);
+					return toPercent(powerNum);
 				} else {
 					return powerNum.toString();
 				}
