@@ -1,8 +1,8 @@
 "use client";
 
 import { ProcessedFriendsStatusListItem } from "@/utils/friendsStatus";
-import FriendsIcon from "./FriendsIcon";
-import { FriendsNameLink } from "./FriendsNameLink";
+import FriendsIcon from "../../components/friends/FriendsIcon";
+import { FriendsNameLink } from "../../components/friends/FriendsNameLink";
 import {
 	createColumnHelper,
 	SortingState,
@@ -19,14 +19,14 @@ import {
 	ColumnDef,
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect } from "react";
-import { FriendsAttributeIconAndName } from "./FriendsAttributeIconAndName";
+import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
 import { normalizeQuery } from "@/utils/queryNormalizer";
-import { SortableTable } from "../table/SortableTable";
-import { TablePagination } from "../table/TablePagination";
+import { SortableTable } from "../../components/table/SortableTable";
+import { TablePagination } from "../../components/table/TablePagination";
 import {
 	FilterCheckboxGroup,
 	CheckboxOption,
-} from "../table/FilterCheckboxGroup";
+} from "../../components/table/FilterCheckboxGroup";
 import { ColumnMeta } from "@/types/common";
 
 // ステータスタイプの定義

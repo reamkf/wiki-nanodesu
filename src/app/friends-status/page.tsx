@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import FriendsStatusTable from "@/components/friends/FriendsStatusTable";
+import FriendsStatusTable from "@/app/friends-status/pageClient";
 import { PageTitle } from "@/components/PageTitle";
 import { getFriendsStatusList } from "@/utils/friendsStatus";
 
