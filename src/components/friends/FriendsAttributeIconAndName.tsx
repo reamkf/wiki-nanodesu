@@ -1,11 +1,12 @@
 import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
 import { FriendsAttribute, friendsAttributeColor, friendsAttributeIconUrl } from "@/types/friends";
+import { memo } from "react";
 
 interface FriendsAttributeIconAndNameProps {
 	attribute: FriendsAttribute;
 }
 
-export function FriendsAttributeIconAndName({ attribute }: FriendsAttributeIconAndNameProps) {
+export const FriendsAttributeIconAndName = memo(function FriendsAttributeIconAndName({ attribute }: FriendsAttributeIconAndNameProps) {
 	const textColor = friendsAttributeColor[attribute];
 	const iconUrl = friendsAttributeIconUrl[attribute];
 
@@ -25,4 +26,4 @@ export function FriendsAttributeIconAndName({ attribute }: FriendsAttributeIconA
 			</div>
 		</>
 	);
-}
+});

@@ -1,12 +1,13 @@
 import { FriendsDataRow } from "@/types/friends";
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 import { getWikiNanodaPageUrl } from "@/utils/encoding";
+import { memo } from "react";
 
 interface FriendsNameLinkProps {
 	friend: FriendsDataRow;
 }
 
-export function FriendsNameLink({ friend }: FriendsNameLinkProps) {
+export const FriendsNameLink = memo(function FriendsNameLink({ friend }: FriendsNameLinkProps) {
 	const friendsName = friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name;
 	const pageUrl = getWikiNanodaPageUrl(friendsName);
 	return (
@@ -24,4 +25,4 @@ export function FriendsNameLink({ friend }: FriendsNameLinkProps) {
 			</SeesaaWikiLink>
 		</>
 	);
-}
+});
