@@ -145,7 +145,7 @@ export default async function FriendsSkillsPage() {
 			</p>
 			<p className="p-1">
 				このページのデータは以下のスプレッドシートで管理しています。
-				データの修正はスプレッドシートで行ってください。<br />
+				データの修正はスプレッドシート上で行ってください。<br />
 				<Link
 					href="https://docs.google.com/spreadsheets/d/1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk/edit?gid=308387785#gid=308387785"
 					target="_blank"
