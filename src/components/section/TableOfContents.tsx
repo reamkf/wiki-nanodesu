@@ -73,6 +73,7 @@ export function TableOfContents({
 		<FoldingSection
 			toggleButtonLabel={<span className="font-bold">目次</span>}
 			sectionId={sectionId}
+			isOpenByDefault={true}
 		>
 			<>
 				<Box
