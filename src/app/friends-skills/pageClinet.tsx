@@ -2,8 +2,7 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { Box, Paper } from "@mui/material";
-import { SkillEffect } from "@/types/friendsSkills";
-import { FriendsDataRow } from "@/types/friends";
+import { SkillWithFriend, SkillCategory } from "@/types/friendsSkills";
 import { SortableTable } from "@/components/table/SortableTable";
 import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
@@ -51,18 +50,6 @@ function isNumber(value: string): boolean {
 
 	const regex = /^[0-9,]+(\.[0-9]+)?%?$/;
 	return regex.test(value);
-}
-
-// スキルとフレンズデータを含む結合型
-type SkillWithFriend = SkillEffect & {
-	friendsDataRow: FriendsDataRow
-}
-
-// スキルカテゴリーの階層構造を表す型
-interface SkillCategory {
-	name: string;
-	id: string;
-	children?: SkillCategory[];
 }
 
 // 各スキルタイプのテーブルを管理する独立したコンポーネント

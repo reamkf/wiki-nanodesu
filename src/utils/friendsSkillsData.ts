@@ -1,13 +1,13 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import Papa from "papaparse";
-import { SkillEffect, RawSkillCSV, RAW_SKILL_CSV_HEADERS } from "@/types/friendsSkills";
+import { SkillEffect, RawSkillCSV, RAW_SKILL_CSV_HEADERS, SkillWithFriend } from "@/types/friendsSkills";
 import { getFriendsData } from "@/utils/friendsData";
 import { FriendsDataRow } from "@/types/friends";
 
 // キャッシュ用の変数
 let skillsDataCache: SkillEffect[] | null = null;
-let skillsWithFriendsCache: (SkillEffect & { friendsDataRow: FriendsDataRow })[] | null = null;
+let skillsWithFriendsCache: SkillWithFriend[] | null = null;
 let effectTypesCache: string[] | null = null;
 
 /**
@@ -57,7 +57,7 @@ export async function getSkillsData(): Promise<SkillEffect[]> {
 				const validData = parsedData.filter(item =>
 					item.effectType && item.effectType.trim() !== '' &&
 					(item.friendsId || item.skillType)
-				);
+				) as SkillEffect[];
 
 				// キャッシュを更新
 				skillsDataCache = validData;
@@ -74,7 +74,7 @@ export async function getSkillsData(): Promise<SkillEffect[]> {
 /**
  * スキルデータとフレンズデータを結合したデータを取得する
  */
-export async function getSkillsWithFriendsData(): Promise<(SkillEffect & { friendsDataRow: FriendsDataRow })[]> {
+export async function getSkillsWithFriendsData(): Promise<SkillWithFriend[]> {
 	// キャッシュがあればそれを返す
 	if (skillsWithFriendsCache) {
 		return skillsWithFriendsCache;
@@ -112,7 +112,7 @@ export async function getSkillsWithFriendsData(): Promise<(SkillEffect & { frien
 		const enrichedData = skillsData.map(skill => {
 			const friendsDataRow = friendsIdMap.get(skill.friendsId);
 			return { ...skill, friendsDataRow: friendsDataRow };
-		}).filter((item): item is SkillEffect & { friendsDataRow: FriendsDataRow } =>
+		}).filter((item): item is SkillWithFriend =>
 			item.friendsDataRow !== undefined
 		);
 
@@ -130,7 +130,7 @@ export async function getSkillsWithFriendsData(): Promise<(SkillEffect & { frien
  * 効果種別でフィルタリングしたスキルデータとフレンズデータを取得
  * @param effectType 効果種別
  */
-export async function getSkillsWithFriendsByEffectType(effectType: string): Promise<(SkillEffect & { friend?: FriendsDataRow })[]> {
+export async function getSkillsWithFriendsByEffectType(effectType: string): Promise<SkillWithFriend[]> {
 	const skillsWithFriends = await getSkillsWithFriendsData();
 	return skillsWithFriends.filter(skill => skill.effectType === effectType);
 }
