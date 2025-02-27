@@ -15,12 +15,14 @@ export default async function FriendsSkillsPage() {
 	const effectTypes = await getEffectTypes();
 
 	return (
-		<div className="min-h-screen p-4">
+		<div className="min-h-screen">
 			<PageTitle title="スキル別フレンズ一覧" />
 
-			{/* <p className="text-2xl font-bold text-red-500">
-				このページは製作途中です。
-			</p> */}
+			<p className="p-1">
+				フレンズのスキルを種類ごとにリスト化しています。<br />
+				ただし、自身のみの与ダメージ増加は省略しています。また、状態異常・状態変化関連は状態異常のページと被るため、このページではまとめていません。<br />
+				けものミラクルのものは、全てLv.5での効果を記載しています。
+			</p>
 
 			<ClientTabs effectTypes={effectTypes} skillsData={skillsData} />
 		</div>
