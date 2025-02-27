@@ -376,13 +376,12 @@ export default function ClientTabs({
 					'MP増加', 'MP減少', '毎ターンMP増加', '毎ターンMP減少',
 					'プラズムチャージ効果回数追加'
 				];
-				const isIntFormat = intFormatEffectTypes.some(effectType => row.original.effectType?.includes(effectType));
+				const isPercentFormat = intFormatEffectTypes.some(effectType => row.original.effectType?.includes(effectType));
 
-				// MP関連は整数表示、それ以外は%表示
-				if (isIntFormat) {
-					return Math.round(powerNum).toString();
-				} else {
+				if (isPercentFormat) {
 					return toPercent(powerNum, 0);
+				} else {
+					return powerNum.toString();
 				}
 			},
 			sortingFn: (rowA, rowB, columnId) => {
