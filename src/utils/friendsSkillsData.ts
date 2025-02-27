@@ -116,10 +116,17 @@ export async function getSkillsWithFriendsData(): Promise<SkillWithFriend[]> {
 			item.friendsDataRow !== undefined
 		);
 
-		// キャッシュを更新
-		skillsWithFriendsCache = enrichedData;
+		// friendsDataRow.listIndexの降順でソート
+		const sortedData = [...enrichedData].sort((a, b) => {
+			const indexA = a.friendsDataRow?.listIndex ?? 0;
+			const indexB = b.friendsDataRow?.listIndex ?? 0;
+			return indexB - indexA; // 降順ソート
+		});
 
-		return enrichedData;
+		// キャッシュを更新
+		skillsWithFriendsCache = sortedData;
+
+		return sortedData;
 	} catch (error) {
 		console.error("Error in getSkillsWithFriendsData:", error);
 		return [];
