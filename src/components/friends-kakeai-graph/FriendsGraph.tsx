@@ -148,12 +148,11 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 						// 同じグループ内のノード間に引力を追加
 						const dx = nodeJ.x - nodeI.x;
 						const dy = nodeJ.y - nodeI.y;
-						const distance = Math.sqrt(dx * dx + dy * dy);
 
-						if (distance > 0) {
+						if (dx !== 0 || dy !== 0) {
 							const forceStrength = 0.05;
-							const forceX = (dx / distance) * forceStrength;
-							const forceY = (dy / distance) * forceStrength;
+							const forceX = (dx / Math.sqrt(dx * dx + dy * dy)) * forceStrength;
+							const forceY = (dy / Math.sqrt(dx * dx + dy * dy)) * forceStrength;
 
 							nodeI.x += forceX;
 							nodeI.y += forceY;
@@ -250,85 +249,28 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 				const groupColor = GROUP_COLORS[colorIndex];
 				const darkerColor = d3.color(groupColor)?.darker().toString() || '#333';
 
-				if (groupNodes.length >= 3) {
-					try {
-						// ノードの周りに複数の点を配置して滑らかな凸包を作成
-						const points = generateHullPoints(groupNodes);
+				try {
+					// ノードの周りに複数の点を配置して滑らかな凸包を作成
+					const points = generateHullPoints(groupNodes);
 
-						// 凸包を計算
-						const hullPoints = d3.polygonHull(points);
+					// 凸包を計算
+					const hullPoints = d3.polygonHull(points);
 
-						if (hullPoints && hullPoints.length > 2) {
-							// 滑らかな凸包を描画
-							hulls.append('path')
-								.attr('d', 'M' + hullPoints.join('L') + 'Z')
-								.attr('fill', groupColor)
-								.attr('fill-opacity', 0.4)
-								.attr('stroke', darkerColor)
-								.attr('stroke-width', 2)
-								.attr('stroke-opacity', 0.7)
-								.attr('stroke-linejoin', 'round')
-								.attr('class', `group-${groupId}`)
-								.lower();
-						}
-					} catch (e) {
-						console.error('凸包の作成に失敗:', groupId, e);
+					if (hullPoints && hullPoints.length > 2) {
+						// 滑らかな凸包を描画
+						hulls.append('path')
+							.attr('d', 'M' + hullPoints.join('L') + 'Z')
+							.attr('fill', groupColor)
+							.attr('fill-opacity', 0.4)
+							.attr('stroke', darkerColor)
+							.attr('stroke-width', 2)
+							.attr('stroke-opacity', 0.7)
+							.attr('stroke-linejoin', 'round')
+							.attr('class', `group-${groupId}`)
+							.lower();
 					}
-				} else if (groupNodes.length === 2) {
-					// 2点の場合は楕円を描画
-					const [node1, node2] = groupNodes;
-					if (!node1.x || !node1.y || !node2.x || !node2.y) return;
-
-					const x1 = node1.x, y1 = node1.y;
-					const x2 = node2.x, y2 = node2.y;
-
-					// 2点間の距離
-					const dx = x2 - x1;
-					const dy = y2 - y1;
-					const distance = Math.sqrt(dx * dx + dy * dy);
-
-					// 楕円の中心と半径
-					const centerX = (x1 + x2) / 2;
-					const centerY = (y1 + y2) / 2;
-					const radiusX = distance / 2 + 50; // パディング追加
-					const radiusY = 60; // 固定値
-
-					// 回転角度
-					const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
-					hulls.append('ellipse')
-						.attr('cx', centerX)
-						.attr('cy', centerY)
-						.attr('rx', radiusX)
-						.attr('ry', radiusY)
-						.attr('transform', `rotate(${angle}, ${centerX}, ${centerY})`)
-						.attr('fill', groupColor)
-						.attr('fill-opacity', 0.4)
-						.attr('stroke', darkerColor)
-						.attr('stroke-width', 2)
-						.attr('stroke-opacity', 0.7)
-						.attr('class', `group-${groupId}`)
-						.lower();
-				} else if (groupNodes.length === 1) {
-					// 1点の場合は円を描画
-					const node = groupNodes[0];
-					if (!node.x || !node.y) return;
-
-					const cx = node.x;
-					const cy = node.y;
-					const r = 45; // 半径（パディング含む）
-
-					hulls.append('circle')
-						.attr('cx', cx)
-						.attr('cy', cy)
-						.attr('r', r)
-						.attr('fill', groupColor)
-						.attr('fill-opacity', 0.4)
-						.attr('stroke', darkerColor)
-						.attr('stroke-width', 2)
-						.attr('stroke-opacity', 0.7)
-						.attr('class', `group-${groupId}`)
-						.lower();
+				} catch (e) {
+					console.error('凸包の作成に失敗:', groupId, e);
 				}
 			});
 		}
