@@ -35,6 +35,7 @@ alwaysApply: true
   - Googleスプレッドシートで管理
   - Google Apps Scriptを用いてCSVファイルを出力
   - 出力したCSVファイルを当gitレポジトリへpush
+  - CSVの読み込みはサーバーサイドのみで行う
 
 # コーディングルール
 - インデントにはタブを使う
