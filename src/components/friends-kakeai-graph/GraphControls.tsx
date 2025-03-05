@@ -24,7 +24,7 @@ const GraphControls: React.FC<GraphControlsProps> = ({ nodes, onSelectFriend }) 
 	return (
 		<Paper
 			elevation={2}
-			className="p-4 mb-4 w-full max-w-md mx-auto rounded-lg"
+			className="p-4 mb-4 w-full max-w-md rounded-lg"
 		>
 			<div className="flex flex-col">
 				<h3 className="text-lg font-medium mb-4">フレンズ検索</h3>

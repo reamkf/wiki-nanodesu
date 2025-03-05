@@ -4,7 +4,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import FriendsGraph from '@/components/friends-kakeai-graph/FriendsGraph';
 import GraphControls from '@/components/friends-kakeai-graph/GraphControls';
 import { GraphData } from '@/types/friends-kakeai-graph';
-import { Card, CardContent, Typography, Box, Container, Alert } from '@mui/material';
+import { Typography, Box, Alert } from '@mui/material';
+import { PageTitle } from '@/components/PageTitle';
 
 interface FriendsKakeaiGraphPageProps {
 	initialData: GraphData;
@@ -31,28 +32,6 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 		}
 	};
 
-	// グループに関する統計情報を計算
-	const groupStats = React.useMemo(() => {
-		const groups = new Map<number, number>();
-
-		graphData.nodes.forEach(node => {
-			if (node.group) {
-				const groupCount = groups.get(node.group) || 0;
-				groups.set(node.group, groupCount + 1);
-			}
-		});
-
-		const groupSizes = Array.from(groups.entries()).map(([, count]) => count);
-		const largestGroup = groupSizes.length > 0 ? Math.max(...groupSizes) : 0;
-
-		return {
-			totalGroups: groups.size,
-			totalNodes: graphData.nodes.length,
-			totalLinks: graphData.links.length,
-			largestGroup: largestGroup,
-		};
-	}, [graphData]);
-
 	// ローカルストレージから選択したフレンズIDを取得
 	useEffect(() => {
 		if (typeof window !== 'undefined' && !isEmptyData) {
@@ -67,18 +46,16 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 	}, [graphData, isEmptyData]);
 
 	return (
-		<Container maxWidth="xl" className="py-6">
-			<Typography variant="h4" component="h1" className="mb-4 font-bold text-center">
-				フレンズ掛け合い関係グラフ
-			</Typography>
+		<>
+			<PageTitle title="フレンズ掛け合い関係グラフ" />
 
 			<Box className="mb-6">
-				<Typography variant="body1" component="p" className="mb-2 text-center">
-					けものフレンズ３に登場するフレンズ間の掛け合い関係を可視化したグラフです。
+				<Typography variant="body1" component="p" className="mb-2">
+					フレンズの掛け合い関係を可視化したグラフです。
 				</Typography>
-				<Typography variant="body2" component="p" className="text-center text-gray-600">
-					※ 線でつながれたフレンズ同士が掛け合いを持っていることを表しています。同じ色の枠で囲まれたフレンズはお互いに関連のあるグループです。
-				</Typography>
+				<Alert severity="warning">
+					※グループは自動検出しているため、必ずしも正確なものではありません。
+				</Alert>
 			</Box>
 
 			{isEmptyData ? (
@@ -87,25 +64,8 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 				</Alert>
 			) : (
 				<>
-					<Box className="mb-4">
-						<Card variant="outlined">
-							<CardContent>
-								<div className="flex flex-wrap justify-center gap-4 text-sm">
-									<div>
-										<span className="font-medium">総フレンズ数:</span> {graphData.nodes.length}
-									</div>
-									<div>
-										<span className="font-medium">総掛け合い数:</span> {graphData.links.length}
-									</div>
-									<div>
-										<span className="font-medium">グループ数:</span> {groupStats.totalGroups}
-									</div>
-									<div>
-										<span className="font-medium">最大グループサイズ:</span> {groupStats.largestGroup}フレンズ
-									</div>
-								</div>
-							</CardContent>
-						</Card>
+					<Box ref={graphRef} className="mb-4">
+						<FriendsGraph data={graphData} onSelectFriend={handleSelectFriend} />
 					</Box>
 
 					<Box className="mb-6">
@@ -114,19 +74,9 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 							onSelectFriend={handleSelectFriend}
 						/>
 					</Box>
-
-					<Box ref={graphRef} className="mb-4">
-						<FriendsGraph data={graphData} onSelectFriend={handleSelectFriend} />
-					</Box>
 				</>
 			)}
-
-			<Box className="mt-8">
-				<Typography variant="body2" component="p" className="text-center text-gray-500">
-					※ データは定期的に更新されます。最終更新: {new Date().toLocaleDateString('ja-JP')}
-				</Typography>
-			</Box>
-		</Container>
+		</>
 	);
 };
 
