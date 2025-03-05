@@ -90,8 +90,23 @@ export const processKakeaiData = async (): Promise<GraphData> => {
 			}
 		});
 
+		// 掛け合い関係を持つフレンズのIDを抽出
+		const friendsWithLinks = new Set<string>();
+		links.forEach(link => {
+			friendsWithLinks.add(link.source.toString());
+			friendsWithLinks.add(link.target.toString());
+		});
+
+		// 掛け合い関係を持つフレンズのノードだけを残す
+		const filteredNodes = new Map<string, FriendNode>();
+		nodes.forEach((node, id) => {
+			if (friendsWithLinks.has(id)) {
+				filteredNodes.set(id, node);
+			}
+		});
+
 		// BFSによるグループ検出
-		const nodesArray = Array.from(nodes.values());
+		const nodesArray = Array.from(filteredNodes.values());
 		detectGroups(nodesArray, links);
 
 		return {

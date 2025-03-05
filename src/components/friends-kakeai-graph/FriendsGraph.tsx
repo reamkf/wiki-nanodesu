@@ -106,29 +106,6 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 		// グループごとに背景を描画
 		const groups = d3.group(nodes, node => node.group || 0);
 		const hulls = g.append('g').attr('class', 'hulls');
-		const groupLabels = g.append('g').attr('class', 'group-labels');
-
-		// 初期レイアウト - グループを円形に配置
-		const groupPositions: { x: number, y: number }[] = [];
-		const numGroups = groups.size;
-
-		// グループの中心位置を円形に配置
-		groups.forEach((groupNodes, groupId) => {
-			const angle = (groupId * 2 * Math.PI) / numGroups;
-			const radius = Math.min(width, height) / 3.5;
-			const pos = {
-				x: width / 2 + radius * Math.cos(angle),
-				y: height / 2 + radius * Math.sin(angle)
-			};
-			groupPositions[groupId] = pos;
-
-			// グループ内のノードに初期位置を設定
-			groupNodes.forEach(node => {
-				// グループ内で若干ランダムにずらす
-				node.x = pos.x + (Math.random() - 0.5) * 50;
-				node.y = pos.y + (Math.random() - 0.5) * 50;
-			});
-		});
 
 		// シミュレーション設定
 		const simulation = d3.forceSimulation<FriendNode>(nodes)
@@ -244,11 +221,10 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			.attr('fill', '#000')
 			.attr('font-weight', 'bold');
 
-		// 凸包（グループの輪郭）とラベルを更新する関数
-		function updateHullsAndLabels() {
-			// 既存の凸包とラベルを削除
+		// 凸包（グループの輪郭）を更新する関数
+		function updateHulls() {
+			// 既存の凸包を削除
 			hulls.selectAll('*').remove();
-			groupLabels.selectAll('*').remove();
 
 			groups.forEach((groupNodes, groupId) => {
 				if (groupNodes.length < 1) return;
@@ -277,29 +253,6 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 								.attr('stroke-linejoin', 'round')
 								.attr('class', `group-${groupId}`)
 								.lower();
-
-							// グループの中心を計算
-							const centroid = groupNodes.reduce(
-								(acc, d) => {
-									return {
-										x: acc.x + (d.x || 0) / groupNodes.length,
-										y: acc.y + (d.y || 0) / groupNodes.length
-									};
-								},
-								{ x: 0, y: 0 }
-							);
-
-							// グループラベルを追加
-							groupLabels.append('text')
-								.attr('x', centroid.x)
-								.attr('y', centroid.y - 40)
-								.attr('text-anchor', 'middle')
-								.attr('font-size', '14px')
-								.attr('fill', darkerColor)
-								.attr('font-weight', 'bold')
-								.attr('pointer-events', 'none')
-								.attr('opacity', 0.8)
-								.text(`Group ${groupId || 1}`);
 						}
 					} catch (e) {
 						console.error('凸包の作成に失敗:', groupId, e);
@@ -339,18 +292,6 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 						.attr('stroke-opacity', 0.7)
 						.attr('class', `group-${groupId}`)
 						.lower();
-
-					// グループラベルを追加
-					groupLabels.append('text')
-						.attr('x', centerX)
-						.attr('y', centerY - 40)
-						.attr('text-anchor', 'middle')
-						.attr('font-size', '14px')
-						.attr('fill', darkerColor)
-						.attr('font-weight', 'bold')
-						.attr('pointer-events', 'none')
-						.attr('opacity', 0.8)
-						.text(`Group ${groupId || 1}`);
 				} else if (groupNodes.length === 1) {
 					// 1点の場合は円を描画
 					const node = groupNodes[0];
@@ -371,18 +312,6 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 						.attr('stroke-opacity', 0.7)
 						.attr('class', `group-${groupId}`)
 						.lower();
-
-					// グループラベルを追加
-					groupLabels.append('text')
-						.attr('x', cx)
-						.attr('y', cy - 40)
-						.attr('text-anchor', 'middle')
-						.attr('font-size', '14px')
-						.attr('fill', darkerColor)
-						.attr('font-weight', 'bold')
-						.attr('pointer-events', 'none')
-						.attr('opacity', 0.8)
-						.text(`Group ${groupId || 1}`);
 				}
 			});
 		}
@@ -420,8 +349,8 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 
 			node.attr('transform', d => `translate(${d.x || 0},${d.y || 0})`);
 
-			// 凸包とラベルを更新
-			updateHullsAndLabels();
+			// 凸包を更新
+			updateHulls();
 		});
 
 		// ドラッグイベントハンドラー
@@ -443,7 +372,7 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 		}
 
 		// 初期更新
-		updateHullsAndLabels();
+		updateHulls();
 
 		// シミュレーションの開始
 		simulation.alpha(1).restart();
