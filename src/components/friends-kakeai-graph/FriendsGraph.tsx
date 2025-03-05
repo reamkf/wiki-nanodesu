@@ -94,8 +94,8 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 		const simulation = d3.forceSimulation<FriendNode>(nodes)
 			.force('link', d3.forceLink<FriendNode, FriendLink>(links)
 				.id(d => d.id)
-				.distance(50))
-			.force('charge', d3.forceManyBody().strength(-150))
+				.distance(200))
+			.force('charge', d3.forceManyBody().strength(-50))
 			.force('center', d3.forceCenter(width / 2, height / 2))
 			.force('collision', d3.forceCollide().radius(30));
 
