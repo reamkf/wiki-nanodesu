@@ -7,7 +7,8 @@ export interface FriendNode extends SimulationNodeDatum {
 	name: string; // フレンズ名
 	iconUrl: string; // 基本情報から取得するアイコンURL
 	linkUrl: string; // フレンズページへのリンクURL
-	group?: number; // 所属グループ番号
+	group?: number; // 所属グループ番号（描画用のプライマリグループ）
+	groups: number[]; // 所属する全てのグループ番号の配列
 }
 
 // フレンズ間の掛け合い（エッジ）の型定義

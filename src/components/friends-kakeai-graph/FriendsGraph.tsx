@@ -103,8 +103,21 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 		const nodes = data.nodes.map(node => ({ ...node }));
 		const links = data.links.map(link => ({ ...link }));
 
-		// グループごとに背景を描画
-		const groups = d3.group(nodes, node => node.group || 0);
+		// 全グループ（重複を含む）を収集
+		const allGroups = new Map<number, FriendNode[]>();
+
+		// 各ノードの全てのグループを処理
+		nodes.forEach(node => {
+			if (node.groups) {
+				node.groups.forEach(groupId => {
+					if (!allGroups.has(groupId)) {
+						allGroups.set(groupId, []);
+					}
+					allGroups.get(groupId)?.push(node);
+				});
+			}
+		});
+
 		const hulls = g.append('g').attr('class', 'hulls');
 
 		// シミュレーション設定
@@ -112,7 +125,7 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			.force('link', d3.forceLink<FriendNode, FriendLink>(links)
 				.id(d => d.id)
 				.distance(100))
-			.force('charge', d3.forceManyBody().strength(-300))
+			.force('charge', d3.forceManyBody().strength(-500))
 			.force('center', d3.forceCenter(width / 2, height / 2))
 			.force('collision', d3.forceCollide().radius(30))
 			.force('x', d3.forceX().strength(0.1))
@@ -128,7 +141,10 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 					const nodeJ = nodes[j];
 					const groupJ = nodeJ.group || 0;
 
-					if (groupI === groupJ && nodeI.x && nodeI.y && nodeJ.x && nodeJ.y) {
+					// 共通のグループを持つノード間に引力を追加
+					const hasCommonGroup = nodeI.groups?.some(g => nodeJ.groups?.includes(g));
+
+					if ((groupI === groupJ || hasCommonGroup) && nodeI.x && nodeI.y && nodeJ.x && nodeJ.y) {
 						// 同じグループ内のノード間に引力を追加
 						const dx = nodeJ.x - nodeI.x;
 						const dy = nodeJ.y - nodeI.y;
@@ -226,8 +242,9 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			// 既存の凸包を削除
 			hulls.selectAll('*').remove();
 
-			groups.forEach((groupNodes, groupId) => {
-				if (groupNodes.length < 1) return;
+			// すべてのグループに対して凸包を描画
+			allGroups.forEach((groupNodes, groupId) => {
+				if (groupNodes.length < 1 || groupId === 0) return; // グループ0または空のグループはスキップ
 
 				const colorIndex = groupId % GROUP_COLORS.length;
 				const groupColor = GROUP_COLORS[colorIndex];
