@@ -54,7 +54,7 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 					フレンズの掛け合い関係を可視化したグラフです。
 				</Typography>
 				<Alert severity="warning">
-					※グループは自動検出しているため、必ずしも正確なものではありません。
+					グループは自動検出しているため、必ずしも正確であるとは限らないことに注意してください。
 				</Alert>
 			</Box>
 
