@@ -33,11 +33,9 @@ export const processKakeaiData = async (): Promise<GraphData> => {
 	try {
 		// CSVファイルから掛け合いデータを読み込む
 		const kakeaiData = await readCsvFile<Record<string, string>>('csv/フレンズ掛け合い一覧.csv');
-		console.log('掛け合いデータ件数:', kakeaiData.length);
 
 		// getFriendsData()関数を使用してフレンズデータを取得
 		const friendsData = await getFriendsData();
-		console.log('フレンズデータ件数:', friendsData.length);
 
 		// フレンズIDをキーにフレンズ基本情報をマップする
 		const friendsMap = new Map();
@@ -95,9 +93,6 @@ export const processKakeaiData = async (): Promise<GraphData> => {
 		// BFSによるグループ検出
 		const nodesArray = Array.from(nodes.values());
 		detectGroups(nodesArray, links);
-
-		console.log('ノード数:', nodesArray.length);
-		console.log('リンク数:', links.length);
 
 		return {
 			nodes: nodesArray,
