@@ -165,7 +165,7 @@ const detectCycles = (nodes: FriendNode[], graph: Map<string, string[]>): void =
 
 	// 検出された循環ごとに新しいグループを作成
 	cycles.forEach(cycle => {
-		if (cycle.size >= 3) { // 3つ以上のノードの循環のみ考慮
+		if (cycle.size >= 3 && cycle.size <= 7) { // 3〜7ノードの循環のみ考慮（大きすぎるグループは除外）
 			groupId++;
 			for (const nodeId of cycle) {
 				const node = nodes.find(n => n.id === nodeId);
@@ -191,8 +191,8 @@ const findMinimalCycles = (graph: Map<string, string[]>): Set<string>[] => {
 	for (const [startNode] of graph.entries()) {
 		if (visited.has(startNode)) continue;
 
-		// 深さ3までの循環を検出
-		findCyclesOfLength(startNode, startNode, new Set<string>(), 0, 3, graph, cycles, visited, new Map());
+		// 深さ7までの循環を検出（より大きなグループも検出できるように変更）
+		findCyclesOfLength(startNode, startNode, new Set<string>(), 0, 7, graph, cycles, visited, new Map());
 	}
 
 	return cycles;
