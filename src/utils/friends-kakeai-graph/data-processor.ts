@@ -419,16 +419,27 @@ const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, string[]>)
 
 	const nodeIds = nodeIdsWithNeighborCount.map(n => n.id);
 
-	// 処理対象のノードを制限（上位50ノードのみ）
-	const limitedNodeIds = nodeIds.slice(0, 50);
+	// 処理対象のノードを制限（上位100ノードのみ - 検出率向上のため増加）
+	const limitedNodeIds = nodeIds.slice(0, 100);
 
-	// ノードの組み合わせを生成（4ノード以上の組み合わせを検出）
-	for (let size = 4; size <= 7; size++) {
+	// 大きいサイズから処理（より大きなグループを優先的に検出）
+	for (let size = 7; size >= 4; size--) {
+		// 6ノードサイズのグループには特に高い制限値を設定（検出率向上）
+		const maxCombLimit = size === 6 ? 5000 : 2000;
+
+		console.log(`完全グラフ検出: ${size}ノードサイズの検出を開始`);
+
 		// サイズに合わせたノードの組み合わせを生成（制限あり）
-		generateCombinations(limitedNodeIds, size, 1000).forEach(combination => {
+		const combinations = generateCombinations(limitedNodeIds, size, maxCombLimit);
+		console.log(`生成された組み合わせ数: ${combinations.length}`);
+
+		// 組み合わせごとに完全グラフかどうかをチェック
+		let detectedCount = 0;
+		combinations.forEach(combination => {
 			// 完全グラフかどうかを確認
 			if (isCompleteGraph(combination, graph)) {
 				groupId++;
+				detectedCount++;
 				// この組み合わせのノードすべてに新しいグループIDを割り当て
 				combination.forEach(nodeId => {
 					const node = nodes.find(n => n.id === nodeId);
@@ -442,6 +453,8 @@ const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, string[]>)
 				});
 			}
 		});
+
+		console.log(`検出された${size}ノードの完全グラフ数: ${detectedCount}`);
 	}
 };
 
@@ -494,18 +507,32 @@ const detectStarGraphs = (nodes: FriendNode[], graph: Map<string, string[]>): vo
 
 // 与えられたノードの組み合わせが完全グラフかどうかを確認
 const isCompleteGraph = (nodeIds: string[], graph: Map<string, string[]>): boolean => {
+	// 必要なエッジ数：n*(n-1)/2（完全グラフの場合）
+	const requiredEdgeCount = nodeIds.length * (nodeIds.length - 1) / 2;
+	let actualEdgeCount = 0;
+
+	// 各ノードの隣接リストをキャッシュ（繰り返しのgraph.getを避ける）
+	const neighborsCache = new Map<string, Set<string>>();
+	nodeIds.forEach(id => {
+		neighborsCache.set(id, new Set(graph.get(id) || []));
+	});
+
 	// 完全グラフでは、各ノードは他のすべてのノードと接続している必要がある
 	for (let i = 0; i < nodeIds.length; i++) {
-		const neighbors = graph.get(nodeIds[i]) || [];
+		const neighbors = neighborsCache.get(nodeIds[i])!;
 
 		// 現在のノードが他のすべてのノードと接続しているか確認
-		for (let j = 0; j < nodeIds.length; j++) {
-			if (i !== j && !neighbors.includes(nodeIds[j])) {
-				return false; // 接続がない場合は完全グラフではない
+		for (let j = i + 1; j < nodeIds.length; j++) {
+			if (neighbors.has(nodeIds[j])) {
+				actualEdgeCount++;
+			} else {
+				return false; // 接続がない場合は完全グラフではない（早期リターン）
 			}
 		}
 	}
-	return true; // すべての接続が存在する場合は完全グラフ
+
+	// 完全グラフの条件：すべてのノード間に接続がある
+	return actualEdgeCount === requiredEdgeCount;
 };
 
 // 星形グラフかどうかを確認（中心ノードが他のすべてのノードと接続し、周辺ノード同士は接続していない）
@@ -533,25 +560,64 @@ const checkStarShape = (centerId: string, peripheryIds: string[], graph: Map<str
 const generateCombinations = <T>(array: T[], k: number, maxCombinations: number = 10000): T[][] => {
 	const result: T[][] = [];
 
-	// 再帰的に組み合わせを生成
-	const combine = (start: number, current: T[]) => {
-		// 最大組み合わせ数に達したら終了
-		if (result.length >= maxCombinations) {
-			return;
-		}
+	// 大きなサイズの組み合わせは非効率的なので、追加の最適化
+	if (k > 5 && array.length > 30) {
+		// 接続数の多いノードからk個を選び、それが完全グラフを形成するか確認する方法が効率的
+		// この場合は上位のノードのみを使用
+		const targetArray = array.slice(0, Math.min(array.length, 30));
 
-		if (current.length === k) {
-			result.push([...current]);
-			return;
-		}
+		// 再帰的に組み合わせを生成（制限されたノードに対して）
+		const combine = (start: number, current: T[]) => {
+			// 最大組み合わせ数に達したら終了
+			if (result.length >= maxCombinations) {
+				return;
+			}
 
-		for (let i = start; i < array.length; i++) {
-			current.push(array[i]);
-			combine(i + 1, current);
-			current.pop();
-		}
-	};
+			if (current.length === k) {
+				result.push([...current]);
+				return;
+			}
 
-	combine(0, []);
+			// 残り必要なノード数
+			const remaining = k - current.length;
+			// 残りの選択肢の数
+			const available = targetArray.length - start;
+
+			// 残りの選択肢から必要なノード数を選べない場合は打ち切り（枝刈り）
+			if (remaining > available) {
+				return;
+			}
+
+			for (let i = start; i < targetArray.length; i++) {
+				current.push(targetArray[i]);
+				combine(i + 1, current);
+				current.pop();
+			}
+		};
+
+		combine(0, []);
+	} else {
+		// 標準的な組み合わせ生成（小さいサイズの場合）
+		const combine = (start: number, current: T[]) => {
+			// 最大組み合わせ数に達したら終了
+			if (result.length >= maxCombinations) {
+				return;
+			}
+
+			if (current.length === k) {
+				result.push([...current]);
+				return;
+			}
+
+			for (let i = start; i < array.length; i++) {
+				current.push(array[i]);
+				combine(i + 1, current);
+				current.pop();
+			}
+		};
+
+		combine(0, []);
+	}
+
 	return result;
 };
