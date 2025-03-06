@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import FriendsGraph from '@/components/friends-kakeai-graph/FriendsGraph';
 import GraphControls from '@/components/friends-kakeai-graph/GraphControls';
 import { GraphData } from '@/types/friends-kakeai-graph';
-import { Typography, Box, Alert } from '@mui/material';
+import { Box, Alert } from '@mui/material';
 import { PageTitle } from '@/components/PageTitle';
 
 interface FriendsKakeaiGraphPageProps {
@@ -46,29 +46,29 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 	}, [graphData, isEmptyData]);
 
 	return (
-		<>
+		<Box>
 			<PageTitle title="フレンズ掛け合い関係グラフ" />
 
-			<Box className="mb-6">
-				<Typography variant="body1" component="p" className="mb-2">
-					フレンズの掛け合い関係を可視化したグラフです。
-				</Typography>
-				<Alert severity="warning">
-					グループは自動検出しているため、必ずしも正確であるとは限らないことに注意してください。
+			<Box className="mb-2">
+				<Alert severity="warning" className="w-fit">
+					グループは自動検出のため、必ずしも正確であるとは限らないことに注意してください。
 				</Alert>
 			</Box>
 
 			{isEmptyData ? (
-				<Alert severity="error" className="mb-4">
+				<Alert severity="error" className="mb-2">
 					データの読み込みに失敗しました。ページを再読み込みするか、しばらく時間をおいてからアクセスしてください。
 				</Alert>
 			) : (
 				<>
-					<Box ref={graphRef} className="mb-4">
+					<Box
+						ref={graphRef}
+						className="relative bg-gray-100 border border-gray-300 border-4 rounded-lg"
+					>
 						<FriendsGraph data={graphData} onSelectFriend={handleSelectFriend} />
 					</Box>
 
-					<Box className="mb-6">
+					<Box className="mt-2">
 						<GraphControls
 							nodes={graphData.nodes}
 							onSelectFriend={handleSelectFriend}
@@ -76,7 +76,7 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 					</Box>
 				</>
 			)}
-		</>
+		</Box>
 	);
 };
 

@@ -64,17 +64,15 @@ interface FriendsGraphProps {
 
 const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => {
 	const svgRef = useRef<SVGSVGElement>(null);
-	const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+	const [dimensions, setDimensions] = useState({ width: 1000, height: 500 });
 
 	useEffect(() => {
 		const handleResize = () => {
-			const container = svgRef.current?.parentElement;
-			if (container) {
-				setDimensions({
-					width: container.clientWidth,
-					height: Math.max(600, container.clientHeight)
-				});
-			}
+			const aspectRatio = Math.max(Math.min(window.innerHeight / window.innerWidth, 1.1), 0.5);
+			setDimensions({
+				width: 1000,
+				height: 1000 * aspectRatio
+			});
 		};
 
 		window.addEventListener('resize', handleResize);
@@ -98,8 +96,10 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			.attr('width', width)
 			.attr('height', height)
 			.attr('viewBox', [0, 0, width, height])
-			.style('background-color', '#ffffff')
-			.style('border-radius', '8px');
+			.style('background-color', 'transparent')
+			.style('border-radius', '8px')
+			.style('width', '100%')
+			.style('height', '100%');
 
 		// ズーム機能
 		const g = svg.append('g');
@@ -371,15 +371,21 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 	}, [data, dimensions, onSelectFriend]);
 
 	return (
-		<>
+		<div style={{
+			width: '100%',
+			height: '100%',
+			position: 'relative',
+			overflow: 'hidden'
+		}}>
 			<svg
 				ref={svgRef}
-				className="border border-gray-200 rounded-lg"
 				style={{
-					touchAction: 'none' // モバイルでのタッチ操作の改善
+					width: '100%',
+					height: '100%',
+					display: 'block'
 				}}
 			/>
-		</>
+		</div>
 	);
 };
 
