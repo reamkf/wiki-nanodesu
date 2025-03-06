@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import FriendsGraph from '@/components/friends-kakeai-graph/FriendsGraph';
 import { GraphData } from '@/types/friends-kakeai-graph';
 import { Box, Alert } from '@mui/material';
@@ -18,31 +18,10 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 	const isEmptyData = graphData.nodes.length === 0 || graphData.links.length === 0;
 
 	// 特定のフレンズを選択したときの処理
-	const handleSelectFriend = (friendId: string) => {
-		// ブラウザのローカルストレージに選択したフレンズIDを保存
-		if (typeof window !== 'undefined') {
-			localStorage.setItem('wiki-nanodesu.FriendsKakeaiGraph.selectedFriendId', friendId);
-		}
-
-		// 選択したフレンズのノード要素にフォーカス
-		const nodeElement = document.querySelector(`[data-friend-id="${friendId}"]`);
-		if (nodeElement) {
-			nodeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-		}
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const handleSelectFriend = (_friendId: string) => {
+		// 選択状態の保存とフォーカス機能を削除
 	};
-
-	// ローカルストレージから選択したフレンズIDを取得
-	useEffect(() => {
-		if (typeof window !== 'undefined' && !isEmptyData) {
-			const selectedFriendId = localStorage.getItem('wiki-nanodesu.FriendsKakeaiGraph.selectedFriendId');
-			if (selectedFriendId) {
-				const friendExists = graphData.nodes.some(node => node.id === selectedFriendId);
-				if (friendExists) {
-					handleSelectFriend(selectedFriendId);
-				}
-			}
-		}
-	}, [graphData, isEmptyData]);
 
 	return (
 		<Box>
