@@ -49,8 +49,8 @@ const generateRoundedRectPoints = (nodes: FriendNode[]): {
 // プレースホルダー画像の生成関数
 const createPlaceholderImage = (label: string): string => {
 	const svg = `
-		<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
-			<circle cx="20" cy="20" r="20" fill="#eee" />
+		<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 36 36">
+			<rect x="0" y="0" width="36" height="36" fill="#eee" />
 			<text x="50%" y="50%" font-size="16" text-anchor="middle" dy=".3em" fill="#333">${label}</text>
 		</svg>
 	`;
@@ -144,7 +144,7 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 				.distance(100))
 			.force('charge', d3.forceManyBody().strength(-1000))
 			.force('center', d3.forceCenter(width / 2, height / 2))
-			.force('collision', d3.forceCollide().radius(30))
+			.force('collision', d3.forceCollide().radius(25))
 			.force('x', d3.forceX().strength(0.1))
 			.force('y', d3.forceY().strength(0.1));
 
@@ -218,20 +218,24 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			);
 
 		// ノードの背景円
-		node.append('circle')
-			.attr('r', 20)
+		node.append('rect')
+			.attr('width', 36)
+			.attr('height', 36)
+			.attr('x', -18)
+			.attr('y', -18)
 			.attr('fill', d => {
 				const groupColor = GROUP_COLORS[d.group ? (d.group % GROUP_COLORS.length) : 0];
 				return groupColor || '#eee';
-			})
-			.attr('stroke', '#fff')
-			.attr('stroke-width', 1.5);
+			});
 
 		// 画像用クリップパス
 		node.append('clipPath')
 			.attr('id', d => `clip-${d.id}`)
-			.append('circle')
-			.attr('r', 18);
+			.append('rect')
+			.attr('width', 36)
+			.attr('height', 36)
+			.attr('x', -18)
+			.attr('y', -18);
 
 		// 画像またはプレースホルダーを追加
 		node.append('image')
