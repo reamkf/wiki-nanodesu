@@ -11,6 +11,11 @@ type MetadataParams = {
 /**
  * ページごとのメタデータを生成する関数なのです
  * @param params メタデータのパラメータ
+ * @param params.title ページのタイトル
+ * @param params.description ページの説明
+ * @param params.image ページの画像のパス(https://reamkf.github.io/wiki-nanodesu/に対する相対パス、またはhttpから始まるURLでも可)
+ * @param params.path ページのパス(https://reamkf.github.io/wiki-nanodesu/に対する相対パス)
+ * @param params.noIndex インデックスを禁止するかどうか
  * @returns Next.jsのMetadataオブジェクト
  */
 export function generateMetadata({
@@ -23,23 +28,30 @@ export function generateMetadata({
 	// サイト名
 	const siteName = 'アプリ版けものフレンズ３wikiなのです🦉';
 
-	// タイトルの設定（指定があればそのまま使用、なければサイト名を使用）
+	// タイトルの設定（空文字でなければ" - サイト名"を付与。空文字の場合はサイト名のみ）
 	const metaTitle = title && title + ' - ' + siteName || siteName;
 
 	// ベースURL
 	const baseUrl = 'https://reamkf.github.io/wiki-nanodesu';
 
+	function removeLeadingSlash(str: string): string {
+		if (str.startsWith('/')) {
+			return str.slice(1);
+		}
+		return str;
+	}
+
 	// 完全なURL
-	const url = path ? `${baseUrl}/${path.replace(/^\//, '')}` : baseUrl;
+	const url = path ? `${baseUrl}/${removeLeadingSlash(path)}` : baseUrl;
 
 	// 画像の完全なURL
-	const imageUrl = image.startsWith('http') ? image : `${baseUrl}${image}`;
+	const imageUrl = image && (image.startsWith('http') ? image : `${baseUrl}/${removeLeadingSlash(image)}`) || `${baseUrl}/no_blue.png`;
 
 	return {
 		title: metaTitle,
 		description,
 		icons: {
-			icon: '/wiki-nanodesu/no_blue.png',
+			icon: 'https://reamkf.github.io/wiki-nanodesu/no_blue.png',
 		},
 		openGraph: {
 			title: metaTitle,
