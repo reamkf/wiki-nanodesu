@@ -1,5 +1,5 @@
 import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friendsSkillsData";
-import ClientTabs from "./pageClient";
+import ClientTabs from "./page.client";
 import { PageTitle } from '@/components/PageTitle';
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 import { Metadata } from 'next'
