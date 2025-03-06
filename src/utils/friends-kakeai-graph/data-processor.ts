@@ -137,17 +137,21 @@ const detectGroups = (nodes: FriendNode[], links: FriendLink[]): void => {
 	// 隣接リスト形式のグラフ構造を作成
 	const graph = createAdjacencyGraph(nodes, links);
 
-	// 1. 循環（サイクル）パターンを検出
-	detectCycles(nodes, graph);
-
-	// 2. 完全グラフパターンを検出（すべてのノードが相互に接続）
+	// 1. 完全グラフパターンを検出（すべてのノードが相互に接続）
+	// 完全グラフは最も強い関係性を示すため、最初に検出
 	detectCompleteGraphs(nodes, graph);
+
+	// 2. 循環（サイクル）パターンを検出
+	detectCycles(nodes, graph);
 
 	// 3. 星形グラフパターンを検出（中心ノード1つが他の全ノードと接続）
 	detectStarGraphs(nodes, graph);
 
 	// 4. 残りの未割り当てのノードに対して、リンクごとに異なるグループを割り当て
 	assignGroupsToRemainingNodes(nodes, links);
+
+	// 5. 密に接続されたグループの統合
+	mergeHighlyConnectedGroups(nodes, graph);
 };
 
 /**
@@ -338,7 +342,59 @@ const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, string[]>)
 	// 隣接ノード数が多いノードから処理するためにソート
 	const sortedNodeIds = getSortedNodeIdsByNeighborCount(nodes, graph, 100);
 
-	// 大きいサイズから処理（より大きなグループを優先的に検出）
+	// 効率的な完全グラフの検出のため、まず隣接ノード数が多いノードを起点として探索
+	const detectedCompleteGraphs: Set<string>[] = [];
+
+	// 隣接ノード数上位30ノードを処理
+	const topNodes = sortedNodeIds.slice(0, 30);
+
+	// 各ノードを起点に、その隣接ノードと合わせて完全グラフを形成するか確認
+	for (const startNodeId of topNodes) {
+		// 処理済みの大きな完全グラフに含まれるノードはスキップ
+		let alreadyInLargeGraph = false;
+		for (const graph of detectedCompleteGraphs) {
+			if (graph.size >= 5 && graph.has(startNodeId)) {
+				alreadyInLargeGraph = true;
+				break;
+			}
+		}
+		if (alreadyInLargeGraph) continue;
+
+		// 隣接ノードを取得
+		const neighbors = graph.get(startNodeId) || [];
+
+		// 隣接ノードが多すぎる場合は効率のために上位20ノードに制限
+		const limitedNeighbors = neighbors.length > 20 ?
+			neighbors.filter(n => sortedNodeIds.indexOf(n) < 50).slice(0, 20) :
+			neighbors;
+
+		if (limitedNeighbors.length >= 3) {
+			// startNodeと隣接ノードのセット
+			const potentialGraphNodes = new Set([startNodeId, ...limitedNeighbors]);
+
+			// 最大の完全グラフを見つける
+			const maxCompleteGraph = findMaximalCompleteGraph(Array.from(potentialGraphNodes), graph);
+
+			if (maxCompleteGraph.size >= 4) {
+				detectedCompleteGraphs.push(maxCompleteGraph);
+				console.log(`検出された完全グラフ（サイズ ${maxCompleteGraph.size}）`);
+			}
+		}
+	}
+
+	// 大きいグラフから処理（より大きなグループを優先的に検出）
+	const sortedGraphs = detectedCompleteGraphs.sort((a, b) => b.size - a.size);
+
+	for (const completeGraph of sortedGraphs) {
+		if (completeGraph.size >= 4) {
+			groupId++;
+			// この組み合わせのノードすべてに新しいグループIDを割り当て
+			assignGroupToNodes(nodes, completeGraph, groupId);
+		}
+	}
+
+	// 従来の方法でも検出を試みる（小さな完全グラフも捕捉するため）
+	// 大きいサイズから処理
 	for (let size = 7; size >= 4; size--) {
 		// 6ノードサイズのグループには特に高い制限値を設定（検出率向上）
 		const maxCombLimit = size === 6 ? 5000 : 2000;
@@ -364,6 +420,54 @@ const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, string[]>)
 
 		console.log(`検出された${size}ノードの完全グラフ数: ${detectedCount}`);
 	}
+};
+
+/**
+ * 最大の完全グラフを見つける関数（欲張り法）
+ * @param nodeIds 候補ノードIDの配列
+ * @param graph 隣接リスト形式のグラフ
+ * @returns 最大の完全グラフを構成するノードIDのセット
+ */
+const findMaximalCompleteGraph = (nodeIds: string[], graph: Map<string, string[]>): Set<string> => {
+	// 結果として返す完全グラフのノードセット
+	const result = new Set<string>();
+
+	// 各ノードの隣接ノードをキャッシュ
+	const neighborsCache = new Map<string, Set<string>>();
+	nodeIds.forEach(id => {
+		neighborsCache.set(id, new Set(graph.get(id) || []));
+	});
+
+	// ノードをソート（隣接ノード数が多い順）
+	const sortedNodes = [...nodeIds].sort((a, b) =>
+		(neighborsCache.get(b)?.size || 0) - (neighborsCache.get(a)?.size || 0)
+	);
+
+	// 最初のノードを追加
+	if (sortedNodes.length > 0) {
+		result.add(sortedNodes[0]);
+	}
+
+	// 残りのノードを順番に試す
+	for (let i = 1; i < sortedNodes.length; i++) {
+		const candidate = sortedNodes[i];
+		let canAdd = true;
+
+		// 候補ノードが現在の結果セットの各ノードと接続しているか確認
+		for (const node of result) {
+			if (!neighborsCache.get(node)?.has(candidate)) {
+				canAdd = false;
+				break;
+			}
+		}
+
+		// すべてのノードと接続している場合は追加
+		if (canAdd) {
+			result.add(candidate);
+		}
+	}
+
+	return result;
 };
 
 /**
@@ -768,4 +872,159 @@ const generateStandardCombinations = <T>(
 	};
 
 	combine(0, []);
+};
+
+/**
+ * 密に接続されたグループを統合する
+ * @param nodes フレンズノードの配列
+ * @param graph 隣接リスト形式のグラフ
+ */
+const mergeHighlyConnectedGroups = (nodes: FriendNode[], graph: Map<string, string[]>): void => {
+	// 各グループに属するノードのIDセットを作成
+	const groupNodeSets = new Map<number, Set<string>>();
+
+	// グループIDが明示的に設定されているノードのみを収集
+	nodes.forEach(node => {
+		node.groups.forEach(groupId => {
+			if (!groupNodeSets.has(groupId)) {
+				groupNodeSets.set(groupId, new Set<string>());
+			}
+			groupNodeSets.get(groupId)?.add(node.id);
+		});
+	});
+
+	// 統合すべきグループのペアを特定
+	const groupsToMerge: [number, number][] = [];
+	const groupIds = Array.from(groupNodeSets.keys());
+
+	// 各グループペアについて接続密度をチェック
+	for (let i = 0; i < groupIds.length; i++) {
+		const groupA = groupIds[i];
+		const nodesA = groupNodeSets.get(groupA) || new Set();
+
+		if (nodesA.size <= 2) continue; // 小さすぎるグループは無視
+
+		for (let j = i + 1; j < groupIds.length; j++) {
+			const groupB = groupIds[j];
+			const nodesB = groupNodeSets.get(groupB) || new Set();
+
+			if (nodesB.size <= 2) continue; // 小さすぎるグループは無視
+
+			// 共通ノードの数を計算
+			const intersection = new Set<string>();
+			for (const nodeId of nodesA) {
+				if (nodesB.has(nodeId)) {
+					intersection.add(nodeId);
+				}
+			}
+
+			// 共通要素の割合を計算
+			const smallerGroupSize = Math.min(nodesA.size, nodesB.size);
+			const commonRatio = intersection.size / smallerGroupSize;
+
+			// 共通ノードが多い場合、または高密度に接続されている場合はマージ対象
+			if (
+				(commonRatio >= 0.5 && intersection.size >= 2) || // 50%以上が共通、かつ2ノード以上
+				areGroupsDenselyConnected(nodesA, nodesB, graph, 0.75) // 75%以上の接続密度
+			) {
+				groupsToMerge.push([groupA, groupB]);
+			}
+		}
+	}
+
+	// グループをマージする
+	if (groupsToMerge.length > 0) {
+		console.log(`統合するグループペア数: ${groupsToMerge.length}`);
+
+		// グループの統合を親グループIDにマッピング
+		const groupParent = new Map<number, number>();
+		groupIds.forEach(id => groupParent.set(id, id)); // 初期状態では自分自身が親
+
+		// Union-Find風のアプローチでグループをマージ
+		groupsToMerge.forEach(([groupA, groupB]) => {
+			const rootA = findGroupRoot(groupA, groupParent);
+			const rootB = findGroupRoot(groupB, groupParent);
+
+			if (rootA !== rootB) {
+				// 小さい方のIDを親にする（グループIDの一貫性のため）
+				if (rootA < rootB) {
+					groupParent.set(rootB, rootA);
+				} else {
+					groupParent.set(rootA, rootB);
+				}
+			}
+		});
+
+		// 各ノードのグループを更新
+		nodes.forEach(node => {
+			if (node.groups.length > 0) {
+				// グループIDをルートIDに置き換え
+				const uniqueRootGroups = new Set<number>();
+				node.groups.forEach(groupId => {
+					const rootGroup = findGroupRoot(groupId, groupParent);
+					uniqueRootGroups.add(rootGroup);
+				});
+
+				// 更新されたグループのセット
+				node.groups = Array.from(uniqueRootGroups);
+
+				// プライマリグループも更新
+				if (node.group) {
+					node.group = findGroupRoot(node.group, groupParent);
+				}
+			}
+		});
+	}
+};
+
+/**
+ * グループのルート（代表）IDを見つける（Union-Find用）
+ * @param groupId 現在のグループID
+ * @param parentMap グループIDから親グループIDへのマップ
+ * @returns ルートグループID
+ */
+const findGroupRoot = (groupId: number, parentMap: Map<number, number>): number => {
+	let current = groupId;
+	while (parentMap.get(current) !== current) {
+		current = parentMap.get(current) || current;
+	}
+	return current;
+};
+
+/**
+ * 2つのグループが密に接続されているかチェック
+ * @param groupA 1つ目のグループのノードIDセット
+ * @param groupB 2つ目のグループのノードIDセット
+ * @param graph 隣接リスト形式のグラフ
+ * @param threshold 接続密度のしきい値（0.0〜1.0）
+ * @returns 密に接続されていればtrue
+ */
+const areGroupsDenselyConnected = (
+	groupA: Set<string>,
+	groupB: Set<string>,
+	graph: Map<string, string[]>,
+	threshold: number
+): boolean => {
+	// 異なるグループ間の可能な接続の総数
+	const totalPossibleConnections = groupA.size * groupB.size;
+	if (totalPossibleConnections === 0) return false;
+
+	// 実際の接続数をカウント
+	let actualConnections = 0;
+
+	for (const nodeA of groupA) {
+		const neighbors = graph.get(nodeA) || [];
+		const neighborsSet = new Set(neighbors);
+
+		for (const nodeB of groupB) {
+			if (neighborsSet.has(nodeB)) {
+				actualConnections++;
+			}
+		}
+	}
+
+	// 接続密度 = 実際の接続数 / 可能な接続の総数
+	const density = actualConnections / totalPossibleConnections;
+
+	return density >= threshold;
 };
