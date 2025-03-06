@@ -1,13 +1,12 @@
-import { Metadata } from 'next'
+import { generateMetadata } from "../metadata";
 import FriendsStatusTable from "./page.client";
 import { PageTitle } from "@/components/PageTitle";
 import { getFriendsStatusList, ProcessedFriendsStatusListItem } from "@/utils/friendsStatus";
 import { STATUS_TYPES, getFilteredAndSortedData } from "@/utils/friendsStatusHelpers";
 
-export const metadata: Metadata = {
-	title: "フレンズステータスランキング - アプリ版けものフレンズ３wikiなのです🦉",
-	description: "フレンズステータスランキング",
-};
+export const metadata = generateMetadata({
+	title: "フレンズステータスランキング",
+});
 
 // デフォルトのフィルタリングとソートをサーバー側で実行
 async function getProcessedStatusList(): Promise<{

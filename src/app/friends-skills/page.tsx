@@ -1,15 +1,14 @@
+import { generateMetadata } from "../metadata";
 import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friendsSkillsData";
 import ClientTabs from "./page.client";
 import { PageTitle } from '@/components/PageTitle';
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
-import { Metadata } from 'next'
 import { SkillCategory, SkillWithFriend } from "@/types/friendsSkills";
 import GoogleSheetsLink from "@/components/LinkWithIcon";
 
-export const metadata: Metadata = {
-	title: "スキル別フレンズ一覧 - アプリ版けものフレンズ３wikiなのです🦉",
-	description: "スキル別フレンズ一覧",
-};
+export const metadata = generateMetadata({
+	title: "スキル別フレンズ一覧",
+});
 
 export default async function FriendsSkillsPage() {
 	const skillsData = await getSkillsWithFriendsData();

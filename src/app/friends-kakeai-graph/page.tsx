@@ -1,12 +1,11 @@
+import { generateMetadata } from '../metadata';
 import React from 'react';
 import { getFriendsKakeaiData } from '@/utils/friendsKakeaiData';
 import FriendsKakeaiGraphPage from '@/app/friends-kakeai-graph/FriendsKakeaiGraphPage';
-import { Metadata } from 'next';
 
-export const metadata: Metadata = {
-	title: 'フレンズ掛け合いグラフ - アプリ版けものフレンズ３wikiなのです',
-	description: 'フレンズ掛け合いグラフ',
-};
+export const metadata = generateMetadata({
+	title: 'フレンズ掛け合いグラフ'
+});
 
 export default async function Page() {
 	const graphData = await getFriendsKakeaiData();

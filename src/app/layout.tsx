@@ -1,5 +1,4 @@
-// app/layout.tsx
-import type { Metadata } from 'next'
+import { generateMetadata } from './metadata'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 import { Sidebar } from '@/components/Sidebar'
@@ -7,38 +6,7 @@ import { SidebarProvider } from '@/contexts/SidebarContext'
 import './globals.css'
 import { ReactScan } from '@/utils/reactScan'
 
-export const metadata: Metadata = {
-	title: 'アプリ版けものフレンズ３wikiなのです',
-	description: 'アプリ版けものフレンズ３wikiなのだ！の補助ページ',
-	icons: {
-		icon: '/wiki-nanodesu/no_blue.png',
-	},
-	openGraph: {
-		title: 'アプリ版けものフレンズ３wikiなのです',
-		description: 'アプリ版けものフレンズ３wikiなのだ！の補助ページ',
-		url: 'https://reamkf.github.io/wiki-nanodesu/',
-		siteName: 'アプリ版けものフレンズ３wikiなのです',
-		images: [
-			{
-				url: 'https://reamkf.github.io/wiki-nanodesu/no_blue.png',
-				width: 256,
-				height: 256,
-				alt: 'アプリ版けものフレンズ３wikiなのです',
-			},
-		],
-		locale: 'ja_JP',
-		type: 'website',
-	},
-	twitter: {
-		card: 'summary',
-		title: 'アプリ版けものフレンズ３wikiなのです',
-		description: 'アプリ版けものフレンズ３wikiなのだ！の補助ページ',
-		images: {
-			url: 'https://reamkf.github.io/wiki-nanodesu/no_blue.png',
-			alt: 'アプリ版けものフレンズ３wikiなのです',
-		},
-	}
-}
+export const metadata = generateMetadata({});
 
 export default function RootLayout({
 	children,
