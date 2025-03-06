@@ -18,9 +18,14 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 	const isEmptyData = graphData.nodes.length === 0 || graphData.links.length === 0;
 
 	// 特定のフレンズを選択したときの処理
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const handleSelectFriend = (_friendId: string) => {
-		// 選択状態の保存とフォーカス機能を削除
+	const handleSelectFriend = (friendId: string) => {
+		// 選択されたフレンズのノードを見つける
+		const selectedNode = graphData.nodes.find(node => node.id === friendId);
+
+		// linkUrlが存在する場合、新しいタブで開く
+		if (selectedNode?.linkUrl) {
+			window.open(selectedNode.linkUrl, '_blank');
+		}
 	};
 
 	return (

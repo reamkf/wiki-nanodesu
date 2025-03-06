@@ -203,7 +203,8 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 				event.stopPropagation();
 				if (onSelectFriend) {
 					onSelectFriend(d.id);
-				} else if (d.linkUrl) {
+				}
+				if (d.linkUrl) {
 					window.open(d.linkUrl, '_blank');
 				}
 			})
