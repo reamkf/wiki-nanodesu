@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import FriendsGraph from '@/components/friends-kakeai-graph/FriendsGraph';
-import GraphControls from '@/components/friends-kakeai-graph/GraphControls';
 import { GraphData } from '@/types/friends-kakeai-graph';
 import { Box, Alert } from '@mui/material';
 import { PageTitle } from '@/components/PageTitle';
@@ -66,13 +65,6 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 						className="relative bg-gray-100 border border-gray-300 border-4 rounded-lg"
 					>
 						<FriendsGraph data={graphData} onSelectFriend={handleSelectFriend} />
-					</Box>
-
-					<Box className="mt-2">
-						<GraphControls
-							nodes={graphData.nodes}
-							onSelectFriend={handleSelectFriend}
-						/>
 					</Box>
 				</>
 			)}
