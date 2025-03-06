@@ -5,7 +5,6 @@ import { FriendNode, FriendLink, GraphData } from '../../types/friends-kakeai-gr
 import { getFriendsData } from '@/utils/friendsData';
 import { getWikiNanodaPageUrl } from '../encoding';
 
-// CSVファイルを読み込む関数
 export const readCsvFile = <T>(filePath: string): Promise<T[]> => {
 	return new Promise((resolve, reject) => {
 		try {
@@ -28,7 +27,6 @@ export const readCsvFile = <T>(filePath: string): Promise<T[]> => {
 	});
 };
 
-// フレンズ間の掛け合いデータをグラフ構造に変換する関数
 export const processKakeaiData = async (): Promise<GraphData> => {
 	try {
 		// CSVファイルから掛け合いデータを読み込む
@@ -138,7 +136,6 @@ const detectGroups = (nodes: FriendNode[], links: FriendLink[]): void => {
 	const graph = createAdjacencyGraph(nodes, links);
 
 	// 1. 完全グラフパターンを検出（すべてのノードが相互に接続）
-	// 完全グラフは最も強い関係性を示すため、最初に検出
 	detectCompleteGraphs(nodes, graph);
 
 	// 2. 循環（サイクル）パターンを検出
@@ -377,7 +374,6 @@ const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, string[]>)
 
 			if (maxCompleteGraph.size >= 4) {
 				detectedCompleteGraphs.push(maxCompleteGraph);
-				console.log(`検出された完全グラフ（サイズ ${maxCompleteGraph.size}）`);
 			}
 		}
 	}
@@ -396,29 +392,16 @@ const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, string[]>)
 	// 従来の方法でも検出を試みる（小さな完全グラフも捕捉するため）
 	// 大きいサイズから処理
 	for (let size = 7; size >= 4; size--) {
-		// 6ノードサイズのグループには特に高い制限値を設定（検出率向上）
 		const maxCombLimit = size === 6 ? 5000 : 2000;
 
-		console.log(`完全グラフ検出: ${size}ノードサイズの検出を開始`);
-
-		// サイズに合わせたノードの組み合わせを生成（制限あり）
 		const combinations = generateCombinations(sortedNodeIds, size, maxCombLimit);
-		console.log(`生成された組み合わせ数: ${combinations.length}`);
 
-		// 組み合わせごとに完全グラフかどうかをチェック
-		let detectedCount = 0;
 		combinations.forEach(combination => {
-			// 完全グラフかどうかを確認
 			if (isCompleteGraph(combination, graph)) {
 				groupId++;
-				detectedCount++;
-
-				// この組み合わせのノードすべてに新しいグループIDを割り当て
 				assignGroupToNodes(nodes, new Set(combination), groupId);
 			}
 		});
-
-		console.log(`検出された${size}ノードの完全グラフ数: ${detectedCount}`);
 	}
 };
 
@@ -934,13 +917,9 @@ const mergeHighlyConnectedGroups = (nodes: FriendNode[], graph: Map<string, stri
 
 	// グループをマージする
 	if (groupsToMerge.length > 0) {
-		console.log(`統合するグループペア数: ${groupsToMerge.length}`);
-
-		// グループの統合を親グループIDにマッピング
 		const groupParent = new Map<number, number>();
-		groupIds.forEach(id => groupParent.set(id, id)); // 初期状態では自分自身が親
+		groupIds.forEach(id => groupParent.set(id, id));
 
-		// Union-Find風のアプローチでグループをマージ
 		groupsToMerge.forEach(([groupA, groupB]) => {
 			const rootA = findGroupRoot(groupA, groupParent);
 			const rootB = findGroupRoot(groupB, groupParent);
