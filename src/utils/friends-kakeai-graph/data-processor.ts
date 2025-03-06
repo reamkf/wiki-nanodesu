@@ -125,44 +125,72 @@ export const processKakeaiData = async (): Promise<GraphData> => {
 	}
 };
 
-// BFSアルゴリズムでグループを検出する関数
+// グラフ構造からグループを検出する関数群
+// -----------------------------------------------------------------
+
+/**
+ * BFSアルゴリズムでグループを検出する関数
+ * @param nodes フレンズノードの配列
+ * @param links フレンズ間のリンク配列
+ */
 const detectGroups = (nodes: FriendNode[], links: FriendLink[]): void => {
-	// グラフ構造を作成
+	// 隣接リスト形式のグラフ構造を作成
+	const graph = createAdjacencyGraph(nodes, links);
+
+	// 1. 循環（サイクル）パターンを検出
+	detectCycles(nodes, graph);
+
+	// 2. 完全グラフパターンを検出（すべてのノードが相互に接続）
+	detectCompleteGraphs(nodes, graph);
+
+	// 3. 星形グラフパターンを検出（中心ノード1つが他の全ノードと接続）
+	detectStarGraphs(nodes, graph);
+
+	// 4. 残りの未割り当てのノードに対して、リンクごとに異なるグループを割り当て
+	assignGroupsToRemainingNodes(nodes, links);
+};
+
+/**
+ * ノードとリンクから隣接リスト形式のグラフを作成
+ * @param nodes フレンズノードの配列
+ * @param links フレンズ間のリンク配列
+ * @returns ノードIDをキー、隣接ノードの配列を値とするMap
+ */
+const createAdjacencyGraph = (nodes: FriendNode[], links: FriendLink[]): Map<string, string[]> => {
 	const graph = new Map<string, string[]>();
 
-	// 各ノードをグラフに追加
+	// 各ノードをグラフに追加（空の隣接リストで初期化）
 	nodes.forEach(node => {
 		graph.set(node.id, []);
 	});
 
-	// リンクをグラフに追加
+	// リンクをグラフに追加（双方向）
 	links.forEach(link => {
 		const sourceId = link.source.toString();
 		const targetId = link.target.toString();
 
+		// 元ノードの隣接リストに対象ノードを追加
 		const sourceNeighbors = graph.get(sourceId) || [];
 		sourceNeighbors.push(targetId);
 		graph.set(sourceId, sourceNeighbors);
 
+		// 対象ノードの隣接リストに元ノードを追加
 		const targetNeighbors = graph.get(targetId) || [];
 		targetNeighbors.push(sourceId);
 		graph.set(targetId, targetNeighbors);
 	});
 
-	// 循環を検出してグループを割り当てる
-	detectCycles(nodes, graph);
-
-	// 完全グラフパターンを検出（すべてのノードが相互に接続）
-	detectCompleteGraphs(nodes, graph);
-
-	// 星形グラフパターンを検出（中心ノード1つが他の全ノードと接続）
-	detectStarGraphs(nodes, graph);
-
-	// 残りの未割り当てのノードに対しては、リンクごとに異なるグループを割り当てる
-	assignGroupsToRemainingNodes(nodes, links);
+	return graph;
 };
 
-// 循環（サイクル）を検出するアルゴリズム
+// 循環（サイクル）検出関連の関数群
+// -----------------------------------------------------------------
+
+/**
+ * 循環（サイクル）を検出するアルゴリズム
+ * @param nodes フレンズノードの配列
+ * @param graph 隣接リスト形式のグラフ
+ */
 const detectCycles = (nodes: FriendNode[], graph: Map<string, string[]>): void => {
 	let groupId = 0;
 
@@ -171,24 +199,19 @@ const detectCycles = (nodes: FriendNode[], graph: Map<string, string[]>): void =
 
 	// 検出された循環ごとに新しいグループを作成
 	cycles.forEach(cycle => {
-		if (cycle.size >= 3 && cycle.size <= 7) { // 3〜7ノードの循環のみ考慮（大きすぎるグループは除外）
+		// 3〜7ノードの循環のみ考慮（大きすぎるグループは除外）
+		if (cycle.size >= 3 && cycle.size <= 7) {
 			groupId++;
-			for (const nodeId of cycle) {
-				const node = nodes.find(n => n.id === nodeId);
-				if (node) {
-					// グループ配列に追加
-					node.groups.push(groupId);
-					// まだプライマリグループが設定されていなければ、このグループをプライマリに
-					if (!node.group) {
-						node.group = groupId;
-					}
-				}
-			}
+			assignGroupToNodes(nodes, cycle, groupId);
 		}
 	});
 };
 
-// 最小の循環を検出する関数
+/**
+ * 最小の循環を検出する関数
+ * @param graph 隣接リスト形式のグラフ
+ * @returns 循環を構成するノードIDのセットの配列
+ */
 const findMinimalCycles = (graph: Map<string, string[]>): Set<string>[] => {
 	const cycles: Set<string>[] = [];
 	const visited = new Set<string>();
@@ -197,14 +220,26 @@ const findMinimalCycles = (graph: Map<string, string[]>): Set<string>[] => {
 	for (const [startNode] of graph.entries()) {
 		if (visited.has(startNode)) continue;
 
-		// 深さ7までの循環を検出（より大きなグループも検出できるように変更）
-		findCyclesOfLength(startNode, startNode, new Set<string>(), 0, 7, graph, cycles, visited, new Map());
+		// 深さ7までの循環を検出
+		const nodePathMap = new Map<string, string[]>();
+		findCyclesOfLength(startNode, startNode, new Set<string>(), 0, 7, graph, cycles, visited, nodePathMap);
 	}
 
 	return cycles;
 };
 
-// 特定の長さの循環を検出する
+/**
+ * 特定の長さの循環を検出する再帰関数
+ * @param startNode 探索開始ノードID
+ * @param currentNode 現在のノードID
+ * @param path 現在の探索パス
+ * @param depth 現在の探索深さ
+ * @param maxDepth 最大探索深さ
+ * @param graph 隣接リスト形式のグラフ
+ * @param cycles 検出された循環の配列
+ * @param globalVisited 全体で訪問済みのノードセット
+ * @param nodePathMap ノードIDから探索パスへのマップ
+ */
 const findCyclesOfLength = (
 	startNode: string,
 	currentNode: string,
@@ -239,27 +274,7 @@ const findCyclesOfLength = (
 
 		// 開始ノードに戻る場合（循環検出）
 		if (neighbor === startNode && depth >= 2) {
-			// 新しい循環を記録
-			const newCycle = new Set(currentPath);
-
-			// 既存の循環と比較して、包含関係にないか確認
-			let isMinimal = true;
-			for (const existingCycle of cycles) {
-				// 新しい循環が既存の循環を完全に含む場合
-				if (isSubset(existingCycle, newCycle)) {
-					isMinimal = false;
-					break;
-				}
-
-				// 既存の循環が新しい循環を完全に含む場合、既存の循環を削除
-				if (isSubset(newCycle, existingCycle)) {
-					cycles.splice(cycles.indexOf(existingCycle), 1);
-				}
-			}
-
-			if (isMinimal) {
-				cycles.push(newCycle);
-			}
+			processCycleDetection(currentPath, cycles);
 			continue;
 		}
 
@@ -276,19 +291,238 @@ const findCyclesOfLength = (
 	path.delete(currentNode);
 };
 
-// あるセットが別のセットのサブセットかどうかをチェック
-const isSubset = (subset: Set<string>, superset: Set<string>): boolean => {
-	if (subset.size > superset.size) return false;
+/**
+ * 循環が検出された時の処理
+ * @param currentPath 現在の探索パス（循環を形成）
+ * @param cycles 検出された循環の配列
+ */
+const processCycleDetection = (currentPath: string[], cycles: Set<string>[]): void => {
+	// 新しい循環を記録
+	const newCycle = new Set(currentPath);
 
-	for (const item of subset) {
-		if (!superset.has(item)) return false;
+	// 既存の循環と比較して、包含関係にないか確認
+	let isMinimal = true;
+
+	// 既存の循環をコピーして反復処理（反復中に配列が変更される可能性があるため）
+	const cyclesCopy = [...cycles];
+
+	for (const existingCycle of cyclesCopy) {
+		// 新しい循環が既存の循環を完全に含む場合
+		if (isSubset(existingCycle, newCycle)) {
+			isMinimal = false;
+			break;
+		}
+
+		// 既存の循環が新しい循環を完全に含む場合、既存の循環を削除
+		if (isSubset(newCycle, existingCycle)) {
+			cycles.splice(cycles.indexOf(existingCycle), 1);
+		}
 	}
 
-	return true;
+	if (isMinimal) {
+		cycles.push(newCycle);
+	}
 };
 
-// 残りの未割り当てのノードにリンクごとにグループを割り当て
+// 完全グラフ検出関連の関数群
+// -----------------------------------------------------------------
+
+/**
+ * 完全グラフ（すべてのノードが相互に接続）を検出する関数
+ * @param nodes フレンズノードの配列
+ * @param graph 隣接リスト形式のグラフ
+ */
+const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, string[]>): void => {
+	let groupId = 10000; // 循環グループとIDが被らないように大きな値から開始
+
+	// 隣接ノード数が多いノードから処理するためにソート
+	const sortedNodeIds = getSortedNodeIdsByNeighborCount(nodes, graph, 100);
+
+	// 大きいサイズから処理（より大きなグループを優先的に検出）
+	for (let size = 7; size >= 4; size--) {
+		// 6ノードサイズのグループには特に高い制限値を設定（検出率向上）
+		const maxCombLimit = size === 6 ? 5000 : 2000;
+
+		console.log(`完全グラフ検出: ${size}ノードサイズの検出を開始`);
+
+		// サイズに合わせたノードの組み合わせを生成（制限あり）
+		const combinations = generateCombinations(sortedNodeIds, size, maxCombLimit);
+		console.log(`生成された組み合わせ数: ${combinations.length}`);
+
+		// 組み合わせごとに完全グラフかどうかをチェック
+		let detectedCount = 0;
+		combinations.forEach(combination => {
+			// 完全グラフかどうかを確認
+			if (isCompleteGraph(combination, graph)) {
+				groupId++;
+				detectedCount++;
+
+				// この組み合わせのノードすべてに新しいグループIDを割り当て
+				assignGroupToNodes(nodes, new Set(combination), groupId);
+			}
+		});
+
+		console.log(`検出された${size}ノードの完全グラフ数: ${detectedCount}`);
+	}
+};
+
+/**
+ * 隣接ノード数が多い順にノードIDをソートして返す
+ * @param nodes フレンズノードの配列
+ * @param graph 隣接リスト形式のグラフ
+ * @param limit 返すノード数の上限
+ * @returns ソートされたノードIDの配列
+ */
+const getSortedNodeIdsByNeighborCount = (
+	nodes: FriendNode[],
+	graph: Map<string, string[]>,
+	limit: number
+): string[] => {
+	// ノードIDと隣接ノード数のペアを作成
+	const nodeIdsWithNeighborCount = nodes.map(node => ({
+		id: node.id,
+		neighborCount: (graph.get(node.id) || []).length
+	}));
+
+	// 隣接ノード数の多い順にソート
+	nodeIdsWithNeighborCount.sort((a, b) => b.neighborCount - a.neighborCount);
+
+	// 指定された上限数まで返す
+	return nodeIdsWithNeighborCount.slice(0, limit).map(n => n.id);
+};
+
+/**
+ * 与えられたノードの組み合わせが完全グラフかどうかを確認
+ * @param nodeIds ノードIDの配列
+ * @param graph 隣接リスト形式のグラフ
+ * @returns 完全グラフであればtrue
+ */
+const isCompleteGraph = (nodeIds: string[], graph: Map<string, string[]>): boolean => {
+	// 必要なエッジ数：n*(n-1)/2（完全グラフの場合）
+	const requiredEdgeCount = nodeIds.length * (nodeIds.length - 1) / 2;
+	let actualEdgeCount = 0;
+
+	// 各ノードの隣接リストをキャッシュ（繰り返しのgraph.getを避ける）
+	const neighborsCache = new Map<string, Set<string>>();
+	nodeIds.forEach(id => {
+		neighborsCache.set(id, new Set(graph.get(id) || []));
+	});
+
+	// 完全グラフでは、各ノードは他のすべてのノードと接続している必要がある
+	for (let i = 0; i < nodeIds.length; i++) {
+		const neighbors = neighborsCache.get(nodeIds[i])!;
+
+		// 現在のノードが他のすべてのノードと接続しているか確認
+		for (let j = i + 1; j < nodeIds.length; j++) {
+			if (neighbors.has(nodeIds[j])) {
+				actualEdgeCount++;
+			} else {
+				return false; // 接続がない場合は完全グラフではない（早期リターン）
+			}
+		}
+	}
+
+	// 完全グラフの条件：すべてのノード間に接続がある
+	return actualEdgeCount === requiredEdgeCount;
+};
+
+// 星形グラフ検出関連の関数群
+// -----------------------------------------------------------------
+
+/**
+ * 星形グラフ（中心ノード1つが他の全ノードと接続）を検出する関数
+ * @param nodes フレンズノードの配列
+ * @param graph 隣接リスト形式のグラフ
+ */
+const detectStarGraphs = (nodes: FriendNode[], graph: Map<string, string[]>): void => {
+	let groupId = 20000; // 他のグループとIDが被らないように大きな値から開始
+
+	// 隣接ノード数が多いノードから処理（星形の中心ノードになりやすい）
+	const sortedNodes = [...nodes].sort((a, b) =>
+		(graph.get(b.id) || []).length - (graph.get(a.id) || []).length
+	);
+
+	// 処理対象のノードを制限（上位50ノードのみ）
+	const limitedNodes = sortedNodes.slice(0, 50);
+
+	// 各ノードについて、星形の中心になり得るか確認
+	limitedNodes.forEach(centerNode => {
+		const neighbors = graph.get(centerNode.id) || [];
+
+		// 周辺ノードが4つ以上ある場合のみ処理（5ノード以上の星形）
+		if (neighbors.length >= 4) {
+			// 星形検出の効率化のため、ノード数を制限（最大15ノード）
+			const limitedNeighbors = neighbors.slice(0, 15);
+
+			// 星形グラフの条件を満たすか確認
+			if (checkStarShape(centerNode.id, limitedNeighbors, graph)) {
+				groupId++;
+
+				// 中心ノードとすべての周辺ノードに同じグループIDを割り当て
+				const starNodes = new Set<string>([centerNode.id, ...limitedNeighbors]);
+				assignGroupToNodes(nodes, starNodes, groupId);
+			}
+		}
+	});
+};
+
+/**
+ * 星形グラフかどうかを確認
+ * @param centerId 中心ノードID
+ * @param peripheryIds 周辺ノードIDの配列
+ * @param graph 隣接リスト形式のグラフ
+ * @returns 星形グラフの条件を満たせばtrue
+ */
+const checkStarShape = (centerId: string, peripheryIds: string[], graph: Map<string, string[]>): boolean => {
+	// 周辺ノード同士が直接接続していないことを確認
+	for (let i = 0; i < peripheryIds.length; i++) {
+		const neighbors = graph.get(peripheryIds[i]) || [];
+
+		// 周辺ノードの隣接ノードには中心ノード以外の周辺ノードが含まれていないことを確認
+		for (let j = 0; j < peripheryIds.length; j++) {
+			if (i !== j && neighbors.includes(peripheryIds[j])) {
+				return false; // 周辺ノード同士が接続している場合は星形ではない
+			}
+		}
+
+		// 周辺ノードが中心ノードと接続していることを確認
+		if (!neighbors.includes(centerId)) {
+			return false; // 中心ノードと接続していない場合は星形ではない
+		}
+	}
+	return true; // すべての条件を満たす場合は星形
+};
+
+// グループ割り当て関連の関数群
+// -----------------------------------------------------------------
+
+/**
+ * 特定のノードセットにグループIDを割り当てる
+ * @param nodes フレンズノードの配列
+ * @param nodeIds グループに属するノードIDのセット
+ * @param groupId 割り当てるグループID
+ */
+const assignGroupToNodes = (nodes: FriendNode[], nodeIds: Set<string>, groupId: number): void => {
+	for (const nodeId of nodeIds) {
+		const node = nodes.find(n => n.id === nodeId);
+		if (node) {
+			// グループ配列に追加
+			node.groups.push(groupId);
+			// まだプライマリグループが設定されていなければ、このグループをプライマリに
+			if (!node.group) {
+				node.group = groupId;
+			}
+		}
+	}
+};
+
+/**
+ * 残りの未割り当てのノードにリンクごとにグループを割り当て
+ * @param nodes フレンズノードの配列
+ * @param links フレンズ間のリンク配列
+ */
 const assignGroupsToRemainingNodes = (nodes: FriendNode[], links: FriendLink[]): void => {
+	// 現在の最大グループID値を取得
 	let groupId = nodes.reduce((max, node) => {
 		// groupsが空の場合はデフォルト値0を使用
 		const maxGroupInNode = node.groups.length > 0 ? Math.max(...node.groups) : 0;
@@ -335,7 +569,47 @@ const assignGroupsToRemainingNodes = (nodes: FriendNode[], links: FriendLink[]):
 	removeSubsetGroups(nodes);
 };
 
-// グループの包含関係をチェックし、サブセットとなるグループを削除する
+// ユーティリティ関数群
+// -----------------------------------------------------------------
+
+/**
+ * あるセットが別のセットのサブセットかどうかをチェック
+ * @param subset チェックするサブセット
+ * @param superset スーパーセット
+ * @returns サブセットであればtrue
+ */
+const isSubset = (subset: Set<string>, superset: Set<string>): boolean => {
+	if (subset.size > superset.size) return false;
+
+	for (const item of subset) {
+		if (!superset.has(item)) return false;
+	}
+
+	return true;
+};
+
+/**
+ * ノードIDのセットがサブセットかチェック
+ * @param subset チェックするサブセット
+ * @param superset スーパーセット
+ * @returns サブセットであればtrue
+ */
+const isNodeSetSubset = (subset: Set<string>, superset: Set<string>): boolean => {
+	// サブセットの方が大きい場合は明らかにサブセットではない
+	if (subset.size > superset.size) return false;
+
+	// サブセットの全ての要素がスーパーセットに含まれるかチェック
+	for (const nodeId of subset) {
+		if (!superset.has(nodeId)) return false;
+	}
+
+	return true;
+};
+
+/**
+ * グループの包含関係をチェックし、サブセットとなるグループを削除する
+ * @param nodes フレンズノードの配列
+ */
 const removeSubsetGroups = (nodes: FriendNode[]): void => {
 	// 各グループに属するノードのIDセットを作成
 	const groupNodeSets = new Map<number, Set<string>>();
@@ -355,6 +629,7 @@ const removeSubsetGroups = (nodes: FriendNode[]): void => {
 
 	// 各グループペアについて包含関係をチェック
 	const groupIds = Array.from(groupNodeSets.keys());
+
 	for (let i = 0; i < groupIds.length; i++) {
 		const groupIdA = groupIds[i];
 		const nodesInGroupA = groupNodeSets.get(groupIdA)!;
@@ -394,230 +669,103 @@ const removeSubsetGroups = (nodes: FriendNode[]): void => {
 	}
 };
 
-// ノードIDのセットがサブセットかチェック
-const isNodeSetSubset = (subset: Set<string>, superset: Set<string>): boolean => {
-	// サブセットの方が大きい場合は明らかにサブセットではない
-	if (subset.size > superset.size) return false;
-
-	// サブセットの全ての要素がスーパーセットに含まれるかチェック
-	for (const nodeId of subset) {
-		if (!superset.has(nodeId)) return false;
-	}
-
-	return true;
-};
-
-// 完全グラフ（すべてのノードが相互に接続）を検出する関数
-const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, string[]>): void => {
-	let groupId = 10000; // 循環グループとIDが被らないように大きな値から開始
-
-	// パフォーマンス向上のため、隣接ノードが多いノードから処理
-	const nodeIdsWithNeighborCount = nodes.map(node => ({
-		id: node.id,
-		neighborCount: (graph.get(node.id) || []).length
-	})).sort((a, b) => b.neighborCount - a.neighborCount); // 隣接ノード数の多い順にソート
-
-	const nodeIds = nodeIdsWithNeighborCount.map(n => n.id);
-
-	// 処理対象のノードを制限（上位100ノードのみ - 検出率向上のため増加）
-	const limitedNodeIds = nodeIds.slice(0, 100);
-
-	// 大きいサイズから処理（より大きなグループを優先的に検出）
-	for (let size = 7; size >= 4; size--) {
-		// 6ノードサイズのグループには特に高い制限値を設定（検出率向上）
-		const maxCombLimit = size === 6 ? 5000 : 2000;
-
-		console.log(`完全グラフ検出: ${size}ノードサイズの検出を開始`);
-
-		// サイズに合わせたノードの組み合わせを生成（制限あり）
-		const combinations = generateCombinations(limitedNodeIds, size, maxCombLimit);
-		console.log(`生成された組み合わせ数: ${combinations.length}`);
-
-		// 組み合わせごとに完全グラフかどうかをチェック
-		let detectedCount = 0;
-		combinations.forEach(combination => {
-			// 完全グラフかどうかを確認
-			if (isCompleteGraph(combination, graph)) {
-				groupId++;
-				detectedCount++;
-				// この組み合わせのノードすべてに新しいグループIDを割り当て
-				combination.forEach(nodeId => {
-					const node = nodes.find(n => n.id === nodeId);
-					if (node) {
-						node.groups.push(groupId);
-						// まだプライマリグループが設定されていなければ、このグループをプライマリに
-						if (!node.group) {
-							node.group = groupId;
-						}
-					}
-				});
-			}
-		});
-
-		console.log(`検出された${size}ノードの完全グラフ数: ${detectedCount}`);
-	}
-};
-
-// 星形グラフ（中心ノード1つが他の全ノードと接続）を検出する関数
-const detectStarGraphs = (nodes: FriendNode[], graph: Map<string, string[]>): void => {
-	let groupId = 20000; // 他のグループとIDが被らないように大きな値から開始
-
-	// 隣接ノード数が多いノードから処理（星形の中心ノードになりやすい）
-	const sortedNodes = [...nodes].sort((a, b) =>
-		(graph.get(b.id) || []).length - (graph.get(a.id) || []).length
-	);
-
-	// 処理対象のノードを制限（上位50ノードのみ）
-	const limitedNodes = sortedNodes.slice(0, 50);
-
-	// 各ノードについて、星形の中心になり得るか確認
-	limitedNodes.forEach(centerNode => {
-		const neighbors = graph.get(centerNode.id) || [];
-
-		// 周辺ノードが4つ以上ある場合のみ処理（5ノード以上の星形）
-		if (neighbors.length >= 4) {
-			// 星形検出の効率化のため、ノード数を制限（最大15ノード）
-			const limitedNeighbors = neighbors.slice(0, 15);
-
-			// 周辺ノード同士が直接接続していないことを確認（星形の条件）
-			const isStarShape = checkStarShape(centerNode.id, limitedNeighbors, graph);
-
-			if (isStarShape) {
-				groupId++;
-				// 中心ノードにグループIDを割り当て
-				centerNode.groups.push(groupId);
-				if (!centerNode.group) {
-					centerNode.group = groupId;
-				}
-
-				// 周辺ノードすべてに同じグループIDを割り当て
-				limitedNeighbors.forEach(neighborId => {
-					const node = nodes.find(n => n.id === neighborId);
-					if (node) {
-						node.groups.push(groupId);
-						if (!node.group) {
-							node.group = groupId;
-						}
-					}
-				});
-			}
-		}
-	});
-};
-
-// 与えられたノードの組み合わせが完全グラフかどうかを確認
-const isCompleteGraph = (nodeIds: string[], graph: Map<string, string[]>): boolean => {
-	// 必要なエッジ数：n*(n-1)/2（完全グラフの場合）
-	const requiredEdgeCount = nodeIds.length * (nodeIds.length - 1) / 2;
-	let actualEdgeCount = 0;
-
-	// 各ノードの隣接リストをキャッシュ（繰り返しのgraph.getを避ける）
-	const neighborsCache = new Map<string, Set<string>>();
-	nodeIds.forEach(id => {
-		neighborsCache.set(id, new Set(graph.get(id) || []));
-	});
-
-	// 完全グラフでは、各ノードは他のすべてのノードと接続している必要がある
-	for (let i = 0; i < nodeIds.length; i++) {
-		const neighbors = neighborsCache.get(nodeIds[i])!;
-
-		// 現在のノードが他のすべてのノードと接続しているか確認
-		for (let j = i + 1; j < nodeIds.length; j++) {
-			if (neighbors.has(nodeIds[j])) {
-				actualEdgeCount++;
-			} else {
-				return false; // 接続がない場合は完全グラフではない（早期リターン）
-			}
-		}
-	}
-
-	// 完全グラフの条件：すべてのノード間に接続がある
-	return actualEdgeCount === requiredEdgeCount;
-};
-
-// 星形グラフかどうかを確認（中心ノードが他のすべてのノードと接続し、周辺ノード同士は接続していない）
-const checkStarShape = (centerId: string, peripheryIds: string[], graph: Map<string, string[]>): boolean => {
-	// 周辺ノード同士が直接接続していないことを確認
-	for (let i = 0; i < peripheryIds.length; i++) {
-		const neighbors = graph.get(peripheryIds[i]) || [];
-
-		// 周辺ノードの隣接ノードには中心ノード以外の周辺ノードが含まれていないことを確認
-		for (let j = 0; j < peripheryIds.length; j++) {
-			if (i !== j && neighbors.includes(peripheryIds[j])) {
-				return false; // 周辺ノード同士が接続している場合は星形ではない
-			}
-		}
-
-		// 周辺ノードが中心ノードと接続していることを確認
-		if (!neighbors.includes(centerId)) {
-			return false; // 中心ノードと接続していない場合は星形ではない
-		}
-	}
-	return true; // すべての条件を満たす場合は星形
-};
-
-// 配列からサイズkの組み合わせをすべて生成する関数（最大数制限あり）
+/**
+ * 配列からサイズkの組み合わせをすべて生成する関数（最大数制限あり）
+ * @param array 元の配列
+ * @param k 選ぶ要素数
+ * @param maxCombinations 生成する最大組み合わせ数
+ * @returns 生成された組み合わせの配列
+ */
 const generateCombinations = <T>(array: T[], k: number, maxCombinations: number = 10000): T[][] => {
 	const result: T[][] = [];
 
 	// 大きなサイズの組み合わせは非効率的なので、追加の最適化
 	if (k > 5 && array.length > 30) {
-		// 接続数の多いノードからk個を選び、それが完全グラフを形成するか確認する方法が効率的
-		// この場合は上位のノードのみを使用
+		// 効率化のため、上位のノードのみを使用
 		const targetArray = array.slice(0, Math.min(array.length, 30));
-
-		// 再帰的に組み合わせを生成（制限されたノードに対して）
-		const combine = (start: number, current: T[]) => {
-			// 最大組み合わせ数に達したら終了
-			if (result.length >= maxCombinations) {
-				return;
-			}
-
-			if (current.length === k) {
-				result.push([...current]);
-				return;
-			}
-
-			// 残り必要なノード数
-			const remaining = k - current.length;
-			// 残りの選択肢の数
-			const available = targetArray.length - start;
-
-			// 残りの選択肢から必要なノード数を選べない場合は打ち切り（枝刈り）
-			if (remaining > available) {
-				return;
-			}
-
-			for (let i = start; i < targetArray.length; i++) {
-				current.push(targetArray[i]);
-				combine(i + 1, current);
-				current.pop();
-			}
-		};
-
-		combine(0, []);
+		generateOptimizedCombinations(targetArray, k, result, maxCombinations);
 	} else {
 		// 標準的な組み合わせ生成（小さいサイズの場合）
-		const combine = (start: number, current: T[]) => {
-			// 最大組み合わせ数に達したら終了
-			if (result.length >= maxCombinations) {
-				return;
-			}
-
-			if (current.length === k) {
-				result.push([...current]);
-				return;
-			}
-
-			for (let i = start; i < array.length; i++) {
-				current.push(array[i]);
-				combine(i + 1, current);
-				current.pop();
-			}
-		};
-
-		combine(0, []);
+		generateStandardCombinations(array, k, result, maxCombinations);
 	}
 
 	return result;
+};
+
+/**
+ * 最適化された組み合わせ生成（大きなサイズ用）
+ * @param array 元の配列
+ * @param k 選ぶ要素数
+ * @param result 結果を格納する配列
+ * @param maxCombinations 生成する最大組み合わせ数
+ */
+const generateOptimizedCombinations = <T>(
+	array: T[],
+	k: number,
+	result: T[][],
+	maxCombinations: number
+): void => {
+	const combine = (start: number, current: T[]) => {
+		// 最大組み合わせ数に達したら終了
+		if (result.length >= maxCombinations) {
+			return;
+		}
+
+		if (current.length === k) {
+			result.push([...current]);
+			return;
+		}
+
+		// 残り必要なノード数
+		const remaining = k - current.length;
+		// 残りの選択肢の数
+		const available = array.length - start;
+
+		// 残りの選択肢から必要なノード数を選べない場合は打ち切り（枝刈り）
+		if (remaining > available) {
+			return;
+		}
+
+		for (let i = start; i < array.length; i++) {
+			current.push(array[i]);
+			combine(i + 1, current);
+			current.pop();
+		}
+	};
+
+	combine(0, []);
+};
+
+/**
+ * 標準的な組み合わせ生成（小さいサイズ用）
+ * @param array 元の配列
+ * @param k 選ぶ要素数
+ * @param result 結果を格納する配列
+ * @param maxCombinations 生成する最大組み合わせ数
+ */
+const generateStandardCombinations = <T>(
+	array: T[],
+	k: number,
+	result: T[][],
+	maxCombinations: number
+): void => {
+	const combine = (start: number, current: T[]) => {
+		// 最大組み合わせ数に達したら終了
+		if (result.length >= maxCombinations) {
+			return;
+		}
+
+		if (current.length === k) {
+			result.push([...current]);
+			return;
+		}
+
+		for (let i = start; i < array.length; i++) {
+			current.push(array[i]);
+			combine(i + 1, current);
+			current.pop();
+		}
+	};
+
+	combine(0, []);
 };
