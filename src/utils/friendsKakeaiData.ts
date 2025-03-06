@@ -1,11 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 import Papa from 'papaparse';
-import { FriendNode, FriendLink, GraphData } from '../../types/friends-kakeai-graph';
+import { FriendNode, FriendLink, GraphData } from '../types/friends-kakeai-graph';
 import { getFriendsData } from '@/utils/friendsData';
-import { getWikiNanodaPageUrl } from '../encoding';
+import { getWikiNanodaPageUrl } from './encoding';
 
-export const readCsvFile = <T>(filePath: string): Promise<T[]> => {
+const readCsvFile = <T>(filePath: string): Promise<T[]> => {
 	return new Promise((resolve, reject) => {
 		try {
 			const csvPath = path.join(process.cwd(), filePath);
@@ -27,7 +27,7 @@ export const readCsvFile = <T>(filePath: string): Promise<T[]> => {
 	});
 };
 
-export const processKakeaiData = async (): Promise<GraphData> => {
+export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 	try {
 		// CSVファイルから掛け合いデータを読み込む
 		const kakeaiData = await readCsvFile<Record<string, string>>('csv/フレンズ掛け合い一覧.csv');
@@ -107,7 +107,7 @@ export const processKakeaiData = async (): Promise<GraphData> => {
 
 		// BFSによるグループ検出
 		const nodesArray = Array.from(filteredNodes.values());
-		detectGroups(nodesArray, links);
+		detectKakeaiGroups(nodesArray, links);
 
 		return {
 			nodes: nodesArray,
@@ -131,7 +131,7 @@ export const processKakeaiData = async (): Promise<GraphData> => {
  * @param nodes フレンズノードの配列
  * @param links フレンズ間のリンク配列
  */
-const detectGroups = (nodes: FriendNode[], links: FriendLink[]): void => {
+const detectKakeaiGroups = (nodes: FriendNode[], links: FriendLink[]): void => {
 	// 隣接リスト形式のグラフ構造を作成
 	const graph = createAdjacencyGraph(nodes, links);
 

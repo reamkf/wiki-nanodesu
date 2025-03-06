@@ -5,6 +5,7 @@ import FriendsGraph from '@/components/friends-kakeai-graph/FriendsGraph';
 import { GraphData } from '@/types/friends-kakeai-graph';
 import { Box, Alert } from '@mui/material';
 import { PageTitle } from '@/components/PageTitle';
+import { SeesaaWikiLink } from '@/components/seesaawiki/SeesaaWikiLink';
 
 interface FriendsKakeaiGraphPageProps {
 	initialData: GraphData;
@@ -33,9 +34,10 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 			<PageTitle title="フレンズ掛け合いグラフ" />
 
 			<Box className="mb-2">
-				<Alert severity="warning" className="w-fit">
-					グループは自動で検出しているため、必ずしも正確ではない可能性があります。
-				</Alert>
+				掛け合い一覧表は
+				<SeesaaWikiLink href="https://seesaawiki.jp/kemono_friends3_5ch/d/%A5%D5%A5%EC%A5%F3%A5%BA%B3%DD%A4%B1%B9%E7%A4%A4%B0%EC%CD%F7" className="text-sky-700">
+					こちら
+				</SeesaaWikiLink>
 			</Box>
 
 			{isEmptyData ? (

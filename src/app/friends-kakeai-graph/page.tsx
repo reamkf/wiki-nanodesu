@@ -1,5 +1,5 @@
 import React from 'react';
-import { processKakeaiData } from '@/utils/friends-kakeai-graph/data-processor';
+import { getFriendsKakeaiData } from '@/utils/friendsKakeaiData';
 import FriendsKakeaiGraphPage from '@/app/friends-kakeai-graph/FriendsKakeaiGraphPage';
 import { Metadata } from 'next';
 
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-	const graphData = await processKakeaiData();
+	const graphData = await getFriendsKakeaiData();
 
 	return <FriendsKakeaiGraphPage initialData={graphData} />;
 }
