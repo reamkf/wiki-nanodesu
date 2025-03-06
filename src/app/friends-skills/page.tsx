@@ -2,10 +2,9 @@ import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friendsSkillsD
 import ClientTabs from "./pageClient";
 import { PageTitle } from '@/components/PageTitle';
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
-import Link from "next/link";
 import { Metadata } from 'next'
 import { SkillCategory, SkillWithFriend } from "@/types/friendsSkills";
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import GoogleSheetsLink from "@/components/LinkWithIcon";
 
 export const metadata: Metadata = {
 	title: "スキル別フレンズ一覧 - アプリ版けものフレンズ３wikiなのです🦉",
@@ -144,16 +143,11 @@ export default async function FriendsSkillsPage() {
 				けものミラクルのものは、全てLv.5での効果を記載しています。
 			</p>
 			<p className="p-1">
-				このページのデータは以下のスプレッドシートで管理しています。
+				このページのデータは下記のスプレッドシートで管理しています。
 				データの修正はスプレッドシート上で行ってください。<br />
-				<Link
-					href="https://docs.google.com/spreadsheets/d/1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk/edit?gid=308387785#gid=308387785"
-					target="_blank"
-					className="text-sky-700"
-				>
-					https://docs.google.com/spreadsheets/d/1p-C3wbkYZ...
-					<OpenInNewIcon className="inline-block text-[1rem]" />
-				</Link>
+				<GoogleSheetsLink
+					link="https://docs.google.com/spreadsheets/d/1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk/edit?gid=308387785#gid=308387785"
+				/>
 			</p>
 			<p className="p-1">
 				誤字・誤植の報告は
