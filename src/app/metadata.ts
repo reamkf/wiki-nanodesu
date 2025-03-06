@@ -21,7 +21,7 @@ type MetadataParams = {
 export function generateMetadata({
 	title,
 	description = 'アプリ版けものフレンズ３wikiなのだ！の補助ページ',
-	image = '/wiki-nanodesu/no_blue.png',
+	image = 'no_blue.png',
 	path = '',
 	noIndex = false,
 }: MetadataParams): Metadata {
@@ -34,18 +34,11 @@ export function generateMetadata({
 	// ベースURL
 	const baseUrl = 'https://reamkf.github.io/wiki-nanodesu';
 
-	function removeLeadingSlash(str: string): string {
-		if (str.startsWith('/')) {
-			return str.slice(1);
-		}
-		return str;
-	}
-
-	// 完全なURL
-	const url = path ? `${baseUrl}/${removeLeadingSlash(path)}` : baseUrl;
+	// ページの完全なURL
+	const url = path ? normalizePath(path) : baseUrl;
 
 	// 画像の完全なURL
-	const imageUrl = image && (image.startsWith('http') ? image : `${baseUrl}/${removeLeadingSlash(image)}`) || `${baseUrl}/no_blue.png`;
+	const imageUrl = image && normalizePath(image) || `${baseUrl}/no_blue.png`;
 
 	return {
 		title: metaTitle,
@@ -80,4 +73,22 @@ export function generateMetadata({
 		},
 		...(noIndex && { robots: 'noindex, nofollow' }),
 	};
+}
+
+export function normalizePath(str: string): string {
+	const baseUrl = 'https://reamkf.github.io/wiki-nanodesu';
+
+	if(str.startsWith('http')){
+		return str;
+	}
+
+	if (str.startsWith('/')) {
+		str = str.slice(1);
+	}
+
+	if (str.startsWith('wiki-nanodesu/')) {
+		str = str.slice(14);
+	}
+
+	return  `${baseUrl}/${str}`;
 }
