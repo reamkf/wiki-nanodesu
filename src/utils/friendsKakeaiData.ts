@@ -29,19 +29,8 @@ const readCsvFile = <T>(filePath: string): Promise<T[]> => {
 
 export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 	try {
-		// CSVファイルから掛け合いデータを読み込む
 		const kakeaiData = await readCsvFile<Record<string, string>>('csv/フレンズ掛け合い一覧.csv');
-
-		// getFriendsData()関数を使用してフレンズデータを取得
 		const friendsData = await getFriendsData();
-
-		// フレンズIDをキーにフレンズ基本情報をマップする
-		const friendsMap = new Map();
-		friendsData.forEach(friend => {
-			if (friend.id) {
-				friendsMap.set(friend.id, friend);
-			}
-		});
 
 		// ノードとリンクを格納する配列
 		const nodes: Map<string, FriendNode> = new Map();
