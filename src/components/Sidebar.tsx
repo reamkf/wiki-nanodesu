@@ -39,6 +39,10 @@ export async function Sidebar() {
 			href: '/friends-skills',
 			text: 'スキル別フレンズ一覧',
 		},
+		{
+			href: '/friends-kakeai-graph',
+			text: 'フレンズ掛け合いグラフ',
+		},
 	];
 
 	const sideBarPagesNanoda = [
