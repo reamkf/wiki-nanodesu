@@ -99,7 +99,8 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			.style('background-color', 'transparent')
 			.style('border-radius', '8px')
 			.style('width', '100%')
-			.style('height', '100%');
+			.style('height', '100%')
+			.style('touch-action', 'none');
 
 		// ズーム機能
 		const g = svg.append('g');
@@ -297,6 +298,8 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 						.attr('stroke-opacity', 0.7)
 						.attr('stroke-linejoin', 'round')
 						.attr('class', `group-${groupId}`)
+						.style('pointer-events', 'all')
+						.style('touch-action', 'none')
 						.lower();
 				} catch (e) {
 					console.error('角丸長方形の作成に失敗:', groupId, e);
@@ -376,14 +379,16 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			width: '100%',
 			height: '100%',
 			position: 'relative',
-			overflow: 'hidden'
+			overflow: 'hidden',
+			touchAction: 'none'
 		}}>
 			<svg
 				ref={svgRef}
 				style={{
 					width: '100%',
 					height: '100%',
-					display: 'block'
+					display: 'block',
+					touchAction: 'none'
 				}}
 			/>
 		</div>
