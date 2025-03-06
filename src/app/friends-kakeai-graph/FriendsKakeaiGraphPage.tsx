@@ -46,11 +46,11 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 
 	return (
 		<Box>
-			<PageTitle title="フレンズ掛け合い関係グラフ" />
+			<PageTitle title="フレンズ掛け合いグラフ" />
 
 			<Box className="mb-2">
 				<Alert severity="warning" className="w-fit">
-					グループは自動検出のため、必ずしも正確であるとは限らないことに注意してください。
+					グループは自動で検出しているため、必ずしも正確ではない可能性があります。
 				</Alert>
 			</Box>
 

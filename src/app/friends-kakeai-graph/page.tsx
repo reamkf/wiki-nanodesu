@@ -4,8 +4,8 @@ import FriendsKakeaiGraphPage from '@/app/friends-kakeai-graph/FriendsKakeaiGrap
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-	title: 'フレンズ掛け合い関係グラフ - アプリ版けものフレンズ３wikiなのです',
-	description: 'けものフレンズ３のフレンズ間の掛け合い関係を可視化したグラフです。',
+	title: 'フレンズ掛け合いグラフ - アプリ版けものフレンズ３wikiなのです',
+	description: 'フレンズ掛け合いグラフ',
 };
 
 export default async function Page() {
