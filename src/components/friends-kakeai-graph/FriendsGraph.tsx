@@ -11,23 +11,39 @@ const GROUP_COLORS = [
 	'#bbccff', '#ffccbb', '#ccffbb', '#bbffcc', '#ccbbff', '#ffbbcc'
 ];
 
-// 凸包用のポイントを生成（ノードの周囲に複数点を配置）
-const generateHullPoints = (nodes: FriendNode[]): [number, number][] => {
-	const points: [number, number][] = [];
+// グループの角丸長方形の点を生成する関数
+const generateRoundedRectPoints = (nodes: FriendNode[]): {
+	minX: number,
+	minY: number,
+	maxX: number,
+	maxY: number,
+	padding: number
+} => {
+	// グループ内のノードの座標から最小/最大値を計算
+	let minX = Infinity;
+	let minY = Infinity;
+	let maxX = -Infinity;
+	let maxY = -Infinity;
 
 	nodes.forEach(node => {
 		if (node.x && node.y) {
-			// ノードの周りに複数の点を配置して滑らかな凸包を作成
-			for (let angle = 0; angle < 2 * Math.PI; angle += 0.5) {
-				points.push([
-					node.x + Math.cos(angle) * 30,
-					node.y + Math.sin(angle) * 30
-				]);
-			}
+			minX = Math.min(minX, node.x);
+			minY = Math.min(minY, node.y);
+			maxX = Math.max(maxX, node.x);
+			maxY = Math.max(maxY, node.y);
 		}
 	});
 
-	return points;
+	// パディングを追加（ノードと長方形の間の余白）
+	const padding = 40;
+
+	return {
+		minX: minX - padding,
+		minY: minY - padding,
+		maxX: maxX + padding,
+		maxY: maxY + padding,
+		padding: padding
+	};
 };
 
 // プレースホルダー画像の生成関数
@@ -125,7 +141,7 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			.force('link', d3.forceLink<FriendNode, FriendLink>(links)
 				.id(d => d.id)
 				.distance(100))
-			.force('charge', d3.forceManyBody().strength(-500))
+			.force('charge', d3.forceManyBody().strength(-1000))
 			.force('center', d3.forceCenter(width / 2, height / 2))
 			.force('collision', d3.forceCollide().radius(30))
 			.force('x', d3.forceX().strength(0.1))
@@ -241,7 +257,7 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			// 既存の凸包を削除
 			hulls.selectAll('*').remove();
 
-			// すべてのグループに対して凸包を描画
+			// すべてのグループに対して角丸長方形を描画
 			allGroups.forEach((groupNodes, groupId) => {
 				if (groupNodes.length < 1 || groupId === 0) return; // グループ0または空のグループはスキップ
 
@@ -250,27 +266,39 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 				const darkerColor = d3.color(groupColor)?.darker().toString() || '#333';
 
 				try {
-					// ノードの周りに複数の点を配置して滑らかな凸包を作成
-					const points = generateHullPoints(groupNodes);
+					// グループ内のノードから長方形の座標を計算
+					const rect = generateRoundedRectPoints(groupNodes);
 
-					// 凸包を計算
-					const hullPoints = d3.polygonHull(points);
+					// 角の丸みの半径
+					const radius = 20;
 
-					if (hullPoints && hullPoints.length > 2) {
-						// 滑らかな凸包を描画
-						hulls.append('path')
-							.attr('d', 'M' + hullPoints.join('L') + 'Z')
-							.attr('fill', groupColor)
-							.attr('fill-opacity', 0.4)
-							.attr('stroke', darkerColor)
-							.attr('stroke-width', 2)
-							.attr('stroke-opacity', 0.7)
-							.attr('stroke-linejoin', 'round')
-							.attr('class', `group-${groupId}`)
-							.lower();
-					}
+					// 角丸長方形のパスを作成
+					const path = `
+						M ${rect.minX + radius} ${rect.minY}
+						H ${rect.maxX - radius}
+						Q ${rect.maxX} ${rect.minY} ${rect.maxX} ${rect.minY + radius}
+						V ${rect.maxY - radius}
+						Q ${rect.maxX} ${rect.maxY} ${rect.maxX - radius} ${rect.maxY}
+						H ${rect.minX + radius}
+						Q ${rect.minX} ${rect.maxY} ${rect.minX} ${rect.maxY - radius}
+						V ${rect.minY + radius}
+						Q ${rect.minX} ${rect.minY} ${rect.minX + radius} ${rect.minY}
+						Z
+					`.replace(/\s+/g, ' ').trim();
+
+					// 角丸長方形を描画
+					hulls.append('path')
+						.attr('d', path)
+						.attr('fill', groupColor)
+						.attr('fill-opacity', 0.4)
+						.attr('stroke', darkerColor)
+						.attr('stroke-width', 2)
+						.attr('stroke-opacity', 0.7)
+						.attr('stroke-linejoin', 'round')
+						.attr('class', `group-${groupId}`)
+						.lower();
 				} catch (e) {
-					console.error('凸包の作成に失敗:', groupId, e);
+					console.error('角丸長方形の作成に失敗:', groupId, e);
 				}
 			});
 		}
@@ -343,15 +371,15 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 	}, [data, dimensions, onSelectFriend]);
 
 	return (
-		<div className="w-full h-[600px] md:h-[700px] relative">
+		<>
 			<svg
 				ref={svgRef}
-				className="w-full h-full border border-gray-200 rounded-lg"
+				className="border border-gray-200 rounded-lg"
 				style={{
 					touchAction: 'none' // モバイルでのタッチ操作の改善
 				}}
 			/>
-		</div>
+		</>
 	);
 };
 
