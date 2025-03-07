@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo, useCallback, useEffect } from "react";
-import { Box, Paper } from "@mui/material";
+import { Box } from "@mui/material";
 import { SkillWithFriend } from "@/types/friendsSkills";
 import { SortableTable } from "@/components/table/SortableTable";
 import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
