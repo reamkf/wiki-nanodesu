@@ -31,6 +31,20 @@ import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 import { sortFriendsAttribute } from "@/utils/friends";
 import { isNumber } from "@/utils/common";
 
+const ClientOnlyInitializer = ({
+	children,
+	onInitialized,
+}: {
+	children: React.ReactNode;
+	onInitialized: () => void;
+}) => {
+	useEffect(() => {
+		onInitialized();
+	}, [onInitialized]);
+
+	return <>{children}</>;
+};
+
 // 各スキルタイプのテーブルを管理する独立したコンポーネント
 const SkillTypeTable = React.memo(({
 	data,
@@ -45,23 +59,25 @@ const SkillTypeTable = React.memo(({
 	const [sorting, setSorting] = useState<SortingState>([]);
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 	const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 50 });
+	const [isMounted, setIsMounted] = useState(false);
 
-	// 初期化時にlocalStorageから値を読み込む
-	useEffect(() => {
+	// 初期化ハンドラー
+	const handleInitialized = useCallback(() => {
 		if (typeof window !== "undefined") {
 			const saved = localStorage.getItem(`wiki-nanodesu.friends-skills.pagination.${effectType}`);
 			if (saved) {
 				setPagination(JSON.parse(saved));
 			}
+			setIsMounted(true);
 		}
 	}, [effectType]);
 
 	// ローカルストレージへの保存
 	useEffect(() => {
-		if (typeof window !== "undefined") {
+		if (typeof window !== "undefined" && isMounted) {
 			localStorage.setItem(`wiki-nanodesu.friends-skills.pagination.${effectType}`, JSON.stringify(pagination));
 		}
-	}, [pagination, effectType]);
+	}, [pagination, effectType, isMounted]);
 
 	// カスタム行コンポーネント
 	const CustomRowComponent = useCallback(({ row }: { row: Row<SkillWithFriend> }) => (
@@ -108,6 +124,32 @@ const SkillTypeTable = React.memo(({
 	});
 
 	const pageCount = table.getPageCount();
+
+	if (!isMounted) {
+		return (
+			<ClientOnlyInitializer onInitialized={handleInitialized}>
+				<>
+					{pageCount > 1 && (
+						<TablePagination table={table} />
+					)}
+
+					<SortableTable
+						data={data}
+						columns={columns}
+						state={{
+							sorting,
+							columnFilters,
+							pagination
+						}}
+						onSortingChange={setSorting}
+						onColumnFiltersChange={setColumnFilters}
+						onPaginationChange={setPagination}
+						rowComponent={CustomRowComponent}
+					/>
+				</>
+			</ClientOnlyInitializer>
+		);
+	}
 
 	return (
 		<>
@@ -167,6 +209,29 @@ export default function ClientTabs({
 	effectTypeData: Record<string, SkillWithFriend[]>,
 	skillCategories: TableOfContentsData[]
 }) {
+	const [isMounted, setIsMounted] = useState(false);
+	const [selectedEffectType, setSelectedEffectType] = useState<string | null>(null);
+
+	// クライアントサイドでのみ実行される初期化処理
+	const handleInitialized = useCallback(() => {
+		if (typeof window !== "undefined") {
+			const saved = localStorage.getItem("wiki-nanodesu.friends-skills.selectedEffectType");
+			if (saved) {
+				setSelectedEffectType(JSON.parse(saved));
+			} else if (effectTypes.length > 0) {
+				setSelectedEffectType(effectTypes[0]);
+			}
+			setIsMounted(true);
+		}
+	}, [effectTypes]);
+
+	// 選択されたエフェクトタイプの保存
+	useEffect(() => {
+		if (typeof window !== "undefined" && isMounted && selectedEffectType) {
+			localStorage.setItem("wiki-nanodesu.friends-skills.selectedEffectType", JSON.stringify(selectedEffectType));
+		}
+	}, [selectedEffectType, isMounted]);
+
 	// formatText関数をメモ化
 	const formatText = useCallback((text: string): React.ReactElement => {
 		return parseSeesaaWikiNewLine(text);
@@ -406,13 +471,17 @@ export default function ClientTabs({
 
 	// 効果種別を選択したときの処理
 	const handleEffectTypeSelect = (effectType: string) => {
+		setSelectedEffectType(effectType);
+
 		// スクロール処理
-		setTimeout(() => {
-			const element = document.getElementById(`section-${effectType}`);
-			if (element) {
-				element.scrollIntoView({ behavior: 'smooth' });
-			}
-		}, 100);
+		if (isMounted) {
+			setTimeout(() => {
+				const element = document.getElementById(`section-${effectType}`);
+				if (element) {
+					element.scrollIntoView({ behavior: 'smooth' });
+				}
+			}, 100);
+		}
 	};
 
 	const renderSkillSections = () => {
@@ -458,7 +527,7 @@ export default function ClientTabs({
 									level={2}
 								/>
 								<FoldingSection
-									isOpenByDefault={true}
+									isOpenByDefault={false}
 									sectionId={`friends-skills.skill-${category.id}`}
 								>
 									{hasChildren && (
@@ -481,7 +550,7 @@ export default function ClientTabs({
 									className="mt-1"
 								/>
 								<FoldingSection
-									isOpenByDefault={true}
+									isOpenByDefault={false}
 									sectionId={`friends-skills.skill-${category.id}`}
 								>
 									{renderSkillTable(category.id)}
@@ -509,6 +578,23 @@ export default function ClientTabs({
 		);
 	};
 
+	if (!isMounted) {
+		return (
+			<ClientOnlyInitializer onInitialized={handleInitialized}>
+				<>
+					<TableOfContents
+						contents={skillCategories}
+						onSelect={handleEffectTypeSelect}
+						sectionId="friends-skills.tableOfContents"
+					/>
+					<Box className="mt-4">
+						{renderSkillSections()}
+					</Box>
+				</>
+			</ClientOnlyInitializer>
+		);
+	}
+
 	return (
 		<>
 			<TableOfContents
@@ -516,8 +602,7 @@ export default function ClientTabs({
 				onSelect={handleEffectTypeSelect}
 				sectionId="friends-skills.tableOfContents"
 			/>
-
-			<Box>
+			<Box className="mt-4">
 				{renderSkillSections()}
 			</Box>
 		</>

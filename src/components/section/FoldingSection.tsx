@@ -15,6 +15,20 @@ interface FoldingSectionProps {
 	sectionId?: string; // セクションの固有ID
 }
 
+const ClientOnlyInitializer = ({
+	children,
+	onInitialized,
+}: {
+	children: React.ReactNode;
+	onInitialized: () => void;
+}) => {
+	useEffect(() => {
+		onInitialized();
+	}, [onInitialized]);
+
+	return <>{children}</>;
+};
+
 /**
  * 折りたたみ可能なセクションコンポーネント
  * - 開閉アニメーション付き
@@ -32,12 +46,13 @@ export function FoldingSection({
 }: FoldingSectionProps) {
 	const storageKey = sectionId ? `wiki-nanodesu.FoldingSection.${sectionId}` : null;
 	const sectionRef = useRef<HTMLDivElement>(null);
+	const [isMounted, setIsMounted] = useState(false);
 
 	// 初期状態をデフォルト値から設定し、localStorageの読み込みはuseEffectで行う
 	const [isOpened, setIsOpened] = useState(isOpenByDefault);
 
 	// クライアント側でのみ実行される初期化用Effect
-	useEffect(() => {
+	const handleInitialized = () => {
 		// クライアント側でlocalStorageから状態を読み込む
 		if (typeof window !== 'undefined' && storageKey) {
 			const savedState = localStorage.getItem(storageKey);
@@ -45,21 +60,22 @@ export function FoldingSection({
 				setIsOpened(JSON.parse(savedState));
 			}
 		}
-	}, [storageKey, isOpenByDefault]);
+		setIsMounted(true);
+	};
 
 	// 開閉状態が変更されたらlocalStorageに保存
 	useEffect(() => {
-		if (typeof window !== 'undefined' && storageKey) {
+		if (typeof window !== 'undefined' && storageKey && isMounted) {
 			localStorage.setItem(storageKey, JSON.stringify(isOpened));
 		}
-	}, [isOpened, storageKey]);
+	}, [isOpened, storageKey, isMounted]);
 
 	// 開く際に追跡状態を更新
 	const handleToggle = () => {
 		setIsOpened(!isOpened);
 
 		// クローズ時、セクションの上部までスクロール
-		if (isOpened && sectionRef.current) {
+		if (isOpened && sectionRef.current && isMounted) {
 			setTimeout(() => {
 				// 要素の位置情報を取得
 				const rect = sectionRef.current?.getBoundingClientRect();
@@ -106,6 +122,30 @@ export function FoldingSection({
 			</Button>
 		);
 	};
+
+	if (!isMounted) {
+		return (
+			<ClientOnlyInitializer onInitialized={handleInitialized}>
+				<Box className={className} ref={sectionRef}>
+					{/* 上部トグルボタン+ラベル */}
+					<ToggleButton useIcon={true} labelText={toggleButtonLabel}/>
+
+					{/* コンテンツ部分 */}
+					<Collapse
+						in={isOpenByDefault}
+						timeout={300}
+						unmountOnExit={false}
+						className="ml-[0.6rem] pl-4 border-l-[1px] border-gray-400 overflow-x-scroll"
+					>
+						{children}
+					</Collapse>
+
+					{/* 下部閉じるボタン(セクションが開いている場合のみ表示) */}
+					{isOpenByDefault && <ToggleButton useIcon={false} labelText={closeButtonLabel} />}
+				</Box>
+			</ClientOnlyInitializer>
+		);
+	}
 
 	return (
 		<Box className={className} ref={sectionRef}>
