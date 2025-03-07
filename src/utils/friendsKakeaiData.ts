@@ -3,7 +3,7 @@ import path from 'path';
 import Papa from 'papaparse';
 import { FriendNode, FriendLink, GraphData } from '../types/friends-kakeai-graph';
 import { getFriendsData } from '@/utils/friendsData';
-import { getWikiNanodaPageUrl } from './encoding';
+import { getWikiNanodaPageUrl } from '@/utils/seesaaWiki';
 
 const readCsvFile = <T>(filePath: string): Promise<T[]> => {
 	return new Promise((resolve, reject) => {

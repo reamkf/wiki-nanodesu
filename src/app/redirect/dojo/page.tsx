@@ -1,7 +1,7 @@
 'use client';
 
 import Redirect from '@/components/Redirect';
-import { getWikiNanodaPageUrl } from '@/utils/encoding';
+import { getWikiNanodaPageUrl } from '@/utils/seesaaWiki';
 
 /**
  * wikiなのだへ道場ページへのリダイレクトページ

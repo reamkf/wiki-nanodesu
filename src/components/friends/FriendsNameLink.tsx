@@ -1,6 +1,6 @@
 import { FriendsDataRow } from "@/types/friends";
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
-import { getWikiNanodaPageUrl } from "@/utils/encoding";
+import { getWikiNanodaPageUrl } from '@/utils/seesaaWiki';
 import { memo } from "react";
 
 interface FriendsNameLinkProps {

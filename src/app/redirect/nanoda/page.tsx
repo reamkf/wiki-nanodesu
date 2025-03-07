@@ -3,7 +3,7 @@
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Redirect from '@/components/Redirect';
-import { getWikiNanodaPageUrl } from '@/utils/encoding';
+import { getWikiNanodaPageUrl } from '@/utils/seesaaWiki';
 
 /**
  * wikiなのだへのリダイレクトページ

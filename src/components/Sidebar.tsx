@@ -3,7 +3,7 @@ import { SidebarClient } from './SidebarClient';
 import { getFriendsData } from '@/utils/friendsData';
 import { FriendsDataRow } from '@/types/friends';
 import { getPhotoData } from '@/utils/photoData';
-import { getWikiNanodaPageUrl } from '@/utils/encoding';
+import { getWikiNanodaPageUrl } from '@/utils/seesaaWiki';
 
 export interface SidebarLinkItem {
 	href: string;

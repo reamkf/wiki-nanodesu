@@ -1,5 +1,5 @@
 import Link, { LinkProps } from "next/link";
-import { getWikiNanodaPageUrl } from "@/utils/encoding";
+import { getWikiNanodaPageUrl } from '@/utils/seesaaWiki';
 import { ReactNode } from "react";
 
 // 子要素を受け入れるための型定義を追加

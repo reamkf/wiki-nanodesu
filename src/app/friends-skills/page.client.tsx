@@ -11,6 +11,7 @@ import { Heading } from "@/components/section/Heading";
 import { FoldingSection } from "@/components/section/FoldingSection";
 import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
 import { FriendsAttribute } from "@/types/friends";
+import { parseSeesaaWikiNewLine } from "@/utils/seesaaWiki";
 import {
 	ColumnDef,
 	Row,
@@ -28,22 +29,6 @@ import { TablePagination } from "@/components/table/TablePagination";
 import { toPercent } from "@/utils/common";
 import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 import { sortFriendsAttribute } from "@/utils/friends";
-
-// CSV内の「~~」を改行に変換する関数
-function parseSeesaaWikiNewLine(text: string): React.ReactElement {
-	const parts = text.split('~~');
-
-	return (
-		<>
-			{parts.map((part, index) => (
-				<span key={index}>
-					{part}
-					{index < parts.length - 1 && <br />}
-				</span>
-			))}
-		</>
-	);
-}
 
 function isNumber(value: string): boolean {
 	if(typeof value === 'number') {
