@@ -22,10 +22,6 @@ export function calcKemosute(hpOrStatus: number | BasicStatus | null, atk?: numb
 	return null;
 }
 
-export const getEnumKeyByValue = (enumObj: Record<string, string>, value: string): string => {
-	return Object.keys(enumObj).find(key => enumObj[key] === value) || '';
-}
-
 export function isNumber(value: string): boolean {
 	if(typeof value === 'number') {
 		return true;
