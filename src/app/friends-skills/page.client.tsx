@@ -501,13 +501,11 @@ export default function ClientTabs({
 		if (data.length === 0) return null;
 
 		return (
-			<Paper className="mb-4 overflow-auto">
-				<SkillTypeTable
-					data={data}
-					columns={columns}
-					effectType={effectType}
-				/>
-			</Paper>
+			<SkillTypeTable
+				data={data}
+				columns={columns}
+				effectType={effectType}
+			/>
 		);
 	};
 

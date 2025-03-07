@@ -117,7 +117,7 @@ export function FoldingSection({
 				in={isOpened}
 				timeout={300}
 				unmountOnExit={false}
-				className="ml-[0.6rem] pl-4 border-l-[1px] border-gray-400"
+				className="ml-[0.6rem] pl-4 border-l-[1px] border-gray-400 overflow-x-scroll"
 			>
 				{children}
 			</Collapse>
