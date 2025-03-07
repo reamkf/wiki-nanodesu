@@ -215,7 +215,7 @@ export function SortableTable<TData, TValue>({
 									{header.column.getCanFilter() && (
 										<div className="relative">
 											<input
-												className="w-full p-2 text-sm border rounded font-normal bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+												className="w-full p-2 text-sm border rounded-sm font-normal bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500"
 												type="text"
 												value={(header.column.getFilterValue() as string) ?? ""}
 												onChange={(e) =>

@@ -63,7 +63,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
 								<div className="mt-4">
 									<button
 										type="button"
-										className="inline-flex justify-center rounded-md border border-transparent bg-sky-100 px-4 py-2 text-sm font-medium text-sky-900 hover:bg-sky-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 transition-colors duration-200"
+										className="inline-flex justify-center rounded-md border border-transparent bg-sky-100 px-4 py-2 text-sm font-medium text-sky-900 hover:bg-sky-200 focus:outline-hidden focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 transition-colors duration-200"
 										onClick={onClose}
 									>
 										閉じる

@@ -115,7 +115,7 @@ const renderYaseiLevel = (statusType: string) => {
 		<>
 			{lv}/
 			{isYasei5 ? (
-				<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded">
+				<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded-sm">
 					{yasei}
 				</span>
 			) : (
@@ -356,7 +356,7 @@ export default function FriendsStatusTable({
 							<div className="text-xs text-gray-700">
 								{baseText}/
 								{isYasei5 ? (
-									<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded">
+									<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded-sm">
 										野生{yasei}
 									</span>
 								) : (

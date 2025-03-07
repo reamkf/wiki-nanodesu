@@ -188,13 +188,13 @@ export default function ClientTabs({
 				return (
 					<div className="text-sm flex items-center space-x-2">
 						{skill.friendsDataRow.iconUrl && (
-							<div className="flex-shrink-0">
+							<div className="shrink-0">
 								<SeesaaWikiImage
 									src={skill.friendsDataRow.iconUrl}
 									alt={skill.friendsDataRow.name}
 									width={45}
 									height={45}
-									className="rounded-sm"
+									className="rounded-xs"
 								/>
 							</div>
 						)}

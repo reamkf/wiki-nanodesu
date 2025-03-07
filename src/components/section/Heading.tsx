@@ -50,7 +50,7 @@ export function Heading({
 		const fontSize = level === 1 ? 'text-[1.1rem]' : level === 2 ? 'text-[1rem]' : 'text-[0.9rem]';
 		const textColor = level < 3 ? 'text-[#424242]' : 'text-[#101010]';
 
-		return `font-semibold ${fontSize} flex-grow tracking-[0.01em] ${textColor}`;
+		return `font-semibold ${fontSize} grow tracking-[0.01em] ${textColor}`;
 	};
 
 	return (
@@ -62,7 +62,7 @@ export function Heading({
 				scroll-mt-8
 				transition-all duration-300 ease-in-out
 				border-b border-solid ${getBorderClasses()}
-				hover:shadow-sm
+				hover:shadow-xs
 				${className || ''}
 			`}
 		>

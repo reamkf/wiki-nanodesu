@@ -6,7 +6,7 @@ export default function Home() {
 	return (
 		<>
 			<PageTitle title="トップページ" />
-			<div className="rounded mb-4">
+			<div className="rounded-sm mb-4">
 				<p className="mb-2">
 					<SeesaaWikiLink
 						href="https://seesaawiki.jp/kemono_friends3_5ch/"

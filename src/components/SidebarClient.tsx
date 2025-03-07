@@ -48,7 +48,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 
 			w-[18rem]
 			h-[calc(100vh-80px)]
-			flex-shrink-0
+			shrink-0
 			overflow-y-auto
 			scrollbar-thin
 			scrollbar-thumb-sky-200
@@ -69,7 +69,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						placeholder="ページを検索..."
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
-						className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
+						className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-sky-500"
 						ref={searchInputRef}
 					/>
 					{searchQuery && (
@@ -96,7 +96,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 					/>
 					<Link
 						href="/"
-						className="font-bold text-sky-700 p-2 pl-0 flex-grow leading-tight"
+						className="font-bold text-sky-700 p-2 pl-0 grow leading-tight"
 						onClick={close}
 					>
 						アプリ版けものフレンズ３wikiなのです🦉
@@ -107,7 +107,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						<li key={`nanodesu-${link.href}`}>
 							<Link
 								href={link.href}
-								className="block hover:text-sky-500 rounded hover:underline mb-1 leading-tight"
+								className="block hover:text-sky-500 rounded-sm hover:underline mb-1 leading-tight"
 								onClick={close}
 							>
 								{link.text}
@@ -125,7 +125,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 					/>
 					<SeesaaWikiLink
 						href="https://seesaawiki.jp/kemono_friends3_5ch/"
-						className="font-bold text-green-700 p-2 pl-0 flex-grow leading-tight"
+						className="font-bold text-green-700 p-2 pl-0 grow leading-tight"
 						onClick={close}
 					>
 						アプリ版けものフレンズ３wikiなのだ！
@@ -136,7 +136,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						<li key={`nanoda-${link.href}`}>
 							<SeesaaWikiLink
 								href={link.href}
-								className="block hover:text-sky-500 rounded hover:underline mb-1 leading-tight"
+								className="block hover:text-sky-500 rounded-sm hover:underline mb-1 leading-tight"
 								onClick={close}
 							>
 								{link.text}
@@ -148,7 +148,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 				{/* 検索時のみフレンズ名リストを表示 */}
 				{searchQuery && filteredFriendsLinks.length > 0 && (
 					<div className="mt-4">
-						<div className="flex items-center block border-b-2 border-green-700 mb-2 font-bold text-green-700 flex-grow mt-2">
+						<div className="flex items-center block border-b-2 border-green-700 mb-2 font-bold text-green-700 grow mt-2">
 							<div className="">
 								フレンズ一覧
 							</div>
@@ -158,7 +158,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 								<li key={`friend-${link.href}`}>
 									<SeesaaWikiLink
 										href={link.href}
-										className="block hover:text-sky-500 rounded hover:underline mb-1 leading-tight"
+										className="block hover:text-sky-500 rounded-sm hover:underline mb-1 leading-tight"
 										onClick={close}
 									>
 										{link.text}
@@ -172,7 +172,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 				{/* 検索時のみフォトリストを表示 */}
 				{searchQuery && filteredPhotoLinks.length > 0 && (
 					<div className="mt-4">
-						<div className="flex items-center block border-b-2 border-green-700 mb-2 font-bold text-green-700 flex-grow mt-2">
+						<div className="flex items-center block border-b-2 border-green-700 mb-2 font-bold text-green-700 grow mt-2">
 							<div className="">
 								フォト一覧
 							</div>
@@ -182,7 +182,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 								<li key={`photo-${link.href}`}>
 									<SeesaaWikiLink
 										href={link.href}
-										className="block hover:text-sky-500 rounded hover:underline mb-1 leading-tight"
+										className="block hover:text-sky-500 rounded-sm hover:underline mb-1 leading-tight"
 										onClick={close}
 									>
 										{link.text}
