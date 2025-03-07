@@ -1,9 +1,10 @@
 import { generateMetadata } from "../metadata";
 import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friendsSkillsData";
 import ClientTabs from "./page.client";
+import { TableOfContentsData } from "@/components/section/TableOfContents";
 import { PageTitle } from '@/components/PageTitle';
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
-import { SkillCategory, SkillWithFriend } from "@/types/friendsSkills";
+import { SkillWithFriend } from "@/types/friendsSkills";
 import GoogleSheetsLink from "@/components/LinkWithIcon";
 
 export const metadata = generateMetadata({
@@ -22,7 +23,7 @@ export default async function FriendsSkillsPage() {
 		);
 	});
 
-	const skillCategories: SkillCategory[] = [
+	const skillCategories: TableOfContentsData[] = [
 		{
 			name: "バフ",
 			id: "buff",

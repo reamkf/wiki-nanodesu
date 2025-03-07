@@ -2,11 +2,11 @@
 
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { Box, Paper } from "@mui/material";
-import { SkillWithFriend, SkillCategory } from "@/types/friendsSkills";
+import { SkillWithFriend } from "@/types/friendsSkills";
 import { SortableTable } from "@/components/table/SortableTable";
 import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
-import { TableOfContents } from "@/components/section/TableOfContents";
+import { TableOfContents, TableOfContentsData } from "@/components/section/TableOfContents";
 import { Heading } from "@/components/section/Heading";
 import { FoldingSection } from "@/components/section/FoldingSection";
 import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
@@ -188,7 +188,7 @@ export default function ClientTabs({
 }: {
 	effectTypes: string[],
 	effectTypeData: Record<string, SkillWithFriend[]>,
-	skillCategories: SkillCategory[]
+	skillCategories: TableOfContentsData[]
 }) {
 	// formatText関数をメモ化
 	const formatText = useCallback((text: string): React.ReactElement => {
@@ -440,7 +440,7 @@ export default function ClientTabs({
 
 	const renderSkillSections = () => {
 		// 親カテゴリーごとのセクションを作成
-		const renderCategorySections = (categories: SkillCategory[], level = 0) => {
+		const renderCategorySections = (categories: TableOfContentsData[], level = 0) => {
 			return categories.map(category => {
 				const hasChildren = category.children && category.children.length > 0;
 				const isLeafNode = !hasChildren && effectTypes.includes(category.id);
@@ -537,7 +537,7 @@ export default function ClientTabs({
 	return (
 		<>
 			<TableOfContents
-				categories={skillCategories}
+				contents={skillCategories}
 				onSelect={handleEffectTypeSelect}
 				sectionId="friends-skills.tableOfContents"
 			/>

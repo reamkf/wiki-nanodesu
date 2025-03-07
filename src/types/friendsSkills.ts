@@ -79,10 +79,3 @@ import { FriendsDataRow } from "@/types/friends";
 export type SkillWithFriend = SkillEffect & {
 	friendsDataRow: FriendsDataRow
 }
-
-// スキルカテゴリーの階層構造を表す型
-export interface SkillCategory {
-	name: string;
-	id: string;
-	children?: SkillCategory[];
-}

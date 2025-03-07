@@ -4,15 +4,14 @@ import React from 'react';
 import { Box, List, ListItemButton, ListItemText } from '@mui/material';
 import { FoldingSection } from './FoldingSection';
 
-// スキルカテゴリーの階層構造を表す型
-interface SkillCategory {
+export interface TableOfContentsData {
 	name: string;
 	id: string;
-	children?: SkillCategory[];
+	children?: TableOfContentsData[];
 }
 
 interface TableOfContentsProps {
-	categories: SkillCategory[];
+	contents: TableOfContentsData[];
 	onSelect: (id: string) => void;
 	sectionId?: string;
 }
@@ -21,12 +20,12 @@ interface TableOfContentsProps {
  * シンプルな箇条書き形式の目次コンポーネント
  */
 export function TableOfContents({
-	categories,
+	contents: categories,
 	onSelect,
 	sectionId,
 }: TableOfContentsProps) {
 	// 再帰的にカテゴリーをレンダリングする関数
-	const renderCategoryTree = (items: SkillCategory[], level = 0) => {
+	const renderCategoryTree = (items: TableOfContentsData[], level = 0) => {
 		return items.map(item => {
 			const hasChildren = item.children && item.children.length > 0;
 
