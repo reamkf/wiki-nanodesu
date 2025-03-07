@@ -31,20 +31,6 @@ import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 import { sortFriendsAttribute } from "@/utils/friends";
 import { isNumber } from "@/utils/common";
 
-const ClientOnlyInitializer = ({
-	children,
-	onInitialized,
-}: {
-	children: React.ReactNode;
-	onInitialized: () => void;
-}) => {
-	useEffect(() => {
-		onInitialized();
-	}, [onInitialized]);
-
-	return <>{children}</>;
-};
-
 // 各スキルタイプのテーブルを管理する独立したコンポーネント
 const SkillTypeTable = React.memo(({
 	data,
@@ -62,7 +48,7 @@ const SkillTypeTable = React.memo(({
 	const [isMounted, setIsMounted] = useState(false);
 
 	// 初期化ハンドラー
-	const handleInitialized = useCallback(() => {
+	useEffect(() => {
 		if (typeof window !== "undefined") {
 			const saved = localStorage.getItem(`wiki-nanodesu.friends-skills.pagination.${effectType}`);
 			if (saved) {
@@ -125,32 +111,6 @@ const SkillTypeTable = React.memo(({
 
 	const pageCount = table.getPageCount();
 
-	if (!isMounted) {
-		return (
-			<ClientOnlyInitializer onInitialized={handleInitialized}>
-				<>
-					{pageCount > 1 && (
-						<TablePagination table={table} />
-					)}
-
-					<SortableTable
-						data={data}
-						columns={columns}
-						state={{
-							sorting,
-							columnFilters,
-							pagination
-						}}
-						onSortingChange={setSorting}
-						onColumnFiltersChange={setColumnFilters}
-						onPaginationChange={setPagination}
-						rowComponent={CustomRowComponent}
-					/>
-				</>
-			</ClientOnlyInitializer>
-		);
-	}
-
 	return (
 		<>
 			{pageCount > 1 && (
@@ -209,29 +169,6 @@ export default function ClientTabs({
 	effectTypeData: Record<string, SkillWithFriend[]>,
 	skillCategories: TableOfContentsData[]
 }) {
-	const [isMounted, setIsMounted] = useState(false);
-	const [selectedEffectType, setSelectedEffectType] = useState<string | null>(null);
-
-	// クライアントサイドでのみ実行される初期化処理
-	const handleInitialized = useCallback(() => {
-		if (typeof window !== "undefined") {
-			const saved = localStorage.getItem("wiki-nanodesu.friends-skills.selectedEffectType");
-			if (saved) {
-				setSelectedEffectType(JSON.parse(saved));
-			} else if (effectTypes.length > 0) {
-				setSelectedEffectType(effectTypes[0]);
-			}
-			setIsMounted(true);
-		}
-	}, [effectTypes]);
-
-	// 選択されたエフェクトタイプの保存
-	useEffect(() => {
-		if (typeof window !== "undefined" && isMounted && selectedEffectType) {
-			localStorage.setItem("wiki-nanodesu.friends-skills.selectedEffectType", JSON.stringify(selectedEffectType));
-		}
-	}, [selectedEffectType, isMounted]);
-
 	// formatText関数をメモ化
 	const formatText = useCallback((text: string): React.ReactElement => {
 		return parseSeesaaWikiNewLine(text);
@@ -471,16 +408,10 @@ export default function ClientTabs({
 
 	// 効果種別を選択したときの処理
 	const handleEffectTypeSelect = (effectType: string) => {
-		setSelectedEffectType(effectType);
-
 		// スクロール処理
-		if (isMounted) {
-			setTimeout(() => {
-				const element = document.getElementById(`section-${effectType}`);
-				if (element) {
-					element.scrollIntoView({ behavior: 'smooth' });
-				}
-			}, 100);
+		const element = document.getElementById(`section-${effectType}`);
+		if (element) {
+			element.scrollIntoView({ behavior: 'smooth' });
 		}
 	};
 
@@ -506,7 +437,6 @@ export default function ClientTabs({
 								/>
 								<FoldingSection
 									isOpenByDefault={!isLeafNode}
-									sectionId={`friends-skills.skill-${category.id}`}
 								>
 									{hasChildren && (
 										<Box>
@@ -528,7 +458,6 @@ export default function ClientTabs({
 								/>
 								<FoldingSection
 									isOpenByDefault={!isLeafNode}
-									sectionId={`friends-skills.skill-${category.id}`}
 								>
 									{hasChildren && (
 										<Box>
@@ -551,7 +480,6 @@ export default function ClientTabs({
 								/>
 								<FoldingSection
 									isOpenByDefault={!isLeafNode}
-									sectionId={`friends-skills.skill-${category.id}`}
 								>
 									{renderSkillTable(category.id)}
 								</FoldingSection>
@@ -578,29 +506,11 @@ export default function ClientTabs({
 		);
 	};
 
-	if (!isMounted) {
-		return (
-			<ClientOnlyInitializer onInitialized={handleInitialized}>
-				<>
-					<TableOfContents
-						contents={skillCategories}
-						onSelect={handleEffectTypeSelect}
-						sectionId="friends-skills.tableOfContents"
-					/>
-					<Box className="mt-4">
-						{renderSkillSections()}
-					</Box>
-				</>
-			</ClientOnlyInitializer>
-		);
-	}
-
 	return (
 		<>
 			<TableOfContents
 				contents={skillCategories}
 				onSelect={handleEffectTypeSelect}
-				sectionId="friends-skills.tableOfContents"
 			/>
 			<Box className="mt-4">
 				{renderSkillSections()}

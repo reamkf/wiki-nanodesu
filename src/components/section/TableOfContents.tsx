@@ -13,7 +13,6 @@ export interface TableOfContentsData {
 interface TableOfContentsProps {
 	contents: TableOfContentsData[];
 	onSelect: (id: string) => void;
-	sectionId?: string;
 }
 
 /**
@@ -22,7 +21,6 @@ interface TableOfContentsProps {
 export function TableOfContents({
 	contents: categories,
 	onSelect,
-	sectionId,
 }: TableOfContentsProps) {
 	// 再帰的にカテゴリーをレンダリングする関数
 	const renderCategoryTree = (items: TableOfContentsData[], level = 0) => {
@@ -71,7 +69,6 @@ export function TableOfContents({
 	return (
 		<FoldingSection
 			toggleButtonLabel={<span className="font-bold">目次</span>}
-			sectionId={sectionId}
 			isOpenByDefault={true}
 		>
 			<>

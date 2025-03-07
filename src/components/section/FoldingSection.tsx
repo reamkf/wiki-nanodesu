@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { Box, Button, Collapse } from '@mui/material';
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
@@ -12,28 +12,12 @@ interface FoldingSectionProps {
 	children?: React.ReactNode;
 	toggleButtonLabel?: string | React.ReactNode | null,
 	closeButtonLabel?: string | React.ReactNode | null,
-	sectionId?: string; // セクションの固有ID
 }
-
-const ClientOnlyInitializer = ({
-	children,
-	onInitialized,
-}: {
-	children: React.ReactNode;
-	onInitialized: () => void;
-}) => {
-	useEffect(() => {
-		onInitialized();
-	}, [onInitialized]);
-
-	return <>{children}</>;
-};
 
 /**
  * 折りたたみ可能なセクションコンポーネント
  * - 開閉アニメーション付き
  * - 上部と下部に折りたたみボタンを配置
- * - sectionIdを指定するとlocalStorageに開閉状態を保存
  */
 export function FoldingSection({
 	isOpenByDefault: isOpenByDefault = false,
@@ -42,52 +26,28 @@ export function FoldingSection({
 	children,
 	toggleButtonLabel = null,
 	closeButtonLabel = '[閉じる]',
-	sectionId,
 }: FoldingSectionProps) {
-	const storageKey = sectionId ? `wiki-nanodesu.FoldingSection.${sectionId}` : null;
 	const sectionRef = useRef<HTMLDivElement>(null);
-	const [isMounted, setIsMounted] = useState(false);
 
-	// 初期状態をデフォルト値から設定し、localStorageの読み込みはuseEffectで行う
+	// 初期状態をデフォルト値から設定
 	const [isOpened, setIsOpened] = useState(isOpenByDefault);
-
-	// クライアント側でのみ実行される初期化用Effect
-	const handleInitialized = () => {
-		// クライアント側でlocalStorageから状態を読み込む
-		if (typeof window !== 'undefined' && storageKey) {
-			const savedState = localStorage.getItem(storageKey);
-			if (savedState !== null) {
-				setIsOpened(JSON.parse(savedState));
-			}
-		}
-		setIsMounted(true);
-	};
-
-	// 開閉状態が変更されたらlocalStorageに保存
-	useEffect(() => {
-		if (typeof window !== 'undefined' && storageKey && isMounted) {
-			localStorage.setItem(storageKey, JSON.stringify(isOpened));
-		}
-	}, [isOpened, storageKey, isMounted]);
 
 	// 開く際に追跡状態を更新
 	const handleToggle = () => {
 		setIsOpened(!isOpened);
 
 		// クローズ時、セクションの上部までスクロール
-		if (isOpened && sectionRef.current && isMounted) {
-			setTimeout(() => {
-				// 要素の位置情報を取得
-				const rect = sectionRef.current?.getBoundingClientRect();
+		if (isOpened && sectionRef.current) {
+			// 要素の位置情報を取得
+			const rect = sectionRef.current?.getBoundingClientRect();
 
-				// 要素が画面上部外にある場合のみスクロール
-				if (rect && rect.top < 0) {
-					sectionRef.current?.scrollIntoView({
-						behavior: 'smooth',
-						block: 'start'
-					});
-				}
-			}, 100);
+			// 要素が画面上部外にある場合のみスクロール
+			if (rect && rect.top < 0) {
+				sectionRef.current?.scrollIntoView({
+					behavior: 'smooth',
+					block: 'start'
+				});
+			}
 		}
 
 		if (onToggle) {
@@ -123,30 +83,6 @@ export function FoldingSection({
 		);
 	};
 
-	if (!isMounted) {
-		return (
-			<ClientOnlyInitializer onInitialized={handleInitialized}>
-				<Box className={className} ref={sectionRef}>
-					{/* 上部トグルボタン+ラベル */}
-					<ToggleButton useIcon={true} labelText={toggleButtonLabel}/>
-
-					{/* コンテンツ部分 */}
-					<Collapse
-						in={isOpenByDefault}
-						timeout={300}
-						unmountOnExit={false}
-						className="ml-[0.6rem] pl-4 border-l-[1px] border-gray-400 overflow-x-scroll"
-					>
-						{children}
-					</Collapse>
-
-					{/* 下部閉じるボタン(セクションが開いている場合のみ表示) */}
-					{isOpenByDefault && <ToggleButton useIcon={false} labelText={closeButtonLabel} />}
-				</Box>
-			</ClientOnlyInitializer>
-		);
-	}
-
 	return (
 		<Box className={className} ref={sectionRef}>
 			{/* 上部トグルボタン+ラベル */}
@@ -155,8 +91,8 @@ export function FoldingSection({
 			{/* コンテンツ部分 */}
 			<Collapse
 				in={isOpened}
-				timeout={300}
-				unmountOnExit={false}
+				timeout={200}
+				unmountOnExit={true}
 				className="ml-[0.6rem] pl-4 border-l-[1px] border-gray-400 overflow-x-scroll"
 			>
 				{children}
