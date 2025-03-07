@@ -505,7 +505,7 @@ export default function ClientTabs({
 									level={1}
 								/>
 								<FoldingSection
-									isOpenByDefault={true}
+									isOpenByDefault={!isLeafNode}
 									sectionId={`friends-skills.skill-${category.id}`}
 								>
 									{hasChildren && (
@@ -527,7 +527,7 @@ export default function ClientTabs({
 									level={2}
 								/>
 								<FoldingSection
-									isOpenByDefault={false}
+									isOpenByDefault={!isLeafNode}
 									sectionId={`friends-skills.skill-${category.id}`}
 								>
 									{hasChildren && (
@@ -550,7 +550,7 @@ export default function ClientTabs({
 									className="mt-1"
 								/>
 								<FoldingSection
-									isOpenByDefault={false}
+									isOpenByDefault={!isLeafNode}
 									sectionId={`friends-skills.skill-${category.id}`}
 								>
 									{renderSkillTable(category.id)}
