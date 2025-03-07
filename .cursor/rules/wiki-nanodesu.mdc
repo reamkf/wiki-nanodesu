@@ -12,11 +12,11 @@ alwaysApply: true
 - Next.jsで静的サイトを生成し、GitHub Pagesでホスト
 
 # 技術スタック
-- インストールされているパッケージを確認するには、 [package.json](mdc:package.json) を参照すること。
-- パッケージマネージャー: Bun 1.2.2
+- インストールされているパッケージを確認するには、 [package.json](mdc:package.json) の内容を参照すること。
+- パッケージマネージャー: Bun 1.2.3
 - 言語: TypeScript 5.7.3
 - フレームワーク:
-	- Next.js 15.1.7
+	- Next.js 15.2.1
 		- App Routerを使用
 		- `output: "export"` を指定して静的サイトを生成
 	- React 19.0.0
