@@ -435,16 +435,21 @@ export default function ClientTabs({
 									id={`heading-${category.id}`}
 									level={1}
 								/>
-								<FoldingSection
-									isOpenByDefault={!isLeafNode}
-								>
-									{hasChildren && (
-										<Box>
-											{renderCategorySections(category.children || [], level + 1)}
-										</Box>
-									)}
-									{isLeafNode && renderSkillTable(category.id)}
-								</FoldingSection>
+								{isLeafNode ? (
+									<FoldingSection
+										isOpenByDefault={false}
+									>
+										{renderSkillTable(category.id)}
+									</FoldingSection>
+								) : (
+									<Box>
+										{hasChildren && (
+											<Box>
+												{renderCategorySections(category.children || [], level + 1)}
+											</Box>
+										)}
+									</Box>
+								)}
 							</Box>
 						)}
 
@@ -456,16 +461,21 @@ export default function ClientTabs({
 									id={`heading-${category.id}`}
 									level={2}
 								/>
-								<FoldingSection
-									isOpenByDefault={!isLeafNode}
-								>
-									{hasChildren && (
-										<Box>
-											{renderCategorySections(category.children || [], level + 1)}
-										</Box>
-									)}
-									{isLeafNode && renderSkillTable(category.id)}
-								</FoldingSection>
+								{isLeafNode ? (
+									<FoldingSection
+										isOpenByDefault={false}
+									>
+										{renderSkillTable(category.id)}
+									</FoldingSection>
+								) : (
+									<Box>
+										{hasChildren && (
+											<Box>
+												{renderCategorySections(category.children || [], level + 1)}
+											</Box>
+										)}
+									</Box>
+								)}
 							</Box>
 						)}
 
@@ -479,7 +489,7 @@ export default function ClientTabs({
 									className="mt-1"
 								/>
 								<FoldingSection
-									isOpenByDefault={!isLeafNode}
+									isOpenByDefault={false}
 								>
 									{renderSkillTable(category.id)}
 								</FoldingSection>
