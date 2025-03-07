@@ -18,7 +18,6 @@
 		"@mui/icons-material": "^6.4.7",
 		"@mui/material": "^6.4.7",
 		"@tanstack/react-table": "^8.21.2",
-		"D": "^1.0.0",
 		"d3": "^7.9.0",
 		"encoding-japanese": "^2.2.0",
 		"next": "^15.2.1",
@@ -31,7 +30,7 @@
 		"@tailwindcss/postcss": "^4.0.12",
 		"@types/d3": "^7.4.3",
 		"@types/encoding-japanese": "^2.2.1",
-		"@types/node": "^20.17.23",
+		"@types/node": "22.13.1",
 		"@types/papaparse": "^5.3.15",
 		"@types/react": "^19.0.10",
 		"@types/react-dom": "^19.0.4",
@@ -42,6 +41,6 @@
 		"react-scan": "^0.2.12",
 		"tailwind-scrollbar": "^4.0.1",
 		"tailwindcss": "^4.0.12",
-		"typescript": "^5.8.2"
+		"typescript": "5.7.3"
 	}
 }
