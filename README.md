@@ -19,7 +19,7 @@
 
 ## 技術スタック
 - Bun 1.2.2
-- Next.js 15.1.7 (App Router, SSG)
+- Next.js 15.2.1 (App Router, SSG)
 - TypeScript 5.7.3
 - Tailwind CSS 3.4.11
 - React 19.0.0
