@@ -26,6 +26,16 @@ export const getEnumKeyByValue = (enumObj: Record<string, string>, value: string
 	return Object.keys(enumObj).find(key => enumObj[key] === value) || '';
 }
 
+export function isNumber(value: string): boolean {
+	if(typeof value === 'number') {
+		return true;
+	}
+
+	const regex = /^[0-9,]+(\.[0-9]+)?%?$/;
+	return regex.test(value);
+}
+
+
 export function toPercent(value: number, minimumFractionDigits: number | null = null): string {
 	if (minimumFractionDigits === null) {
 		// 小数点以下の桁数を計算

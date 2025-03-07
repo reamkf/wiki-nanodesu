@@ -29,15 +29,7 @@ import { TablePagination } from "@/components/table/TablePagination";
 import { toPercent } from "@/utils/common";
 import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 import { sortFriendsAttribute } from "@/utils/friends";
-
-function isNumber(value: string): boolean {
-	if(typeof value === 'number') {
-		return true;
-	}
-
-	const regex = /^[0-9,]+(\.[0-9]+)?%?$/;
-	return regex.test(value);
-}
+import { isNumber } from "@/utils/common";
 
 // 各スキルタイプのテーブルを管理する独立したコンポーネント
 const SkillTypeTable = React.memo(({
