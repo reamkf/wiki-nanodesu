@@ -9,6 +9,7 @@ export function SeesaaWikiImage(props: ImageProps) {
 			height={props.height}
 			className={props.className}
 			referrerPolicy="no-referrer"
+			loading="lazy"
 		/>
 	)
 }
