@@ -63,15 +63,17 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 			rounded-lg
 		`}>
 			<nav className="space-y-1 p-4 md:p-0">
+				{/* 検索窓 */}
 				<div className="mb-4 relative">
 					<input
 						type="text"
 						placeholder="ページを検索..."
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
-						className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-sky-500"
+						className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-sky-500"
 						ref={searchInputRef}
 					/>
+					{/* クリアボタン */}
 					{searchQuery && (
 						<button
 							onClick={() => {
@@ -86,6 +88,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 					)}
 				</div>
 
+				{/* なのですトップページ */}
 				<div className="flex justify-center items-center block bg-sky-200 hover:bg-sky-300 hover:underline rounded-lg mb-2 transition-colors duration-200">
 					<Image
 						src="/wiki-nanodesu/no_blue.png"
@@ -102,6 +105,8 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						アプリ版けものフレンズ３wikiなのです🦉
 					</Link>
 				</div>
+
+				{/* なのですページリスト */}
 				<ul className="list-disc pl-6">
 					{filteredLinksNanodesu.map((link) => (
 						<li key={`nanodesu-${link.href}`}>
@@ -115,6 +120,8 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						</li>
 					))}
 				</ul>
+
+				{/* なのだページリスト */}
 				<div className="flex justify-center items-center block bg-green-200 hover:bg-green-300 hover:underline rounded-lg mb-2 transition-colors duration-200">
 					<Image
 						src="/wiki-nanodesu/no_green.png"
@@ -131,6 +138,8 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						アプリ版けものフレンズ３wikiなのだ！
 					</SeesaaWikiLink>
 				</div>
+
+				{/* なのだページリスト */}
 				<ul className="list-disc pl-6">
 					{filteredLinksNanoda.map((link) => (
 						<li key={`nanoda-${link.href}`}>
