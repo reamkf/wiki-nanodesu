@@ -245,6 +245,8 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			.attr('width', 36)
 			.attr('height', 36)
 			.attr('clip-path', d => `url(#clip-${d.id})`)
+			.attr('loading', 'lazy')
+			.attr('referrerPolicy', 'no-referrer')
 			.on('error', function() {
 				d3.select(this).attr('href', createPlaceholderImage('?'));
 			});
