@@ -98,8 +98,6 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			.attr('viewBox', [0, 0, width, height])
 			.style('background-color', 'transparent')
 			.style('border-radius', '8px')
-			.style('width', '100%')
-			.style('height', '100%')
 			.style('touch-action', 'none');
 
 		// ズーム機能
@@ -281,18 +279,18 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 					const radius = 20;
 
 					// 角丸長方形のパスを作成
-					const path = `
-						M ${rect.minX + radius} ${rect.minY}
-						H ${rect.maxX - radius}
-						Q ${rect.maxX} ${rect.minY} ${rect.maxX} ${rect.minY + radius}
-						V ${rect.maxY - radius}
-						Q ${rect.maxX} ${rect.maxY} ${rect.maxX - radius} ${rect.maxY}
-						H ${rect.minX + radius}
-						Q ${rect.minX} ${rect.maxY} ${rect.minX} ${rect.maxY - radius}
-						V ${rect.minY + radius}
-						Q ${rect.minX} ${rect.minY} ${rect.minX + radius} ${rect.minY}
-						Z
-					`.replace(/\s+/g, ' ').trim();
+					const path = [
+						`M ${rect.minX + radius} ${rect.minY}`,
+						`H ${rect.maxX - radius}`,
+						`Q ${rect.maxX} ${rect.minY} ${rect.maxX} ${rect.minY + radius}`,
+						`V ${rect.maxY - radius}`,
+						`Q ${rect.maxX} ${rect.maxY} ${rect.maxX - radius} ${rect.maxY}`,
+						`H ${rect.minX + radius}`,
+						`Q ${rect.minX} ${rect.maxY} ${rect.minX} ${rect.maxY - radius}`,
+						`V ${rect.minY + radius}`,
+						`Q ${rect.minX} ${rect.minY} ${rect.minX + radius} ${rect.minY}`,
+						'Z'
+					].join(' ');
 
 					// 角丸長方形を描画
 					hulls.append('path')
@@ -318,31 +316,20 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			// カスタムのグループ引力を適用
 			groupForce();
 
+			// ノードの座標を取得するヘルパー関数
+			const getNodeCoord = (nodeRef: string | FriendNode, prop: 'x' | 'y'): number => {
+				if (typeof nodeRef === 'string') {
+					const foundNode = data.nodes.find(node => node.id === nodeRef);
+					return foundNode?.[prop] || 0;
+				}
+				return (nodeRef as FriendNode)[prop] || 0;
+			};
+
 			link
-				.attr('x1', d => {
-					const source = typeof d.source === 'string' ?
-						data.nodes.find(node => node.id === d.source) :
-						d.source as FriendNode;
-					return source?.x || 0;
-				})
-				.attr('y1', d => {
-					const source = typeof d.source === 'string' ?
-						data.nodes.find(node => node.id === d.source) :
-						d.source as FriendNode;
-					return source?.y || 0;
-				})
-				.attr('x2', d => {
-					const target = typeof d.target === 'string' ?
-						data.nodes.find(node => node.id === d.target) :
-						d.target as FriendNode;
-					return target?.x || 0;
-				})
-				.attr('y2', d => {
-					const target = typeof d.target === 'string' ?
-						data.nodes.find(node => node.id === d.target) :
-						d.target as FriendNode;
-					return target?.y || 0;
-				});
+				.attr('x1', d => getNodeCoord(d.source, 'x'))
+				.attr('y1', d => getNodeCoord(d.source, 'y'))
+				.attr('x2', d => getNodeCoord(d.target, 'x'))
+				.attr('y2', d => getNodeCoord(d.target, 'y'));
 
 			node.attr('transform', d => `translate(${d.x || 0},${d.y || 0})`);
 
