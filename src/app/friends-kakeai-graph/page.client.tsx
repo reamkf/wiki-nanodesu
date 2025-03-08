@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import FriendsGraph from '@/components/friends-kakeai-graph/FriendsGraph';
+import FriendsGraph from '@/components/friends/FriendsKakeaiGraph';
 import { GraphData } from '@/types/friends-kakeai-graph';
 import { Box, Alert } from '@mui/material';
 import { PageTitle } from '@/components/PageTitle';

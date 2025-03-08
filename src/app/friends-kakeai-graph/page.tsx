@@ -1,7 +1,7 @@
 import { generateMetadata } from '../metadata';
 import React from 'react';
 import { getFriendsKakeaiData } from '@/utils/friendsKakeaiData';
-import FriendsKakeaiGraphPage from '@/app/friends-kakeai-graph/FriendsKakeaiGraphPage';
+import FriendsKakeaiGraphPage from '@/app/friends-kakeai-graph/page.client';
 
 export const metadata = generateMetadata({
 	title: 'フレンズ掛け合いグラフ'
