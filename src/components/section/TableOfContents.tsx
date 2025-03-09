@@ -190,7 +190,7 @@ export function TableOfContents({
 								leaveFrom="opacity-100 scale-100"
 								leaveTo="opacity-0 scale-95"
 							>
-								<DialogPanel className="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+								<DialogPanel className="w-xl max-w-[85vw] transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
 									<div className="flex justify-between items-center mb-4">
 										<DialogTitle as="h3" className="text-lg font-bold leading-6 text-gray-900">
 											目次
