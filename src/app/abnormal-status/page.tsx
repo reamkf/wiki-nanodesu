@@ -66,10 +66,48 @@ export default async function AbnormalStatusPage() {
 		return {
 			name: statusType,
 			id: statusType,
-			children: subcategories.map(subcategory => ({
-				name: subcategory.name,
-				id: `${statusType}-${subcategory.id}`
-			}))
+			children: subcategories
+				.filter(subcategory => {
+					// サブカテゴリIDの形式は「{状態異常}-{サブカテゴリ}」
+					const statusData = statusTypeData[statusType] || [];
+
+					// サブカテゴリに対するデータをフィルタリング
+					const filteredData = statusData.filter(status => {
+						const { effect, isPhoto } = status;
+						const subCatId = subcategory.id;
+
+						// フレンズかフォトかで分ける
+						const isPhotoCategory = subCatId.includes('photo');
+						if (isPhoto !== isPhotoCategory) return false;
+
+						// 効果内容でさらに振り分け
+						if (effect.includes('付与') && subCatId.includes('give')) {
+							return true;
+						}
+						if (effect.includes('耐性') && effect.includes('得る') && subCatId === 'resist-friends') {
+							return true;
+						}
+						if (effect.includes('解除') && subCatId === 'remove-friends') {
+							return true;
+						}
+						if (effect.includes('耐性') && effect.includes('減少') && subCatId.includes('reduce-resist')) {
+							return true;
+						}
+						if (effect.includes('耐性') && effect.includes('与える') && subCatId === 'give-resist-photo') {
+							return true;
+						}
+
+						// デフォルトは一致しない
+						return false;
+					});
+
+					// データがある場合のみtrueを返す
+					return filteredData.length > 0;
+				})
+				.map(subcategory => ({
+					name: subcategory.name,
+					id: `${statusType}-${subcategory.id}`
+				}))
 		};
 	});
 

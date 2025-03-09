@@ -185,10 +185,26 @@ export default function ClientTabs({
 				width: '120px'
 			}
 		},
+
 		{
-			accessorKey: 'activationRate',
+			accessorFn: (row) => {
+				const activationRate = row.activationRate;
+				if (!activationRate) return -Infinity;
+				return isNumber(activationRate) ? toPercent(parseFloat(activationRate)) : activationRate;
+			},
 			header: '発動率',
-			cell: ({ row }) => <TextCell text={row.original.activationRate} />,
+			cell: ({ row }) => {
+				const activationRate = row.original.activationRate;
+				if (!activationRate) return null;
+
+				// 数値に変換
+				const activationRateNum = parseFloat(activationRate);
+
+				// 数値でない場合はそのまま表示
+				if (!isNumber(activationRate)) return formatText(activationRate);
+
+				return toPercent(activationRateNum);
+			},
 			filterFn: customFilterFn,
 			meta: {
 				width: '100px'

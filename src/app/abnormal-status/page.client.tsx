@@ -5,7 +5,7 @@ import { AbnormalStatusWithFriend } from "@/types/abnormalStatus";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
 import { TableOfContentsData } from "@/components/section/TableOfContents";
 import { ColumnDef } from "@tanstack/react-table";
-import { isNumber } from "@/utils/common";
+import { isNumber, toPercent } from "@/utils/common";
 import { createCustomFilterFn } from "@/components/table/FilterableDataTable";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
 import {
@@ -97,15 +97,6 @@ export default function ClientTabs({
 			},
 		},
 		{
-			accessorKey: 'effect',
-			header: '効果',
-			cell: ({ row }) => <TextCell text={row.original.effect} />,
-			filterFn: customFilterFn,
-			meta: {
-				width: '150px'
-			},
-		},
-		{
 			accessorFn: (row) => {
 				const power = row.power;
 				if (!power) return -Infinity;
@@ -174,9 +165,24 @@ export default function ClientTabs({
 			}
 		},
 		{
-			accessorKey: 'activationRate',
+			accessorFn: (row) => {
+				const activationRate = row.activationRate;
+				if (!activationRate) return -Infinity;
+				return isNumber(activationRate) ? toPercent(parseFloat(activationRate)) : activationRate;
+			},
 			header: '発動率',
-			cell: ({ row }) => <TextCell text={row.original.activationRate} />,
+			cell: ({ row }) => {
+				const activationRate = row.original.activationRate;
+				if (!activationRate) return null;
+
+				// 数値に変換
+				const activationRateNum = parseFloat(activationRate);
+
+				// 数値でない場合はそのまま表示
+				if (!isNumber(activationRate)) return formatText(activationRate);
+
+				return toPercent(activationRateNum);
+			},
 			filterFn: customFilterFn,
 			meta: {
 				width: '100px'
