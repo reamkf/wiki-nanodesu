@@ -1,5 +1,5 @@
 import { SidebarClient } from './Sidebar.client';
-import { getFriendsData } from '@/utils/friendsData';
+import { getFriendsData } from '@/utils/friends/friendsData';
 import { FriendsDataRow } from '@/types/friends';
 import { getPhotoData } from '@/utils/photoData';
 import { getWikiNanodaPageUrl } from '@/utils/seesaaWiki';
@@ -31,12 +31,16 @@ export async function Sidebar() {
 
 	const sideBarLinksNanodesu: SidebarLinkItem[] = [
 		{
-			href: '/friends-status',
-			text: 'フレンズステータスランキング',
+			href: '/abnormal-status',
+			text: '状態異常スキル一覧',
 		},
 		{
 			href: '/friends-skills',
 			text: 'スキル別フレンズ一覧',
+		},
+		{
+			href: '/friends-status',
+			text: 'フレンズステータスランキング',
 		},
 		{
 			href: '/friends-kakeai-graph',

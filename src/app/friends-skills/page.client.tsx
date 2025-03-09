@@ -1,93 +1,21 @@
 "use client";
 
-import React, { useMemo, useCallback } from "react";
-import { Box } from "@mui/material";
+import React, { useMemo, useCallback, useState, useEffect } from "react";
 import { SkillWithFriend } from "@/types/friendsSkills";
-import { Table } from "@/components/table/Table";
-import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
-import { TableOfContents, TableOfContentsData } from "@/components/section/TableOfContents";
-import { Heading } from "@/components/section/Heading";
-import { FoldingSection } from "@/components/section/FoldingSection";
-import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
+import { TableOfContentsData } from "@/components/section/TableOfContents";
+import { ColumnDef } from "@tanstack/react-table";
+import { toPercent, isNumber } from "@/utils/common";
+import { sortFriendsAttribute } from "@/utils/friends/friends";
+import { createCustomFilterFn } from "@/components/table/FilterableDataTable";
+import { CategoryLayout } from "@/components/section/CategoryLayout";
 import { FriendsAttribute } from "@/types/friends";
-import { parseSeesaaWikiNewLine } from "@/utils/seesaaWiki";
 import {
-	ColumnDef,
-	Row,
-	flexRender,
-} from "@tanstack/react-table";
-import { toPercent } from "@/utils/common";
-import { includesNormalizeQuery } from "@/utils/queryNormalizer";
-import { sortFriendsAttribute } from "@/utils/friends";
-import { isNumber } from "@/utils/common";
-
-// 各スキルタイプのテーブルを管理する独立したコンポーネント
-const SkillTypeTable = React.memo(({
-	data,
-	columns,
-	effectType,
-}: {
-	data: SkillWithFriend[];
-	columns: ColumnDef<SkillWithFriend, unknown>[];
-	effectType: string;
-}) => {
-	// カスタム行コンポーネント
-	const CustomRowComponent = useCallback(({ row }: { row: Row<SkillWithFriend> }) => (
-		<tr
-			key={row.id}
-			className="hover:bg-gray-50"
-		>
-			{row.getVisibleCells().map(cell => {
-				return (
-					<td
-						key={cell.id}
-						className={`p-2 border-b text-sm`}
-					>
-						{flexRender(cell.column.columnDef.cell, cell.getContext())}
-					</td>
-				);
-			})}
-		</tr>
-	), []);
-
-	return (
-		<>
-			<Table
-				data={data}
-				columns={columns}
-				tableId={`friends-skills-${effectType}`}
-				rowComponent={CustomRowComponent}
-			/>
-		</>
-	);
-});
-
-const getSearchableText = (
-	row: SkillWithFriend,
-	columnId: string
-): string => {
-	switch (columnId) {
-		case "name":
-		case "icon":
-			return row.friendsDataRow.secondName
-				? `${row.friendsDataRow.secondName} ${row.friendsDataRow.name}`
-				: row.friendsDataRow.name;
-		case "attribute":
-			return row.friendsDataRow.attribute;
-		default:
-			return (
-				row[columnId as keyof SkillWithFriend]?.toString() ?? ""
-			);
-	}
-};
-
-const customFilterFn = (row: Row<SkillWithFriend>, columnId: string, filterValue: string) => {
-	const value = getSearchableText(row.original, columnId);
-	return includesNormalizeQuery(value, filterValue);
-};
-
-SkillTypeTable.displayName = "SkillTypeTable";
+	GenericDataTable,
+	formatText,
+	FriendOrPhotoDisplay,
+	TextCell
+} from "@/components/table/GenericDataTable";
 
 export default function ClientTabs({
 	effectTypes,
@@ -98,10 +26,35 @@ export default function ClientTabs({
 	effectTypeData: Record<string, SkillWithFriend[]>,
 	skillCategories: TableOfContentsData[]
 }) {
-	// formatText関数をメモ化
-	const formatText = useCallback((text: string): React.ReactElement => {
-		return parseSeesaaWikiNewLine(text);
+	// 選択されたエフェクトタイプの状態を管理
+	const [selectedEffectType, setSelectedEffectType] = useState<string | null>(null);
+
+	// 初期選択として最初のエフェクトタイプを設定
+	useEffect(() => {
+		if (effectTypes.length > 0 && !selectedEffectType) {
+			setSelectedEffectType(effectTypes[0]);
+		}
+	}, [effectTypes, selectedEffectType]);
+
+	// 検索可能なテキストを取得する関数
+	const getSearchableText = useCallback((row: SkillWithFriend, columnId: string): string => {
+		switch (columnId) {
+			case "name":
+			case "icon":
+				return row.friendsDataRow.secondName
+					? `${row.friendsDataRow.secondName} ${row.friendsDataRow.name}`
+					: row.friendsDataRow.name;
+			case "attribute":
+				return row.friendsDataRow.attribute;
+			default:
+				return (
+					row[columnId as keyof SkillWithFriend]?.toString() ?? ""
+				);
+		}
 	}, []);
+
+	// カスタムフィルター関数の作成
+	const customFilterFn = useMemo(() => createCustomFilterFn(getSearchableText), [getSearchableText]);
 
 	// テーブルのカラム定義
 	const columns = useMemo<ColumnDef<SkillWithFriend>[]>(() => [
@@ -114,22 +67,7 @@ export default function ClientTabs({
 					return <div>{skill.friendsId}</div>;
 				}
 
-				return (
-					<div className="text-sm flex items-center space-x-2">
-						{skill.friendsDataRow.iconUrl && (
-							<div className="shrink-0">
-								<SeesaaWikiImage
-									src={skill.friendsDataRow.iconUrl}
-									alt={skill.friendsDataRow.name}
-									width={45}
-									height={45}
-									className="rounded-xs"
-								/>
-							</div>
-						)}
-						<FriendsNameLink friend={skill.friendsDataRow} />
-					</div>
-				);
+				return <FriendOrPhotoDisplay data={skill} />;
 			},
 			filterFn: customFilterFn,
 			meta: {
@@ -162,11 +100,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'skillType',
 			header: 'わざ種別',
-			cell: ({ row }) => {
-				const text = row.original.skillType;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.skillType} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '120px'
@@ -227,11 +161,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'target',
 			header: '対象',
-			cell: ({ row }) => {
-				const text = row.original.target;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.target} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '150px'
@@ -240,11 +170,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'condition',
 			header: '条件',
-			cell: ({ row }) => {
-				const text = row.original.condition;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.condition} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '200px'
@@ -253,54 +179,31 @@ export default function ClientTabs({
 		{
 			accessorKey: 'effectTurn',
 			header: '効果ターン',
-			cell: ({ row }) => {
-				const text = row.original.effectTurn;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.effectTurn} />,
 			filterFn: customFilterFn,
 			meta: {
-				width: '100px'
+				width: '120px'
 			}
 		},
+
 		{
 			accessorFn: (row) => {
-				const rate = row.activationRate;
-				if (!rate) return -Infinity;
-				const rateNum = parseFloat(rate);
-				return isNumber(rate) ? rateNum : rate;
+				const activationRate = row.activationRate;
+				if (!activationRate) return -Infinity;
+				return isNumber(activationRate) ? toPercent(parseFloat(activationRate)) : activationRate;
 			},
-			id: 'activationRate',
 			header: '発動率',
 			cell: ({ row }) => {
-				const rate = row.original.activationRate;
-				if (!rate) return null;
+				const activationRate = row.original.activationRate;
+				if (!activationRate) return null;
 
 				// 数値に変換
-				const rateNum = parseFloat(rate);
+				const activationRateNum = parseFloat(activationRate);
 
-				// 数値の場合は%表記
-				if (isNumber(rate)) {
-					return toPercent(rateNum, 0);
-				}
+				// 数値でない場合はそのまま表示
+				if (!isNumber(activationRate)) return formatText(activationRate);
 
-				return formatText(rate);
-			},
-			sortingFn: (rowA, rowB, columnId) => {
-				const valueA = rowA.getValue(columnId);
-				const valueB = rowB.getValue(columnId);
-
-				// どちらかがnullやundefinedの場合
-				if (valueA == null) return 1;
-				if (valueB == null) return -1;
-
-				// 両方とも数値の場合は数値比較
-				if (typeof valueA === 'number' && typeof valueB === 'number') {
-					return valueA - valueB;
-				}
-
-				// 文字列の場合は文字列比較
-				return String(valueA).localeCompare(String(valueB));
+				return toPercent(activationRateNum);
 			},
 			filterFn: customFilterFn,
 			meta: {
@@ -310,11 +213,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'activationCount',
 			header: '発動回数',
-			cell: ({ row }) => {
-				const text = row.original.activationCount;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.activationCount} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '100px'
@@ -323,137 +222,44 @@ export default function ClientTabs({
 		{
 			accessorKey: 'note',
 			header: '備考',
-			cell: ({ row }) => {
-				const text = row.original.note;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.note} />,
 			filterFn: customFilterFn,
-			meta: {
-				width: '200px'
-			}
 		},
-	], [formatText]);
+	], [customFilterFn]);
 
-	// 効果種別を選択したときの処理
-	const handleEffectTypeSelect = (effectType: string) => {
-		// スクロール処理
-		const element = document.getElementById(`section-${effectType}`);
-		if (element) {
-			element.scrollIntoView({ behavior: 'smooth' });
+	// カテゴリIDに基づいてコンテンツをレンダリングする関数
+	const renderContent = useCallback((categoryId: string) => {
+		// カテゴリIDがeffectTypeDataに存在するか確認
+		if (effectTypeData[categoryId]) {
+			const data = effectTypeData[categoryId];
+			if (data.length === 0) return null;
+
+			return (
+				<GenericDataTable
+					data={data}
+					columns={columns}
+					tableId={`friends-skills-${categoryId}`}
+				/>
+			);
 		}
-	};
 
-	const renderSkillSections = () => {
-		// 親カテゴリーごとのセクションを作成
-		const renderCategorySections = (categories: TableOfContentsData[], level = 0) => {
-			return categories.map(category => {
-				const hasChildren = category.children && category.children.length > 0;
-				const isLeafNode = !hasChildren && effectTypes.includes(category.id);
+		return null;
+	}, [columns, effectTypeData]);
 
-				return (
-					<Box key={category.id} className={`
-						${level === 0 ? 'mt-4' : level === 1 ? 'mt-1' : 'mt-2'}
-						${level === 0 ? 'mb-2' : 'mb-0'}
-					`}>
-						{/* レベル0の見出し (トップレベル) */}
-						{level === 0 && (
-							<Box id={`section-${category.id}`} className="mb-2">
-								<Heading
-									title={category.name}
-									id={`heading-${category.id}`}
-									level={1}
-								/>
-								{isLeafNode ? (
-									<FoldingSection
-										isOpenByDefault={false}
-									>
-										{renderSkillTable(category.id)}
-									</FoldingSection>
-								) : (
-									<Box>
-										{hasChildren && (
-											<Box>
-												{renderCategorySections(category.children || [], level + 1)}
-											</Box>
-										)}
-									</Box>
-								)}
-							</Box>
-						)}
-
-						{/* レベル1の見出し */}
-						{level === 1 && (
-							<Box id={`section-${category.id}`}>
-								<Heading
-									title={category.name}
-									id={`heading-${category.id}`}
-									level={2}
-								/>
-								{isLeafNode ? (
-									<FoldingSection
-										isOpenByDefault={false}
-									>
-										{renderSkillTable(category.id)}
-									</FoldingSection>
-								) : (
-									<Box>
-										{hasChildren && (
-											<Box>
-												{renderCategorySections(category.children || [], level + 1)}
-											</Box>
-										)}
-									</Box>
-								)}
-							</Box>
-						)}
-
-						{/* レベル2以上の見出し */}
-						{level >= 2 && isLeafNode && (
-							<Box id={`section-${category.id}`}>
-								<Heading
-									title={category.name}
-									id={`heading-${category.id}`}
-									level={3}
-									className="mt-1"
-								/>
-								<FoldingSection
-									isOpenByDefault={false}
-								>
-									{renderSkillTable(category.id)}
-								</FoldingSection>
-							</Box>
-						)}
-					</Box>
-				);
-			});
-		};
-
-		return renderCategorySections(skillCategories);
-	};
-
-	const renderSkillTable = (effectType: string) => {
-		const data = effectTypeData[effectType] || [];
-		if (data.length === 0) return null;
-
-		return (
-			<SkillTypeTable
-				data={data}
-				columns={columns}
-				effectType={effectType}
-			/>
-		);
-	};
+	// カテゴリーが選択されたときの処理
+	const handleSelectCategory = useCallback((id: string) => {
+		if (effectTypeData[id]) {
+			setSelectedEffectType(id);
+		}
+	}, [effectTypeData]);
 
 	return (
-		<>
-			<TableOfContents
-				contents={skillCategories}
-				onSelect={handleEffectTypeSelect}
-			/>
-			<Box className="mt-4">
-				{renderSkillSections()}
-			</Box>
-		</>
+		<CategoryLayout
+			categories={skillCategories}
+			renderContent={renderContent}
+			onSelectCategory={handleSelectCategory}
+			selectedCategory={selectedEffectType}
+			emptyMessage="データがありません"
+		/>
 	);
 }

@@ -1,6 +1,6 @@
 import { getPhotoData } from "../photoData";
 import { describe, it, expect, beforeAll } from "bun:test";
-import { PhotoAttribute } from "@/types/photos";
+import { PhotoAttribute } from "@/types/photo";
 
 describe('getPhotoData', () => {
 	let photoData: Awaited<ReturnType<typeof getPhotoData>>;

@@ -1,8 +1,8 @@
 import { generateMetadata } from "../metadata";
 import FriendsStatusTable from "./page.client";
 import { PageTitle } from "@/components/PageTitle";
-import { getFriendsStatusList, ProcessedFriendsStatusListItem } from "@/utils/friendsStatus";
-import { STATUS_TYPES, getFilteredAndSortedData } from "@/utils/friendsStatusHelpers";
+import { getFriendsStatusList, ProcessedFriendsStatusListItem } from "@/utils/friends/friendsStatus";
+import { STATUS_TYPES, getFilteredAndSortedData } from "@/utils/friends/friendsStatusHelpers";
 
 export const metadata = generateMetadata({
 	title: "フレンズステータスランキング",

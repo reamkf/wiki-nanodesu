@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import Papa from 'papaparse';
-import { FriendNode, FriendLink, GraphData } from '../types/friends-kakeai-graph';
-import { getFriendsData } from '@/utils/friendsData';
+import { FriendNode, FriendLink, GraphData } from '../../types/friends-kakeai-graph';
+import { getFriendsData } from '@/utils/friends/friendsData';
 import { getWikiNanodaPageUrl } from '@/utils/seesaaWiki';
 
 const readCsvFile = <T>(filePath: string): Promise<T[]> => {

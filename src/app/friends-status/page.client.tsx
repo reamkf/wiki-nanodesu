@@ -1,6 +1,6 @@
 "use client";
 
-import { ProcessedFriendsStatusListItem } from "@/utils/friendsStatus";
+import { ProcessedFriendsStatusListItem } from "@/utils/friends/friendsStatus";
 import FriendsIcon from "../../components/friends/FriendsIcon";
 import { FriendsNameLink } from "../../components/friends/FriendsNameLink";
 import {
@@ -13,7 +13,7 @@ import {
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
-import { sortFriendsAttribute } from "@/utils/friends";
+import { sortFriendsAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
 import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 import { Table } from "../../components/table/Table";
@@ -22,7 +22,7 @@ import {
 	CheckboxOption,
 } from "../../components/table/FilterCheckboxGroup";
 import { ColumnMeta } from "@/types/common";
-import { STATUS_TYPES, getSearchableText, getFilteredAndSortedData } from "@/utils/friendsStatusHelpers";
+import { STATUS_TYPES, getSearchableText, getFilteredAndSortedData } from "@/utils/friends/friendsStatusHelpers";
 
 const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
 

@@ -1,4 +1,4 @@
-import { getFriendsData } from "../friendsData";
+import { getFriendsData } from "../friends/friendsData";
 import { describe, it, expect, beforeAll } from "bun:test";
 import { FriendsAttribute, MegumiPattern } from "@/types/friends";
 

@@ -1,4 +1,4 @@
-export type SkillType = 'けものミラクル' | 'とくいわざ' | 'たいきスキル' | 'とくせい' | 'キセキとくせい' | 'なないろとくせい';
+import { SkillType } from "./common";
 
 export type EffectType =
 	'与ダメージ増加' |

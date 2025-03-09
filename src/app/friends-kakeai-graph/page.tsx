@@ -1,6 +1,6 @@
 import { generateMetadata } from '../metadata';
 import React from 'react';
-import { getFriendsKakeaiData } from '@/utils/friendsKakeaiData';
+import { getFriendsKakeaiData } from '@/utils/friends/friendsKakeaiData';
 import FriendsKakeaiGraphPage from '@/app/friends-kakeai-graph/page.client';
 
 export const metadata = generateMetadata({

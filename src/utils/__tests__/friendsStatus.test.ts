@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { calculateFriendsStatus, getLv99FromLv90 } from '../friendsStatus';
+import { calculateFriendsStatus, getLv99FromLv90 } from '../friends/friendsStatus';
 import { FriendsAttribute, FriendsDataRow, MegumiPattern } from '@/types/friends';
 import { BasicStatus } from '@/types/common';
 
