@@ -156,9 +156,11 @@ export function TableOfContents({
 			<Dialog
 				open={open}
 				onClose={handleCloseDialog}
-				fullWidth
-				maxWidth="xs"
-				TransitionComponent={Zoom}
+				maxWidth="sm"
+				fullWidth={true}
+				slots={{
+					transition: Zoom
+				}}
 			>
 				<DialogTitle className="flex justify-between items-center">
 					<span className="font-bold">目次</span>
