@@ -25,6 +25,30 @@ import {
 	NavigateBefore,
 } from "@mui/icons-material";
 
+// ソート用の矢印SVGコンポーネント
+interface SortIndicatorArrowProps {
+	direction: 'up' | 'down';
+	active: boolean;
+}
+
+function SortIndicatorArrow({ direction, active }: SortIndicatorArrowProps) {
+	const isUp = direction === 'up';
+	return (
+		<svg
+			className={active ? "text-blue-600" : "text-gray-400"}
+			style={{
+				width: "12px",
+				height: "12px",
+				...(isUp ? { marginBottom: "1px" } : {})
+			}}
+			viewBox="0 0 16 8"
+			fill="currentColor"
+		>
+			<path d={isUp ? "M8 0L16 8H0z" : "M8 8L0 0h16z"} />
+		</svg>
+	);
+}
+
 const PAGE_SIZE_OPTIONS = [500, 200, 100, 50, 20];
 const DEFAULT_PAGE_SIZE = 100;
 const MIN_PAGE_SIZE = Math.min(...PAGE_SIZE_OPTIONS);
@@ -277,76 +301,14 @@ export function Table<TData, TValue>({
 														className="inline-flex flex-col text-gray-700"
 														style={{ height: "15px" }}
 													>
-														{header.column.getIsSorted() === "asc" ? (
-															<>
-																<svg
-																	className="text-blue-600"
-																	style={{
-																		width: "12px",
-																		height: "12px",
-																		marginBottom: "1px",
-																	}}
-																	viewBox="0 0 16 8"
-																	fill="currentColor"
-																>
-																	<path d="M8 0L16 8H0z" />
-																</svg>
-																<svg
-																	className="text-gray-300"
-																	style={{ width: "12px", height: "12px" }}
-																	viewBox="0 0 16 8"
-																	fill="currentColor"
-																>
-																	<path d="M8 8L0 0h16z" />
-																</svg>
-															</>
-														) : header.column.getIsSorted() === "desc" ? (
-															<>
-																<svg
-																	className="text-gray-300"
-																	style={{
-																		width: "12px",
-																		height: "12px",
-																		marginBottom: "1px",
-																	}}
-																	viewBox="0 0 16 8"
-																	fill="currentColor"
-																>
-																	<path d="M8 0L16 8H0z" />
-																</svg>
-																<svg
-																	className="text-blue-600"
-																	style={{ width: "12px", height: "12px" }}
-																	viewBox="0 0 16 8"
-																	fill="currentColor"
-																>
-																	<path d="M8 8L0 0h16z" />
-																</svg>
-															</>
-														) : (
-															<>
-																<svg
-																	className="text-gray-400"
-																	style={{
-																		width: "12px",
-																		height: "12px",
-																		marginBottom: "1px",
-																	}}
-																	viewBox="0 0 16 8"
-																	fill="currentColor"
-																>
-																	<path d="M8 0L16 8H0z" />
-																</svg>
-																<svg
-																	className="text-gray-400"
-																	style={{ width: "12px", height: "12px" }}
-																	viewBox="0 0 16 8"
-																	fill="currentColor"
-																>
-																	<path d="M8 8L0 0h16z" />
-																</svg>
-															</>
-														)}
+														<SortIndicatorArrow
+															direction="up"
+															active={header.column.getIsSorted() === "asc"}
+														/>
+														<SortIndicatorArrow
+															direction="down"
+																active={header.column.getIsSorted() === "desc"}
+														/>
 													</span>
 												)}
 											</div>
@@ -354,6 +316,7 @@ export function Table<TData, TValue>({
 									);
 								})}
 							</tr>
+							{/* 列ごとのフィルター用の行 */}
 							<tr>
 								{headerGroup.headers.map((header) => (
 									<th key={header.id} className="bg-gray-50 p-2 py-2">
