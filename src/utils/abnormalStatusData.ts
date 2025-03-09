@@ -146,12 +146,13 @@ export async function getAbnormalStatusWithFriendsAndPhotos(): Promise<AbnormalS
 			const identifier = status.friendsIdOrPhotoName;
 			const friendsDataRow = friendsIdMap.get(identifier);
 			const photoDataRow = photoNameMap.get(identifier);
+			const isPhoto = !friendsDataRow && !!photoDataRow || identifier.includes('フォト') || false;
 
 			return {
 				...status,
 				friendsDataRow,
 				photoDataRow,
-				isPhoto: !!photoDataRow
+				isPhoto: isPhoto
 			};
 		});
 
