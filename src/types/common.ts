@@ -5,6 +5,7 @@ export interface ColumnMeta {
 	width?: string;
 }
 
+export type SkillType = 'けものミラクル' | 'とくいわざ' | 'たいきスキル' | 'とくせい' | 'キセキとくせい' | 'なないろとくせい';
 
 export interface BasicStatus {
 	kemosute?: number | null;
