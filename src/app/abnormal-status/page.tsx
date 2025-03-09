@@ -349,7 +349,7 @@ export default async function AbnormalStatusPage() {
 
 	return (
 		<div className="min-h-screen">
-			<PageTitle title="状態異常一覧" />
+			<PageTitle title="状態異常スキル一覧" />
 
 			<p className="p-1">
 				フレンズとフォトの状態異常スキルをリスト化しています。<br />
