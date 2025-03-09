@@ -35,12 +35,7 @@ function SortIndicatorArrow({ direction, active }: SortIndicatorArrowProps) {
 	const isUp = direction === 'up';
 	return (
 		<svg
-			className={active ? "text-blue-600" : "text-gray-400"}
-			style={{
-				width: "12px",
-				height: "12px",
-				...(isUp ? { marginBottom: "1px" } : {})
-			}}
+			className={`w-3 h-3 ${active ? "text-blue-600" : "text-gray-400"} ${isUp ? "mb-[1px]" : ""}`}
 			viewBox="0 0 16 8"
 			fill="currentColor"
 		>
@@ -298,8 +293,7 @@ export function Table<TData, TValue>({
 												{/* ソートインジケーター */}
 												{header.column.getCanSort() && (
 													<span
-														className="inline-flex flex-col text-gray-700"
-														style={{ height: "15px" }}
+														className="inline-flex flex-col text-gray-700 h-3"
 													>
 														<SortIndicatorArrow
 															direction="up"
