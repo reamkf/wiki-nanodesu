@@ -6,6 +6,7 @@ import { PageTitle } from '@/components/PageTitle';
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 import { AbnormalStatusWithFriend } from "@/types/abnormalStatus";
 import GoogleSheetsLink from "@/components/LinkWithIcon";
+import { AbnormalStatusSkillEffectType } from "@/types/abnormalStatus";
 
 export const metadata = generateMetadata({
 	title: "状態異常一覧",
@@ -51,65 +52,95 @@ export default async function AbnormalStatusPage() {
 		"かくれみ"
 	];
 
-	const subcategories = [
-		{ id: "give-friends", name: "付与するフレンズ" },
-		{ id: "resist-friends", name: "耐性を得るフレンズ" },
-		{ id: "remove-friends", name: "解除するフレンズ" },
-		{ id: "reduce-resist-friends", name: "耐性を減少させるフレンズ" },
-		{ id: "give-resist-photo", name: "耐性を与えるフォト" },
-		{ id: "reduce-resist-photo", name: "耐性を減少させるフォト" },
-		{ id: "give-photo", name: "付与するフォト" }
-	];
-
 	// 状態異常のカテゴリーを構築
 	const abnormalStatusCategories: TableOfContentsData[] = abnormalStatusList.map(statusType => {
+		const statusData = statusTypeData[statusType] || [];
+
+		// データがない場合はnullを返す
+		if (statusData.length === 0) {
+			return null;
+		}
+
+		// フレンズのデータとフォトのデータを分ける
+		const friendsData = statusData.filter(item => !item.isPhoto);
+		const photoData = statusData.filter(item => item.isPhoto);
+
+		const friendsChildren = [];
+		const photoChildren = [];
+
+		// フレンズの各効果タイプのデータをチェック
+		if (friendsData.length > 0) {
+			const giveData = friendsData.filter(item => item.effectType === AbnormalStatusSkillEffectType.give);
+			const incleaseResistData = friendsData.filter(item => item.effectType === AbnormalStatusSkillEffectType.incleaseResist);
+			const decreaseResistData = friendsData.filter(item => item.effectType === AbnormalStatusSkillEffectType.decreaseResist);
+			const removeData = friendsData.filter(item => item.effectType === AbnormalStatusSkillEffectType.remove);
+
+			if (giveData.length > 0) {
+				friendsChildren.push({ id: `${statusType}-friends-give`, name: "付与" });
+			}
+			if (incleaseResistData.length > 0) {
+				friendsChildren.push({ id: `${statusType}-friends-incleaseResist`, name: "耐性増加" });
+			}
+			if (decreaseResistData.length > 0) {
+				friendsChildren.push({ id: `${statusType}-friends-decreaseResist`, name: "耐性減少" });
+			}
+			if (removeData.length > 0) {
+				friendsChildren.push({ id: `${statusType}-friends-remove`, name: "解除" });
+			}
+		}
+
+		// フォトの各効果タイプのデータをチェック
+		if (photoData.length > 0) {
+			const giveData = photoData.filter(item => item.effectType === AbnormalStatusSkillEffectType.give);
+			const incleaseResistData = photoData.filter(item => item.effectType === AbnormalStatusSkillEffectType.incleaseResist);
+			const decreaseResistData = photoData.filter(item => item.effectType === AbnormalStatusSkillEffectType.decreaseResist);
+			const removeData = photoData.filter(item => item.effectType === AbnormalStatusSkillEffectType.remove);
+
+			if (giveData.length > 0) {
+				photoChildren.push({ id: `${statusType}-photo-give`, name: "付与" });
+			}
+			if (incleaseResistData.length > 0) {
+				photoChildren.push({ id: `${statusType}-photo-incleaseResist`, name: "耐性増加" });
+			}
+			if (decreaseResistData.length > 0) {
+				photoChildren.push({ id: `${statusType}-photo-decreaseResist`, name: "耐性減少" });
+			}
+			if (removeData.length > 0) {
+				photoChildren.push({ id: `${statusType}-photo-remove`, name: "解除" });
+			}
+		}
+
+		const children = [];
+
+		// フレンズのデータがある場合
+		if (friendsChildren.length > 0) {
+			children.push({
+				name: "フレンズ",
+				id: `${statusType}-friends`,
+				children: friendsChildren
+			});
+		}
+
+		// フォトのデータがある場合
+		if (photoChildren.length > 0) {
+			children.push({
+				name: "フォト",
+				id: `${statusType}-photo`,
+				children: photoChildren
+			});
+		}
+
+		// 子要素がない場合はnullを返す
+		if (children.length === 0) {
+			return null;
+		}
+
 		return {
 			name: statusType,
 			id: statusType,
-			children: subcategories
-				.filter(subcategory => {
-					// サブカテゴリIDの形式は「{状態異常}-{サブカテゴリ}」
-					const statusData = statusTypeData[statusType] || [];
-
-					// サブカテゴリに対するデータをフィルタリング
-					const filteredData = statusData.filter(status => {
-						const { effect, isPhoto } = status;
-						const subCatId = subcategory.id;
-
-						// フレンズかフォトかで分ける
-						const isPhotoCategory = subCatId.includes('photo');
-						if (isPhoto !== isPhotoCategory) return false;
-
-						// 効果内容でさらに振り分け
-						if (effect.includes('付与') && subCatId.includes('give')) {
-							return true;
-						}
-						if (effect.includes('耐性') && effect.includes('得る') && subCatId === 'resist-friends') {
-							return true;
-						}
-						if (effect.includes('解除') && subCatId === 'remove-friends') {
-							return true;
-						}
-						if (effect.includes('耐性') && effect.includes('減少') && subCatId.includes('reduce-resist')) {
-							return true;
-						}
-						if (effect.includes('耐性') && effect.includes('与える') && subCatId === 'give-resist-photo') {
-							return true;
-						}
-
-						// デフォルトは一致しない
-						return false;
-					});
-
-					// データがある場合のみtrueを返す
-					return filteredData.length > 0;
-				})
-				.map(subcategory => ({
-					name: subcategory.name,
-					id: `${statusType}-${subcategory.id}`
-				}))
+			children: children
 		};
-	});
+	}).filter(category => category !== null); // nullを除外
 
 	return (
 		<div className="min-h-screen">

@@ -45,7 +45,7 @@ export async function getAbnormalStatusData(): Promise<AbnormalStatusEffect[]> {
 						friendsIdOrPhotoName: String(row['フレンズID/フォト名'] || ''),
 						skillType: String(row['わざ種別'] || ''),
 						abnormalStatus: String(row['状態異常'] || ''),
-						effect: String(row['効果'] || ''),
+						effectType: String(row['効果種別'] || ''),
 						power: String(row['威力'] || ''),
 						target: String(row['対象'] || ''),
 						condition: String(row['条件'] || ''),

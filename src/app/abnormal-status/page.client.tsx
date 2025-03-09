@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useCallback, useState, useEffect } from "react";
-import { AbnormalStatusWithFriend } from "@/types/abnormalStatus";
+import { AbnormalStatusWithFriend, AbnormalStatusSkillEffectType } from "@/types/abnormalStatus";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
 import { TableOfContentsData } from "@/components/section/TableOfContents";
 import { ColumnDef } from "@tanstack/react-table";
@@ -206,27 +206,25 @@ export default function ClientTabs({
 	], [customFilterFn]);
 
 	// エフェクトの内容や対象によってサブカテゴリを判定する関数
-	const getCategoryForStatus = useCallback((status: AbnormalStatusWithFriend, subcategoryId: string): boolean => {
-		const { effect, isPhoto } = status;
+	const getCategoryForStatus = useCallback((status: AbnormalStatusWithFriend, categoryId: string): boolean => {
+		const { effectType, isPhoto } = status;
+		const [, entityType, effectTypeId] = categoryId.split('-');
 
 		// フレンズかフォトかで分ける
-		const isPhotoCategory = subcategoryId.includes('photo');
+		const isPhotoCategory = entityType === 'photo';
 		if (isPhoto !== isPhotoCategory) return false;
 
-		// 効果内容でさらに振り分け
-		if (effect.includes('付与') && subcategoryId.includes('give')) {
+		// 効果タイプで振り分け
+		if (effectTypeId === 'give' && effectType === AbnormalStatusSkillEffectType.give) {
 			return true;
 		}
-		if (effect.includes('耐性') && effect.includes('得る') && subcategoryId === 'resist-friends') {
+		if (effectTypeId === 'incleaseResist' && effectType === AbnormalStatusSkillEffectType.incleaseResist) {
 			return true;
 		}
-		if (effect.includes('解除') && subcategoryId === 'remove-friends') {
+		if (effectTypeId === 'decreaseResist' && effectType === AbnormalStatusSkillEffectType.decreaseResist) {
 			return true;
 		}
-		if (effect.includes('耐性') && effect.includes('減少') && subcategoryId.includes('reduce-resist')) {
-			return true;
-		}
-		if (effect.includes('耐性') && effect.includes('与える') && subcategoryId === 'give-resist-photo') {
+		if (effectTypeId === 'remove' && effectType === AbnormalStatusSkillEffectType.remove) {
 			return true;
 		}
 
@@ -235,26 +233,29 @@ export default function ClientTabs({
 	}, []);
 
 	// 状態異常とサブカテゴリでデータをフィルタリングする関数
-	const filterStatusDataByCategoryAndSubcategory = useCallback((
-		statusType: string,
-		subcategoryId: string
-	): AbnormalStatusWithFriend[] => {
+	const filterStatusDataByCategoryAndSubcategory = useCallback((categoryId: string): AbnormalStatusWithFriend[] => {
+		// カテゴリIDの形式は「{状態異常}-{entityType}-{effectType}」
+		const [statusType, entityType, effectTypeId] = categoryId.split('-');
+
+		if (!statusType) return [];
+
 		const statusData = statusTypeData[statusType] || [];
 
-		// サブカテゴリIDの形式は「{状態異常}-{サブカテゴリ}」
-		const subCatId = subcategoryId.split('-').slice(1).join('-');
+		// 中間階層（フレンズ/フォト）のみの場合、その階層のデータをすべて返す
+		if (statusType && entityType && !effectTypeId) {
+			const isPhotoCategory = entityType === 'photo';
+			return statusData.filter(status => status.isPhoto === isPhotoCategory);
+		}
 
-		return statusData.filter(status => getCategoryForStatus(status, subCatId));
+		// 完全なカテゴリID（状態異常-フレンズ/フォト-効果タイプ）の場合
+		return statusData.filter(status => getCategoryForStatus(status, categoryId));
 	}, [statusTypeData, getCategoryForStatus]);
 
 	// カテゴリIDに基づいてコンテンツをレンダリングする関数
 	const renderContent = useCallback((categoryId: string) => {
-		// サブカテゴリの場合（状態異常-サブカテゴリID）
-		if (categoryId.includes('-')) {
-			const statusData = filterStatusDataByCategoryAndSubcategory(
-				categoryId.split('-')[0],
-				categoryId
-			);
+		// 第三階層（状態異常-フレンズ/フォト-効果タイプ）の場合だけテーブルを表示
+		if (categoryId.split('-').length === 3) {
+			const statusData = filterStatusDataByCategoryAndSubcategory(categoryId);
 
 			if (statusData.length === 0) return null;
 
@@ -267,7 +268,7 @@ export default function ClientTabs({
 			);
 		}
 
-		// 通常の状態異常タイプの場合
+		// それ以外の階層の場合は何も表示しない
 		return null;
 	}, [columns, filterStatusDataByCategoryAndSubcategory]);
 

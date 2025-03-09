@@ -1,10 +1,17 @@
 import { SkillType } from "./common";
 
+export enum AbnormalStatusSkillEffectType {
+	incleaseResist = '耐性増加',
+	decreaseResist = '耐性減少',
+	give = '付与',
+	remove = '解除',
+}
+
 export type AbnormalStatusEffect = {
 	friendsIdOrPhotoName: string;  // フレンズID/フォト名
 	skillType: SkillType;        // わざ種別
 	abnormalStatus: string;      // 状態異常
-	effect: string;              // 効果
+	effectType: AbnormalStatusSkillEffectType;      // 効果種別
 	power: string;               // 威力
 	target: string;              // 対象
 	condition: string;           // 条件
@@ -18,7 +25,7 @@ export const RAW_ABNORMAL_STATUS_CSV_HEADERS = [
 	'フレンズID/フォト名',
 	'わざ種別',
 	'状態異常',
-	'効果',
+	'効果種別',
 	'威力',
 	'対象',
 	'条件',
