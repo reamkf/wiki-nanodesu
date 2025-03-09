@@ -300,12 +300,18 @@ export default function ClientTabs({
 	const getActivationRatePriority = useCallback((activationRate: string): number => {
 		if (!activationRate) return -1;
 
+		// 数値+%の形式（例：100%、75%など）をチェック
+		const percentMatch = activationRate.match(/^(\d+)%$/);
+		if (percentMatch) {
+			// 数値を抽出して、100を基準にソート（大きいほど優先度が高い）
+			return 100 + parseInt(percentMatch[1], 10);
+		}
+
 		const rateMap: Record<string, number> = {
-			'-': 5,
-			'100%': 4,
-			'高確率': 3,
-			'中確率': 2,
-			'低確率': 1
+			'-': 100,
+			'高確率': 90,
+			'中確率': 50,
+			'低確率': 30
 		};
 
 		return rateMap[activationRate] || 0;
