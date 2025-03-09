@@ -57,7 +57,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 
 			bg-[#f1f9fff4] md:bg-sky-50
 
-			transform transition-transform duration-300 ease-in-out
+			transform transition-transform duration-200 ease-in-out
 			${isOpen ? 'translate-x-0' : '-translate-x-[110%] md:translate-x-0'}
 
 			rounded-lg

@@ -60,7 +60,7 @@ export function Heading({
 				flex items-center justify-between
 				${getSpacingClasses()}
 				scroll-mt-8
-				transition-all duration-300 ease-in-out
+				transition-all duration-200 ease-in-out
 				border-b border-solid ${getBorderClasses()}
 				hover:shadow-xs
 				${className || ''}

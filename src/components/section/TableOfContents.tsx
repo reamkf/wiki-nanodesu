@@ -169,7 +169,7 @@ export function TableOfContents({
 				<Dialog as="div" className="relative z-10" onClose={handleCloseDialog}>
 					<TransitionChild
 						as={Fragment}
-						enter="ease-out duration-300"
+						enter="ease-out duration-200"
 						enterFrom="opacity-0"
 						enterTo="opacity-100"
 						leave="ease-in duration-200"
@@ -183,7 +183,7 @@ export function TableOfContents({
 						<div className="flex min-h-full items-center justify-center p-4 text-center">
 							<TransitionChild
 								as={Fragment}
-								enter="ease-out duration-300"
+								enter="ease-out duration-200"
 								enterFrom="opacity-0 scale-95"
 								enterTo="opacity-100 scale-100"
 								leave="ease-in duration-200"

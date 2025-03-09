@@ -95,7 +95,7 @@ export function CategoryLayout({
 			if (element) {
 				setTimeout(() => {
 					element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-				}, 300);
+				}, 200);
 			}
 		}
 	}, []);

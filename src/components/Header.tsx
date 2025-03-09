@@ -20,15 +20,15 @@ export function Header() {
 			>
 				<div className="w-6 h-6 relative">
 					<span className={`
-						absolute left-0 w-6 h-0.5 bg-current transition-all duration-300
+						absolute left-0 w-6 h-0.5 bg-current transition-all duration-200
 						${isSidebarOpen ? 'top-3 rotate-45' : 'top-1'}
 					`}></span>
 					<span className={`
-						absolute left-0 top-3 w-6 h-0.5 bg-current transition-opacity duration-300
+						absolute left-0 top-3 w-6 h-0.5 bg-current transition-opacity duration-200
 						${isSidebarOpen ? 'opacity-0' : 'opacity-100'}
 					`}></span>
 					<span className={`
-						absolute left-0 w-6 h-0.5 bg-current transition-all duration-300
+						absolute left-0 w-6 h-0.5 bg-current transition-all duration-200
 						${isSidebarOpen ? 'top-3 -rotate-45' : 'top-5'}
 					`}></span>
 				</div>
