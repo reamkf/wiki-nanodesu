@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { Box, List, ListItemButton, ListItemText, IconButton, Dialog, DialogContent, DialogTitle, Zoom, Button } from '@mui/material';
-import { FoldingSection } from './FoldingSection';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -27,18 +26,17 @@ export function TableOfContents({
 	const [open, setOpen] = useState(false);
 	const [showButton, setShowButton] = useState(false);
 
-	// スクロールを監視して、目次が画面外になったらボタンを表示する
+	// スクロールを監視して、一定以上スクロールしたらボタンを表示する
 	useEffect(() => {
 		const handleScroll = () => {
-			const tocElement = document.getElementById('table-of-contents');
-			if (tocElement) {
-				const rect = tocElement.getBoundingClientRect();
-				// 目次が画面上部から出たらボタンを表示
-				setShowButton(rect.top < 0);
-			}
+			// 100px以上スクロールしたらボタンを表示
+			setShowButton(window.scrollY > 100);
 		};
 
 		window.addEventListener('scroll', handleScroll);
+		// 初期表示時にもチェック
+		handleScroll();
+
 		return () => {
 			window.removeEventListener('scroll', handleScroll);
 		};
@@ -120,35 +118,50 @@ export function TableOfContents({
 		</Box>
 	);
 
+	// 共通の目次ボタン
+	const tocButton = (
+		<Button
+			onClick={handleOpenDialog}
+			startIcon={<MenuIcon />}
+			className="
+				bg-sky-100
+				hover:bg-sky-200
+				text-gray-800
+				rounded-lg
+				normal-case
+				px-4
+				py-2
+				flex
+				items-center
+				justify-center
+				text-sm
+				font-bold
+				text-sky-700
+			"
+			disableRipple
+			disableElevation
+		>
+			目次
+		</Button>
+	);
+
 	return (
 		<>
-			{/* 常に表示されるボタン */}
+			{/* スクロール時の固定ボタン */}
 			{showButton && (
 				<Box
 					className="fixed top-4 right-4 z-50"
 				>
-					<Button
-						onClick={handleOpenDialog}
-						startIcon={<MenuIcon />}
-						className="
-							bg-gray-100
-							hover:bg-gray-200
-							text-gray-800
-							shadow-md
-							rounded-lg
-							normal-case
-							px-4
-							py-2
-							flex
-							items-center
-							justify-center
-							text-sm
-						"
-						disableRipple
-						disableElevation
-					>
-						目次
-					</Button>
+					{tocButton}
+				</Box>
+			)}
+
+			{/* 通常表示の目次ボタン */}
+			{!showButton && (
+				<Box
+					className="mb-4"
+				>
+					{tocButton}
 				</Box>
 			)}
 
@@ -172,18 +185,6 @@ export function TableOfContents({
 					{tocContent}
 				</DialogContent>
 			</Dialog>
-
-			{/* 通常の目次表示 */}
-			<div id="table-of-contents">
-				<FoldingSection
-					toggleButtonLabel={<span className="font-bold">目次</span>}
-					isOpenByDefault={true}
-				>
-					<>
-						{tocContent}
-					</>
-				</FoldingSection>
-			</div>
 		</>
 	);
 }
