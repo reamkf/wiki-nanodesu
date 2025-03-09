@@ -352,8 +352,14 @@ export default async function AbnormalStatusPage() {
 			<PageTitle title="状態異常スキル一覧" />
 
 			<p className="p-1">
-				フレンズとフォトの状態異常スキルをリスト化しています。<br />
-				けものミラクルのものは、全てLv.5での効果を記載しています。
+				フレンズとフォトの状態異常付与や耐性増加スキルの一覧です。<br />
+				状態異常の効果の説明は書いていません。代わりに
+				<SeesaaWikiLink
+					href="https://seesaawiki.jp/kemono_friends3_5ch/d/%BE%F5%C2%D6%B0%DB%BE%EF"
+				>
+					こちら
+				</SeesaaWikiLink>
+				を参照してください。
 			</p>
 			<p className="p-1">
 				このページのデータは下記のスプレッドシートで管理しています。
