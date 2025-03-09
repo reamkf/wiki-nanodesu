@@ -25,6 +25,28 @@ import {
 	NavigateBefore,
 } from "@mui/icons-material";
 
+const PAGE_SIZE_OPTIONS = [500, 200, 100, 50, 20];
+const DEFAULT_PAGE_SIZE = 100;
+const MIN_PAGE_SIZE = Math.min(...PAGE_SIZE_OPTIONS);
+
+interface PaginationButtonProps {
+	onClick: () => void;
+	disabled: boolean;
+	icon: React.ReactNode;
+}
+
+function PaginationButton({ onClick, disabled, icon }: PaginationButtonProps) {
+	return (
+		<IconButton
+			size="small"
+			onClick={onClick}
+			disabled={disabled}
+		>
+			{icon}
+		</IconButton>
+	);
+}
+
 export interface SortableTableProps<TData, TValue> {
 	data: TData[];
 	columns: ColumnDef<TData, TValue>[];
@@ -35,19 +57,14 @@ export interface SortableTableProps<TData, TValue> {
 		pagination?: PaginationState;
 	};
 	rowComponent: React.FC<{ row: Row<TData> }>;
-	pageSizes?: number[];
 }
 
-interface PaginationControlsProps<TData> {
-	table: ReactTable<TData>;
-	pageSizes: number[];
-}
+interface PaginationControlsProps<TData> { table: ReactTable<TData>; }
 
 function PaginationControls<TData>({
 	table,
-	pageSizes,
 }: PaginationControlsProps<TData>) {
-	if (table.getPageCount() === 1) {
+	if (table.getRowCount() <= MIN_PAGE_SIZE) {
 		return null;
 	}
 
@@ -65,7 +82,7 @@ function PaginationControls<TData>({
 						size="small"
 						className="min-w-[80px]"
 					>
-						{pageSizes.map((pageSize) => (
+						{PAGE_SIZE_OPTIONS.map((pageSize) => (
 							<MenuItem key={pageSize} value={pageSize}>
 								{pageSize}
 							</MenuItem>
@@ -76,38 +93,30 @@ function PaginationControls<TData>({
 				<div className="flex items-center gap-2">
 					{/* ページ移動ボタン */}
 					<div className="flex items-center gap-1">
-						<IconButton
-							size="small"
+						<PaginationButton
 							onClick={() => table.setPageIndex(0)}
 							disabled={!table.getCanPreviousPage()}
-						>
-							<FirstPage />
-						</IconButton>
-						<IconButton
-							size="small"
+							icon={<FirstPage />}
+						/>
+						<PaginationButton
 							onClick={() => table.previousPage()}
 							disabled={!table.getCanPreviousPage()}
-						>
-							<NavigateBefore />
-						</IconButton>
+							icon={<NavigateBefore />}
+						/>
 						<span className="text-sm text-gray-700 mx-2">
 							{table.getState().pagination.pageIndex + 1} /{" "}
 							{table.getPageCount()}
 						</span>
-						<IconButton
-							size="small"
+						<PaginationButton
 							onClick={() => table.nextPage()}
 							disabled={!table.getCanNextPage()}
-						>
-							<NavigateNext />
-						</IconButton>
-						<IconButton
-							size="small"
+							icon={<NavigateNext />}
+						/>
+						<PaginationButton
 							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
 							disabled={!table.getCanNextPage()}
-						>
-							<LastPage />
-						</IconButton>
+							icon={<LastPage />}
+						/>
 					</div>
 				</div>
 			</div>
@@ -121,7 +130,6 @@ export function Table<TData, TValue>({
 	tableId,
 	initialState,
 	rowComponent: RowComponent,
-	pageSizes = [500, 200, 100, 50, 20, 10],
 }: SortableTableProps<TData, TValue>) {
 	// localStorageのキー
 	const storageKeyPrefix = `wiki-nanodesu.Table.${tableId}`;
@@ -160,7 +168,7 @@ export function Table<TData, TValue>({
 	);
 
 	const [pagination, setPagination] = useState<PaginationState>(
-		() => initialState?.pagination || getStoredState('pagination', { pageIndex: 0, pageSize: 100 })
+		() => initialState?.pagination || getStoredState('pagination', { pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE })
 	);
 
 	const storeStateCallback = useCallback(storeState, [storageKeyPrefix]);
@@ -215,7 +223,7 @@ export function Table<TData, TValue>({
 	return (
 		<div>
 			{/* テーブル上部のページネーションコントロール */}
-			<PaginationControls table={table} pageSizes={pageSizes} />
+			<PaginationControls table={table} />
 
 			<table className="border-collapse w-full [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
 				<colgroup>
@@ -387,7 +395,7 @@ export function Table<TData, TValue>({
 			</table>
 
 			{/* テーブル下部のページネーションコントロール */}
-			<PaginationControls table={table} pageSizes={pageSizes} />
+			<PaginationControls table={table} />
 		</div>
 	);
 }
