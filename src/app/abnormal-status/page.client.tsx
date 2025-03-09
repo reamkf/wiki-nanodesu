@@ -103,11 +103,11 @@ export default function ClientTabs({
 								</div>
 							)}
 							<div>
-								<div className="font-bold">
-									{status.photoDataRow.name}
-								</div>
 								<div className="text-xs text-gray-600">
-									⭐{status.photoDataRow.rarity}
+									☆{status.photoDataRow.rarity}
+								</div>
+								<div>
+									{status.photoDataRow.name}
 								</div>
 							</div>
 						</div>
