@@ -1,5 +1,5 @@
 import { SidebarClient } from './Sidebar.client';
-import { getFriendsData } from '@/utils/friendsData';
+import { getFriendsData } from '@/utils/friends/friendsData';
 import { FriendsDataRow } from '@/types/friends';
 import { getPhotoData } from '@/utils/photoData';
 import { getWikiNanodaPageUrl } from '@/utils/seesaaWiki';

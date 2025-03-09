@@ -1,6 +1,6 @@
 import { describe, test, expect } from "bun:test";
-import { isHc } from "../friends";
-import { getFriendsData } from "../friendsData";
+import { isHc } from "../friends/friends";
+import { getFriendsData } from "../friends/friendsData";
 
 describe('isHc', async () => {
 	const friendsData = await getFriendsData();

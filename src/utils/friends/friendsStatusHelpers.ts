@@ -1,4 +1,4 @@
-import { ProcessedFriendsStatusListItem } from "@/utils/friendsStatus";
+import { ProcessedFriendsStatusListItem } from "@/utils/friends/friendsStatus";
 
 export const STATUS_TYPES = [
 	"☆6/Lv200/野生4",

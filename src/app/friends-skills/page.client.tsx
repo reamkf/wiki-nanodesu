@@ -6,7 +6,7 @@ import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttribu
 import { TableOfContentsData } from "@/components/section/TableOfContents";
 import { ColumnDef } from "@tanstack/react-table";
 import { toPercent, isNumber } from "@/utils/common";
-import { sortFriendsAttribute } from "@/utils/friends";
+import { sortFriendsAttribute } from "@/utils/friends/friends";
 import { createCustomFilterFn } from "@/components/table/FilterableDataTable";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
 import { FriendsAttribute } from "@/types/friends";
