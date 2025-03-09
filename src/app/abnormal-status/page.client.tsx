@@ -214,23 +214,22 @@ export default function ClientTabs({
 		const isPhotoCategory = entityType === 'photo';
 		if (isPhoto !== isPhotoCategory) return false;
 
-		// 効果タイプで振り分け
-		if (effectTypeId === 'give' && effectType === AbnormalStatusSkillEffectType.give) {
-			return true;
-		}
-		if (effectTypeId === 'incleaseResist' && effectType === AbnormalStatusSkillEffectType.incleaseResist) {
-			return true;
-		}
-		if (effectTypeId === 'decreaseResist' && effectType === AbnormalStatusSkillEffectType.decreaseResist) {
-			return true;
-		}
-		if (effectTypeId === 'remove' && effectType === AbnormalStatusSkillEffectType.remove) {
-			return true;
-		}
+		// 効果タイプと効果タイプIDの対応マップ
+		const effectTypeMap: Record<string, AbnormalStatusSkillEffectType> = {
+			'give': AbnormalStatusSkillEffectType.give,
+			'incleaseResist': AbnormalStatusSkillEffectType.incleaseResist,
+			'decreaseResist': AbnormalStatusSkillEffectType.decreaseResist,
+			'remove': AbnormalStatusSkillEffectType.remove
+		};
 
-		// デフォルトは一致しない
-		return false;
+		// 効果タイプの一致を確認
+		return effectTypeMap[effectTypeId] === effectType;
 	}, []);
+
+	// enumの値の配列を取得
+	const abnormalStatusEffectTypes = useMemo(() =>
+		Object.values(AbnormalStatusSkillEffectType),
+	[]);
 
 	// 状態異常とサブカテゴリでデータをフィルタリングする関数
 	const filterStatusDataByCategoryAndSubcategory = useCallback((categoryId: string): AbnormalStatusWithFriend[] => {
@@ -240,21 +239,33 @@ export default function ClientTabs({
 		if (!statusType) return [];
 
 		const statusData = statusTypeData[statusType] || [];
+		const isPhotoCategory = entityType === 'photo';
 
-		// 中間階層（フレンズ/フォト）のみの場合、その階層のデータをすべて返す
+		// 第二階層（状態異常-フレンズ/フォト）の場合
 		if (statusType && entityType && !effectTypeId) {
-			const isPhotoCategory = entityType === 'photo';
 			return statusData.filter(status => status.isPhoto === isPhotoCategory);
+		}
+
+		// 効果タイプの全てを取得する場合
+		if (effectTypeId === 'all') {
+			return statusData.filter(status => {
+				return status.isPhoto === isPhotoCategory &&
+					abnormalStatusEffectTypes.includes(status.effectType);
+			});
 		}
 
 		// 完全なカテゴリID（状態異常-フレンズ/フォト-効果タイプ）の場合
 		return statusData.filter(status => getCategoryForStatus(status, categoryId));
-	}, [statusTypeData, getCategoryForStatus]);
+	}, [statusTypeData, getCategoryForStatus, abnormalStatusEffectTypes]);
 
 	// カテゴリIDに基づいてコンテンツをレンダリングする関数
 	const renderContent = useCallback((categoryId: string) => {
-		// 第三階層（状態異常-フレンズ/フォト-効果タイプ）の場合だけテーブルを表示
-		if (categoryId.split('-').length === 3) {
+		// カテゴリIDの階層を分解
+		const parts = categoryId.split('-');
+		const depth = parts.length;
+
+		// 第二階層（状態異常-フレンズ/フォト）または第三階層（状態異常-フレンズ/フォト-効果タイプ）の場合
+		if (depth >= 2) {
 			const statusData = filterStatusDataByCategoryAndSubcategory(categoryId);
 
 			if (statusData.length === 0) return null;

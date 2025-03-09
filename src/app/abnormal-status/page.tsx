@@ -4,9 +4,15 @@ import ClientTabs from "./page.client";
 import { TableOfContentsData } from "@/components/section/TableOfContents";
 import { PageTitle } from '@/components/PageTitle';
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
-import { AbnormalStatusWithFriend } from "@/types/abnormalStatus";
+import { AbnormalStatusWithFriend, AbnormalStatusSkillEffectType } from "@/types/abnormalStatus";
 import GoogleSheetsLink from "@/components/LinkWithIcon";
-import { AbnormalStatusSkillEffectType } from "@/types/abnormalStatus";
+
+// 効果タイプの値からIDを取得するマッピング
+const EFFECT_TYPE_VALUE_TO_ID = Object.fromEntries(
+	Object.entries(AbnormalStatusSkillEffectType).map(
+		([key, value]) => [value, key]
+	)
+) as Record<AbnormalStatusSkillEffectType, keyof typeof AbnormalStatusSkillEffectType>;
 
 export const metadata = generateMetadata({
 	title: "状態異常一覧",
@@ -65,50 +71,36 @@ export default async function AbnormalStatusPage() {
 		const friendsData = statusData.filter(item => !item.isPhoto);
 		const photoData = statusData.filter(item => item.isPhoto);
 
-		const friendsChildren = [];
-		const photoChildren = [];
+		// 効果タイプの配列
+		const effectTypes = Object.values(AbnormalStatusSkillEffectType);
 
-		// フレンズの各効果タイプのデータをチェック
-		if (friendsData.length > 0) {
-			const giveData = friendsData.filter(item => item.effectType === AbnormalStatusSkillEffectType.give);
-			const incleaseResistData = friendsData.filter(item => item.effectType === AbnormalStatusSkillEffectType.incleaseResist);
-			const decreaseResistData = friendsData.filter(item => item.effectType === AbnormalStatusSkillEffectType.decreaseResist);
-			const removeData = friendsData.filter(item => item.effectType === AbnormalStatusSkillEffectType.remove);
+		// フレンズの子カテゴリを構築
+		const friendsChildren = effectTypes
+			.map(effectType => {
+				const data = friendsData.filter(item => item.effectType === effectType);
+				if (data.length === 0) return null;
 
-			if (giveData.length > 0) {
-				friendsChildren.push({ id: `${statusType}-friends-give`, name: "付与" });
-			}
-			if (incleaseResistData.length > 0) {
-				friendsChildren.push({ id: `${statusType}-friends-incleaseResist`, name: "耐性増加" });
-			}
-			if (decreaseResistData.length > 0) {
-				friendsChildren.push({ id: `${statusType}-friends-decreaseResist`, name: "耐性減少" });
-			}
-			if (removeData.length > 0) {
-				friendsChildren.push({ id: `${statusType}-friends-remove`, name: "解除" });
-			}
-		}
+				const effectTypeId = EFFECT_TYPE_VALUE_TO_ID[effectType];
+				return {
+					id: `${statusType}-friends-${effectTypeId}`,
+					name: effectType as string
+				};
+			})
+			.filter((item): item is { id: string; name: string } => item !== null);
 
-		// フォトの各効果タイプのデータをチェック
-		if (photoData.length > 0) {
-			const giveData = photoData.filter(item => item.effectType === AbnormalStatusSkillEffectType.give);
-			const incleaseResistData = photoData.filter(item => item.effectType === AbnormalStatusSkillEffectType.incleaseResist);
-			const decreaseResistData = photoData.filter(item => item.effectType === AbnormalStatusSkillEffectType.decreaseResist);
-			const removeData = photoData.filter(item => item.effectType === AbnormalStatusSkillEffectType.remove);
+		// フォトの子カテゴリを構築
+		const photoChildren = effectTypes
+			.map(effectType => {
+				const data = photoData.filter(item => item.effectType === effectType);
+				if (data.length === 0) return null;
 
-			if (giveData.length > 0) {
-				photoChildren.push({ id: `${statusType}-photo-give`, name: "付与" });
-			}
-			if (incleaseResistData.length > 0) {
-				photoChildren.push({ id: `${statusType}-photo-incleaseResist`, name: "耐性増加" });
-			}
-			if (decreaseResistData.length > 0) {
-				photoChildren.push({ id: `${statusType}-photo-decreaseResist`, name: "耐性減少" });
-			}
-			if (removeData.length > 0) {
-				photoChildren.push({ id: `${statusType}-photo-remove`, name: "解除" });
-			}
-		}
+				const effectTypeId = EFFECT_TYPE_VALUE_TO_ID[effectType];
+				return {
+					id: `${statusType}-photo-${effectTypeId}`,
+					name: effectType as string
+				};
+			})
+			.filter((item): item is { id: string; name: string } => item !== null);
 
 		const children = [];
 
