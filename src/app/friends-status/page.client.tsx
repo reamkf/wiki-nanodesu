@@ -6,8 +6,6 @@ import { FriendsNameLink } from "../../components/friends/FriendsNameLink";
 import {
 	createColumnHelper,
 	SortingState,
-	ColumnFiltersState,
-	PaginationState,
 	Row,
 	Cell,
 	flexRender,
@@ -232,22 +230,8 @@ export default function FriendsStatusTable({
 		return false;
 	});
 
-	const [sorting, setSorting] = useState<SortingState>([
-		{
-			id: "kemosute",
-			desc: true,
-		},
-	]);
-
-	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-
-	const [pagination, setPagination] = useState<PaginationState>(() => {
-		if (typeof window !== "undefined") {
-			const saved = localStorage.getItem("wiki-nanodesu.friends-status.pagination");
-			return saved ? JSON.parse(saved) : { pageIndex: 0, pageSize: 100 };
-		}
-		return { pageIndex: 0, pageSize: 100 };
-	});
+	// ソート状態
+	const [sorting, setSorting] = useState<SortingState>([{id: 'kemosute', desc: true}]);
 
 	// 初回レンダリング時に設定を読み込む
 	useEffect(() => {
@@ -262,13 +246,12 @@ export default function FriendsStatusTable({
 				"wiki-nanodesu.friends-status.selectedStatusTypes",
 				JSON.stringify(Array.from(selectedStatusTypes))
 			);
-			localStorage.setItem("wiki-nanodesu.friends-status.pagination", JSON.stringify(pagination));
 			localStorage.setItem(
 				"wiki-nanodesu.friends-status.showCostumeBonus",
 				JSON.stringify(showCostumeBonus)
 			);
 		}
-	}, [hideNullStatus, selectedStatusTypes, pagination, showCostumeBonus]);
+	}, [hideNullStatus, selectedStatusTypes, showCostumeBonus]);
 
 	const filteredData = useMemo(() => {
 		// まだマウントされていない場合は、サーバーからのプリフィルターデータを使用
@@ -578,10 +561,8 @@ export default function FriendsStatusTable({
 				<Table<ProcessedFriendsStatusListItem, unknown>
 					data={filteredData}
 					columns={columns}
-					state={{ sorting, columnFilters, pagination }}
-					onSortingChange={setSorting}
-					onColumnFiltersChange={setColumnFilters}
-					onPaginationChange={setPagination}
+					tableId="friends-status"
+					initialState={{ sorting }}
 					rowComponent={TableRow}
 				/>
 			</div>

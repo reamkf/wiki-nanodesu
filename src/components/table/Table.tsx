@@ -1,19 +1,18 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
 	flexRender,
 	getCoreRowModel,
-	getSortedRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
+	getSortedRowModel,
 	useReactTable,
 	ColumnDef,
-	OnChangeFn,
-	PaginationState,
-	SortingState,
 	ColumnFiltersState,
+	PaginationState,
 	Row,
+	SortingState,
 	Table as ReactTable,
 } from "@tanstack/react-table";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -29,14 +28,12 @@ import {
 export interface SortableTableProps<TData, TValue> {
 	data: TData[];
 	columns: ColumnDef<TData, TValue>[];
-	state: {
-		sorting: SortingState;
-		columnFilters: ColumnFiltersState;
-		pagination: PaginationState;
+	tableId: string;
+	initialState?: {
+		sorting?: SortingState;
+		columnFilters?: ColumnFiltersState;
+		pagination?: PaginationState;
 	};
-	onSortingChange: OnChangeFn<SortingState>;
-	onColumnFiltersChange: OnChangeFn<ColumnFiltersState>;
-	onPaginationChange: OnChangeFn<PaginationState>;
 	rowComponent: React.FC<{ row: Row<TData> }>;
 	pageSizes?: number[];
 }
@@ -50,6 +47,10 @@ function PaginationControls<TData>({
 	table,
 	pageSizes,
 }: PaginationControlsProps<TData>) {
+	if (table.getPageCount() === 1) {
+		return null;
+	}
+
 	return (
 		<div className="overflow-x-auto max-w-full">
 			<div className="flex items-center px-1 py-2 gap-4 min-w-[720px] max-w-[1920px]">
@@ -117,20 +118,69 @@ function PaginationControls<TData>({
 export function Table<TData, TValue>({
 	data,
 	columns,
-	state,
-	onSortingChange,
-	onColumnFiltersChange,
-	onPaginationChange,
+	tableId,
+	initialState,
 	rowComponent: RowComponent,
 	pageSizes = [500, 200, 100, 50, 20, 10],
 }: SortableTableProps<TData, TValue>) {
+	// localStorageのキー
+	const storageKeyPrefix = `wiki-nanodesu.Table.${tableId}`;
+
+	// localStorageから状態を取得するヘルパー関数
+	const getStoredState = <T,>(key: string, defaultValue: T): T => {
+		if (typeof window === 'undefined') return defaultValue;
+
+		try {
+			const storedValue = localStorage.getItem(`${storageKeyPrefix}.${key}`);
+			return storedValue ? JSON.parse(storedValue) : defaultValue;
+		} catch (e) {
+			console.error(`Error retrieving state for ${key}:`, e);
+			return defaultValue;
+		}
+	};
+
+	// localStorageに状態を保存するヘルパー関数
+	const storeState = <T,>(key: string, value: T) => {
+		if (typeof window === 'undefined') return;
+
+		try {
+			localStorage.setItem(`${storageKeyPrefix}.${key}`, JSON.stringify(value));
+		} catch (e) {
+			console.error(`Error storing state for ${key}:`, e);
+		}
+	};
+
+	// 状態管理
+	const [sorting, setSorting] = useState<SortingState>(
+		() => initialState?.sorting || []
+	);
+
+	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+		() => initialState?.columnFilters || []
+	);
+
+	const [pagination, setPagination] = useState<PaginationState>(
+		() => initialState?.pagination || getStoredState('pagination', { pageIndex: 0, pageSize: 100 })
+	);
+
+	const storeStateCallback = useCallback(storeState, [storageKeyPrefix]);
+
+	// ページネーション状態が変更されたときlocalStorageに保存
+	useEffect(() => {
+		storeStateCallback('pagination', pagination);
+	}, [pagination, storeStateCallback]);
+
 	const table = useReactTable({
 		data,
 		columns,
-		state,
-		onSortingChange,
-		onColumnFiltersChange,
-		onPaginationChange,
+		state: {
+			sorting,
+			columnFilters,
+			pagination,
+		},
+		onSortingChange: setSorting,
+		onColumnFiltersChange: setColumnFilters,
+		onPaginationChange: setPagination,
 		getCoreRowModel: getCoreRowModel(),
 		getSortedRowModel: getSortedRowModel(),
 		getFilteredRowModel: getFilteredRowModel(),

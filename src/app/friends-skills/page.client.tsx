@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useMemo, useCallback } from "react";
 import { Box } from "@mui/material";
 import { SkillWithFriend } from "@/types/friendsSkills";
 import { Table } from "@/components/table/Table";
@@ -16,9 +16,6 @@ import {
 	ColumnDef,
 	Row,
 	flexRender,
-	SortingState,
-	ColumnFiltersState,
-	PaginationState
 } from "@tanstack/react-table";
 import { toPercent } from "@/utils/common";
 import { includesNormalizeQuery } from "@/utils/queryNormalizer";
@@ -35,30 +32,6 @@ const SkillTypeTable = React.memo(({
 	columns: ColumnDef<SkillWithFriend, unknown>[];
 	effectType: string;
 }) => {
-	// 各テーブル独自の状態を管理
-	const [sorting, setSorting] = useState<SortingState>([]);
-	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-	const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 50 });
-	const [isMounted, setIsMounted] = useState(false);
-
-	// 初期化ハンドラー
-	useEffect(() => {
-		if (typeof window !== "undefined") {
-			const saved = localStorage.getItem(`wiki-nanodesu.friends-skills.pagination.${effectType}`);
-			if (saved) {
-				setPagination(JSON.parse(saved));
-			}
-			setIsMounted(true);
-		}
-	}, [effectType]);
-
-	// ローカルストレージへの保存
-	useEffect(() => {
-		if (typeof window !== "undefined" && isMounted) {
-			localStorage.setItem(`wiki-nanodesu.friends-skills.pagination.${effectType}`, JSON.stringify(pagination));
-		}
-	}, [pagination, effectType, isMounted]);
-
 	// カスタム行コンポーネント
 	const CustomRowComponent = useCallback(({ row }: { row: Row<SkillWithFriend> }) => (
 		<tr
@@ -83,14 +56,7 @@ const SkillTypeTable = React.memo(({
 			<Table
 				data={data}
 				columns={columns}
-				state={{
-					sorting,
-					columnFilters,
-					pagination
-				}}
-				onSortingChange={setSorting}
-				onColumnFiltersChange={setColumnFilters}
-				onPaginationChange={setPagination}
+				tableId={`friends-skills-${effectType}`}
 				rowComponent={CustomRowComponent}
 			/>
 		</>
@@ -111,7 +77,7 @@ const getSearchableText = (
 			return row.friendsDataRow.attribute;
 		default:
 			return (
-				row[columnId as keyof SkillWithFriend].toString() ?? ""
+				row[columnId as keyof SkillWithFriend]?.toString() ?? ""
 			);
 	}
 };
