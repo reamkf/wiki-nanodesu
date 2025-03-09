@@ -15,7 +15,7 @@ const EFFECT_TYPE_VALUE_TO_ID = Object.fromEntries(
 ) as Record<AbnormalStatusSkillEffectType, keyof typeof AbnormalStatusSkillEffectType>;
 
 export const metadata = generateMetadata({
-	title: "状態異常一覧",
+	title: "状態異常スキル一覧",
 });
 
 export default async function AbnormalStatusPage() {
