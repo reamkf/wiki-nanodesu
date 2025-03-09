@@ -37,7 +37,7 @@ export function Header() {
 	}
 
 	return (
-		<header className="bg-linear-to-b from-sky-300 to-sky-200 text-white h-[63px] md:relative fixed top-0 left-0 right-0 z-50">
+		<header className="bg-linear-to-b from-sky-300 to-sky-200 text-white h-[63px]">
 			<div className="w-full h-full px-2 flex justify-center items-center max-w-[1920px]">
 				<div className="flex items-center flex-1">
 					{sidebarButton()}
