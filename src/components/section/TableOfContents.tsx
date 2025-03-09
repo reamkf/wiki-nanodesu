@@ -55,8 +55,13 @@ export function TableOfContents({
 
 	// 目次項目がクリックされたとき
 	const handleItemClick = useCallback((id: string) => {
-		onSelect(id);
-		setOpen(false); // ダイアログを閉じる
+		// まずダイアログを閉じる
+		setOpen(false);
+
+		// ダイアログの閉じるアニメーション（200ms）が完了してからonSelectを呼び出す
+		setTimeout(() => {
+			onSelect(id);
+		}, 200);
 	}, [onSelect]);
 
 	// 再帰的にカテゴリーをレンダリングする関数
