@@ -156,13 +156,22 @@ export function TableOfContents({
 	return (
 		<>
 			{/* スクロール時の固定ボタン */}
-			{showButton && (
+			<Transition
+				as={Fragment}
+				show={showButton}
+				enter="transition-opacity duration-200"
+				enterFrom="opacity-0"
+				enterTo="opacity-100"
+				leave="transition-opacity duration-200"
+				leaveFrom="opacity-100"
+				leaveTo="opacity-0"
+			>
 				<Box
 					className="fixed top-4 right-4 z-50"
 				>
 					{tocButton}
 				</Box>
-			)}
+			</Transition>
 
 			{/* 通常表示の目次ボタン */}
 			<Box className="my-2" ref={normalButtonRef}>
