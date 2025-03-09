@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import Papa from "papaparse";
-import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV, RAW_FRIENDS_CSV_HEADERS } from "@/types/friends";
+import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV } from "@/types/friends";
 import type { BasicStatus } from "@/types/common";
 import { calculateFriendsStatus, getLv99FromLv90, isStatusNull } from "./friendsStatus";
 
@@ -179,9 +179,6 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
             header: true,
             dynamicTyping: true,
             skipEmptyLines: true,
-            transformHeader: (header: string) => {
-                return RAW_FRIENDS_CSV_HEADERS.includes(header as typeof RAW_FRIENDS_CSV_HEADERS[number]) ? header : '';
-            },
             complete: async (results) => {
                 const parsedData = await Promise.all((results.data as RawFriendsCSV[]).map(async (row) => {
 					// 野生大解放と12ポケの値を変換
