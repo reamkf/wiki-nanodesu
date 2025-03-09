@@ -39,12 +39,17 @@ function getPowerPriority(power: string): number {
 	if (!power) return -1;
 
 	const powerMap: Record<string, number> = {
-		'完全耐性': 6,
-		'高': 5,
-		'大': 4,
-		'中': 3,
-		'低': 2,
-		'小': 1
+		'完全耐性': 1000,
+		'大幅に': 500,
+		'-': 100,
+		'高': 90,
+		'大': 85,
+		'中': 50,
+		'低': 30,
+		'少し': 30,
+		'少しだけ': 25,
+		'ほんの少し': 20,
+		'小': 20
 	};
 
 	return powerMap[power] || 0;
@@ -70,7 +75,6 @@ function getActivationRatePriority(activationRate: string): number {
 	return rateMap[activationRate] || 0;
 }
 
-// サーバー側でのソート関数
 function sortByAttribute(data: AbnormalStatusWithFriend[]): AbnormalStatusWithFriend[] {
 	return [...data].sort((a, b) => {
 		// 属性でソート (FriendsAttributeOrderとphotoAttributeOrderの昇順)
@@ -129,11 +133,16 @@ function sortGiveSkills(data: AbnormalStatusWithFriend[]): AbnormalStatusWithFri
 
 		if (orderA !== orderB) return orderA - orderB; // 昇順
 
-		// 2. 付与率でソート（"-" > "100%" > "高確率" > "中確率" > "低確率"）
+		// 2. 付与率でソート
 		const ratePriorityA = getActivationRatePriority(a.activationRate);
 		const ratePriorityB = getActivationRatePriority(b.activationRate);
 
-		return ratePriorityB - ratePriorityA; // 付与率は降順
+		if (ratePriorityA !== ratePriorityB) return ratePriorityB - ratePriorityA; // 付与率は降順
+
+		// 3. 威力でソート
+		const powerPriorityA = getPowerPriority(a.power);
+		const powerPriorityB = getPowerPriority(b.power);
+		return powerPriorityB - powerPriorityA;
 	});
 }
 
