@@ -156,11 +156,9 @@ export function TableOfContents({
 			)}
 
 			{/* 通常表示の目次ボタン */}
-			{!showButton && (
-				<Box className="my-2">
-					{tocButton}
-				</Box>
-			)}
+			<Box className="my-2">
+				{tocButton}
+			</Box>
 
 			{/* AboutModal.tsxと同じ実装のダイアログ */}
 			<Transition appear show={open} as={Fragment}>
