@@ -1,9 +1,9 @@
 import { SkillType } from "./common";
 
 export enum AbnormalStatusSkillEffectType {
+	give = '付与',
 	incleaseResist = '耐性増加',
 	decreaseResist = '耐性減少',
-	give = '付与',
 	remove = '解除',
 }
 
