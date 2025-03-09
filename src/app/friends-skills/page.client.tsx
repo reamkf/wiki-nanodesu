@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { Box } from "@mui/material";
 import { SkillWithFriend } from "@/types/friendsSkills";
-import { SortableTable } from "@/components/table/SortableTable";
+import { SortableTable } from "@/components/table/Table";
 import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
 import { TableOfContents, TableOfContentsData } from "@/components/section/TableOfContents";

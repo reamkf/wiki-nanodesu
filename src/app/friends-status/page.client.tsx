@@ -23,7 +23,7 @@ import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAtt
 import { sortFriendsAttribute } from "@/utils/friends";
 import { FriendsAttribute } from "@/types/friends";
 import { includesNormalizeQuery } from "@/utils/queryNormalizer";
-import { SortableTable } from "../../components/table/SortableTable";
+import { SortableTable } from "../../components/table/Table";
 import { TablePagination } from "../../components/table/TablePagination";
 import {
 	FilterCheckboxGroup,
