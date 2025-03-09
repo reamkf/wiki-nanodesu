@@ -39,7 +39,7 @@ export function Heading({
 	};
 
 	const getSpacingClasses = () => {
-		const paddingTop = 'pt-2';
+		const paddingTop = level === 1 ? 'pt-2' : 'pt-1';
 		const paddingBottom = level === 1 ? 'pb-2' : level === 2 ? 'pb-0.5' : 'pb-0';
 		const paddingLeft = level === 1 ? 'pl-2' : 'pl-1';
 
