@@ -6,6 +6,23 @@ export enum PhotoAttribute {
 	none = 'none',
 }
 
+export const photoAttributeOrder = {
+	[PhotoAttribute.footprint]: 0,
+	[PhotoAttribute.blue]: 1,
+	[PhotoAttribute.none]: 2,
+}
+
+export const photoAttributeColor = {
+	[PhotoAttribute.footprint]: 'red',
+	[PhotoAttribute.blue]: 'blue',
+	[PhotoAttribute.none]: 'gray',
+}
+
+export const photoAttributeIconUrl = {
+	[PhotoAttribute.footprint]: 'https://image01.seesaawiki.jp/k/h/kemono_friends3_5ch/qgiGkSmtiA.png',
+	[PhotoAttribute.blue]: 'https://image02.seesaawiki.jp/k/h/kemono_friends3_5ch/PrbmdBx8J4.png',
+}
+
 export interface PhotoStatus {
 	status1: BasicStatus;
 	statusMedium: BasicStatus;

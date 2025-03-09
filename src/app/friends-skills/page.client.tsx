@@ -2,32 +2,20 @@
 
 import React, { useMemo, useCallback, useState, useEffect } from "react";
 import { SkillWithFriend } from "@/types/friendsSkills";
-import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
 import { TableOfContentsData } from "@/components/section/TableOfContents";
-import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
-import { parseSeesaaWikiNewLine } from "@/utils/seesaaWiki";
 import { ColumnDef } from "@tanstack/react-table";
 import { toPercent, isNumber } from "@/utils/common";
 import { sortFriendsAttribute } from "@/utils/friends";
-import { FilterableDataTable, createCustomFilterFn } from "@/components/table/FilterableDataTable";
+import { createCustomFilterFn } from "@/components/table/FilterableDataTable";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
 import { FriendsAttribute } from "@/types/friends";
-
-// FilterableDataTableで使用する型付きのラッパーコンポーネント
-const SkillTable = ({ data, columns, tableId }: {
-	data: SkillWithFriend[];
-	columns: ColumnDef<SkillWithFriend, unknown>[];
-	tableId: string;
-}) => {
-	return (
-		<FilterableDataTable
-			data={data}
-			columns={columns as ColumnDef<Record<string, unknown>, unknown>[]}
-			tableId={tableId}
-		/>
-	);
-};
+import {
+	GenericDataTable,
+	formatText,
+	FriendOrPhotoDisplay,
+	TextCell
+} from "@/components/table/GenericDataTable";
 
 export default function ClientTabs({
 	effectTypes,
@@ -47,11 +35,6 @@ export default function ClientTabs({
 			setSelectedEffectType(effectTypes[0]);
 		}
 	}, [effectTypes, selectedEffectType]);
-
-	// formatText関数をメモ化
-	const formatText = useCallback((text: string): React.ReactElement => {
-		return parseSeesaaWikiNewLine(text);
-	}, []);
 
 	// 検索可能なテキストを取得する関数
 	const getSearchableText = useCallback((row: SkillWithFriend, columnId: string): string => {
@@ -84,22 +67,7 @@ export default function ClientTabs({
 					return <div>{skill.friendsId}</div>;
 				}
 
-				return (
-					<div className="text-sm flex items-center space-x-2">
-						{skill.friendsDataRow.iconUrl && (
-							<div className="shrink-0">
-								<SeesaaWikiImage
-									src={skill.friendsDataRow.iconUrl}
-									alt={skill.friendsDataRow.name}
-									width={45}
-									height={45}
-									className="rounded-xs"
-								/>
-							</div>
-						)}
-						<FriendsNameLink friend={skill.friendsDataRow} />
-					</div>
-				);
+				return <FriendOrPhotoDisplay data={skill} />;
 			},
 			filterFn: customFilterFn,
 			meta: {
@@ -132,11 +100,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'skillType',
 			header: 'わざ種別',
-			cell: ({ row }) => {
-				const text = row.original.skillType;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.skillType} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '120px'
@@ -197,11 +161,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'target',
 			header: '対象',
-			cell: ({ row }) => {
-				const text = row.original.target;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.target} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '150px'
@@ -210,11 +170,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'condition',
 			header: '条件',
-			cell: ({ row }) => {
-				const text = row.original.condition;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.condition} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '200px'
@@ -223,11 +179,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'effectTurn',
 			header: '効果ターン',
-			cell: ({ row }) => {
-				const text = row.original.effectTurn;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.effectTurn} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '120px'
@@ -236,11 +188,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'activationRate',
 			header: '発動率',
-			cell: ({ row }) => {
-				const text = row.original.activationRate;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.activationRate} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '100px'
@@ -249,11 +197,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'activationCount',
 			header: '発動回数',
-			cell: ({ row }) => {
-				const text = row.original.activationCount;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.activationCount} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '100px'
@@ -262,14 +206,10 @@ export default function ClientTabs({
 		{
 			accessorKey: 'note',
 			header: '備考',
-			cell: ({ row }) => {
-				const text = row.original.note;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.note} />,
 			filterFn: customFilterFn,
 		},
-	], [formatText, customFilterFn]);
+	], [customFilterFn]);
 
 	// カテゴリIDに基づいてコンテンツをレンダリングする関数
 	const renderContent = useCallback((categoryId: string) => {
@@ -279,7 +219,7 @@ export default function ClientTabs({
 			if (data.length === 0) return null;
 
 			return (
-				<SkillTable
+				<GenericDataTable
 					data={data}
 					columns={columns}
 					tableId={`friends-skills-${categoryId}`}

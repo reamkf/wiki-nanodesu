@@ -33,7 +33,7 @@ export type RawAbnormalStatusCSV = {
 }
 
 import { FriendsDataRow } from "@/types/friends";
-import { PhotoDataRow } from "@/types/photos";
+import { PhotoDataRow } from "@/types/photo";
 
 // 状態異常とフレンズデータを含む結合型
 export type AbnormalStatusWithFriend = AbnormalStatusEffect & {

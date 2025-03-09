@@ -2,31 +2,20 @@
 
 import React, { useMemo, useCallback, useState, useEffect } from "react";
 import { AbnormalStatusWithFriend } from "@/types/abnormalStatus";
-import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
 import { TableOfContentsData } from "@/components/section/TableOfContents";
-import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
-import { parseSeesaaWikiNewLine } from "@/utils/seesaaWiki";
 import { ColumnDef } from "@tanstack/react-table";
 import { isNumber } from "@/utils/common";
-import { FilterableDataTable, createCustomFilterFn } from "@/components/table/FilterableDataTable";
+import { createCustomFilterFn } from "@/components/table/FilterableDataTable";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
-
-// FilterableDataTableで使用する型付きのラッパーコンポーネント
-const AbnormalStatusTable = ({ data, columns, tableId }: {
-	data: AbnormalStatusWithFriend[];
-	columns: ColumnDef<AbnormalStatusWithFriend, unknown>[];
-	tableId: string;
-}) => {
-	return (
-		<FilterableDataTable
-			data={data}
-			columns={columns as ColumnDef<Record<string, unknown>, unknown>[]}
-			tableId={tableId}
-		/>
-	);
-};
-
+import {
+	GenericDataTable,
+	formatText,
+	FriendOrPhotoDisplay,
+	getSearchableTextForFriendOrPhoto,
+	TextCell
+} from "@/components/table/GenericDataTable";
+import { PhotoAttributeIconAndName } from "@/components/photo/PhotoAttributeIconAndName";
 export default function ClientTabs({
 	statusTypes,
 	statusTypeData,
@@ -46,34 +35,10 @@ export default function ClientTabs({
 		}
 	}, [statusTypes, selectedStatusType]);
 
-	// formatText関数をメモ化
-	const formatText = useCallback((text: string): React.ReactElement => {
-		return parseSeesaaWikiNewLine(text);
-	}, []);
-
 	// 検索可能なテキストを取得する関数
 	const getSearchableText = useCallback((row: AbnormalStatusWithFriend, columnId: string): string => {
-		switch (columnId) {
-			case "name":
-			case "icon":
-				if (row.isPhoto) {
-					return row.photoDataRow?.name || '';
-				} else {
-					return row.friendsDataRow?.secondName
-						? `${row.friendsDataRow.secondName} ${row.friendsDataRow.name}`
-						: row.friendsDataRow?.name || '';
-				}
-			case "attribute":
-				if (row.isPhoto) {
-					return row.photoDataRow?.attribute || '';
-				} else {
-					return row.friendsDataRow?.attribute || '';
-				}
-			default:
-				return (
-					row[columnId as keyof AbnormalStatusWithFriend]?.toString() ?? ""
-				);
-		}
+		// 基本的な検索用テキストは共通関数から取得
+		return getSearchableTextForFriendOrPhoto(row, columnId);
 	}, []);
 
 	// カスタムフィルター関数の作成
@@ -84,57 +49,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'friendsIdOrPhotoName',
 			header: 'フレンズ/フォト',
-			cell: ({ row }) => {
-				const status = row.original;
-
-				if (status.isPhoto && status.photoDataRow) {
-					// フォトの場合
-					return (
-						<div className="text-sm flex items-center space-x-2">
-							{status.photoDataRow.iconUrl && (
-								<div className="shrink-0">
-									<SeesaaWikiImage
-										src={status.photoDataRow.iconUrl}
-										alt={status.photoDataRow.name}
-										width={45}
-										height={45}
-										className="rounded-xs"
-									/>
-								</div>
-							)}
-							<div>
-								<div className="text-xs text-gray-600">
-									☆{status.photoDataRow.rarity}
-								</div>
-								<div>
-									{status.photoDataRow.name}
-								</div>
-							</div>
-						</div>
-					);
-				} else if (!status.isPhoto && status.friendsDataRow) {
-					// フレンズの場合
-					return (
-						<div className="text-sm flex items-center space-x-2">
-							{status.friendsDataRow.iconUrl && (
-								<div className="shrink-0">
-									<SeesaaWikiImage
-										src={status.friendsDataRow.iconUrl}
-										alt={status.friendsDataRow.name}
-										width={45}
-										height={45}
-										className="rounded-xs"
-									/>
-								</div>
-							)}
-							<FriendsNameLink friend={status.friendsDataRow} />
-						</div>
-					);
-				} else {
-					// データが見つからない場合はIDまたは名前をそのまま表示
-					return <div>{status.friendsIdOrPhotoName}</div>;
-				}
-			},
+			cell: ({ row }) => <FriendOrPhotoDisplay data={row.original} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '250px'
@@ -156,9 +71,7 @@ export default function ClientTabs({
 				if (status.isPhoto && status.photoDataRow) {
 					// フォトの場合
 					return (
-						<div className="text-sm">
-							{status.photoDataRow.attribute}
-						</div>
+						<PhotoAttributeIconAndName attribute={status.photoDataRow.attribute} />
 					);
 				} else if (!status.isPhoto && status.friendsDataRow) {
 					// フレンズの場合
@@ -177,11 +90,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'skillType',
 			header: 'わざ種別',
-			cell: ({ row }) => {
-				const text = row.original.skillType;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.skillType} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '120px'
@@ -190,11 +99,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'effect',
 			header: '効果',
-			cell: ({ row }) => {
-				const text = row.original.effect;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.effect} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '150px'
@@ -244,11 +149,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'target',
 			header: '対象',
-			cell: ({ row }) => {
-				const text = row.original.target;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.target} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '150px'
@@ -257,11 +158,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'condition',
 			header: '条件',
-			cell: ({ row }) => {
-				const text = row.original.condition;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.condition} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '200px'
@@ -270,11 +167,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'effectTurn',
 			header: '効果ターン',
-			cell: ({ row }) => {
-				const text = row.original.effectTurn;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.effectTurn} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '120px'
@@ -283,11 +176,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'activationRate',
 			header: '発動率',
-			cell: ({ row }) => {
-				const text = row.original.activationRate;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.activationRate} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '100px'
@@ -296,11 +185,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'activationCount',
 			header: '発動回数',
-			cell: ({ row }) => {
-				const text = row.original.activationCount;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.activationCount} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '100px'
@@ -309,14 +194,10 @@ export default function ClientTabs({
 		{
 			accessorKey: 'note',
 			header: '備考',
-			cell: ({ row }) => {
-				const text = row.original.note;
-				if (!text) return null;
-				return formatText(text);
-			},
+			cell: ({ row }) => <TextCell text={row.original.note} />,
 			filterFn: customFilterFn,
 		},
-	], [formatText, customFilterFn]);
+	], [customFilterFn]);
 
 	// エフェクトの内容や対象によってサブカテゴリを判定する関数
 	const getCategoryForStatus = useCallback((status: AbnormalStatusWithFriend, subcategoryId: string): boolean => {
@@ -372,7 +253,7 @@ export default function ClientTabs({
 			if (statusData.length === 0) return null;
 
 			return (
-				<AbnormalStatusTable
+				<GenericDataTable
 					data={statusData}
 					columns={columns}
 					tableId={`abnormal-status-${categoryId}`}

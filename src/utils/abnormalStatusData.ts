@@ -5,7 +5,7 @@ import { AbnormalStatusEffect, RawAbnormalStatusCSV, RAW_ABNORMAL_STATUS_CSV_HEA
 import { getFriendsData } from "@/utils/friendsData";
 import { getPhotoData } from "@/utils/photoData";
 import { FriendsDataRow } from "@/types/friends";
-import { PhotoDataRow } from "@/types/photos";
+import { PhotoDataRow } from "@/types/photo";
 
 // キャッシュ用の変数
 let abnormalStatusDataCache: AbnormalStatusEffect[] | null = null;
