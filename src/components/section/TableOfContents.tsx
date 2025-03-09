@@ -157,9 +157,7 @@ export function TableOfContents({
 
 			{/* 通常表示の目次ボタン */}
 			{!showButton && (
-				<Box
-					className="mb-4"
-				>
+				<Box className="my-2">
 					{tocButton}
 				</Box>
 			)}

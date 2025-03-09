@@ -39,11 +39,12 @@ export function Heading({
 	};
 
 	const getSpacingClasses = () => {
+		const marginY = level === 1 ? 'my-2' : 'my-1';
 		const paddingTop = level === 1 ? 'pt-2' : 'pt-1';
 		const paddingBottom = level === 1 ? 'pb-2' : level === 2 ? 'pb-0.5' : 'pb-0';
 		const paddingLeft = level === 1 ? 'pl-2' : 'pl-1';
 
-		return `${paddingTop} ${paddingBottom} ${paddingLeft} mb-1`;
+		return `${marginY} ${paddingTop} ${paddingBottom} ${paddingLeft}`;
 	};
 
 	const getTypographyClasses = () => {
