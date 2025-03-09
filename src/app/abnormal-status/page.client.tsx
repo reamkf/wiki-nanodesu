@@ -8,8 +8,6 @@ import { ColumnDef } from "@tanstack/react-table";
 import { isNumber, toPercent } from "@/utils/common";
 import { createCustomFilterFn } from "@/components/table/FilterableDataTable";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
-import { FriendsAttribute, FriendsAttributeOrder } from "@/types/friends";
-import { PhotoAttribute, photoAttributeOrder } from "@/types/photo";
 import {
 	GenericDataTable,
 	formatText,
@@ -18,6 +16,7 @@ import {
 	TextCell
 } from "@/components/table/GenericDataTable";
 import { PhotoAttributeIconAndName } from "@/components/photo/PhotoAttributeIconAndName";
+
 export default function ClientTabs({
 	statusTypes,
 	statusTypeData,
@@ -240,6 +239,15 @@ export default function ClientTabs({
 
 		if (!statusType) return [];
 
+		// 完全なカテゴリID（状態異常-フレンズ/フォト-効果タイプ）の場合は
+		// サーバー側でソート済みのデータがあるのでそれを使用
+		if (statusType && entityType && effectTypeId) {
+			const fullCategoryKey = `${statusType}-${entityType}-${effectTypeId}`;
+			if (statusTypeData[fullCategoryKey]) {
+				return statusTypeData[fullCategoryKey];
+			}
+		}
+
 		const statusData = statusTypeData[statusType] || [];
 		const isPhotoCategory = entityType === 'photo';
 
@@ -256,180 +264,9 @@ export default function ClientTabs({
 			});
 		}
 
-		// 完全なカテゴリID（状態異常-フレンズ/フォト-効果タイプ）の場合
+		// 効果タイプIDが指定されている場合
 		return statusData.filter(status => getCategoryForStatus(status, categoryId));
 	}, [statusTypeData, getCategoryForStatus, abnormalStatusEffectTypes]);
-
-	// 威力の優先順位を取得する関数
-	const getPowerPriority = useCallback((power: string): number => {
-		if (!power) return -1;
-
-		const powerMap: Record<string, number> = {
-			'完全耐性': 6,
-			'高': 5,
-			'大': 4,
-			'中': 3,
-			'低': 2,
-			'小': 1,
-		};
-
-		return powerMap[power] || 0;
-	}, []);
-
-	// 対象の優先順位を取得する関数
-	const getTargetPriority = useCallback((target: string): number => {
-		if (!target) return -1;
-
-		if (target.includes('味方全体')) return 3;
-		if (target.includes('自身を除く') && target.includes('味方全体')) return 2;
-		if (target.includes('自身')) return 1;
-
-		return 0;
-	}, []);
-
-	// わざ種別の優先順位を取得する関数
-	const getSkillTypePriority = useCallback((skillType: string): number => {
-		if (!skillType) return -1;
-
-		if (skillType === 'とくせい' || skillType === 'キセキとくせい' || skillType === 'なないろとくせい') return 1;
-
-		return 0;
-	}, []);
-
-	// 付与率の優先順位を取得する関数
-	const getActivationRatePriority = useCallback((activationRate: string): number => {
-		if (!activationRate) return -1;
-
-		// 数値+%の形式（例：100%、75%など）をチェック
-		const percentMatch = activationRate.match(/^(\d+)%$/);
-		if (percentMatch) {
-			// 数値を抽出して、100を基準にソート（大きいほど優先度が高い）
-			return 100 + parseInt(percentMatch[1], 10);
-		}
-
-		const rateMap: Record<string, number> = {
-			'-': 100,
-			'高確率': 90,
-			'中確率': 50,
-			'低確率': 30
-		};
-
-		return rateMap[activationRate] || 0;
-	}, []);
-
-	// 属性のみでソートする関数
-	const sortByAttribute = useCallback((data: AbnormalStatusWithFriend[]): AbnormalStatusWithFriend[] => {
-		return [...data].sort((a, b) => {
-			// 属性でソート (FriendsAttributeOrderとphotoAttributeOrderの昇順)
-			const attributeA = a.isPhoto ? a.photoDataRow?.attribute || '' : a.friendsDataRow?.attribute || '';
-			const attributeB = b.isPhoto ? b.photoDataRow?.attribute || '' : b.friendsDataRow?.attribute || '';
-
-			// フレンズとフォトで異なる属性順序を適用
-			let orderA = 999;
-			let orderB = 999;
-
-			if (a.isPhoto) {
-				// フォトの場合
-				orderA = attributeA ? photoAttributeOrder[attributeA as PhotoAttribute] ?? 999 : 999;
-			} else {
-				// フレンズの場合
-				orderA = attributeA ? FriendsAttributeOrder[attributeA as FriendsAttribute] ?? 999 : 999;
-			}
-
-			if (b.isPhoto) {
-				// フォトの場合
-				orderB = attributeB ? photoAttributeOrder[attributeB as PhotoAttribute] ?? 999 : 999;
-			} else {
-				// フレンズの場合
-				orderB = attributeB ? FriendsAttributeOrder[attributeB as FriendsAttribute] ?? 999 : 999;
-			}
-
-			return orderA - orderB; // 昇順
-		});
-	}, []);
-
-	// 付与スキルのソート関数（属性 + 付与率）
-	const sortGiveSkills = useCallback((data: AbnormalStatusWithFriend[]): AbnormalStatusWithFriend[] => {
-		return [...data].sort((a, b) => {
-			// 1. 属性でソート (FriendsAttributeOrderとphotoAttributeOrderの昇順)
-			const attributeA = a.isPhoto ? a.photoDataRow?.attribute || '' : a.friendsDataRow?.attribute || '';
-			const attributeB = b.isPhoto ? b.photoDataRow?.attribute || '' : b.friendsDataRow?.attribute || '';
-
-			// フレンズとフォトで異なる属性順序を適用
-			let orderA = 999;
-			let orderB = 999;
-
-			if (a.isPhoto) {
-				// フォトの場合
-				orderA = attributeA ? photoAttributeOrder[attributeA as PhotoAttribute] ?? 999 : 999;
-			} else {
-				// フレンズの場合
-				orderA = attributeA ? FriendsAttributeOrder[attributeA as FriendsAttribute] ?? 999 : 999;
-			}
-
-			if (b.isPhoto) {
-				// フォトの場合
-				orderB = attributeB ? photoAttributeOrder[attributeB as PhotoAttribute] ?? 999 : 999;
-			} else {
-				// フレンズの場合
-				orderB = attributeB ? FriendsAttributeOrder[attributeB as FriendsAttribute] ?? 999 : 999;
-			}
-
-			if (orderA !== orderB) return orderA - orderB; // 昇順
-
-			// 2. 付与率でソート（"-" > "100%" > "高確率" > "中確率" > "低確率"）
-			const ratePriorityA = getActivationRatePriority(a.activationRate);
-			const ratePriorityB = getActivationRatePriority(b.activationRate);
-
-			return ratePriorityB - ratePriorityA; // 付与率は降順
-		});
-	}, [getActivationRatePriority]);
-
-	// 耐性増加/減少スキルのソート関数
-	const sortResistanceSkills = useCallback((data: AbnormalStatusWithFriend[]): AbnormalStatusWithFriend[] => {
-		return [...data].sort((a, b) => {
-			// 1. 対象でソート（味方全体 > 自身を除く味方全体 > 自身）
-			const targetPriorityA = getTargetPriority(a.target);
-			const targetPriorityB = getTargetPriority(b.target);
-			if (targetPriorityA !== targetPriorityB) return targetPriorityB - targetPriorityA;
-
-			// 2. 属性でソート (FriendsAttributeOrderの昇順)
-			const attributeA = a.isPhoto ? a.photoDataRow?.attribute || '' : a.friendsDataRow?.attribute || '';
-			const attributeB = b.isPhoto ? b.photoDataRow?.attribute || '' : b.friendsDataRow?.attribute || '';
-
-			// フレンズとフォトで異なる属性順序を適用
-			let orderA = 999;
-			let orderB = 999;
-
-			if (a.isPhoto) {
-				// フォトの場合
-				orderA = attributeA ? photoAttributeOrder[attributeA as PhotoAttribute] ?? 999 : 999;
-			} else {
-				// フレンズの場合
-				orderA = attributeA ? FriendsAttributeOrder[attributeA as FriendsAttribute] ?? 999 : 999;
-			}
-
-			if (b.isPhoto) {
-				// フォトの場合
-				orderB = attributeB ? photoAttributeOrder[attributeB as PhotoAttribute] ?? 999 : 999;
-			} else {
-				// フレンズの場合
-				orderB = attributeB ? FriendsAttributeOrder[attributeB as FriendsAttribute] ?? 999 : 999;
-			}
-
-			if (orderA !== orderB) return orderA - orderB; // 昇順
-
-			// 3. 威力でソート（高 > 大 > 中 > 低 > 小）
-			const powerPriorityA = getPowerPriority(a.power);
-			const powerPriorityB = getPowerPriority(b.power);
-			if (powerPriorityA !== powerPriorityB) return powerPriorityB - powerPriorityA;
-
-			// 4. わざ種別でソート（とくせい・キセキとくせい・なないろとくせい > その他）
-			const skillTypePriorityA = getSkillTypePriority(a.skillType);
-			const skillTypePriorityB = getSkillTypePriority(b.skillType);
-			return skillTypePriorityB - skillTypePriorityA;
-		});
-	}, [getPowerPriority, getTargetPriority, getSkillTypePriority]);
 
 	// カテゴリIDに基づいてコンテンツをレンダリングする関数
 	const renderContent = useCallback((categoryId: string) => {
@@ -439,22 +276,12 @@ export default function ClientTabs({
 
 		// 第二階層（状態異常-フレンズ/フォト）または第三階層（状態異常-フレンズ/フォト-効果タイプ）の場合
 		if (depth >= 2) {
-			let statusData = filterStatusDataByCategoryAndSubcategory(categoryId);
+			const statusData = filterStatusDataByCategoryAndSubcategory(categoryId);
 
 			if (statusData.length === 0) return null;
 
-			// カテゴリによって適切なソートを適用
-			const [, , effectTypeId] = categoryId.split('-');
-			if (effectTypeId === 'incleaseResist' || effectTypeId === 'decreaseResist') {
-				// 耐性増加/減少スキルには特別なソートを適用
-				statusData = sortResistanceSkills(statusData);
-			} else if (effectTypeId === 'give') {
-				// 付与スキルには属性+付与率でソート
-				statusData = sortGiveSkills(statusData);
-			} else {
-				// その他のカテゴリーには属性のみでソート
-				statusData = sortByAttribute(statusData);
-			}
+			// サーバー側で既にソート済みのデータを使用する
+			// 注: 第三階層のデータはサーバー側でソート済みなので、クライアントでの追加ソートは不要
 
 			return (
 				<GenericDataTable
@@ -467,7 +294,7 @@ export default function ClientTabs({
 
 		// それ以外の階層の場合は何も表示しない
 		return null;
-	}, [columns, filterStatusDataByCategoryAndSubcategory, sortResistanceSkills, sortByAttribute, sortGiveSkills]);
+	}, [columns, filterStatusDataByCategoryAndSubcategory]);
 
 	// カテゴリーが選択されたときの処理
 	const handleSelectCategory = useCallback((id: string) => {
