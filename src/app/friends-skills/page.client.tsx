@@ -3,7 +3,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { Box } from "@mui/material";
 import { SkillWithFriend } from "@/types/friendsSkills";
-import { SortableTable } from "@/components/table/Table";
+import { Table } from "@/components/table/Table";
 import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
 import { TableOfContents, TableOfContentsData } from "@/components/section/TableOfContents";
@@ -18,14 +18,8 @@ import {
 	flexRender,
 	SortingState,
 	ColumnFiltersState,
-	useReactTable,
-	getCoreRowModel,
-	getSortedRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
 	PaginationState
 } from "@tanstack/react-table";
-import { TablePagination } from "@/components/table/TablePagination";
 import { toPercent } from "@/utils/common";
 import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 import { sortFriendsAttribute } from "@/utils/friends";
@@ -84,40 +78,9 @@ const SkillTypeTable = React.memo(({
 		</tr>
 	), []);
 
-	// テーブルインスタンスを作成
-	const table = useReactTable({
-		data,
-		columns,
-		state: {
-			sorting,
-			columnFilters,
-			pagination
-		},
-		onSortingChange: setSorting,
-		onColumnFiltersChange: setColumnFilters,
-		onPaginationChange: setPagination,
-		getCoreRowModel: getCoreRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		enableSorting: true,
-		enableFilters: true,
-		enableColumnFilters: true,
-		manualSorting: false,
-		manualFiltering: false,
-		manualPagination: false,
-		debugTable: false,
-	});
-
-	const pageCount = table.getPageCount();
-
 	return (
 		<>
-			{pageCount > 1 && (
-				<TablePagination table={table} />
-			)}
-
-			<SortableTable
+			<Table
 				data={data}
 				columns={columns}
 				state={{

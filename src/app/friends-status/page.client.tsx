@@ -11,11 +11,6 @@ import {
 	Row,
 	Cell,
 	flexRender,
-	useReactTable,
-	getCoreRowModel,
-	getSortedRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
 	ColumnDef,
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect } from "react";
@@ -23,8 +18,7 @@ import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAtt
 import { sortFriendsAttribute } from "@/utils/friends";
 import { FriendsAttribute } from "@/types/friends";
 import { includesNormalizeQuery } from "@/utils/queryNormalizer";
-import { SortableTable } from "../../components/table/Table";
-import { TablePagination } from "../../components/table/TablePagination";
+import { Table } from "../../components/table/Table";
 import {
 	FilterCheckboxGroup,
 	CheckboxOption,
@@ -298,7 +292,7 @@ export default function FriendsStatusTable({
 		isMounted,
 		preFilteredData,
 		sorting,
-		showCostumeBonus
+		showCostumeBonus,
 	]);
 
 	const handleSelectedStatusTypeChange = (statusType: string) => {
@@ -506,24 +500,6 @@ export default function FriendsStatusTable({
 		return cols as ColumnDef<ProcessedFriendsStatusListItem, unknown>[];
 	}, [showCostumeBonus]);
 
-	const table = useReactTable({
-		data: filteredData,
-		columns,
-		state: { sorting, columnFilters, pagination },
-		onSortingChange: setSorting,
-		onColumnFiltersChange: setColumnFilters,
-		onPaginationChange: setPagination,
-		getCoreRowModel: getCoreRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		enableSorting: true,
-		enableFilters: true,
-		enableColumnFilters: true,
-		manualSorting: false,
-		manualFiltering: false,
-	});
-
 	if (!isMounted) return null;
 
 	// FilterCheckboxGroup用のオプションを作成
@@ -597,11 +573,9 @@ export default function FriendsStatusTable({
 				}}
 			/>
 
-			{/* テーブルとページネーション */}
+			{/* テーブル */}
 			<div className="overflow-x-auto max-w-full">
-				<TablePagination table={table} />
-
-				<SortableTable<ProcessedFriendsStatusListItem, unknown>
+				<Table<ProcessedFriendsStatusListItem, unknown>
 					data={filteredData}
 					columns={columns}
 					state={{ sorting, columnFilters, pagination }}
