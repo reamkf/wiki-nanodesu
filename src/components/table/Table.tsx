@@ -14,6 +14,7 @@ import {
 	SortingState,
 	ColumnFiltersState,
 	Row,
+	Table as ReactTable,
 } from "@tanstack/react-table";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { ColumnMeta } from "@/types/common";
@@ -38,6 +39,79 @@ export interface SortableTableProps<TData, TValue> {
 	onPaginationChange: OnChangeFn<PaginationState>;
 	rowComponent: React.FC<{ row: Row<TData> }>;
 	pageSizes?: number[];
+}
+
+interface PaginationControlsProps<TData> {
+	table: ReactTable<TData>;
+	pageSizes: number[];
+}
+
+function PaginationControls<TData>({
+	table,
+	pageSizes,
+}: PaginationControlsProps<TData>) {
+	return (
+		<div className="overflow-x-auto max-w-full">
+			<div className="flex items-center px-1 py-2 gap-4 min-w-[720px] max-w-[1920px]">
+				{/* ページサイズ指定 */}
+				<div className="flex items-center gap-2">
+					<span className="text-sm text-gray-700">
+						1ページあたりの表示件数:
+					</span>
+					<Select
+						value={table.getState().pagination.pageSize}
+						onChange={(e) => table.setPageSize(Number(e.target.value))}
+						size="small"
+						className="min-w-[80px]"
+					>
+						{pageSizes.map((pageSize) => (
+							<MenuItem key={pageSize} value={pageSize}>
+								{pageSize}
+							</MenuItem>
+						))}
+					</Select>
+				</div>
+
+				<div className="flex items-center gap-2">
+					{/* ページ移動ボタン */}
+					<div className="flex items-center gap-1">
+						<IconButton
+							size="small"
+							onClick={() => table.setPageIndex(0)}
+							disabled={!table.getCanPreviousPage()}
+						>
+							<FirstPage />
+						</IconButton>
+						<IconButton
+							size="small"
+							onClick={() => table.previousPage()}
+							disabled={!table.getCanPreviousPage()}
+						>
+							<NavigateBefore />
+						</IconButton>
+						<span className="text-sm text-gray-700 mx-2">
+							{table.getState().pagination.pageIndex + 1} /{" "}
+							{table.getPageCount()}
+						</span>
+						<IconButton
+							size="small"
+							onClick={() => table.nextPage()}
+							disabled={!table.getCanNextPage()}
+						>
+							<NavigateNext />
+						</IconButton>
+						<IconButton
+							size="small"
+							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+							disabled={!table.getCanNextPage()}
+						>
+							<LastPage />
+						</IconButton>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 }
 
 export function Table<TData, TValue>({
@@ -90,6 +164,9 @@ export function Table<TData, TValue>({
 
 	return (
 		<div>
+			{/* テーブル上部のページネーションコントロール */}
+			<PaginationControls table={table} pageSizes={pageSizes} />
+
 			<table className="border-collapse w-full [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
 				<colgroup>
 					{table.getHeaderGroups()[0].headers.map((header) => {
@@ -259,67 +336,8 @@ export function Table<TData, TValue>({
 				</tbody>
 			</table>
 
-			{/* ページネーションコンポーネント */}
-			<div className="overflow-x-auto max-w-full">
-				<div className="flex items-center px-1 py-2 gap-4 min-w-[720px] max-w-[1920px]">
-					{/* ページサイズ指定 */}
-					<div className="flex items-center gap-2">
-						<span className="text-sm text-gray-700">
-							1ページあたりの表示件数:
-						</span>
-						<Select
-							value={table.getState().pagination.pageSize}
-							onChange={(e) => table.setPageSize(Number(e.target.value))}
-							size="small"
-							className="min-w-[80px]"
-						>
-							{pageSizes.map((pageSize) => (
-								<MenuItem key={pageSize} value={pageSize}>
-									{pageSize}
-								</MenuItem>
-							))}
-						</Select>
-					</div>
-
-					<div className="flex items-center gap-2">
-						{/* ページ移動ボタン */}
-						<div className="flex items-center gap-1">
-							<IconButton
-								size="small"
-								onClick={() => table.setPageIndex(0)}
-								disabled={!table.getCanPreviousPage()}
-							>
-								<FirstPage />
-							</IconButton>
-							<IconButton
-								size="small"
-								onClick={() => table.previousPage()}
-								disabled={!table.getCanPreviousPage()}
-							>
-								<NavigateBefore />
-							</IconButton>
-							<span className="text-sm text-gray-700 mx-2">
-								{table.getState().pagination.pageIndex + 1} /{" "}
-								{table.getPageCount()}
-							</span>
-							<IconButton
-								size="small"
-								onClick={() => table.nextPage()}
-								disabled={!table.getCanNextPage()}
-							>
-								<NavigateNext />
-							</IconButton>
-							<IconButton
-								size="small"
-								onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-								disabled={!table.getCanNextPage()}
-							>
-								<LastPage />
-							</IconButton>
-						</div>
-					</div>
-				</div>
-			</div>
+			{/* テーブル下部のページネーションコントロール */}
+			<PaginationControls table={table} pageSizes={pageSizes} />
 		</div>
 	);
 }
