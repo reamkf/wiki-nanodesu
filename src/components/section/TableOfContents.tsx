@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment, useState, useEffect, useCallback, useMemo } from 'react';
+import React, { Fragment, useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Dialog, Transition, DialogTitle, DialogPanel, TransitionChild } from "@headlessui/react";
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
@@ -26,20 +26,29 @@ export function TableOfContents({
 }: TableOfContentsProps) {
 	const [open, setOpen] = useState(false);
 	const [showButton, setShowButton] = useState(false);
+	const normalButtonRef = useRef<HTMLDivElement>(null);
 
-	// スクロールを監視して、一定以上スクロールしたらボタンを表示する
+	// 通常表示のボタンが画面外になったときだけボタンを表示する
 	useEffect(() => {
-		const handleScroll = () => {
-			// 100px以上スクロールしたらボタンを表示
-			setShowButton(window.scrollY > 100);
-		};
+		// IntersectionObserverの作成
+		const observer = new IntersectionObserver(
+			(entries) => {
+				// 監視対象要素の可視状態が変化したとき
+				const isVisible = entries[0]?.isIntersecting ?? false;
+				// 要素が画面外のときだけボタンを表示
+				setShowButton(!isVisible);
+			},
+			{ threshold: 0 } // 少しでも見えなくなったら検出
+		);
 
-		window.addEventListener('scroll', handleScroll);
-		// 初期表示時にもチェック
-		handleScroll();
+		// 通常表示のボタン要素を監視対象に追加
+		if (normalButtonRef.current) {
+			observer.observe(normalButtonRef.current);
+		}
 
 		return () => {
-			window.removeEventListener('scroll', handleScroll);
+			// コンポーネントのアンマウント時に監視を解除
+			observer.disconnect();
 		};
 	}, []);
 
@@ -156,7 +165,7 @@ export function TableOfContents({
 			)}
 
 			{/* 通常表示の目次ボタン */}
-			<Box className="my-2">
+			<Box className="my-2" ref={normalButtonRef}>
 				{tocButton}
 			</Box>
 
