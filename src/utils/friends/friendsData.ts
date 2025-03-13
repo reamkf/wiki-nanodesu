@@ -181,7 +181,6 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
             skipEmptyLines: true,
             complete: async (results) => {
                 const parsedData = await Promise.all((results.data as RawFriendsCSV[]).map(async (row) => {
-					// 野生大解放と12ポケの値を変換
 					const convertToBoolean = (value: unknown): boolean => {
 						if (typeof value === 'string') return value !== '';
 						if (typeof value === 'boolean') return value;
@@ -192,6 +191,7 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 						id: row.ID || '',
 						name: row.フレンズ名 || '',
 						secondName: row.属性違い二つ名 || '',
+						isHc: convertToBoolean(row.HC),
 						attribute: (row.属性 as FriendsAttribute) || FriendsAttribute.friendry,
 						implementDate: row.実装日 || '',
 						implementType: row.実装種別 || '',

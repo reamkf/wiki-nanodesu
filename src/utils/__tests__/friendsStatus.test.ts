@@ -31,6 +31,7 @@ describe('calculateFriendsStatus', () => {
 			id: 'test',
 			name: 'テストフレンズ',
 			secondName: '',
+			isHc: false,
 			attribute: FriendsAttribute.friendry,
 			implementDate: '',
 			implementType: '',
