@@ -18,12 +18,20 @@ const sheetConfigs = [
     filePath: 'csv/フレンズデータ.csv',
     range: {
       startColumn: 1,
-      endColumn: 101
+      endColumn: 102
     }
   },
   {
     sheetName: 'フォトデータ',
     filePath: 'csv/フォトデータ.csv'
+  },
+  {
+    sheetName: '状態異常',
+    filePath: 'csv/状態異常.csv',
+    range: {
+      startColumn: 1,
+      endColumn: 11
+    }
   },
   {
     sheetName: 'スキル別フレンズ一覧',
