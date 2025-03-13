@@ -9,7 +9,7 @@ import { TreeList, TreeItemData } from '../common/TreeList';
 
 interface TableOfContentsProps {
 	contents: TreeItemData[];
-	onSelect?: (id: string) => void; // オプショナルに変更
+	onSelect?: (id: string) => void;
 }
 
 /**
