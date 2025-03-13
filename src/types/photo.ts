@@ -1,4 +1,4 @@
-import { BasicStatus } from "./common";
+import { BasicStatus } from "./status";
 
 export enum PhotoAttribute {
 	blue = "青",

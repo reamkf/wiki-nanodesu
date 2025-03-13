@@ -1,4 +1,4 @@
-import { SkillType } from "./common";
+export type FriendsSkillType = 'けものミラクル' | 'とくいわざ' | 'たいきスキル' | 'とくせい' | 'キセキとくせい' | 'なないろとくせい';
 
 export type EffectType =
 	'与ダメージ増加' |
@@ -46,7 +46,7 @@ export type EffectType =
 export type SkillEffect = {
 	effectType: EffectType;    // 効果種別
 	friendsId: string;         // フレンズID
-	skillType: SkillType;      // わざ種別
+	skillType: FriendsSkillType;      // わざ種別
 	power: string;             // 威力
 	target: string;            // 対象
 	condition: string;         // 条件

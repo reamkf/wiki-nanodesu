@@ -1,8 +1,8 @@
-import { BasicStatus } from "@/types/common";
+import { BasicStatus } from "@/types/status";
 import { FriendsDataRow, MegumiPattern, megumiRaiseStatus } from "@/types/friends";
 import { FriendsStatusListItem } from "@/types/friends";
 import { getFriendsData } from "./friendsData";
-import { calcKemosute } from "../common";
+import { calcKemosute } from "../status";
 import { toPercent } from "../common";
 
 export function isStatusNull(status: BasicStatus): boolean {

@@ -1,4 +1,5 @@
-import { SkillType } from "./common";
+import { FriendsSkillType } from "./friendsSkills";
+type FriendsOrPhotoSkillType = FriendsSkillType | 'とくせい(変化前)' | 'とくせい(変化後)';
 
 export enum AbnormalStatusSkillEffectType {
 	give = '付与',
@@ -9,7 +10,7 @@ export enum AbnormalStatusSkillEffectType {
 
 export type AbnormalStatusEffect = {
 	friendsIdOrPhotoName: string;  // フレンズID/フォト名
-	skillType: SkillType;        // わざ種別
+	skillType: FriendsOrPhotoSkillType;        // わざ種別
 	abnormalStatus: string;      // 状態異常
 	effectType: AbnormalStatusSkillEffectType;      // 効果種別
 	power: string;               // 威力

@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import Papa from "papaparse";
 import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV } from "@/types/friends";
-import type { BasicStatus } from "@/types/common";
+import { BasicStatus } from "@/types/status";
 import { calculateFriendsStatus, getLv99FromLv90, isStatusNull } from "./friendsStatus";
 
 function convertToNumberElseNull(value: unknown): number | null {
