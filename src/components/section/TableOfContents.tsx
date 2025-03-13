@@ -31,7 +31,7 @@ export function TableOfContents({
 				element.scrollIntoView({ behavior: 'smooth', block: 'start' });
 			}, 200);
 		} else {
-			console.error(`Element with id ${id} not found`);
+			console.info(`Element with id ${id} not found`);
 		}
 	}, []);
 

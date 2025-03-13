@@ -161,7 +161,7 @@ export function Table<TData, TValue>({
 			const storedValue = localStorage.getItem(`${storageKeyPrefix}.${key}`);
 			return storedValue ? JSON.parse(storedValue) : defaultValue;
 		} catch (e) {
-			console.error(`Error retrieving state for ${key}:`, e);
+			console.info(`Error retrieving state for ${key}:`, e);
 			return defaultValue;
 		}
 	};
@@ -173,7 +173,7 @@ export function Table<TData, TValue>({
 		try {
 			localStorage.setItem(`${storageKeyPrefix}.${key}`, JSON.stringify(value));
 		} catch (e) {
-			console.error(`Error storing state for ${key}:`, e);
+			console.info(`Error storing state for ${key}:`, e);
 		}
 	};
 
