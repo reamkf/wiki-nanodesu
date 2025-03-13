@@ -356,13 +356,15 @@ export default async function AbnormalStatusPage() {
 
 			<p className="p-1">
 				フレンズとフォトの状態異常付与や耐性増加スキルの一覧です。<br />
-				状態異常の効果の説明は書いていません。代わりに
-				<SeesaaWikiLink
-					href="https://seesaawiki.jp/kemono_friends3_5ch/d/%BE%F5%C2%D6%B0%DB%BE%EF"
-				>
-					こちら
-				</SeesaaWikiLink>
-				を参照してください。
+				<span className="font-bold">
+					状態異常の内容の説明は
+					<SeesaaWikiLink
+						href="https://seesaawiki.jp/kemono_friends3_5ch/d/%BE%F5%C2%D6%B0%DB%BE%EF"
+					>
+						こちら
+					</SeesaaWikiLink>
+					を参照してください。
+				</span>
 			</p>
 			<p className="p-1">
 				このページのデータは下記のスプレッドシートで管理しています。
