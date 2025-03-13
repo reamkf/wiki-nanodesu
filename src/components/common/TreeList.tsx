@@ -15,7 +15,7 @@ export interface TreeItemData {
 interface TreeListProps {
 	items: TreeItemData[];
 	onItemClick?: (id: string) => void;
-	defaultAllExpanded?: boolean; // すべての項目をデフォルトで展開するかどうか
+	isExpandedByDefault?: boolean; // すべての項目をデフォルトで展開するかどうか
 	className?: string;
 }
 
@@ -25,7 +25,7 @@ interface TreeListProps {
 export function TreeList({
 	items,
 	onItemClick,
-	defaultAllExpanded = false,
+	isExpandedByDefault = false,
 	className = "",
 }: TreeListProps) {
 	// 各アイテムの展開状態を保持するオブジェクト
@@ -39,7 +39,7 @@ export function TreeList({
 				// itemのdefaultExpandedか、それがなければdefaultAllExpandedを使用
 				initialState[item.id] = item.defaultExpanded !== undefined
 					? item.defaultExpanded
-					: defaultAllExpanded;
+					: isExpandedByDefault;
 
 				// 子要素がある場合は再帰的に処理
 				if (item.children && item.children.length > 0) {
