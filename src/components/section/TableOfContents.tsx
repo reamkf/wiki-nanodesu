@@ -9,7 +9,7 @@ import { TreeList, TreeItemData } from '../common/TreeList';
 
 interface TableOfContentsProps {
 	contents: TreeItemData[];
-	onSelect?: (id: string) => void;
+	onItemClisk?: (id: string) => void;
 }
 
 /**
@@ -17,7 +17,7 @@ interface TableOfContentsProps {
  */
 export function TableOfContents({
 	contents,
-	onSelect,
+	onItemClisk,
 }: TableOfContentsProps) {
 	const [open, setOpen] = useState(false);
 	const [showButton, setShowButton] = useState(false);
@@ -92,11 +92,11 @@ export function TableOfContents({
 			scrollToSection(id);
 
 			// 親コンポーネントのonSelect関数があれば呼び出す
-			if (onSelect) {
-				onSelect(id);
+			if (onItemClisk) {
+				onItemClisk(id);
 			}
 		}, 200);
-	}, [onSelect, scrollToSection]);
+	}, [onItemClisk, scrollToSection]);
 
 	// 目次のコンテンツ部分
 	const tocContent = useMemo(() => (
