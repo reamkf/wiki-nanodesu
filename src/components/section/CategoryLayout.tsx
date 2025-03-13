@@ -2,12 +2,13 @@
 
 import React, { useCallback, ReactNode, useEffect } from "react";
 import { Box } from "@mui/material";
-import { TableOfContents, TableOfContentsData } from "@/components/section/TableOfContents";
+import { TableOfContents } from "@/components/section/TableOfContents";
+import { TreeItemData } from "../common/TreeList";
 import { Heading } from "@/components/section/Heading";
 import { FoldingSection } from "@/components/section/FoldingSection";
 
 interface CategoryLayoutProps {
-	categories: TableOfContentsData[];
+	categories: TreeItemData[];
 	renderContent: (categoryId: string) => ReactNode;
 	onSelectCategory: (id: string) => void;
 	selectedCategory: string | null;
@@ -40,7 +41,7 @@ export function CategoryLayout({
 	}, [onSelectCategory]);
 
 	// カテゴリーセクションをレンダリングする関数
-	const renderCategorySections = useCallback((categories: TableOfContentsData[], level = 1) => {
+	const renderCategorySections = useCallback((categories: TreeItemData[], level = 1) => {
 		return categories.map((category) => {
 			// 子カテゴリーがある場合
 			if (category.children && category.children.length > 0) {
