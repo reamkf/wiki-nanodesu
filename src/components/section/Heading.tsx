@@ -56,7 +56,7 @@ export function Heading({
 
 	return (
 		<Box
-			id={id}
+			id={`heading-${id}`}
 			className={`
 				flex items-center justify-between
 				${getSpacingClasses()}

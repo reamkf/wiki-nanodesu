@@ -9,7 +9,7 @@ import { TreeList, TreeItemData } from '../common/TreeList';
 
 interface TableOfContentsProps {
 	contents: TreeItemData[];
-	onSelect: (id: string) => void;
+	onSelect?: (id: string) => void; // オプショナルに変更
 }
 
 /**
@@ -22,6 +22,18 @@ export function TableOfContents({
 	const [open, setOpen] = useState(false);
 	const [showButton, setShowButton] = useState(false);
 	const normalButtonRef = useRef<HTMLDivElement>(null);
+
+	// 指定されたIDのセクションにスクロールする関数
+	const scrollToSection = useCallback((id: string) => {
+		const element = document.getElementById(`heading-${id}`);
+		if (element) {
+			setTimeout(() => {
+				element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}, 200);
+		} else {
+			console.error(`Element with id ${id} not found`);
+		}
+	}, []);
 
 	// 通常表示のボタンが画面外になったときだけボタンを表示する
 	useEffect(() => {
@@ -47,6 +59,15 @@ export function TableOfContents({
 		};
 	}, []);
 
+	// ページ表示時にURLハッシュに基づいてスクロール
+	useEffect(() => {
+		if (window.location.hash) {
+			const id = window.location.hash.substring(1);
+			const decodedId = decodeURIComponent(id);
+			scrollToSection(decodedId);
+		}
+	}, [scrollToSection]);
+
 	// ダイアログを開く
 	const handleOpenDialog = useCallback(() => {
 		setOpen(true);
@@ -62,11 +83,20 @@ export function TableOfContents({
 		// まずダイアログを閉じる
 		setOpen(false);
 
-		// ダイアログの閉じるアニメーション（200ms）が完了してからonSelectを呼び出す
+		// ダイアログの閉じるアニメーション（200ms）が完了してから処理を実行
 		setTimeout(() => {
-			onSelect(id);
+			// URLのハッシュを更新
+			window.history.pushState({}, '', `#${id}`);
+
+			// セクションにスクロール
+			scrollToSection(id);
+
+			// 親コンポーネントのonSelect関数があれば呼び出す
+			if (onSelect) {
+				onSelect(id);
+			}
 		}, 200);
-	}, [onSelect]);
+	}, [onSelect, scrollToSection]);
 
 	// 目次のコンテンツ部分
 	const tocContent = useMemo(() => (
