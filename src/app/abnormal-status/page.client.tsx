@@ -306,7 +306,7 @@ export default function ClientTabs({
 		<CategoryLayout
 			categories={abnormalStatusCategories}
 			renderContent={renderContent}
-			onSelectCategory={handleSelectCategory}
+			onItemClisk={handleSelectCategory}
 			selectedCategory={selectedStatusType}
 			emptyMessage="データがありません"
 		/>

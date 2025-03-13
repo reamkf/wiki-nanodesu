@@ -10,7 +10,7 @@ import { FoldingSection } from "@/components/section/FoldingSection";
 interface CategoryLayoutProps {
 	categories: TreeItemData[];
 	renderContent: (categoryId: string) => ReactNode;
-	onSelectCategory: (id: string) => void;
+	onItemClisk: (id: string) => void;
 	selectedCategory: string | null;
 	emptyMessage?: string;
 }
@@ -22,7 +22,7 @@ interface CategoryLayoutProps {
 export function CategoryLayout({
 	categories,
 	renderContent,
-	onSelectCategory,
+	onItemClisk,
 	selectedCategory,
 	emptyMessage = "データがありません"
 }: CategoryLayoutProps) {
@@ -80,7 +80,7 @@ export function CategoryLayout({
 				<div className="sticky top-0">
 					<TableOfContents
 						contents={categories}
-						onSelect={onSelectCategory}
+						onItemClisk={onItemClisk}
 					/>
 				</div>
 			</Box>
