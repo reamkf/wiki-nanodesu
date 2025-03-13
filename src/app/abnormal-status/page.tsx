@@ -322,7 +322,8 @@ export default async function AbnormalStatusPage() {
 			children.push({
 				name: "フレンズ",
 				id: `${statusType}-friends`,
-				children: friendsChildren
+				children: friendsChildren,
+				isExpandedByDefault: true
 			});
 		}
 
@@ -331,7 +332,8 @@ export default async function AbnormalStatusPage() {
 			children.push({
 				name: "フォト",
 				id: `${statusType}-photo`,
-				children: photoChildren
+				children: photoChildren,
+				isExpandedByDefault: true
 			});
 		}
 
@@ -343,7 +345,8 @@ export default async function AbnormalStatusPage() {
 		return {
 			name: statusType,
 			id: statusType,
-			children: children
+			children: children,
+			isExpandedByDefault: false
 		};
 	}).filter(category => category !== null); // nullを除外
 

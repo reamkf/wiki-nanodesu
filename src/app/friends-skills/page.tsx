@@ -127,6 +127,20 @@ export default async function FriendsSkillsPage() {
 		},
 	];
 
+	// デフォルトですべて展開する
+	for (const category of skillCategories) {
+		category.isExpandedByDefault = true;
+		if (category.children) {
+			for (const child of category.children) {
+				if (child.children) {
+					for (const subChild of child.children) {
+						subChild.isExpandedByDefault = true;
+					}
+				}
+			}
+		}
+	}
+
 	return (
 		<div className="min-h-screen">
 			<PageTitle title="スキル別フレンズ一覧" />

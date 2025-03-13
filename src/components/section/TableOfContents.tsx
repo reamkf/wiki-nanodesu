@@ -74,7 +74,6 @@ export function TableOfContents({
 			<TreeList
 				items={contents}
 				onItemClick={handleItemClick}
-				isExpandedByDefault={true}
 			/>
 		</Box>
 	), [contents, handleItemClick]);

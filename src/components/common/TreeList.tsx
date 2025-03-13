@@ -9,13 +9,13 @@ export interface TreeItemData {
 	id: string;
 	name: string;
 	children?: TreeItemData[];
-	defaultExpanded?: boolean; // デフォルトで展開するかどうか
+	isExpandedByDefault?: boolean; // デフォルトで展開するかどうか
 }
 
 interface TreeListProps {
 	items: TreeItemData[];
 	onItemClick?: (id: string) => void;
-	isExpandedByDefault?: boolean; // すべての項目をデフォルトで展開するかどうか
+	isExpandedAllByDefault?: boolean; // すべての項目をデフォルトで展開するかどうか
 	className?: string;
 }
 
@@ -25,7 +25,7 @@ interface TreeListProps {
 export function TreeList({
 	items,
 	onItemClick,
-	isExpandedByDefault = false,
+	isExpandedAllByDefault = false,
 	className = "",
 }: TreeListProps) {
 	// 各アイテムの展開状態を保持するオブジェクト
@@ -37,9 +37,9 @@ export function TreeList({
 		const initializeExpandedState = (treeItems: TreeItemData[]) => {
 			treeItems.forEach(item => {
 				// itemのdefaultExpandedか、それがなければdefaultAllExpandedを使用
-				initialState[item.id] = item.defaultExpanded !== undefined
-					? item.defaultExpanded
-					: isExpandedByDefault;
+				initialState[item.id] = item.isExpandedByDefault !== undefined
+					? item.isExpandedByDefault
+					: isExpandedAllByDefault;
 
 				// 子要素がある場合は再帰的に処理
 				if (item.children && item.children.length > 0) {
