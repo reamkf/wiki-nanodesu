@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useMemo, useCallback, useState, useEffect } from "react";
-import { AbnormalStatusWithFriend, AbnormalStatusSkillEffectType } from "@/types/abnormalStatus";
+import {
+	AbnormalStatusWithFriend,
+	AbnormalStatusSkillEffectType,
+	getPowerPriority,
+	getActivationRatePriority
+} from "@/types/abnormalStatus";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
 import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
@@ -117,21 +122,16 @@ export default function ClientTabs({
 
 				return powerNum.toString();
 			},
-			sortingFn: (rowA, rowB, columnId) => {
-				const valueA = rowA.getValue(columnId);
-				const valueB = rowB.getValue(columnId);
+			sortingFn: (rowA, rowB) => {
+				const powerA = rowA.original.power;
+				const powerB = rowB.original.power;
 
-				// どちらかがnullやundefinedの場合
-				if (valueA == null) return 1;
-				if (valueB == null) return -1;
+				// 優先度に基づいてソート
+				const priorityA = getPowerPriority(powerA);
+				const priorityB = getPowerPriority(powerB);
 
-				// 両方とも数値の場合は数値比較
-				if (typeof valueA === 'number' && typeof valueB === 'number') {
-					return valueA - valueB;
-				}
-
-				// 文字列の場合は文字列比較
-				return String(valueA).localeCompare(String(valueB));
+				// 優先度が高いほうが上に来るように降順でソート
+				return priorityB - priorityA;
 			},
 			filterFn: customFilterFn,
 			meta: {
@@ -183,6 +183,16 @@ export default function ClientTabs({
 				if (!isNumber(activationRate)) return formatText(activationRate);
 
 				return toPercent(activationRateNum);
+			},
+			sortingFn: (rowA, rowB) => {
+				const rateA = rowA.original.activationRate;
+				const rateB = rowB.original.activationRate;
+
+				const priorityA = getActivationRatePriority(rateA);
+				const priorityB = getActivationRatePriority(rateB);
+
+				// 優先度が高いほうが上に来るように降順でソート
+				return priorityB - priorityA;
 			},
 			filterFn: customFilterFn,
 			meta: {
@@ -306,7 +316,7 @@ export default function ClientTabs({
 		<CategoryLayout
 			categories={abnormalStatusCategories}
 			renderContent={renderContent}
-			onSelectCategory={handleSelectCategory}
+			onItemClisk={handleSelectCategory}
 			selectedCategory={selectedStatusType}
 			emptyMessage="データがありません"
 		/>

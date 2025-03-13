@@ -4,7 +4,14 @@ import ClientTabs from "./page.client";
 import { TreeItemData } from "@/components/common/TreeList";
 import { PageTitle } from '@/components/PageTitle';
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
-import { AbnormalStatusWithFriend, AbnormalStatusSkillEffectType } from "@/types/abnormalStatus";
+import {
+	AbnormalStatusWithFriend,
+	AbnormalStatusSkillEffectType,
+	getPowerPriority,
+	getActivationRatePriority,
+	getSkillTypePriority,
+	getTargetPriority
+} from "@/types/abnormalStatus";
 import GoogleSheetsLink from "@/components/LinkWithIcon";
 import { FriendsAttribute, FriendsAttributeOrder } from "@/types/friends";
 import { PhotoAttribute, photoAttributeOrder } from "@/types/photo";
@@ -15,65 +22,6 @@ const EFFECT_TYPE_VALUE_TO_ID = Object.fromEntries(
 		([key, value]) => [value, key]
 	)
 ) as Record<AbnormalStatusSkillEffectType, keyof typeof AbnormalStatusSkillEffectType>;
-
-// ソート用のヘルパー関数
-function getTargetPriority(target: string): number {
-	if (!target) return -1;
-
-	if (target.includes('味方全体')) return 3;
-	if (target.includes('自身を除く') && target.includes('味方全体')) return 2;
-	if (target.includes('自身')) return 1;
-
-	return 0;
-}
-
-function getSkillTypePriority(skillType: string): number {
-	if (!skillType) return -1;
-
-	if (skillType === 'とくせい' || skillType === 'キセキとくせい' || skillType === 'なないろとくせい') return 1;
-
-	return 0;
-}
-
-function getPowerPriority(power: string): number {
-	if (!power) return -1;
-
-	const powerMap: Record<string, number> = {
-		'完全耐性': 1000,
-		'大幅に': 500,
-		'-': 100,
-		'高': 90,
-		'大': 85,
-		'中': 50,
-		'低': 30,
-		'少し': 30,
-		'少しだけ': 25,
-		'ほんの少し': 20,
-		'小': 20
-	};
-
-	return powerMap[power] || 0;
-}
-
-function getActivationRatePriority(activationRate: string): number {
-	if (!activationRate) return -1;
-
-	// 数値+%の形式（例：100%、75%など）をチェック
-	const percentMatch = activationRate.match(/^(\d+)%$/);
-	if (percentMatch) {
-		// 数値を抽出して、100を基準にソート（大きいほど優先度が高い）
-		return 100 + parseInt(percentMatch[1], 10);
-	}
-
-	const rateMap: Record<string, number> = {
-		'-': 100,
-		'高確率': 90,
-		'中確率': 50,
-		'低確率': 30
-	};
-
-	return rateMap[activationRate] || 0;
-}
 
 function sortByAttribute(data: AbnormalStatusWithFriend[]): AbnormalStatusWithFriend[] {
 	return [...data].sort((a, b) => {

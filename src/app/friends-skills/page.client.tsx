@@ -257,7 +257,7 @@ export default function ClientTabs({
 		<CategoryLayout
 			categories={skillCategories}
 			renderContent={renderContent}
-			onSelectCategory={handleSelectCategory}
+			onItemClisk={handleSelectCategory}
 			selectedCategory={selectedEffectType}
 			emptyMessage="データがありません"
 		/>
