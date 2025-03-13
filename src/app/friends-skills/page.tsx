@@ -1,7 +1,7 @@
 import { generateMetadata } from "../metadata";
 import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friends/friendsSkillsData";
 import ClientTabs from "./page.client";
-import { TableOfContentsData } from "@/components/section/TableOfContents";
+import { TreeItemData } from "@/components/common/TreeList";
 import { PageTitle } from '@/components/PageTitle';
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 import { SkillWithFriend } from "@/types/friendsSkills";
@@ -23,7 +23,7 @@ export default async function FriendsSkillsPage() {
 		);
 	});
 
-	const skillCategories: TableOfContentsData[] = [
+	const skillCategories: TreeItemData[] = [
 		{
 			name: "バフ",
 			id: "buff",

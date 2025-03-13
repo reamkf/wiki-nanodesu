@@ -3,7 +3,7 @@
 import React, { useMemo, useCallback, useState, useEffect } from "react";
 import { AbnormalStatusWithFriend, AbnormalStatusSkillEffectType } from "@/types/abnormalStatus";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
-import { TableOfContentsData } from "@/components/section/TableOfContents";
+import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
 import { isNumber, toPercent } from "@/utils/common";
 import { createCustomFilterFn } from "@/components/table/FilterableDataTable";
@@ -24,7 +24,7 @@ export default function ClientTabs({
 }: {
 	statusTypes: string[],
 	statusTypeData: Record<string, AbnormalStatusWithFriend[]>,
-	abnormalStatusCategories: TableOfContentsData[]
+	abnormalStatusCategories: TreeItemData[]
 }) {
 	// 選択された状態異常タイプの状態を管理
 	const [selectedStatusType, setSelectedStatusType] = useState<string | null>(null);

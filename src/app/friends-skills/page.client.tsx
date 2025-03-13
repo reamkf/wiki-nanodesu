@@ -3,7 +3,7 @@
 import React, { useMemo, useCallback, useState, useEffect } from "react";
 import { SkillWithFriend } from "@/types/friendsSkills";
 import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
-import { TableOfContentsData } from "@/components/section/TableOfContents";
+import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
 import { toPercent, isNumber } from "@/utils/common";
 import { sortFriendsAttribute } from "@/utils/friends/friends";
@@ -24,7 +24,7 @@ export default function ClientTabs({
 }: {
 	effectTypes: string[],
 	effectTypeData: Record<string, SkillWithFriend[]>,
-	skillCategories: TableOfContentsData[]
+	skillCategories: TreeItemData[]
 }) {
 	// 選択されたエフェクトタイプの状態を管理
 	const [selectedEffectType, setSelectedEffectType] = useState<string | null>(null);

@@ -4,16 +4,11 @@ import React, { Fragment, useState, useEffect, useCallback, useMemo, useRef } fr
 import { Dialog, Transition, DialogTitle, DialogPanel, TransitionChild } from "@headlessui/react";
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, Button, ListItemButton, ListItemText } from '@mui/material';
-
-export interface TableOfContentsData {
-	name: string;
-	id: string;
-	children?: TableOfContentsData[];
-}
+import { Box, Button } from '@mui/material';
+import { TreeList, TreeItemData } from '../common/TreeList';
 
 interface TableOfContentsProps {
-	contents: TableOfContentsData[];
+	contents: TreeItemData[];
 	onSelect: (id: string) => void;
 }
 
@@ -21,7 +16,7 @@ interface TableOfContentsProps {
  * シンプルな箇条書き形式の目次コンポーネント
  */
 export function TableOfContents({
-	contents: categories,
+	contents,
 	onSelect,
 }: TableOfContentsProps) {
 	const [open, setOpen] = useState(false);
@@ -73,58 +68,16 @@ export function TableOfContents({
 		}, 200);
 	}, [onSelect]);
 
-	// 再帰的にカテゴリーをレンダリングする関数
-	const renderCategoryTree = useCallback((items: TableOfContentsData[], level = 0) => {
-		return items.map(item => {
-			const hasChildren = !!(item.children && item.children.length > 0);
-
-			return (
-				<React.Fragment key={item.id}>
-					<ListItemButton
-						onClick={() => handleItemClick(item.id)}
-						className={`
-							py-0
-							pr-8
-							hover:bg-sky-100
-							rounded flex items-center
-						`}
-						style={{ paddingLeft: `${level * 1.5}rem` }}
-					>
-						{/* 箇条書きの点を表示 */}
-						<Box
-							component="span"
-							className='mr-2'
-						>
-							•
-						</Box>
-
-						<ListItemText
-							primary={item.name}
-							slotProps={{
-								primary: {
-									className: `
-										${level === 0 ? 'text-[0.9rem] font-bold' : 'text-[0.85rem]'}
-									`
-								}
-							}}
-							className="my-0"
-						/>
-					</ListItemButton>
-
-					{hasChildren && renderCategoryTree(item.children || [], level + 1)}
-				</React.Fragment>
-			);
-		});
-	}, [handleItemClick]);
-
 	// 目次のコンテンツ部分
 	const tocContent = useMemo(() => (
 		<Box className="pb-1 w-full max-h-[80vh] overflow-y-auto">
-			<div className="pt-0">
-				{renderCategoryTree(categories)}
-			</div>
+			<TreeList
+				items={contents}
+				onItemClick={handleItemClick}
+				defaultAllExpanded={true}
+			/>
 		</Box>
-	), [categories, renderCategoryTree]);
+	), [contents, handleItemClick]);
 
 	// 共通の目次ボタン
 	const tocButton = useMemo(() => (

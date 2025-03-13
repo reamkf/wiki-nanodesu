@@ -1,7 +1,7 @@
 import { generateMetadata } from "../metadata";
 import { getAbnormalStatusWithFriendsAndPhotos, getAbnormalStatusTypes } from "@/utils/abnormalStatusData";
 import ClientTabs from "./page.client";
-import { TableOfContentsData } from "@/components/section/TableOfContents";
+import { TreeItemData } from "@/components/common/TreeList";
 import { PageTitle } from '@/components/PageTitle';
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 import { AbnormalStatusWithFriend, AbnormalStatusSkillEffectType } from "@/types/abnormalStatus";
@@ -240,7 +240,7 @@ export default async function AbnormalStatusPage() {
 	];
 
 	// 状態異常のカテゴリーを構築
-	const abnormalStatusCategories: TableOfContentsData[] = abnormalStatusList.map(statusType => {
+	const abnormalStatusCategories: TreeItemData[] = abnormalStatusList.map(statusType => {
 		const statusData = statusTypeData[statusType] || [];
 
 		// データがない場合はnullを返す
