@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, ReactNode, useEffect } from "react";
+import React, { useCallback, ReactNode } from "react";
 import { Box } from "@mui/material";
 import { TableOfContents } from "@/components/section/TableOfContents";
 import { TreeItemData } from "../common/TreeList";
@@ -26,20 +26,6 @@ export function CategoryLayout({
 	selectedCategory,
 	emptyMessage = "データがありません"
 }: CategoryLayoutProps) {
-	// 目次クリック時の処理
-	const handleTocSelect = useCallback((id: string) => {
-		// カテゴリーを選択状態にする
-		onSelectCategory(id);
-
-		// IDに対応する要素を取得してスクロール
-		setTimeout(() => {
-			const element = document.getElementById(`section-${id}`);
-			if (element) {
-				element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-			}
-		}, 100); // セクションが展開される時間を少し待つ
-	}, [onSelectCategory]);
-
 	// カテゴリーセクションをレンダリングする関数
 	const renderCategorySections = useCallback((categories: TreeItemData[], level = 1) => {
 		return categories.map((category) => {
@@ -52,7 +38,7 @@ export function CategoryLayout({
 					>
 						<Heading
 							title={category.name}
-							id={`heading-${category.id}`}
+							id={category.id}
 							level={level as 1 | 2 | 3}
 						/>
 						<div className="mt-2">
@@ -73,7 +59,7 @@ export function CategoryLayout({
 				>
 					<Heading
 						title={category.name}
-						id={`heading-${category.id}`}
+						id={`${category.id}`}
 						level={level as 1 | 2 | 3}
 					/>
 					<FoldingSection
@@ -88,26 +74,13 @@ export function CategoryLayout({
 		});
 	}, [renderContent, selectedCategory, emptyMessage]);
 
-	// URLハッシュに基づいて初期ロード時にスクロール
-	useEffect(() => {
-		if (window.location.hash) {
-			const id = window.location.hash.substring(1);
-			const element = document.getElementById(`section-${id}`);
-			if (element) {
-				setTimeout(() => {
-					element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-				}, 200);
-			}
-		}
-	}, []);
-
 	return (
 		<>
 			<Box>
 				<div className="sticky top-0">
 					<TableOfContents
 						contents={categories}
-						onSelect={handleTocSelect}
+						onSelect={onSelectCategory}
 					/>
 				</div>
 			</Box>
