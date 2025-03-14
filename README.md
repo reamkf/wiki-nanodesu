@@ -58,6 +58,16 @@
 	bun run build
 	```
 
+### Google Apps Script
+- GASにコードをpushする
+	```sh
+	bun run gas:push
+	```
+- GASからコードをpullする
+	```sh
+	bun run gas:pull
+	```
+
 ### デプロイ
 [GitHub](https://github.com/reamkf/wiki-nanodesu) のmainブランチへpushすると、GitHub Actionsにより自動でGitHub Pagesへデプロイされる
 

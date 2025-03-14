@@ -5,10 +5,11 @@
 	"scripts": {
 		"dev": "next dev --turbopack",
 		"build": "next build",
-		"start": "next start",
 		"lint": "next lint",
 		"test": "bun test",
-		"precommit": "bun test && bun lint"
+		"precommit": "bun test && bun lint",
+		"gas:push": "clasp push",
+		"gas:pull": "clasp pull"
 	},
 	"dependencies": {
 		"@emotion/react": "^11.14.0",
@@ -27,6 +28,7 @@
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.3.0",
+		"@google/clasp": "^3.0.1-alpha1",
 		"@tailwindcss/postcss": "^4.0.12",
 		"@types/d3": "^7.4.3",
 		"@types/encoding-japanese": "^2.2.1",
