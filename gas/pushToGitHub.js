@@ -26,8 +26,8 @@ const sheetConfigs = [
 		filePath: 'csv/フォトデータ.csv'
 	},
 	{
-		sheetName: '状態異常',
-		filePath: 'csv/状態異常.csv',
+		sheetName: '状態異常スキル一覧',
+		filePath: 'csv/状態異常スキル一覧.csv',
 		range: {
 			startColumn: 1,
 			endColumn: 11
