@@ -10,12 +10,12 @@ import {
 	Cell,
 	flexRender,
 	ColumnDef,
+	FilterFn,
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
 import { sortFriendsAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
-import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 import { Table } from "../../components/table/Table";
 import {
 	FilterCheckboxGroup,
@@ -23,6 +23,8 @@ import {
 } from "../../components/table/FilterCheckboxGroup";
 import { ColumnMeta } from "@/types/common";
 import { STATUS_TYPES, getSearchableText, getFilteredAndSortedData } from "@/utils/friends/friendsStatusHelpers";
+import { QueryParser } from "@/utils/query-parser/queryParser";
+import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 
 const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
 
@@ -152,14 +154,42 @@ const StatusCell: React.FC<StatusCellProps> = ({
 	);
 };
 
+// クエリパーサーのキャッシュ
+const queryParserCache = {
+	evaluatorCache: new Map<string, (text: string) => boolean>()
+};
+
 // カスタム検索関数
-const customFilterFn = (
-	row: Row<ProcessedFriendsStatusListItem>,
-	columnId: string,
-	filterValue: string
-) => {
-	const searchText = getSearchableText(row.original, columnId);
-	return includesNormalizeQuery(searchText, filterValue);
+const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = (row, columnId, filterValue) => {
+	// 空のフィルター値の場合は全ての行を表示
+	if (!filterValue || filterValue === '') return true;
+
+	// 行の値を取得
+	const value = getSearchableText(row.original, columnId);
+
+	// 静的変数としてevaluatorをキャッシュ
+	// filterValueごとに一度だけパースして再利用する
+	const cacheKey = `custom:${columnId}:${filterValue}`;
+
+	// キャッシュからevaluatorを取得または新規作成
+	let evaluator: (text: string) => boolean;
+	if (queryParserCache.evaluatorCache.has(cacheKey)) {
+		evaluator = queryParserCache.evaluatorCache.get(cacheKey)!;
+	} else {
+		try {
+			// クエリパーサーを使用して検索条件を生成
+			const parser = new QueryParser(filterValue);
+			evaluator = parser.parse();
+			queryParserCache.evaluatorCache.set(cacheKey, evaluator);
+		} catch {
+			// パースエラーの場合は単純な文字列一致にフォールバック
+			evaluator = (text: string) => includesNormalizeQuery(text, filterValue);
+			queryParserCache.evaluatorCache.set(cacheKey, evaluator);
+		}
+	}
+
+	// 検索条件に基づいて行をフィルタリング
+	return evaluator(value);
 };
 
 // メモ化された行コンポーネント

@@ -14,6 +14,8 @@ import {
 	Row,
 	SortingState,
 	Table as ReactTable,
+	FilterFn,
+	FilterFnOption,
 } from "@tanstack/react-table";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { ColumnMeta } from "@/types/common";
@@ -24,6 +26,8 @@ import {
 	NavigateNext,
 	NavigateBefore,
 } from "@mui/icons-material";
+import { QueryParser } from "@/utils/query-parser/queryParser";
+import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 
 // ソート用の矢印SVGコンポーネント
 interface SortIndicatorArrowProps {
@@ -43,6 +47,47 @@ function SortIndicatorArrow({ direction, active }: SortIndicatorArrowProps) {
 		</svg>
 	);
 }
+
+// クエリパーサーを使用したカスタムフィルター関数
+interface QueryParserFilterFnCache {
+	evaluatorCache?: Map<string, (text: string) => boolean>;
+}
+
+const queryParserFilterFn: FilterFn<unknown> & QueryParserFilterFnCache = (row, columnId, filterValue) => {
+	// 空のフィルター値の場合は全ての行を表示
+	if (!filterValue || filterValue === '') return true;
+
+	// 静的変数としてevaluatorをキャッシュ
+	// filterValueごとに一度だけパースして再利用する
+	const cacheKey = `${columnId}:${filterValue}`;
+	if (!queryParserFilterFn.evaluatorCache) {
+		queryParserFilterFn.evaluatorCache = new Map<string, (text: string) => boolean>();
+	}
+
+	// キャッシュからevaluatorを取得または新規作成
+	let evaluator: (text: string) => boolean;
+	if (queryParserFilterFn.evaluatorCache.has(cacheKey)) {
+		evaluator = queryParserFilterFn.evaluatorCache.get(cacheKey)!;
+	} else {
+		try {
+			// クエリパーサーを使用して検索条件を生成
+			const parser = new QueryParser(filterValue);
+			evaluator = parser.parse();
+			queryParserFilterFn.evaluatorCache.set(cacheKey, evaluator);
+		} catch {
+			// パースエラーの場合は単純な文字列一致にフォールバック
+			evaluator = (text: string) => includesNormalizeQuery(text, filterValue);
+			queryParserFilterFn.evaluatorCache.set(cacheKey, evaluator);
+		}
+	}
+
+	// 行の値を取得
+	const cellValue = row.getValue(columnId);
+	const textValue = cellValue != null ? String(cellValue) : '';
+
+	// 検索条件に基づいて行をフィルタリング
+	return evaluator(textValue);
+};
 
 const PAGE_SIZE_OPTIONS = [500, 200, 100, 50, 20];
 const DEFAULT_PAGE_SIZE = 100;
@@ -217,6 +262,9 @@ export function Table<TData, TValue>({
 		enableColumnFilters: true,
 		manualSorting: false,
 		manualFiltering: false,
+		filterFns: {
+			queryParser: queryParserFilterFn,
+		},
 		sortingFns: {
 			stable: (rowA, rowB, columnId) => {
 				const a = rowA.getValue(columnId) as number;
@@ -236,6 +284,7 @@ export function Table<TData, TValue>({
 			minSize: 100,
 			size: 150,
 			maxSize: 400,
+			filterFn: 'queryParser' as FilterFnOption<TData>, // デフォルトのフィルター関数としてqueryParserを使用
 		},
 	});
 
@@ -320,16 +369,17 @@ export function Table<TData, TValue>({
 													className="w-full p-2 text-sm border rounded-sm font-normal bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500"
 													type="text"
 													value={(header.column.getFilterValue() as string) ?? ""}
-													onChange={(e) =>
-														header.column.setFilterValue(e.target.value)
-													}
+													onChange={(e) => {
+														const newValue = e.target.value;
+														header.column.setFilterValue(newValue);
+													}}
 													placeholder="検索..."
 												/>
-												{(header.column.getFilterValue() as
-													| string
-													| undefined) && (
+												{(header.column.getFilterValue() as string | undefined) && (
 													<button
-														onClick={() => header.column.setFilterValue("")}
+														onClick={() => {
+															header.column.setFilterValue("");
+														}}
 														className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
 														aria-label="検索をクリア"
 													>
