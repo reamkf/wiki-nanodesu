@@ -51,8 +51,8 @@ const sheetConfigs = [
 
 function onOpen() {
 	const customMenu = SpreadsheetApp.getUi()
-	customMenu.createMenu('マスタインポート')
-			.addItem('実行', 'convertCsv')
+	customMenu.createMenu('GitHub')
+			.addItem('Push', 'convertCsv')
 			.addItem('設定確認', 'showSettings')
 			.addToUi()
 }
@@ -233,7 +233,7 @@ function createCommit(parentCommitSha, treeSha) {
 	var requestUrl = urlBase + "git/commits";
 	var userEmail = Session.getActiveUser().getEmail();
 	var payload = {
-		"message": "Import MasterData on " + Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd  HH:mm:ss'),
+		"message": "Import CSV from Google Sheets on " + Utilities.formatDate(new Date(), 'JST', 'yyyy-MM-dd HH:mm:ss'),
 		"author": {
 			"name": userEmail,
 			"email": userEmail,
