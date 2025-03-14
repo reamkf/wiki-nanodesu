@@ -201,27 +201,6 @@ export function TreeList({
 				return null; // 検索結果に含まれない場合は表示しない
 			}
 
-			// 検索キーワードに一致する部分をハイライトする関数
-			const highlightText = (text: string, keyword: string) => {
-				if (!keyword) return text;
-
-				const lowerText = text.toLowerCase();
-				const lowerKeyword = keyword.toLowerCase();
-				const index = lowerText.indexOf(lowerKeyword);
-
-				if (index === -1) return text;
-
-				return (
-					<>
-						{text.substring(0, index)}
-						<span className="bg-yellow-200 font-medium">
-							{text.substring(index, index + keyword.length)}
-						</span>
-						{text.substring(index + keyword.length)}
-					</>
-				);
-			};
-
 			// 項目が検索キーワードに直接一致するかどうか
 			const isDirectMatch = searchKeyword &&
 				normalizeQuery(item.name).includes(normalizeQuery(searchKeyword));
@@ -261,7 +240,7 @@ export function TreeList({
 						)}
 
 						<ListItemText
-							primary={searchKeyword ? highlightText(item.name, searchKeyword) : item.name}
+							primary={item.name}
 							slotProps={{
 								primary: {
 									className: `
