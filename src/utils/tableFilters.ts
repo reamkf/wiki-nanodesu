@@ -2,6 +2,9 @@ import { FilterFn, Row } from "@tanstack/react-table";
 import { normalizeQuery } from "@/utils/queryNormalizer";
 import { QueryParser } from "@/utils/query-parser/queryParser";
 
+// CustomFilterFnRow型を修正 - インデックスシグネチャを必須としない
+type CustomFilterFnRow = object;
+
 // クエリパーサーのキャッシュ用インターフェース
 interface QueryParserCache {
 	evaluatorCache: Map<string, (text: string) => boolean>;
@@ -13,7 +16,7 @@ export const queryParserCache: QueryParserCache = {
 };
 
 // カスタムフィルター関数
-export const createCustomFilterFn = <T extends Record<string, unknown>>(
+export const createCustomFilterFn = <T extends CustomFilterFnRow>(
 	getSearchableText: (row: T, columnId: string) => string
 ): FilterFn<T> => {
 	return (row: Row<T>, columnId: string, filterValue: string) => {

@@ -23,8 +23,7 @@ import {
 } from "../../components/table/FilterCheckboxGroup";
 import { ColumnMeta } from "@/types/common";
 import { STATUS_TYPES, getSearchableText, getFilteredAndSortedData } from "@/utils/friends/friendsStatusHelpers";
-import { QueryParser } from "@/utils/query-parser/queryParser";
-import { includesNormalizeQuery, normalizeQuery } from "@/utils/queryNormalizer";
+import { createCustomFilterFn } from "@/utils/tableFilters";
 
 const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
 
@@ -154,44 +153,8 @@ const StatusCell: React.FC<StatusCellProps> = ({
 	);
 };
 
-// クエリパーサーのキャッシュ
-const queryParserCache = {
-	evaluatorCache: new Map<string, (text: string) => boolean>()
-};
-
 // カスタム検索関数
-const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = (row, columnId, filterValue) => {
-	// 空のフィルター値の場合は全ての行を表示
-	if (!filterValue || filterValue === '') return true;
-	const normalizedFilterValue = normalizeQuery(filterValue);
-
-	// 行の値を取得
-	const value = getSearchableText(row.original, columnId);
-
-	// 静的変数としてevaluatorをキャッシュ
-	// filterValueごとに一度だけパースして再利用する
-	const cacheKey = `custom:${columnId}:${normalizedFilterValue}`;
-
-	// キャッシュからevaluatorを取得または新規作成
-	let evaluator: (text: string) => boolean;
-	if (queryParserCache.evaluatorCache.has(cacheKey)) {
-		evaluator = queryParserCache.evaluatorCache.get(cacheKey)!;
-	} else {
-		try {
-			// クエリパーサーを使用して検索条件を生成
-			const parser = new QueryParser(normalizedFilterValue);
-			evaluator = parser.parse();
-			queryParserCache.evaluatorCache.set(cacheKey, evaluator);
-		} catch {
-			// パースエラーの場合は単純な文字列一致にフォールバック
-			evaluator = (text: string) => includesNormalizeQuery(text, normalizedFilterValue);
-			queryParserCache.evaluatorCache.set(cacheKey, evaluator);
-		}
-	}
-
-	// 検索条件に基づいて行をフィルタリング
-	return evaluator(normalizeQuery(value));
-};
+const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = createCustomFilterFn<ProcessedFriendsStatusListItem>(getSearchableText);
 
 // メモ化された行コンポーネント
 const TableRow = React.memo(function TableRow({
