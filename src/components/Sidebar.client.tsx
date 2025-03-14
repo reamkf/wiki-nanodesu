@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { SidebarLinkItem } from './Sidebar';
 import CancelIcon from '@mui/icons-material/Cancel';
-import { normalizeQuery } from '@/utils/queryNormalizer';
+import { includesNormalizeQuery } from '@/utils/queryNormalizer';
 
 interface SidebarClientProps {
 	sideBarLinksNanodesu: SidebarLinkItem[];
@@ -22,19 +22,19 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 	const searchInputRef = useRef<HTMLInputElement>(null);
 
 	const filteredLinksNanodesu = sideBarLinksNanodesu.filter(link =>
-		normalizeQuery(link.text).includes(normalizeQuery(searchQuery))
+		includesNormalizeQuery(link.text, searchQuery)
 	);
 
 	const filteredLinksNanoda = sideBarLinksNanoda.filter(link =>
-		normalizeQuery(link.text).includes(normalizeQuery(searchQuery))
+		includesNormalizeQuery(link.text, searchQuery)
 	);
 
 	const filteredFriendsLinks = friendsLinks.filter(link =>
-		normalizeQuery(link.text).includes(normalizeQuery(searchQuery))
+		includesNormalizeQuery(link.text, searchQuery)
 	);
 
 	const filteredPhotoLinks = photoLinks.filter(link =>
-		normalizeQuery(link.text).includes(normalizeQuery(searchQuery))
+		includesNormalizeQuery(link.text, searchQuery)
 	);
 
 	return (
