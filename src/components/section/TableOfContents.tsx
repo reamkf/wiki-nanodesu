@@ -4,7 +4,8 @@ import React, { Fragment, useState, useEffect, useCallback, useMemo, useRef } fr
 import { Dialog, Transition, DialogTitle, DialogPanel, TransitionChild } from "@headlessui/react";
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, Button } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import { Box, Button, TextField, InputAdornment } from '@mui/material';
 import { TreeList, TreeItemData } from '../common/TreeList';
 
 interface TableOfContentsProps {
@@ -21,7 +22,9 @@ export function TableOfContents({
 }: TableOfContentsProps) {
 	const [open, setOpen] = useState(false);
 	const [showButton, setShowButton] = useState(false);
+	const [searchKeyword, setSearchKeyword] = useState('');
 	const normalButtonRef = useRef<HTMLDivElement>(null);
+	const searchInputRef = useRef<HTMLInputElement>(null);
 
 	// 指定されたIDのセクションにスクロールする関数
 	const scrollToSection = useCallback((id: string) => {
@@ -71,17 +74,47 @@ export function TableOfContents({
 	// ダイアログを開く
 	const handleOpenDialog = useCallback(() => {
 		setOpen(true);
+		// ダイアログが開いた後に検索フィールドにフォーカス
+		// ダイアログのアニメーション（200ms）が完了してからフォーカス
+		setTimeout(() => {
+			if (searchInputRef.current) {
+				searchInputRef.current.focus();
+			}
+		}, 200);
 	}, []);
 
 	// ダイアログを閉じる
 	const handleCloseDialog = useCallback(() => {
 		setOpen(false);
+		// ダイアログを閉じるときに検索キーワードをリセット
+		setSearchKeyword('');
 	}, []);
+
+	// 検索キーワードが変更されたときの処理
+	const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchKeyword(e.target.value);
+	}, []);
+
+	// 検索フィールドでEscキーが押されたときの処理
+	const handleSearchKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+		if (e.key === 'Escape') {
+			// 検索フィールドが空の場合はダイアログを閉じる
+			if (searchKeyword === '') {
+				handleCloseDialog();
+			} else {
+				// 検索フィールドが空でない場合は検索キーワードをリセット
+				setSearchKeyword('');
+				e.preventDefault(); // デフォルトのEscキーの動作を防止
+			}
+		}
+	}, [searchKeyword, handleCloseDialog]);
 
 	// 目次項目がクリックされたとき
 	const handleItemClick = useCallback((id: string) => {
 		// まずダイアログを閉じる
 		setOpen(false);
+		// 検索キーワードをリセット
+		setSearchKeyword('');
 
 		// ダイアログの閉じるアニメーション（200ms）が完了してから処理を実行
 		setTimeout(() => {
@@ -104,9 +137,10 @@ export function TableOfContents({
 			<TreeList
 				items={contents}
 				onItemClick={handleItemClick}
+				searchKeyword={searchKeyword}
 			/>
 		</Box>
-	), [contents, handleItemClick]);
+	), [contents, handleItemClick, searchKeyword]);
 
 	// 共通の目次ボタン
 	const tocButton = useMemo(() => (
@@ -198,6 +232,28 @@ export function TableOfContents({
 											<CloseIcon />
 										</button>
 									</div>
+
+									{/* 検索フィールド */}
+									<Box className="mb-4">
+										<TextField
+											inputRef={searchInputRef}
+											fullWidth
+											placeholder="目次を検索..."
+											size="small"
+											value={searchKeyword}
+											onChange={handleSearchChange}
+											onKeyDown={handleSearchKeyDown}
+											InputProps={{
+												startAdornment: (
+													<InputAdornment position="start">
+														<SearchIcon />
+													</InputAdornment>
+												),
+												className: "rounded-lg",
+											}}
+										/>
+									</Box>
+
 									{tocContent}
 								</DialogPanel>
 							</TransitionChild>
