@@ -23,7 +23,7 @@ interface Token {
  */
 export class QueryParser {
     private tokens: Token[] = [];
-    private index = 0;
+    private currentPosition = 0;
 
     /**
      * クエリ文字列からパーサーを初期化
@@ -36,7 +36,7 @@ export class QueryParser {
      * クエリ文字列を解析して判定関数を返す
      */
     public parse(): (text: string) => boolean {
-        this.index = 0;
+        this.currentPosition = 0;
         return this.parseExpression();
     }
 
@@ -191,7 +191,7 @@ export class QueryParser {
      * 現在のトークンを取得
      */
     private getCurrentToken(): Token | null {
-        return this.index < this.tokens.length ? this.tokens[this.index] : null;
+        return this.currentPosition < this.tokens.length ? this.tokens[this.currentPosition] : null;
     }
 
     /**
@@ -201,9 +201,9 @@ export class QueryParser {
         let evaluator = this.parseAndExpression();
 
         while (this.getCurrentToken()?.type === TokenType.OR) {
-            this.index++; // OR演算子をスキップ
+            this.currentPosition++; // OR演算子をスキップ
 
-            if (this.index >= this.tokens.length) {
+            if (this.currentPosition >= this.tokens.length) {
                 return () => false;
             }
 
@@ -223,9 +223,9 @@ export class QueryParser {
         let evaluator = this.parseTerm();
 
         while (this.getCurrentToken()?.type === TokenType.AND) {
-            this.index++; // AND演算子をスキップ
+            this.currentPosition++; // AND演算子をスキップ
 
-            if (this.index >= this.tokens.length) {
+            if (this.currentPosition >= this.tokens.length) {
                 return () => false;
             }
 
@@ -249,9 +249,9 @@ export class QueryParser {
         }
 
         if (token.type === TokenType.NOT) {
-            this.index++; // NOTをスキップ
+            this.currentPosition++; // NOTをスキップ
 
-            if (this.index >= this.tokens.length) {
+            if (this.currentPosition >= this.tokens.length) {
                 return (text: string) => text.includes('-');
             }
 
@@ -272,7 +272,7 @@ export class QueryParser {
             return () => false;
         }
 
-        this.index++; // トークンを消費
+        this.currentPosition++; // トークンを消費
 
         if (token.type === TokenType.WORD) {
             return (text: string) => text.includes(token.value);
@@ -281,7 +281,7 @@ export class QueryParser {
 
             // 閉じ括弧があれば消費
             if (this.getCurrentToken()?.type === TokenType.RIGHT_PAREN) {
-                this.index++;
+                this.currentPosition++;
             }
 
             return expr;
