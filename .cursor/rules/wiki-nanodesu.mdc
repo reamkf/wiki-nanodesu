@@ -1,13 +1,9 @@
 ---
-description: 
-globs: 
-alwaysApply: false
----
----
 description: Wiki Nanodesu Project
-globs: *
+globs: 
 alwaysApply: true
 ---
+
 # wiki-nanodesuプロジェクト概要
 - 別で運用しているゲームのwikiを補助するWebサイト
 - 主にゲームのキャラクターやカードのデータを扱う
