@@ -7,7 +7,6 @@ import {
 	Row,
 	flexRender,
 } from "@tanstack/react-table";
-import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 
 // 汎用的なフィルタリング可能なデータテーブルコンポーネント
 export const FilterableDataTable = React.memo(({
@@ -49,15 +48,5 @@ export const FilterableDataTable = React.memo(({
 		</>
 	);
 });
-
-// カスタムフィルター関数
-export const createCustomFilterFn = <T extends Record<string, unknown>>(
-	getSearchableText: (row: T, columnId: string) => string
-) => {
-	return (row: Row<T>, columnId: string, filterValue: string) => {
-		const value = getSearchableText(row.original, columnId);
-		return includesNormalizeQuery(value, filterValue);
-	};
-};
 
 FilterableDataTable.displayName = "FilterableDataTable";

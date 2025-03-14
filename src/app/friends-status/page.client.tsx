@@ -10,12 +10,12 @@ import {
 	Cell,
 	flexRender,
 	ColumnDef,
+	FilterFn,
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
 import { sortFriendsAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
-import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 import { Table } from "../../components/table/Table";
 import {
 	FilterCheckboxGroup,
@@ -23,6 +23,7 @@ import {
 } from "../../components/table/FilterCheckboxGroup";
 import { ColumnMeta } from "@/types/common";
 import { STATUS_TYPES, getSearchableText, getFilteredAndSortedData } from "@/utils/friends/friendsStatusHelpers";
+import { createCustomFilterFn } from "@/utils/tableFilters";
 
 const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
 
@@ -153,14 +154,7 @@ const StatusCell: React.FC<StatusCellProps> = ({
 };
 
 // カスタム検索関数
-const customFilterFn = (
-	row: Row<ProcessedFriendsStatusListItem>,
-	columnId: string,
-	filterValue: string
-) => {
-	const searchText = getSearchableText(row.original, columnId);
-	return includesNormalizeQuery(searchText, filterValue);
-};
+const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = createCustomFilterFn<ProcessedFriendsStatusListItem>(getSearchableText);
 
 // メモ化された行コンポーネント
 const TableRow = React.memo(function TableRow({

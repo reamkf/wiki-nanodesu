@@ -14,6 +14,7 @@ import {
 	Row,
 	SortingState,
 	Table as ReactTable,
+	FilterFnOption,
 } from "@tanstack/react-table";
 import CancelIcon from "@mui/icons-material/Cancel";
 import { ColumnMeta } from "@/types/common";
@@ -24,6 +25,7 @@ import {
 	NavigateNext,
 	NavigateBefore,
 } from "@mui/icons-material";
+import { defaultCustomFilterFn } from "@/utils/tableFilters";
 
 // ソート用の矢印SVGコンポーネント
 interface SortIndicatorArrowProps {
@@ -217,6 +219,9 @@ export function Table<TData, TValue>({
 		enableColumnFilters: true,
 		manualSorting: false,
 		manualFiltering: false,
+		filterFns: {
+			customFilter: defaultCustomFilterFn,
+		},
 		sortingFns: {
 			stable: (rowA, rowB, columnId) => {
 				const a = rowA.getValue(columnId) as number;
@@ -236,6 +241,7 @@ export function Table<TData, TValue>({
 			minSize: 100,
 			size: 150,
 			maxSize: 400,
+			filterFn: 'customFilter' as FilterFnOption<TData>, // デフォルトのフィルター関数としてcustomFilterを使用
 		},
 	});
 
@@ -320,16 +326,17 @@ export function Table<TData, TValue>({
 													className="w-full p-2 text-sm border rounded-sm font-normal bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500"
 													type="text"
 													value={(header.column.getFilterValue() as string) ?? ""}
-													onChange={(e) =>
-														header.column.setFilterValue(e.target.value)
-													}
+													onChange={(e) => {
+														const newValue = e.target.value;
+														header.column.setFilterValue(newValue);
+													}}
 													placeholder="検索..."
 												/>
-												{(header.column.getFilterValue() as
-													| string
-													| undefined) && (
+												{(header.column.getFilterValue() as string | undefined) && (
 													<button
-														onClick={() => header.column.setFilterValue("")}
+														onClick={() => {
+															header.column.setFilterValue("");
+														}}
 														className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
 														aria-label="検索をクリア"
 													>

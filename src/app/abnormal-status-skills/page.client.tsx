@@ -11,7 +11,7 @@ import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttribu
 import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
 import { isNumber, toPercent } from "@/utils/common";
-import { createCustomFilterFn } from "@/components/table/FilterableDataTable";
+import { createCustomFilterFn } from "@/utils/tableFilters";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
 import {
 	GenericDataTable,

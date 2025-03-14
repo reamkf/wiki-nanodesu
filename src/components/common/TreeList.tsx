@@ -4,7 +4,7 @@ import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Box, ListItemButton, ListItemText } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { normalizeQuery } from '@/utils/queryNormalizer';
+import { includesNormalizeQuery } from '@/utils/queryNormalizer';
 
 export interface TreeItemData {
 	id: string;
@@ -74,7 +74,7 @@ export function TreeList({
 		if (!keyword) return true;
 
 		// 自身の名前が検索キーワードを含む場合
-		if (normalizeQuery(item.name).includes(normalizeQuery(keyword))) {
+		if (includesNormalizeQuery(item.name, keyword)) {
 			return true;
 		}
 
@@ -103,7 +103,7 @@ export function TreeList({
 						}
 
 						// 検索キーワードに直接一致する項目の場合、その子要素も展開する
-						if (normalizeQuery(item.name).includes(normalizeQuery(searchKeyword)) &&
+						if (includesNormalizeQuery(item.name, searchKeyword) &&
 							item.children && item.children.length > 0) {
 							// 子要素を展開
 							item.children.forEach(child => {
@@ -141,7 +141,7 @@ export function TreeList({
 		const collectMatchingIds = (treeItems: TreeItemData[], parentIds: string[] = []) => {
 			treeItems.forEach(item => {
 				const currentPath = [...parentIds, item.id];
-				const itemMatches = normalizeQuery(item.name).includes(normalizeQuery(searchKeyword));
+				const itemMatches = includesNormalizeQuery(item.name, searchKeyword);
 
 				// 自身が一致する場合、自身のIDと親のIDを追加
 				if (itemMatches) {
@@ -203,7 +203,7 @@ export function TreeList({
 
 			// 項目が検索キーワードに直接一致するかどうか
 			const isDirectMatch = searchKeyword &&
-				normalizeQuery(item.name).includes(normalizeQuery(searchKeyword));
+				includesNormalizeQuery(item.name, searchKeyword);
 
 			return (
 				<React.Fragment key={item.id}>

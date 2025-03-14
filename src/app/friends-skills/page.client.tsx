@@ -7,7 +7,7 @@ import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
 import { toPercent, isNumber } from "@/utils/common";
 import { sortFriendsAttribute } from "@/utils/friends/friends";
-import { createCustomFilterFn } from "@/components/table/FilterableDataTable";
+import { createCustomFilterFn } from "@/utils/tableFilters";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
 import { FriendsAttribute } from "@/types/friends";
 import {
