@@ -83,6 +83,25 @@ export function TableOfContents({
 		}, 200);
 	}, []);
 
+	// キーボードショートカット（Ctrl+Shift+O）で目次ダイアログを開く
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			// Ctrl+Shift+O が押されたとき
+			if (event.ctrlKey && event.shiftKey && event.key === 'O') {
+				event.preventDefault(); // デフォルトの動作を防止
+				handleOpenDialog();
+			}
+		};
+
+		// キーボードイベントリスナーを追加
+		window.addEventListener('keydown', handleKeyDown);
+
+		// クリーンアップ関数
+		return () => {
+			window.removeEventListener('keydown', handleKeyDown);
+		};
+	}, [handleOpenDialog]);
+
 	// ダイアログを閉じる
 	const handleCloseDialog = useCallback(() => {
 		setOpen(false);
