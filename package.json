@@ -8,6 +8,7 @@
 		"lint": "next lint",
 		"test": "bun test",
 		"precommit": "bun test && bun lint",
+		"clasp:login": "clasp login",
 		"gas:push": "clasp push",
 		"gas:pull": "clasp pull"
 	},

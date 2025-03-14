@@ -59,6 +59,10 @@
 	```
 
 ### Google Apps Script
+- ログイン
+	```sh
+	bun run clasp:login
+	```
 - GASにコードをpushする
 	```sh
 	bun run gas:push
