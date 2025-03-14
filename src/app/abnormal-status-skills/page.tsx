@@ -12,7 +12,7 @@ import {
 	getSkillTypePriority,
 	getTargetPriority
 } from "@/types/abnormalStatus";
-import GoogleSheetsLink from "@/components/LinkWithIcon";
+import GoogleSheetsLink from "@/components/GoogleSheetsLink";
 import { FriendsAttribute, FriendsAttributeOrder } from "@/types/friends";
 import { PhotoAttribute, photoAttributeOrder } from "@/types/photo";
 

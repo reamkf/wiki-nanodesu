@@ -3,10 +3,10 @@ import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friends/friend
 import ClientTabs from "./page.client";
 import { TreeItemData } from "@/components/common/TreeList";
 import { PageTitle } from '@/components/PageTitle';
-import Link from "next/link";
+import { NanodesuLink } from "@/components/common/NanodesuLink";
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 import { SkillWithFriend } from "@/types/friendsSkills";
-import GoogleSheetsLink from "@/components/LinkWithIcon";
+import GoogleSheetsLink from "@/components/GoogleSheetsLink";
 
 export const metadata = generateMetadata({
 	title: "スキル別フレンズ一覧",
@@ -151,7 +151,7 @@ export default async function FriendsSkillsPage() {
 				ただし、自身のみの与ダメージ増加は省略しています。<br />
 				<span className="font-bold">
 					状態異常・状態変化関連は
-					<Link href="/abnormal-status-skills" className="text-blue-500">状態異常のページ</Link>
+					<NanodesuLink href="/abnormal-status-skills">状態異常のページ</NanodesuLink>
 					と被るため、このページではまとめていません。<br />
 				</span>
 				けものミラクルのものは、全てLv.5での効果を記載しています。

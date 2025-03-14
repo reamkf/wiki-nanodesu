@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import Link from 'next/link';
 import { SeesaaWikiLink } from '@/components/seesaawiki/SeesaaWikiLink';
 import Image from 'next/image';
 import { useSidebar } from '@/contexts/SidebarContext';
 import { SidebarLinkItem } from './Sidebar';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { includesNormalizeQuery } from '@/utils/queryNormalizer';
+import { NanodesuLink } from '@/components/common/NanodesuLink';
 
 interface SidebarClientProps {
 	sideBarLinksNanodesu: SidebarLinkItem[];
@@ -98,26 +98,26 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						height={48}
 						className="p-2 pr-1 w-[50px] h-[50px] flex-1"
 					/>
-					<Link
+					<NanodesuLink
 						href="/"
 						className="font-bold text-sky-700 p-2 pl-0 grow leading-tight"
 						onClick={close}
 					>
 						アプリ版けものフレンズ３wikiなのです🦉
-					</Link>
+					</NanodesuLink>
 				</div>
 
 				{/* なのですページリスト */}
 				<ul className="list-disc pl-6">
 					{filteredLinksNanodesu.map((link) => (
 						<li key={`nanodesu-${link.href}`}>
-							<Link
+							<NanodesuLink
 								href={link.href}
 								className="block hover:text-sky-500 rounded-sm hover:underline mb-1 leading-tight"
 								onClick={close}
 							>
 								{link.text}
-							</Link>
+							</NanodesuLink>
 						</li>
 					))}
 				</ul>

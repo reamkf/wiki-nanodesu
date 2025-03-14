@@ -18,7 +18,7 @@ export function SeesaaWikiLink(props: SeesaaWikiLinkProps) {
 
 	return (
 		<Link
-			className={'text-sky-700 hover:underline hover:text-sky-600' + ' ' + (props.className || '')}
+			className={'font-bold text-green-500' + ' ' + (props.className || '')}
 			target="_blank"
 			rel="noopener noreferrer"
 			{...restProps}

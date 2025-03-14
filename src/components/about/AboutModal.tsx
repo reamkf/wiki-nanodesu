@@ -44,10 +44,7 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
 								</DialogTitle>
 								<div className="mt-2">
 									<p className="text-base mb-2">
-										<SeesaaWikiLink
-											href="https://seesaawiki.jp/kemono_friends3_5ch/"
-											className="font-bold hover:underline text-green-500"
-										>
+										<SeesaaWikiLink href="https://seesaawiki.jp/kemono_friends3_5ch/" >
 											アプリ版けものフレンズ３Wikiなのだ！
 										</SeesaaWikiLink>
 										を補助するサイトなのです。
@@ -56,7 +53,11 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
 										文字数上限などの都合で、Seesaa Wiki上での運用が難しいページをこちらで運用しているのです。
 									</p>
 									<p className="text-sm text-gray-500">
-										誤字・誤植の報告や情報提供は <SeesaaWikiLink href="https://seesaawiki.jp/kemono_friends3_5ch/" className="font-bold hover:underline text-green-500">アプリ版けものフレンズ３Wikiなのだ！</SeesaaWikiLink> のコメント欄または掲示板へお願いするのです。
+										誤字・誤植の報告や情報提供は
+										<SeesaaWikiLink href="https://seesaawiki.jp/kemono_friends3_5ch/">
+											アプリ版けものフレンズ３Wikiなのだ！
+										</SeesaaWikiLink>
+										のコメント欄または掲示板へお願いするのです。
 									</p>
 								</div>
 
