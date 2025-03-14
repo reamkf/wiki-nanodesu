@@ -146,78 +146,110 @@ describe('QueryParser', () => {
 
 	describe('不正なクエリ', () => {
 		test('不正な括弧（開き括弧なし）', () => {
-			expect(() => {
-				new QueryParser('測定) 掃除').parse()('テスト');
-			}).toThrow();
+			const parser = new QueryParser('測定) 掃除');
+			const evaluator = parser.parse();
+			expect(evaluator('テスト')).toBe(false);
+			expect(evaluator('定)')).toBe(false);
+			expect(evaluator('測定)と掃除')).toBe(true);
 		});
 
 		test('不正な括弧（閉じ括弧なし）', () => {
-			expect(() => {
-				new QueryParser('測定 (掃除').parse()('テスト');
-			}).toThrow();
+			const parser = new QueryParser('測定 (掃除');
+			const evaluator = parser.parse();
+			expect(evaluator('テスト')).toBe(false);
+			expect(evaluator('(掃')).toBe(false);
+			expect(evaluator('(掃除測定')).toBe(true);
 		});
 
 		describe('不正な演算子', () => {
 			test('不正なAND（右オペランドなし）', () => {
-				expect(() => {
-					new QueryParser('測定 掃除 AND').parse()('テスト');
-				}).toThrow();
+				const parser = new QueryParser('測定 掃除 AND');
+				const evaluator = parser.parse();
+				expect(evaluator('テスト')).toBe(false);
+				expect(evaluator('測定掃除')).toBe(false);
+				expect(evaluator('測定掃除AND')).toBe(true);
 			});
 
 			test('不正なOR（右オペランドなし）', () => {
-				expect(() => {
-					new QueryParser('測定 掃除 OR').parse()('テスト');
-				}).toThrow();
+				const parser = new QueryParser('測定 掃除 OR');
+				const evaluator = parser.parse();
+				expect(evaluator('テスト')).toBe(false);
+				expect(evaluator('測定掃除')).toBe(false);
+				expect(evaluator('測定掃除OR')).toBe(true);
 			});
 
 			test('不正なAND（左オペランドなし）', () => {
-				expect(() => {
-					new QueryParser('AND 測定 掃除').parse()('テスト');
-				}).toThrow();
+				const parser = new QueryParser('AND 測定 掃除');
+				const evaluator = parser.parse();
+				expect(evaluator('テスト')).toBe(false);
+				expect(evaluator('測定掃除')).toBe(false);
+				expect(evaluator('測定掃除AND')).toBe(true);
 			});
 
 			test('不正なOR（左オペランドなし）', () => {
-				expect(() => {
-					new QueryParser('OR 測定 掃除').parse()('テスト');
-				}).toThrow();
+				const parser = new QueryParser('OR 測定 掃除');
+				const evaluator = parser.parse();
+				expect(evaluator('テスト')).toBe(false);
+				expect(evaluator('測定掃除')).toBe(false);
+				expect(evaluator('測定掃除OR')).toBe(true);
+			});
+
+			test('不正なNOT（右オペランドなし）', () => {
+				const parser = new QueryParser('a-');
+				const evaluator = parser.parse();
+				expect(evaluator('テスト')).toBe(false);
+				expect(evaluator('測定掃除')).toBe(false);
+				expect(evaluator('測定a-掃除')).toBe(true);
 			});
 		});
 
 		describe('その他のエラー', () => {
 			test('()単体', () => {
-				expect(() => {
-					new QueryParser('()').parse()('テスト');
-				}).toThrow();
+				const parser = new QueryParser('()');
+				const evaluator = parser.parse();
+				expect(evaluator('テスト')).toBe(false);
+				expect(evaluator('測定()掃除')).toBe(true);
 			});
 
 			test('ANDの後にOR', () => {
-				expect(() => {
-					new QueryParser('aaa and or').parse()('テスト');
-				}).toThrow();
+				const parser = new QueryParser('aaa and or');
+				const evaluator = parser.parse();
+				expect(evaluator('テスト')).toBe(false);
+				expect(evaluator('aaa掃除')).toBe(false);
+				expect(evaluator('or掃除')).toBe(false);
+				expect(evaluator('aaa測定or掃除')).toBe(true);
 			});
 
 			test('ORの後にAND', () => {
-				expect(() => {
-					new QueryParser('aaa or and').parse()('テスト');
-				}).toThrow();
+				const parser = new QueryParser('aaa or and');
+				const evaluator = parser.parse();
+				expect(evaluator('テスト')).toBe(false);
+				expect(evaluator('aaa測定掃除')).toBe(true);
+				expect(evaluator('測定and掃除')).toBe(true);
 			});
 
 			test('ANDの前に-', () => {
-				expect(() => {
-					new QueryParser('aaa -and').parse()('テスト');
-				}).toThrow();
+				const parser = new QueryParser('aaa -and');
+				const evaluator = parser.parse();
+				expect(evaluator('テスト')).toBe(false);
+				expect(evaluator('aaa掃除')).toBe(false);
+				expect(evaluator('掃除-and')).toBe(false);
+				expect(evaluator('aaa掃除and')).toBe(false);
+				expect(evaluator('aaa測定-and掃除')).toBe(true);
 			});
 
 			test('ORの前に-', () => {
-				expect(() => {
-					new QueryParser('aaa -or').parse()('テスト');
-				}).toThrow();
+				const parser = new QueryParser('aaa -or');
+				const evaluator = parser.parse();
+				expect(evaluator('テスト')).toBe(false);
+				expect(evaluator('aaa掃除')).toBe(false);
+				expect(evaluator('aaa測定-or掃除')).toBe(true);
 			});
 
 			test('閉じ括弧の前に-', () => {
-				expect(() => {
-					new QueryParser('(aaa -)').parse()('テスト');
-				}).toThrow();
+				const parser = new QueryParser('(aaa -)');
+				const evaluator = parser.parse();
+				expect(evaluator('aaa測定-or掃除')).toBe(true);
 			});
 		});
 	});
