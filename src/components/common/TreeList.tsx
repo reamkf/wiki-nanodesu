@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Box, ListItemButton, ListItemText } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import { normalizeQuery } from '@/utils/queryNormalizer';
 
 export interface TreeItemData {
 	id: string;
@@ -17,6 +18,7 @@ interface TreeListProps {
 	onItemClick?: (id: string) => void;
 	isExpandedAllByDefault?: boolean; // すべての項目をデフォルトで展開するかどうか
 	className?: string;
+	searchKeyword?: string; // 検索キーワード
 }
 
 /**
@@ -27,6 +29,7 @@ export function TreeList({
 	onItemClick,
 	isExpandedAllByDefault = false,
 	className = "",
+	searchKeyword = "",
 }: TreeListProps) {
 	// 各アイテムの展開状態を保持するオブジェクト
 	const [expandedState, setExpandedState] = useState<Record<string, boolean>>(() => {
@@ -66,11 +69,141 @@ export function TreeList({
 		}));
 	}, []);
 
+	// 検索キーワードに一致するアイテムを含むかどうかを再帰的に確認する関数
+	const containsSearchKeyword = useCallback((item: TreeItemData, keyword: string): boolean => {
+		if (!keyword) return true;
+
+		// 自身の名前が検索キーワードを含む場合
+		if (normalizeQuery(item.name).includes(normalizeQuery(keyword))) {
+			return true;
+		}
+
+		// 子要素を検索
+		if (item.children && item.children.length > 0) {
+			return item.children.some(child => containsSearchKeyword(child, keyword));
+		}
+
+		return false;
+	}, []);
+
+	// 検索キーワードがある場合、検索結果に基づいて展開状態を更新
+	useEffect(() => {
+		if (searchKeyword) {
+			const newExpandedState = { ...expandedState };
+			let hasChanges = false;
+
+			// 検索キーワードに一致する項目の親を全て展開する関数
+			const expandParentsWithMatches = (treeItems: TreeItemData[]) => {
+				treeItems.forEach(item => {
+					if (containsSearchKeyword(item, searchKeyword)) {
+						// この項目または子孫が検索キーワードに一致する場合、展開する
+						if (!newExpandedState[item.id]) {
+							newExpandedState[item.id] = true;
+							hasChanges = true;
+						}
+
+						// 検索キーワードに直接一致する項目の場合、その子要素も展開する
+						if (normalizeQuery(item.name).includes(normalizeQuery(searchKeyword)) &&
+							item.children && item.children.length > 0) {
+							// 子要素を展開
+							item.children.forEach(child => {
+								if (!newExpandedState[child.id]) {
+									newExpandedState[child.id] = true;
+									hasChanges = true;
+								}
+							});
+						}
+
+						// 子要素がある場合は再帰的に処理
+						if (item.children && item.children.length > 0) {
+							expandParentsWithMatches(item.children);
+						}
+					}
+				});
+			};
+
+			expandParentsWithMatches(items);
+
+			// 変更があった場合のみ状態を更新
+			if (hasChanges) {
+				setExpandedState(newExpandedState);
+			}
+		}
+	}, [searchKeyword, items, containsSearchKeyword, expandedState]); // expandedStateは依存配列から除外
+
+	// 検索キーワードに一致する項目のIDを収集する
+	const matchingItemIds = useMemo(() => {
+		if (!searchKeyword) return new Set<string>();
+
+		const matchIds = new Set<string>();
+
+		// 再帰的に検索キーワードに一致する項目のIDを収集する関数
+		const collectMatchingIds = (treeItems: TreeItemData[], parentIds: string[] = []) => {
+			treeItems.forEach(item => {
+				const currentPath = [...parentIds, item.id];
+				const itemMatches = normalizeQuery(item.name).includes(normalizeQuery(searchKeyword));
+
+				// 自身が一致する場合、自身のIDと親のIDを追加
+				if (itemMatches) {
+					// 自身を追加
+					matchIds.add(item.id);
+					// 親も全て追加
+					parentIds.forEach(pid => matchIds.add(pid));
+
+					// 子孫も全て追加（一致した項目の子孫は全て表示する）
+					const addAllDescendants = (children: TreeItemData[] | undefined) => {
+						if (!children) return;
+						children.forEach(child => {
+							matchIds.add(child.id);
+							if (child.children) {
+								addAllDescendants(child.children);
+							}
+						});
+					};
+
+					if (item.children) {
+						addAllDescendants(item.children);
+					}
+				}
+
+				// 子要素がある場合は再帰的に処理
+				if (item.children && item.children.length > 0) {
+					// 子の中に一致するものがあるか確認
+					const hasMatchingChild = item.children.some(
+						child => containsSearchKeyword(child, searchKeyword)
+					);
+
+					// 子の中に一致するものがある場合、自身のIDも追加
+					if (hasMatchingChild && !itemMatches) {
+						matchIds.add(item.id);
+						// 親も全て追加
+						parentIds.forEach(pid => matchIds.add(pid));
+					}
+
+					// 子要素を再帰的に処理
+					collectMatchingIds(item.children, currentPath);
+				}
+			});
+		};
+
+		collectMatchingIds(items);
+		return matchIds;
+	}, [items, searchKeyword, containsSearchKeyword]);
+
 	// 再帰的にアイテムをレンダリングする関数
 	const renderTreeItems = useCallback((treeItems: TreeItemData[], level = 0) => {
 		return treeItems.map(item => {
 			const hasChildren = !!(item.children && item.children.length > 0);
 			const isExpanded = expandedState[item.id];
+
+			// 検索キーワードがある場合、このアイテムが表示対象かどうかをチェック
+			if (searchKeyword && !matchingItemIds.has(item.id)) {
+				return null; // 検索結果に含まれない場合は表示しない
+			}
+
+			// 項目が検索キーワードに直接一致するかどうか
+			const isDirectMatch = searchKeyword &&
+				normalizeQuery(item.name).includes(normalizeQuery(searchKeyword));
 
 			return (
 				<React.Fragment key={item.id}>
@@ -81,6 +214,7 @@ export function TreeList({
 							pr-8
 							hover:bg-sky-100
 							rounded flex items-center
+							${isDirectMatch ? 'bg-sky-50' : ''}
 						`}
 						style={{ paddingLeft: `${level * 1.5}rem` }}
 					>
@@ -111,6 +245,7 @@ export function TreeList({
 								primary: {
 									className: `
 										${level === 0 ? 'text-[0.9rem] font-bold' : 'text-[0.85rem]'}
+										${isDirectMatch ? 'font-medium' : ''}
 									`
 								}
 							}}
@@ -126,8 +261,8 @@ export function TreeList({
 					)}
 				</React.Fragment>
 			);
-		});
-	}, [handleItemClick, handleToggleExpand, expandedState]);
+		}).filter(Boolean); // nullの項目を除外
+	}, [handleItemClick, handleToggleExpand, expandedState, searchKeyword, matchingItemIds]);
 
 	// メインのレンダリング
 	return (

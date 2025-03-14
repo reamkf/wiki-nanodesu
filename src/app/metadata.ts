@@ -46,6 +46,7 @@ export function generateMetadata({
 		icons: {
 			icon: 'https://reamkf.github.io/wiki-nanodesu/no_blue.png',
 		},
+		// ========== OGP ==========
 		openGraph: {
 			title: metaTitle,
 			description,

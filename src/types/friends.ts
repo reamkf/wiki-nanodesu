@@ -105,6 +105,7 @@ export interface FriendsDataRow {
 	id: string;
 	name: string;
 	secondName: string;
+	isHc: boolean;
 	attribute: FriendsAttribute;
 	implementDate: string;
 	implementType: string;
@@ -132,6 +133,7 @@ export interface RawFriendsCSV {
 	ID: string;
 	フレンズ名: string;
 	属性違い二つ名: string;
+	HC: boolean;
 	ページURL: string;
 	属性: string;
 	サブ属性: string;

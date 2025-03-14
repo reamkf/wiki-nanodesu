@@ -21,7 +21,7 @@ export async function getAbnormalStatusData(): Promise<AbnormalStatusEffect[]> {
 		return abnormalStatusDataCache;
 	}
 
-	const csvPath = join(process.cwd(), "csv", "状態異常.csv");
+	const csvPath = join(process.cwd(), "csv", "状態異常スキル一覧.csv");
 	const csvFile = readFileSync(csvPath, "utf-8");
 
 	return new Promise<AbnormalStatusEffect[]>((resolve) => {

@@ -31,7 +31,7 @@ export async function Sidebar() {
 
 	const sideBarLinksNanodesu: SidebarLinkItem[] = [
 		{
-			href: '/abnormal-status',
+			href: '/abnormal-status-skills',
 			text: '状態異常スキル一覧',
 		},
 		{

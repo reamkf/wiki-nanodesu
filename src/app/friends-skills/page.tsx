@@ -3,6 +3,7 @@ import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friends/friend
 import ClientTabs from "./page.client";
 import { TreeItemData } from "@/components/common/TreeList";
 import { PageTitle } from '@/components/PageTitle';
+import Link from "next/link";
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 import { SkillWithFriend } from "@/types/friendsSkills";
 import GoogleSheetsLink from "@/components/LinkWithIcon";
@@ -147,13 +148,12 @@ export default async function FriendsSkillsPage() {
 
 			<p className="p-1">
 				フレンズのスキルを種類ごとにリスト化しています。<br />
-				ただし、自身のみの与ダメージ増加は省略しています。また、状態異常・状態変化関連は
-				<SeesaaWikiLink
-					href="https://seesaawiki.jp/kemono_friends3_5ch/d/%BE%F5%C2%D6%B0%DB%BE%EF"
-				>
-					状態異常のページ
-				</SeesaaWikiLink>
-				と被るため、このページではまとめていません。<br />
+				ただし、自身のみの与ダメージ増加は省略しています。<br />
+				<span className="font-bold">
+					状態異常・状態変化関連は
+					<Link href="/abnormal-status-skills" className="text-blue-500">状態異常のページ</Link>
+					と被るため、このページではまとめていません。<br />
+				</span>
 				けものミラクルのものは、全てLv.5での効果を記載しています。
 			</p>
 			<p className="p-1">

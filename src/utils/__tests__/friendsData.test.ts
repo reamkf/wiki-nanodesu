@@ -29,6 +29,14 @@ describe('getFriendsData', () => {
 				expect(sampleFriendsData?.name).toBe('カマイタチ・切');
 			});
 
+			it('属性違い二つ名がない', () => {
+				expect(sampleFriendsData?.secondName).toBe('');
+			});
+
+			it('HCでない', () => {
+				expect(sampleFriendsData?.isHc).toBe(false);
+			});
+
 			it('属性がマイペースである', () => {
 				expect(sampleFriendsData?.attribute).toBe(FriendsAttribute.mypace);
 			});
