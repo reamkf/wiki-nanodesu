@@ -24,7 +24,7 @@ import {
 import { ColumnMeta } from "@/types/common";
 import { STATUS_TYPES, getSearchableText, getFilteredAndSortedData } from "@/utils/friends/friendsStatusHelpers";
 import { QueryParser } from "@/utils/query-parser/queryParser";
-import { includesNormalizeQuery } from "@/utils/queryNormalizer";
+import { includesNormalizeQuery, normalizeQuery } from "@/utils/queryNormalizer";
 
 const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
 
@@ -163,13 +163,14 @@ const queryParserCache = {
 const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = (row, columnId, filterValue) => {
 	// 空のフィルター値の場合は全ての行を表示
 	if (!filterValue || filterValue === '') return true;
+	const normalizedFilterValue = normalizeQuery(filterValue);
 
 	// 行の値を取得
 	const value = getSearchableText(row.original, columnId);
 
 	// 静的変数としてevaluatorをキャッシュ
 	// filterValueごとに一度だけパースして再利用する
-	const cacheKey = `custom:${columnId}:${filterValue}`;
+	const cacheKey = `custom:${columnId}:${normalizedFilterValue}`;
 
 	// キャッシュからevaluatorを取得または新規作成
 	let evaluator: (text: string) => boolean;
@@ -178,18 +179,18 @@ const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = (row, columnId,
 	} else {
 		try {
 			// クエリパーサーを使用して検索条件を生成
-			const parser = new QueryParser(filterValue);
+			const parser = new QueryParser(normalizedFilterValue);
 			evaluator = parser.parse();
 			queryParserCache.evaluatorCache.set(cacheKey, evaluator);
 		} catch {
 			// パースエラーの場合は単純な文字列一致にフォールバック
-			evaluator = (text: string) => includesNormalizeQuery(text, filterValue);
+			evaluator = (text: string) => includesNormalizeQuery(text, normalizedFilterValue);
 			queryParserCache.evaluatorCache.set(cacheKey, evaluator);
 		}
 	}
 
 	// 検索条件に基づいて行をフィルタリング
-	return evaluator(value);
+	return evaluator(normalizeQuery(value));
 };
 
 // メモ化された行コンポーネント

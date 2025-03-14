@@ -14,7 +14,6 @@ import {
 	Row,
 	SortingState,
 	Table as ReactTable,
-	FilterFn,
 	FilterFnOption,
 } from "@tanstack/react-table";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -26,8 +25,7 @@ import {
 	NavigateNext,
 	NavigateBefore,
 } from "@mui/icons-material";
-import { QueryParser } from "@/utils/query-parser/queryParser";
-import { includesNormalizeQuery } from "@/utils/queryNormalizer";
+import { defaultCustomFilterFn } from "@/utils/tableFilters";
 
 // ソート用の矢印SVGコンポーネント
 interface SortIndicatorArrowProps {
@@ -47,47 +45,6 @@ function SortIndicatorArrow({ direction, active }: SortIndicatorArrowProps) {
 		</svg>
 	);
 }
-
-// クエリパーサーを使用したカスタムフィルター関数
-interface QueryParserFilterFnCache {
-	evaluatorCache?: Map<string, (text: string) => boolean>;
-}
-
-const queryParserFilterFn: FilterFn<unknown> & QueryParserFilterFnCache = (row, columnId, filterValue) => {
-	// 空のフィルター値の場合は全ての行を表示
-	if (!filterValue || filterValue === '') return true;
-
-	// 静的変数としてevaluatorをキャッシュ
-	// filterValueごとに一度だけパースして再利用する
-	const cacheKey = `${columnId}:${filterValue}`;
-	if (!queryParserFilterFn.evaluatorCache) {
-		queryParserFilterFn.evaluatorCache = new Map<string, (text: string) => boolean>();
-	}
-
-	// キャッシュからevaluatorを取得または新規作成
-	let evaluator: (text: string) => boolean;
-	if (queryParserFilterFn.evaluatorCache.has(cacheKey)) {
-		evaluator = queryParserFilterFn.evaluatorCache.get(cacheKey)!;
-	} else {
-		try {
-			// クエリパーサーを使用して検索条件を生成
-			const parser = new QueryParser(filterValue);
-			evaluator = parser.parse();
-			queryParserFilterFn.evaluatorCache.set(cacheKey, evaluator);
-		} catch {
-			// パースエラーの場合は単純な文字列一致にフォールバック
-			evaluator = (text: string) => includesNormalizeQuery(text, filterValue);
-			queryParserFilterFn.evaluatorCache.set(cacheKey, evaluator);
-		}
-	}
-
-	// 行の値を取得
-	const cellValue = row.getValue(columnId);
-	const textValue = cellValue != null ? String(cellValue) : '';
-
-	// 検索条件に基づいて行をフィルタリング
-	return evaluator(textValue);
-};
 
 const PAGE_SIZE_OPTIONS = [500, 200, 100, 50, 20];
 const DEFAULT_PAGE_SIZE = 100;
@@ -263,7 +220,7 @@ export function Table<TData, TValue>({
 		manualSorting: false,
 		manualFiltering: false,
 		filterFns: {
-			queryParser: queryParserFilterFn,
+			customFilter: defaultCustomFilterFn,
 		},
 		sortingFns: {
 			stable: (rowA, rowB, columnId) => {
@@ -284,7 +241,7 @@ export function Table<TData, TValue>({
 			minSize: 100,
 			size: 150,
 			maxSize: 400,
-			filterFn: 'queryParser' as FilterFnOption<TData>, // デフォルトのフィルター関数としてqueryParserを使用
+			filterFn: 'customFilter' as FilterFnOption<TData>, // デフォルトのフィルター関数としてcustomFilterを使用
 		},
 	});
 
