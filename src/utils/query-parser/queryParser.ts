@@ -11,12 +11,11 @@ export enum TokenType {
 }
 
 /**
- * クエリを構成する個々のトークン
+ * クエリを構成するトークン
  */
-export interface Token {
+interface Token {
     type: TokenType;
     value: string;
-    position: number;
 }
 
 /**
@@ -24,175 +23,103 @@ export interface Token {
  */
 export class QueryParser {
     private tokens: Token[] = [];
-    private currentPosition = 0;
+    private index = 0;
 
     /**
      * クエリ文字列からパーサーを初期化
      */
-    constructor(private queryString: string) {
-        this.tokenize();
+    constructor(private query: string) {
+        this.tokens = this.tokenize();
     }
 
     /**
      * クエリ文字列を解析して判定関数を返す
      */
     public parse(): (text: string) => boolean {
-        this.currentPosition = 0;
+        this.index = 0;
         return this.parseExpression();
     }
 
     /**
      * クエリ文字列をトークンに分割
      */
-    private tokenize(): void {
-        // トークン分割の前処理
-        const rawTokens = this.extractRawTokens();
-
-        // 無効な演算子をWORDに変換
-        const validatedTokens = this.validateOperators(rawTokens);
-
-        // 暗黙的なANDトークンを挿入
-        this.tokens = this.insertImplicitAnds(validatedTokens);
-    }
-
-    /**
-     * クエリ文字列から基本的なトークンを抽出
-     */
-    private extractRawTokens(): Token[] {
+    private tokenize(): Token[] {
         const tokens: Token[] = [];
-        let position = 0;
         let i = 0;
 
-        while (i < this.queryString.length) {
-            const char = this.queryString[i];
+        // クエリ文字列を先頭から走査
+        while (i < this.query.length) {
+            const char = this.query[i];
 
             // 空白をスキップ
             if (char === ' ' || char === '　') {
                 i++;
-                position++;
                 continue;
             }
 
             // 括弧の処理
-            if (char === '(' || char === ')') {
-                tokens.push({
-                    type: char === '(' ? TokenType.LEFT_PAREN : TokenType.RIGHT_PAREN,
-                    value: char,
-                    position
-                });
+            if (char === '(') {
+                tokens.push({ type: TokenType.LEFT_PAREN, value: '(' });
                 i++;
-                position++;
                 continue;
             }
 
-            // NOT演算子(-) の処理
-            if (this.isNotOperator(i)) {
-                tokens.push({
-                    type: TokenType.NOT,
-                    value: '-',
-                    position
-                });
+            if (char === ')') {
+                tokens.push({ type: TokenType.RIGHT_PAREN, value: ')' });
                 i++;
-                position++;
+                continue;
+            }
+
+            // NOT演算子の処理
+            if (char === '-' &&
+                (i === 0 || /[\s(]/.test(this.query[i-1])) &&
+                (i < this.query.length - 1 && !/[\s()]/.test(this.query[i+1]))) {
+                tokens.push({ type: TokenType.NOT, value: '-' });
+                i++;
                 continue;
             }
 
             // 単語の処理
-            const wordResult = this.extractWord(i);
-            if (wordResult.word) {
-                tokens.push(this.createWordToken(wordResult.word, position));
+            let word = '';
+            while (i < this.query.length && !/[\s()]/.test(this.query[i])) {
+                word += this.query[i];
+                i++;
             }
 
-            i = wordResult.newIndex;
-            position = position + (wordResult.newIndex - i);
-            i = wordResult.newIndex;
+            if (word) {
+                // ANDとORの特別処理
+                const upperWord = word.toUpperCase();
+                if (upperWord === 'AND') {
+                    tokens.push({ type: TokenType.AND, value: 'and' });
+                } else if (upperWord === 'OR') {
+                    tokens.push({ type: TokenType.OR, value: 'or' });
+                } else {
+                    tokens.push({ type: TokenType.WORD, value: word.toLowerCase() });
+                }
+            }
         }
 
+        // 不正な演算子と括弧を修正
+        const fixedTokens = this.validateTokens(tokens);
+
+        // 暗黙的なANDを挿入
+        return this.insertImplicitAnds(fixedTokens);
+    }
+
+    /**
+     * トークンの正当性をチェックして修正
+     */
+    private validateTokens(tokens: Token[]): Token[] {
         // 括弧のバランスを修正
-        return this.balanceParentheses(tokens);
-    }
-
-    /**
-     * 現在位置のハイフンがNOT演算子かどうかを判定
-     */
-    private isNotOperator(index: number): boolean {
-        if (this.queryString[index] !== '-') return false;
-
-        const isAtStart = index === 0;
-        const isPrecededByWhitespaceOrParen = index > 0 &&
-            (this.queryString[index - 1] === ' ' ||
-             this.queryString[index - 1] === '　' ||
-             this.queryString[index - 1] === '(');
-
-        const hasRightOperand = index < this.queryString.length - 1 &&
-            this.queryString[index + 1] !== ' ' &&
-            this.queryString[index + 1] !== '　' &&
-            this.queryString[index + 1] !== '(' &&
-            this.queryString[index + 1] !== ')';
-
-        return (isAtStart || isPrecededByWhitespaceOrParen) && hasRightOperand;
-    }
-
-    /**
-     * 単語を抽出
-     */
-    private extractWord(startIndex: number): { word: string, newIndex: number } {
-        let word = '';
-        let i = startIndex;
-
-        while (i < this.queryString.length &&
-               this.queryString[i] !== ' ' &&
-               this.queryString[i] !== '　' &&
-               this.queryString[i] !== '(' &&
-               this.queryString[i] !== ')') {
-            word += this.queryString[i];
-            i++;
-        }
-
-        return { word, newIndex: i };
-    }
-
-    /**
-     * 単語からトークンを作成
-     */
-    private createWordToken(word: string, position: number): Token {
-        const upperWord = word.toUpperCase();
-
-        // ANDかORの場合
-        if (upperWord === 'AND' || upperWord === 'OR') {
-            return {
-                type: upperWord === 'AND' ? TokenType.AND : TokenType.OR,
-                value: word.toLowerCase(), // 小文字化
-                position
-            };
-        }
-
-        // 通常の単語は小文字化して格納
-        return {
-            type: TokenType.WORD,
-            value: word.toLowerCase(),
-            position
-        };
-    }
-
-    /**
-     * 括弧のバランスを修正
-     */
-    private balanceParentheses(tokens: Token[]): Token[] {
-        // 不正な閉じ括弧をWORDに変換
         const stack: number[] = [];
-        const result = tokens.map(token => {
+        const result = tokens.map((token, i) => {
             if (token.type === TokenType.LEFT_PAREN) {
-                stack.push(token.position);
+                stack.push(i);
                 return token;
             } else if (token.type === TokenType.RIGHT_PAREN) {
                 if (stack.length === 0) {
                     // 対応する開き括弧がない場合は単語として扱う
-                    return {
-                        type: TokenType.WORD,
-                        value: token.value,
-                        position: token.position
-                    };
+                    return { type: TokenType.WORD, value: token.value };
                 } else {
                     stack.pop();
                     return token;
@@ -202,39 +129,31 @@ export class QueryParser {
             }
         });
 
-        // 余分な開き括弧をWORDに変換して追加
-        return result;
-    }
-
-    /**
-     * 無効な演算子をWORDに変換
-     */
-    private validateOperators(tokens: Token[]): Token[] {
-        return tokens.map((token, i) => {
-            if (token.type === TokenType.AND || token.type === TokenType.OR) {
+        // 無効な演算子をWORDに変換
+        return result.map((token, i) => {
+            if ((token.type === TokenType.AND || token.type === TokenType.OR) &&
+                (i === 0 || i === tokens.length - 1)) {
                 // クエリの先頭または末尾にある演算子
-                if (i === 0 || i === tokens.length - 1) {
-                    return { ...token, type: TokenType.WORD };
-                }
+                return { ...token, type: TokenType.WORD };
+            }
 
-                const prev = tokens[i - 1];
-                // 左側が別の演算子の場合（括弧は例外）
+            if ((token.type === TokenType.AND || token.type === TokenType.OR) && i > 0) {
+                const prev = result[i - 1];
+                // 左側が別の演算子または開き括弧の場合
                 if (prev.type === TokenType.AND || prev.type === TokenType.OR ||
                     prev.type === TokenType.NOT || prev.type === TokenType.LEFT_PAREN) {
                     return { ...token, type: TokenType.WORD };
                 }
-            } else if (token.type === TokenType.NOT) {
-                // NOTの後に何もない場合
-                if (i === tokens.length - 1) {
-                    return { ...token, type: TokenType.WORD };
-                }
+            }
 
-                const next = tokens[i + 1];
-                // NOTの後に演算子または閉じ括弧がある場合
-                if (next.type === TokenType.AND || next.type === TokenType.OR ||
-                    next.type === TokenType.NOT || next.type === TokenType.RIGHT_PAREN) {
-                    return { ...token, type: TokenType.WORD };
-                }
+            if (token.type === TokenType.NOT &&
+                (i === tokens.length - 1 ||
+                 (i < tokens.length - 1 &&
+                  (result[i + 1].type === TokenType.AND ||
+                   result[i + 1].type === TokenType.OR ||
+                   result[i + 1].type === TokenType.NOT ||
+                   result[i + 1].type === TokenType.RIGHT_PAREN)))) {
+                return { ...token, type: TokenType.WORD };
             }
 
             return token;
@@ -253,14 +172,14 @@ export class QueryParser {
 
             if (i < tokens.length - 1) {
                 const next = tokens[i + 1];
-                const needsAnd = this.needsImplicitAnd(current, next);
+
+                // 暗黙的なANDが必要か判定
+                const needsAnd =
+                    (current.type === TokenType.WORD || current.type === TokenType.RIGHT_PAREN) &&
+                    (next.type === TokenType.WORD || next.type === TokenType.NOT || next.type === TokenType.LEFT_PAREN);
 
                 if (needsAnd) {
-                    result.push({
-                        type: TokenType.AND,
-                        value: 'AND',
-                        position: current.position + current.value.length
-                    });
+                    result.push({ type: TokenType.AND, value: 'and' });
                 }
             }
         }
@@ -269,38 +188,10 @@ export class QueryParser {
     }
 
     /**
-     * 二つのトークン間に暗黙的なANDが必要かどうかを判定
-     */
-    private needsImplicitAnd(current: Token, next: Token): boolean {
-        const isCurrentNeedingAnd =
-            current.type === TokenType.WORD || current.type === TokenType.RIGHT_PAREN;
-
-        const isNextNeedingAnd =
-            next.type === TokenType.NOT ||
-            next.type === TokenType.WORD ||
-            next.type === TokenType.LEFT_PAREN;
-
-        const notAlreadyHasOperator =
-            next.type !== TokenType.OR &&
-            next.type !== TokenType.AND;
-
-        return isCurrentNeedingAnd && isNextNeedingAnd && notAlreadyHasOperator;
-    }
-
-    /**
      * 現在のトークンを取得
      */
     private getCurrentToken(): Token | null {
-        return this.currentPosition < this.tokens.length
-            ? this.tokens[this.currentPosition]
-            : null;
-    }
-
-    /**
-     * トークンを1つ進める
-     */
-    private advance(): void {
-        this.currentPosition++;
+        return this.index < this.tokens.length ? this.tokens[this.index] : null;
     }
 
     /**
@@ -310,129 +201,93 @@ export class QueryParser {
         let evaluator = this.parseAndExpression();
 
         while (this.getCurrentToken()?.type === TokenType.OR) {
-            this.advance();
+            this.index++; // OR演算子をスキップ
 
-            // 右側のオペランドがない場合
-            if (!this.isValidOperandPosition()) {
+            if (this.index >= this.tokens.length) {
                 return () => false;
             }
 
-            const rightEvaluator = this.parseAndExpression();
-            const leftEvaluator = evaluator;
-            evaluator = (text: string) => {
-                // テキストを1回だけ小文字化
-                const lowerText = text.toLowerCase();
-                return leftEvaluator(lowerText) || rightEvaluator(lowerText);
-            };
+            const rightEval = this.parseAndExpression();
+            const leftEval = evaluator;
+
+            evaluator = (text: string) => leftEval(text) || rightEval(text);
         }
 
-        // 最終的な評価関数をラップして、入力テキストを一度だけ小文字化
-        const finalEvaluator = evaluator;
-        return (text: string) => finalEvaluator(text.toLowerCase());
+        return (text: string) => evaluator(text.toLowerCase());
     }
 
     /**
      * AND式を解析
      */
     private parseAndExpression(): (text: string) => boolean {
-        let evaluator = this.parseNotExpression();
+        let evaluator = this.parseTerm();
 
         while (this.getCurrentToken()?.type === TokenType.AND) {
-            this.advance();
+            this.index++; // AND演算子をスキップ
 
-            // 右側のオペランドがない場合
-            if (!this.isValidOperandPosition()) {
+            if (this.index >= this.tokens.length) {
                 return () => false;
             }
 
-            const rightEvaluator = this.parseNotExpression();
-            const leftEvaluator = evaluator;
-            // すでに小文字化されたテキストを受け取ることを想定
-            evaluator = (text: string) => leftEvaluator(text) && rightEvaluator(text);
+            const rightEval = this.parseTerm();
+            const leftEval = evaluator;
+
+            evaluator = (text: string) => leftEval(text) && rightEval(text);
         }
 
         return evaluator;
     }
 
     /**
-     * 現在位置が有効なオペランド位置かチェック
+     * 単項式(NOTまたは単語)を解析
      */
-    private isValidOperandPosition(): boolean {
-        if (this.currentPosition >= this.tokens.length) {
-            return false;
-        }
-
-        const token = this.getCurrentToken();
-        return !(token?.type === TokenType.RIGHT_PAREN ||
-                 token?.type === TokenType.AND ||
-                 token?.type === TokenType.OR);
-    }
-
-    /**
-     * NOT式を解析
-     */
-    private parseNotExpression(): (text: string) => boolean {
-        if (this.getCurrentToken()?.type === TokenType.NOT) {
-            const notToken = this.getCurrentToken()!;
-            this.advance();
-
-            // NOTの後にオペランドがない場合
-            if (this.currentPosition >= this.tokens.length) {
-                return (text: string) => text.includes(notToken.value);
-            }
-
-            const nextToken = this.getCurrentToken();
-
-            // 次のトークンが単語ではない場合は、NOTをテキストとして扱う
-            if (!nextToken || nextToken.type !== TokenType.WORD) {
-                return (text: string) => text.includes(notToken.value);
-            }
-
-            const operandEvaluator = this.parsePrimary();
-            return (text: string) => !operandEvaluator(text);
-        }
-
-        return this.parsePrimary();
-    }
-
-    /**
-     * 基本式（単語またはカッコで囲まれた式）を解析
-     */
-    private parsePrimary(): (text: string) => boolean {
+    private parseTerm(): (text: string) => boolean {
         const token = this.getCurrentToken();
 
         if (!token) {
             return () => false;
         }
 
-        this.advance();
+        if (token.type === TokenType.NOT) {
+            this.index++; // NOTをスキップ
+
+            if (this.index >= this.tokens.length) {
+                return (text: string) => text.includes('-');
+            }
+
+            const operand = this.parseFactor();
+            return (text: string) => !operand(text);
+        }
+
+        return this.parseFactor();
+    }
+
+    /**
+     * 因子(単語または括弧で囲まれた式)を解析
+     */
+    private parseFactor(): (text: string) => boolean {
+        const token = this.getCurrentToken();
+
+        if (!token) {
+            return () => false;
+        }
+
+        this.index++; // トークンを消費
 
         if (token.type === TokenType.WORD) {
-            // トークンの値はすでに小文字化されている
             return (text: string) => text.includes(token.value);
         } else if (token.type === TokenType.LEFT_PAREN) {
-            // 括弧内の式を解析
-            const savedPosition = this.currentPosition;
-            let evaluator;
+            const expr = this.parseExpression();
 
-            try {
-                evaluator = this.parseExpression();
-            } catch {
-                // エラーが発生した場合は開き括弧をテキストとして扱う
-                this.currentPosition = savedPosition;
-                return (text: string) => text.includes(token.value.toLowerCase());
+            // 閉じ括弧があれば消費
+            if (this.getCurrentToken()?.type === TokenType.RIGHT_PAREN) {
+                this.index++;
             }
 
-            // 閉じ括弧があるか確認
-            if (this.getCurrentToken()?.type !== TokenType.RIGHT_PAREN) {
-                return (text: string) => text.includes(token.value.toLowerCase());
-            }
-
-            this.advance();
-            return evaluator;
+            return expr;
         } else {
             // その他のトークンはテキストとして扱う
-            return (text: string) => text.includes(token.value.toLowerCase());
+            return (text: string) => text.includes(token.value);
         }
     }
 }
