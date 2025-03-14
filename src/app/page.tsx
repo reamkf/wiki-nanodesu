@@ -8,10 +8,7 @@ export default function Home() {
 			<PageTitle title="トップページ" />
 			<div className="rounded-sm mb-4">
 				<p className="mb-2">
-					<SeesaaWikiLink
-						href="https://seesaawiki.jp/kemono_friends3_5ch/"
-						className="font-bold hover:underline text-green-500"
-					>
+					<SeesaaWikiLink href="https://seesaawiki.jp/kemono_friends3_5ch/">
 						アプリ版けものフレンズ３Wikiなのだ！
 					</SeesaaWikiLink>
 					を補助するサイトなのです。
@@ -31,10 +28,7 @@ export default function Home() {
 
 				<p>
 					誤字・誤植の報告や情報提供は
-					<SeesaaWikiLink
-						href="https://seesaawiki.jp/kemono_friends3_5ch/"
-						className="font-bold hover:underline text-green-500"
-					>
+					<SeesaaWikiLink href="https://seesaawiki.jp/kemono_friends3_5ch/">
 						アプリ版けものフレンズ３Wikiなのだ！
 					</SeesaaWikiLink>
 					のコメント欄または掲示板へお願いするのです。
