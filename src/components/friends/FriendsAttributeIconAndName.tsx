@@ -16,7 +16,7 @@ export const FriendsAttributeIconAndName = memo(function FriendsAttributeIconAnd
 				style={{ color: textColor }}
 				className="flex flex-col items-center"
 			>
-				<span className="text-[11px] font-bold">{attribute}</span>
+				<span className="text-[11px] font-bold text-center">{attribute}</span>
 				<SeesaaWikiImage
 					src={iconUrl}
 					alt={attribute}
