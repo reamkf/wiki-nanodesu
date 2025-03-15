@@ -38,8 +38,8 @@ export function Header() {
 
 	return (
 		<header className="bg-linear-to-b from-sky-300 to-sky-200 text-white h-[63px]">
-			<div className="w-full h-full px-2 flex justify-center items-center max-w-[1920px]">
-				<div className="flex items-center flex-1">
+			<div className="w-full h-full px-2 flex justify-between md:justify-start items-center">
+				<div className="flex items-center">
 					{sidebarButton()}
 					<Image
 						src="/wiki-nanodesu/no_blue.png"

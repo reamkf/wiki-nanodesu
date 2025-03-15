@@ -10,10 +10,9 @@ export function AboutButton({ onClick }: AboutButtonProps) {
 		<Tooltip title="このサイトについて">
 			<IconButton
 				onClick={onClick}
-				size="large"
-				className=""
+				className="aspect-square"
 			>
-				<HelpOutlineIcon className="text-sky-500 text-[32px]" />
+				<HelpOutlineIcon className="text-sky-500 text-3xl md:text-2xl" />
 			</IconButton>
 		</Tooltip>
 	);
