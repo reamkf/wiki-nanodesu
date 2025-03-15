@@ -29,7 +29,7 @@ export function FilterCheckboxGroup({
 }: FilterCheckboxGroupProps) {
 	return (
 		<FormGroup>
-			<Grid2 container spacing={2}>
+			<Grid2 container spacing={1.3}>
 				{options.map((option) => (
 					<Grid2 key={option.id}>
 						<FormControlLabel
@@ -49,7 +49,7 @@ export function FilterCheckboxGroup({
 								<Checkbox
 									checked={selectedIds.has(option.id)}
 									onChange={() => onChange(option.id)}
-									className={`p-1 pr-0`}
+									className="p-1 pr-0"
 									sx={{
 										color: option.styles.textColor,
 										"&.Mui-checked": {
