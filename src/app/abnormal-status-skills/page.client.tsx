@@ -142,7 +142,8 @@ export default function ClientTabs({
 			},
 			filterFn: customFilterFn,
 			meta: {
-				width: '100px'
+				width: '100px',
+				align: 'center' as const,
 			}
 		},
 		{
@@ -151,7 +152,8 @@ export default function ClientTabs({
 			cell: ({ row }) => <TextCell text={row.original.target} />,
 			filterFn: customFilterFn,
 			meta: {
-				width: '150px'
+				width: '150px',
+				align: 'center' as const,
 			}
 		},
 		{
@@ -160,7 +162,8 @@ export default function ClientTabs({
 			cell: ({ row }) => <TextCell text={row.original.condition} />,
 			filterFn: customFilterFn,
 			meta: {
-				width: '200px'
+				width: '200px',
+				align: 'center' as const,
 			}
 		},
 		{
@@ -169,7 +172,8 @@ export default function ClientTabs({
 			cell: ({ row }) => <TextCell text={row.original.effectTurn} />,
 			filterFn: customFilterFn,
 			meta: {
-				width: '120px'
+				width: '120px',
+				align: 'center' as const,
 			}
 		},
 		{
@@ -203,7 +207,8 @@ export default function ClientTabs({
 			},
 			filterFn: customFilterFn,
 			meta: {
-				width: '100px'
+				width: '100px',
+				align: 'center' as const,
 			}
 		},
 		{
@@ -212,7 +217,8 @@ export default function ClientTabs({
 			cell: ({ row }) => <TextCell text={row.original.activationCount} />,
 			filterFn: customFilterFn,
 			meta: {
-				width: '100px'
+				width: '100px',
+				align: 'center' as const,
 			}
 		},
 		{

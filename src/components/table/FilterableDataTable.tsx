@@ -7,6 +7,7 @@ import {
 	Row,
 	flexRender,
 } from "@tanstack/react-table";
+import { ColumnMeta } from "@/types/common";
 
 // 汎用的なフィルタリング可能なデータテーブルコンポーネント
 export const FilterableDataTable = React.memo(({
@@ -29,6 +30,9 @@ export const FilterableDataTable = React.memo(({
 					<td
 						key={cell.id}
 						className={`p-2 border-b text-sm`}
+						style={{
+							textAlign: (cell.column.columnDef.meta as ColumnMeta)?.align || "left",
+						}}
 					>
 						{flexRender(cell.column.columnDef.cell, cell.getContext())}
 					</td>
