@@ -1,6 +1,7 @@
 import { getFriendsData } from "../friends/friendsData";
 import { describe, it, expect, beforeAll } from "bun:test";
 import { FriendsAttribute, MegumiPattern } from "@/types/friends";
+import { PhotoAttribute } from "@/types/photo";
 
 describe('getFriendsData', () => {
 	let friendsData: Awaited<ReturnType<typeof getFriendsData>>;
@@ -51,6 +52,20 @@ describe('getFriendsData', () => {
 
 			it('12ポケがfalseである', () => {
 				expect(sampleFriendsData?.has12poke).toBe(false);
+			});
+
+			describe('動物フォトデータ', () => {
+				it('属性が足跡である', () => {
+					expect(sampleFriendsData?.wildPhotoAttribute).toBe(PhotoAttribute.footprint);
+				});
+
+				it('とくせい効果変化前が正しい', () => {
+					expect(sampleFriendsData?.wildPhotoTrait).toBe('攻撃命中率が5%増加し~~状態異常にかかっていないとき、与ダメージが3%増加する');
+				});
+
+				it('とくせい効果変化後が正しい', () => {
+					expect(sampleFriendsData?.wildPhotoTraitChanged).toBe('攻撃命中率が{6%}増加し~~状態異常にかかっていないとき、与ダメージが{4%}増加する');
+				});
 			});
 		});
 

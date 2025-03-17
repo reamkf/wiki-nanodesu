@@ -3,6 +3,7 @@ import { join } from "path";
 import Papa from "papaparse";
 import { PhotoDataRow, PhotoAttribute, PhotoStatus, RawPhotoCSV, RAW_PHOTO_CSV_HEADERS } from "@/types/photo";
 import { BasicStatus } from "@/types/status";
+import { getFriendsData } from "@/utils/friends/friendsData";
 
 function convertToNumberElseNull(value: unknown): number | null {
 	if (typeof value === 'number') return value;
@@ -58,6 +59,17 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
     const csvPath = join(process.cwd(), "csv", "フォトデータ.csv");
     const csvFile = readFileSync(csvPath, "utf-8");
 
+	const friendsData = await getFriendsData();
+	const wildPhotoData = friendsData.map(friend => ({
+		name: friend.name + '(フォト)',
+		implementType: friend.implementType,
+		implementDate: friend.implementDate,
+		rarity: 3,
+		attribute: friend.wildPhotoAttribute as PhotoAttribute || PhotoAttribute.none,
+		trait: friend.wildPhotoTrait,
+		traitChanged: friend.wildPhotoTraitChanged
+	} as unknown as PhotoDataRow))
+
     return new Promise<PhotoDataRow[]>(async (resolve) => {
         Papa.parse(csvFile, {
             header: true,
@@ -82,7 +94,7 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 						status: await parsePhotoStatus(row)
 					};
                 }));
-                resolve(parsedData);
+				resolve([...parsedData, ...wildPhotoData]);
             },
         });
     });

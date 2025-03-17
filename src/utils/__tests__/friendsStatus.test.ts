@@ -2,6 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import { calculateFriendsStatus, getLv99FromLv90 } from '../friends/friendsStatus';
 import { FriendsAttribute, FriendsDataRow, MegumiPattern } from '@/types/friends';
 import { BasicStatus } from '@/types/status';
+import { PhotoAttribute } from '@/types/photo';
 
 describe('calculateFriendsStatus', () => {
 	const nullStatus: BasicStatus = {
@@ -43,6 +44,9 @@ describe('calculateFriendsStatus', () => {
 			has12poke: false,
 			numOfClothes: 0,
 			cv: '',
+			wildPhotoAttribute: PhotoAttribute.none,
+			wildPhotoTrait: '',
+			wildPhotoTraitChanged: '',
 			status: {
 				avoid: null,
 				avoidYasei5: null,
