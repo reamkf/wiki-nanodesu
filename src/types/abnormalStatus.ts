@@ -72,7 +72,24 @@ export const POWER_PRIORITY_MAP: Record<string, number> = {
 // 威力の優先度を取得する関数
 export function getPowerPriority(power: string): number {
 	if (!power) return -1;
-	return POWER_PRIORITY_MAP[power] || 0;
+
+	const match = /\((\d+(?:\.\d+)?)(%)?\)/.exec(power);
+	if(match){
+		const powerNum = parseFloat(match[0]);
+		const isPercent = match[2] === '%';
+		if(!isNaN(powerNum)){
+			return isPercent ? powerNum * 100 : powerNum;
+		}
+	}
+
+	const possiblePowers = Object.keys(POWER_PRIORITY_MAP);
+	for(const possiblePower of possiblePowers){
+		if(power.includes(possiblePower)){
+			return POWER_PRIORITY_MAP[possiblePower];
+		}
+	}
+
+	return 0;
 }
 
 // 発動率のソート優先度マップ
