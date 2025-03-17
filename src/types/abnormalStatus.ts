@@ -88,13 +88,18 @@ export function getActivationRatePriority(activationRate: string): number {
 	if (!activationRate) return -1;
 
 	// 数値+%の形式（例：100%、75%など）をチェック
-	const percentMatch = activationRate.match(/^(\d+)%$/);
+	const percentMatch = activationRate.match(/^(\d+)%?$/);
 	if (percentMatch) {
 		// 数値を抽出して、100を基準にソート（大きいほど優先度が高い）
 		return 100 + parseInt(percentMatch[1], 10);
 	}
 
-	return ACTIVATION_RATE_PRIORITY_MAP[activationRate] || 0;
+	const match = /(高|中|低)確率|(^-)|(-$)/.exec(activationRate);
+	if(match){
+		return ACTIVATION_RATE_PRIORITY_MAP[match[0]] || 0;
+	}
+
+	return 0;
 }
 
 // スキルタイプの優先度を取得する関数

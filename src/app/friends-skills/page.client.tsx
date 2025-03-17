@@ -16,6 +16,7 @@ import {
 	FriendOrPhotoDisplay,
 	TextCell
 } from "@/components/table/GenericDataTable";
+import { getActivationRatePriority } from "@/types/abnormalStatus";
 
 export default function ClientTabs({
 	effectTypes,
@@ -206,6 +207,16 @@ export default function ClientTabs({
 				return toPercent(activationRateNum);
 			},
 			filterFn: customFilterFn,
+			sortingFn: (rowA, rowB) => {
+				const rateA = rowA.original.activationRate;
+				const rateB = rowB.original.activationRate;
+
+				const priorityA = getActivationRatePriority(rateA);
+				const priorityB = getActivationRatePriority(rateB);
+
+				// 優先度が高いほうが上に来るように降順でソート
+				return priorityB - priorityA;
+			},
 			meta: {
 				width: '100px'
 			}
