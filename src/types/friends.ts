@@ -1,4 +1,5 @@
 import { BasicStatus } from "./status";
+import { PhotoAttribute } from "./photo";
 
 export enum FriendsAttribute {
 	friendry = "フレンドリー",
@@ -118,6 +119,9 @@ export interface FriendsDataRow {
 	numOfClothes: number;
 	cv: string;
 	status: FriendsStatus;
+	wildPhotoAttribute: PhotoAttribute;
+	wildPhotoTrait: string;
+	wildPhotoTraitChanged: string;
 }
 
 export interface FriendsStatusListItem {

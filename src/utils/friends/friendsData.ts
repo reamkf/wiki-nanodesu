@@ -4,6 +4,7 @@ import Papa from "papaparse";
 import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV } from "@/types/friends";
 import { BasicStatus } from "@/types/status";
 import { calculateFriendsStatus, getLv99FromLv90, isStatusNull } from "./friendsStatus";
+import { PhotoAttribute } from "@/types/photo";
 
 function convertToNumberElseNull(value: unknown): number | null {
 	if (typeof value === 'number') return value;
@@ -203,7 +204,10 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 						has12poke: convertToBoolean(row['12ポケ']),
 						numOfClothes: row.特別衣装数 || 0,
 						cv: row.CV || '',
-						status: await parseFriendsStatus(row)
+						status: await parseFriendsStatus(row),
+						wildPhotoAttribute: (row.動物フォト属性 as PhotoAttribute) || PhotoAttribute.none,
+						wildPhotoTrait: row.動物フォトとくせい効果変化前 || '',
+						wildPhotoTraitChanged: row.動物フォトとくせい効果変化後 || '',
 					};
                 }));
 				const filledData = await Promise.all(parsedData.map(async (data) => {
