@@ -21,7 +21,9 @@ export async function Sidebar() {
 
 	const photoData = await getPhotoData();
 
-	const photoPageNameList: string[] = photoData.map((photo) => photo.name)
+	const photoPageNameList: string[] = photoData
+		.filter(photo => !photo.isWildPhoto)
+		.map((photo) => photo.name)
 		.sort((a, b) => a.localeCompare(b));
 		// .concat(
 		// 	friendsData

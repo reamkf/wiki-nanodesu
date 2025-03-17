@@ -41,6 +41,7 @@ export interface PhotoDataRow {
 	trait: string;
 	traitChanged: string;
 	status: PhotoStatus;
+	isWildPhoto: boolean;
 }
 
 export interface RawPhotoCSV {

@@ -60,14 +60,15 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
     const csvFile = readFileSync(csvPath, "utf-8");
 
 	const friendsData = await getFriendsData();
-	const wildPhotoData = friendsData.map(friend => ({
-		name: friend.name + '(フォト)',
+	const wildPhotoData = friendsData.filter(friend => !friend.isHc).map(friend => ({
+		name: (friend.secondName !== '' ? `【${friend.secondName}】` : '') + friend.name + '(フォト)',
 		implementType: friend.implementType,
 		implementDate: friend.implementDate,
 		rarity: 3,
 		attribute: friend.wildPhotoAttribute as PhotoAttribute || PhotoAttribute.none,
 		trait: friend.wildPhotoTrait,
-		traitChanged: friend.wildPhotoTraitChanged
+		traitChanged: friend.wildPhotoTraitChanged,
+		isWildPhoto: true,
 	} as unknown as PhotoDataRow))
 
     return new Promise<PhotoDataRow[]>(async (resolve) => {
@@ -91,7 +92,8 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 						iconUrlChanged: row.変化後アイコンURL || '',
 						trait: row['とくせい(変化前)'] || '',
 						traitChanged: row['とくせい(変化後)'] || '',
-						status: await parsePhotoStatus(row)
+						status: await parsePhotoStatus(row),
+						isWildPhoto: false,
 					};
                 }));
 				resolve([...parsedData, ...wildPhotoData]);

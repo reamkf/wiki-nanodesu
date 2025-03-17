@@ -114,39 +114,63 @@ describe('getPhotoData', () => {
 	});
 
 	describe('動物フォトデータ', () => {
-		let samplePhotoData: Awaited<ReturnType<typeof getPhotoData>>[number] | undefined;
+		describe('通常フレンズ(ウミネコ)', () => {
+			let umiNekoPhotoData: Awaited<ReturnType<typeof getPhotoData>>[number] | undefined;
 
-		beforeAll(() => {
-			samplePhotoData = photoData.find(photo => photo.name === 'ウミネコ(フォト)');
-		});
+			beforeAll(() => {
+				umiNekoPhotoData = photoData.find(photo => photo.name === 'ウミネコ(フォト)');
+			});
 
-		describe('ウミネコ', () => {
 			it('フォト名がウミネコ(フォト)である', () => {
-				expect(samplePhotoData?.name).toBe('ウミネコ(フォト)');
+				expect(umiNekoPhotoData?.name).toBe('ウミネコ(フォト)');
 			});
 
 			it('入手が恒常である', () => {
-				expect(samplePhotoData?.implementType).toBe('恒常');
+				expect(umiNekoPhotoData?.implementType).toBe('恒常');
 			});
 
 			it('実装日が2021/10/14である', () => {
-				expect(samplePhotoData?.implementDate).toBe('Thu Oct 14 2021 00:00:00 GMT+0900 (日本標準時)');
+				expect(umiNekoPhotoData?.implementDate).toBe('Thu Oct 14 2021 00:00:00 GMT+0900 (日本標準時)');
 			});
 
 			it('レア度が3である', () => {
-				expect(samplePhotoData?.rarity).toBe(3);
+				expect(umiNekoPhotoData?.rarity).toBe(3);
 			});
 
 			it('属性が青である', () => {
-				expect(samplePhotoData?.attribute).toBe(PhotoAttribute.blue);
+				expect(umiNekoPhotoData?.attribute).toBe(PhotoAttribute.blue);
 			});
 
 			it('とくせい(変化前)が正しい', () => {
-				expect(samplePhotoData?.trait).toBe('地形がみずべの場合、~~毎ターン味方全体のMPが1増加する');
+				expect(umiNekoPhotoData?.trait).toBe('地形がみずべの場合、~~毎ターン味方全体のMPが1増加する');
 			});
 
 			it('とくせい(変化後)が正しい', () => {
-				expect(samplePhotoData?.traitChanged).toBe('地形がみずべの場合、~~毎ターン味方全体のMPが{2}増加する');
+				expect(umiNekoPhotoData?.traitChanged).toBe('地形がみずべの場合、~~毎ターン味方全体のMPが{2}増加する');
+			});
+		});
+
+		describe('HCフレンズ(【わたしを頼ってね！】アカギツネ)', () => {
+			let akagitsunePhotoData: Awaited<ReturnType<typeof getPhotoData>>[number] | undefined;
+
+			beforeAll(() => {
+				akagitsunePhotoData = photoData.find(photo => photo.name === '【わたしを頼ってね！】アカギツネ');
+			});
+
+			it('フォトデータに登録されていない', () => {
+				expect(akagitsunePhotoData).toBeUndefined();
+			});
+		});
+
+		describe('【青い瞳の迷い猫】マヌルネコ(フォト)', () => {
+			let manulNekoPhotoData: Awaited<ReturnType<typeof getPhotoData>>[number] | undefined;
+
+			beforeAll(() => {
+				manulNekoPhotoData = photoData.find(photo => photo.name === '【青い瞳の迷い猫】マヌルネコ(フォト)');
+			});
+
+			it('フォト名が【青い瞳の迷い猫】マヌルネコ(フォト)である', () => {
+				expect(manulNekoPhotoData?.name).toBe('【青い瞳の迷い猫】マヌルネコ(フォト)');
 			});
 		});
 	});
