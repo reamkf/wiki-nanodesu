@@ -73,12 +73,13 @@ export const POWER_PRIORITY_MAP: Record<string, number> = {
 export function getPowerPriority(power: string): number {
 	if (!power) return -1;
 
-	const match = /\((\d+(?:\.\d+)?)(%)?\)/.exec(power);
+	const match = /\((\d+(?:\.\d+)?)(%)?(超|未満)?\)/.exec(power);
 	if(match){
 		const powerNum = parseFloat(match[1]);
 		const isPercent = match[2] === '%';
+		const adjust = match[3] === '超' ? 5 : match[3] === '未満' ? -5 : 0;
 		if(!isNaN(powerNum)){
-			return isPercent ? powerNum * 100 : powerNum;
+			return (isPercent ? powerNum * 100 : powerNum) + adjust;
 		}
 	}
 
