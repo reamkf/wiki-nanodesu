@@ -17,6 +17,9 @@ export const FriendsAttributeOrder = {
 	[FriendsAttribute.active]: 3,
 	[FriendsAttribute.lovely]: 4,
 	[FriendsAttribute.mypace]: 5,
+	[PhotoAttribute.footprint]: 6,
+	[PhotoAttribute.blue]: 7,
+	[PhotoAttribute.none]: 8,
 }
 
 export const friendsAttributeColor = {

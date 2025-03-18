@@ -23,7 +23,7 @@ import {
 import { PhotoAttributeIconAndName } from "@/components/photo/PhotoAttributeIconAndName";
 import { sortFriendsAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
-
+import { PhotoAttribute } from "@/types/photo";
 export default function ClientTabs({
 	statusTypes,
 	statusTypeData,
@@ -92,8 +92,8 @@ export default function ClientTabs({
 			},
 			filterFn: customFilterFn,
 			sortingFn: (rowA, rowB, columnId) => {
-				const attributeA = rowA.getValue(columnId) as FriendsAttribute;
-				const attributeB = rowB.getValue(columnId) as FriendsAttribute;
+				const attributeA = rowA.getValue(columnId) as FriendsAttribute | PhotoAttribute;
+				const attributeB = rowB.getValue(columnId) as FriendsAttribute | PhotoAttribute;
 				return sortFriendsAttribute(attributeA, attributeB);
 			},
 			meta: {
