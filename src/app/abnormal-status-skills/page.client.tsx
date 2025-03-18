@@ -21,7 +21,7 @@ import {
 	TextCell
 } from "@/components/table/GenericDataTable";
 import { PhotoAttributeIconAndName } from "@/components/photo/PhotoAttributeIconAndName";
-import { sortFriendsAttribute } from "@/utils/friends/friends";
+import { sortAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
 import { PhotoAttribute } from "@/types/photo";
 export default function ClientTabs({
@@ -94,7 +94,7 @@ export default function ClientTabs({
 			sortingFn: (rowA, rowB, columnId) => {
 				const attributeA = rowA.getValue(columnId) as FriendsAttribute | PhotoAttribute;
 				const attributeB = rowB.getValue(columnId) as FriendsAttribute | PhotoAttribute;
-				return sortFriendsAttribute(attributeA, attributeB);
+				return sortAttribute(attributeA, attributeB);
 			},
 			meta: {
 				width: '80px'

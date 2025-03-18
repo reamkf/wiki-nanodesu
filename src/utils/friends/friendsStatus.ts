@@ -1,4 +1,4 @@
-import { BasicStatus } from "@/types/status";
+import { BasicStatus } from "@/types/friendsOrPhoto";
 import { FriendsDataRow, MegumiPattern, megumiRaiseStatus } from "@/types/friends";
 import { FriendsStatusListItem } from "@/types/friends";
 import { getFriendsData } from "./friendsData";

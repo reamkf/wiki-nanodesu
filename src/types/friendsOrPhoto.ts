@@ -1,4 +1,3 @@
-
 export interface BasicStatus {
 	kemosute?: number | null;
 	hp: number | null;

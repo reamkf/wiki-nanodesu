@@ -6,7 +6,7 @@ import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttribu
 import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
 import { toPercent, isNumber } from "@/utils/common";
-import { sortFriendsAttribute } from "@/utils/friends/friends";
+import { sortAttribute } from "@/utils/friends/friends";
 import { createCustomFilterFn } from "@/utils/tableFilters";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
 import { FriendsAttribute } from "@/types/friends";
@@ -92,7 +92,7 @@ export default function ClientTabs({
 			sortingFn: (rowA, rowB, columnId) => {
 				const attributeA = rowA.getValue(columnId) as FriendsAttribute;
 				const attributeB = rowB.getValue(columnId) as FriendsAttribute;
-				return sortFriendsAttribute(attributeA, attributeB);
+				return sortAttribute(attributeA, attributeB);
 			},
 			meta: {
 				width: '80px'

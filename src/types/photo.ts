@@ -1,15 +1,9 @@
-import { BasicStatus } from "./status";
+import { BasicStatus } from "./friendsOrPhoto";
 
 export enum PhotoAttribute {
 	blue = "青",
 	footprint = '足跡',
 	none = 'none',
-}
-
-export const photoAttributeOrder = {
-	[PhotoAttribute.footprint]: 0,
-	[PhotoAttribute.blue]: 1,
-	[PhotoAttribute.none]: 2,
 }
 
 export const photoAttributeColor = {

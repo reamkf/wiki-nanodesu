@@ -1,4 +1,4 @@
-import { BasicStatus } from "@/types/status";
+import { BasicStatus } from "@/types/friendsOrPhoto";
 
 export function calcKemosute(hp: number | null, atk: number | null, def: number | null): number | null;
 export function calcKemosute(status: BasicStatus): number | null;

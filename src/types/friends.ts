@@ -1,4 +1,4 @@
-import { BasicStatus } from "./status";
+import { BasicStatus } from "./friendsOrPhoto";
 import { PhotoAttribute } from "./photo";
 
 export enum FriendsAttribute {
@@ -8,18 +8,6 @@ export enum FriendsAttribute {
 	active = "アクティブ",
 	lovely = "ラブリー",
 	mypace = "マイペース"
-}
-
-export const FriendsAttributeOrder = {
-	[FriendsAttribute.friendry]: 0,
-	[FriendsAttribute.funny]: 1,
-	[FriendsAttribute.relax]: 2,
-	[FriendsAttribute.active]: 3,
-	[FriendsAttribute.lovely]: 4,
-	[FriendsAttribute.mypace]: 5,
-	[PhotoAttribute.footprint]: 6,
-	[PhotoAttribute.blue]: 7,
-	[PhotoAttribute.none]: 8,
 }
 
 export const friendsAttributeColor = {

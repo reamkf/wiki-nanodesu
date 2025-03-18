@@ -13,8 +13,7 @@ import {
 	getTargetPriority
 } from "@/types/abnormalStatus";
 import GoogleSheetsLink from "@/components/GoogleSheetsLink";
-import { FriendsAttribute, FriendsAttributeOrder } from "@/types/friends";
-import { PhotoAttribute, photoAttributeOrder } from "@/types/photo";
+import { sortAttribute } from "@/utils/friends/friends";
 
 // 効果タイプの値からIDを取得するマッピング
 const EFFECT_TYPE_VALUE_TO_ID = Object.fromEntries(
@@ -26,60 +25,26 @@ const EFFECT_TYPE_VALUE_TO_ID = Object.fromEntries(
 function sortByAttribute(data: AbnormalStatusWithFriend[]): AbnormalStatusWithFriend[] {
 	return [...data].sort((a, b) => {
 		// 属性でソート (FriendsAttributeOrderとphotoAttributeOrderの昇順)
-		const attributeA = a.isPhoto ? a.photoDataRow?.attribute || '' : a.friendsDataRow?.attribute || '';
-		const attributeB = b.isPhoto ? b.photoDataRow?.attribute || '' : b.friendsDataRow?.attribute || '';
+		const attributeA = a.isPhoto ? a.photoDataRow?.attribute : a.friendsDataRow?.attribute;
+		const attributeB = b.isPhoto ? b.photoDataRow?.attribute : b.friendsDataRow?.attribute;
 
-		// フレンズとフォトで異なる属性順序を適用
-		let orderA = 999;
-		let orderB = 999;
-
-		if (a.isPhoto) {
-			// フォトの場合
-			orderA = attributeA ? photoAttributeOrder[attributeA as PhotoAttribute] ?? 999 : 999;
-		} else {
-			// フレンズの場合
-			orderA = attributeA ? FriendsAttributeOrder[attributeA as FriendsAttribute] ?? 999 : 999;
+		if (attributeA === undefined || attributeB === undefined) {
+			return 0;
 		}
 
-		if (b.isPhoto) {
-			// フォトの場合
-			orderB = attributeB ? photoAttributeOrder[attributeB as PhotoAttribute] ?? 999 : 999;
-		} else {
-			// フレンズの場合
-			orderB = attributeB ? FriendsAttributeOrder[attributeB as FriendsAttribute] ?? 999 : 999;
-		}
-
-		return orderA - orderB; // 昇順
+		return sortAttribute(attributeA, attributeB);
 	});
 }
 
 function sortGiveSkills(data: AbnormalStatusWithFriend[]): AbnormalStatusWithFriend[] {
 	return [...data].sort((a, b) => {
 		// 1. 属性でソート (FriendsAttributeOrderとphotoAttributeOrderの昇順)
-		const attributeA = a.isPhoto ? a.photoDataRow?.attribute || '' : a.friendsDataRow?.attribute || '';
-		const attributeB = b.isPhoto ? b.photoDataRow?.attribute || '' : b.friendsDataRow?.attribute || '';
+		const attributeA = a.isPhoto ? a.photoDataRow?.attribute : a.friendsDataRow?.attribute;
+		const attributeB = b.isPhoto ? b.photoDataRow?.attribute : b.friendsDataRow?.attribute;
 
-		// フレンズとフォトで異なる属性順序を適用
-		let orderA = 999;
-		let orderB = 999;
-
-		if (a.isPhoto) {
-			// フォトの場合
-			orderA = attributeA ? photoAttributeOrder[attributeA as PhotoAttribute] ?? 999 : 999;
-		} else {
-			// フレンズの場合
-			orderA = attributeA ? FriendsAttributeOrder[attributeA as FriendsAttribute] ?? 999 : 999;
+		if (attributeA !== undefined && attributeB !== undefined) {
+			return -sortAttribute(attributeA, attributeB);
 		}
-
-		if (b.isPhoto) {
-			// フォトの場合
-			orderB = attributeB ? photoAttributeOrder[attributeB as PhotoAttribute] ?? 999 : 999;
-		} else {
-			// フレンズの場合
-			orderB = attributeB ? FriendsAttributeOrder[attributeB as FriendsAttribute] ?? 999 : 999;
-		}
-
-		if (orderA !== orderB) return orderA - orderB; // 昇順
 
 		// 2. 付与率でソート
 		const ratePriorityA = getActivationRatePriority(a.activationRate);
@@ -102,30 +67,12 @@ function sortResistanceSkills(data: AbnormalStatusWithFriend[]): AbnormalStatusW
 		if (targetPriorityA !== targetPriorityB) return targetPriorityB - targetPriorityA;
 
 		// 2. 属性でソート (FriendsAttributeOrderの昇順)
-		const attributeA = a.isPhoto ? a.photoDataRow?.attribute || '' : a.friendsDataRow?.attribute || '';
-		const attributeB = b.isPhoto ? b.photoDataRow?.attribute || '' : b.friendsDataRow?.attribute || '';
+		const attributeA = a.isPhoto ? a.photoDataRow?.attribute : a.friendsDataRow?.attribute;
+		const attributeB = b.isPhoto ? b.photoDataRow?.attribute : b.friendsDataRow?.attribute;
 
-		// フレンズとフォトで異なる属性順序を適用
-		let orderA = 999;
-		let orderB = 999;
-
-		if (a.isPhoto) {
-			// フォトの場合
-			orderA = attributeA ? photoAttributeOrder[attributeA as PhotoAttribute] ?? 999 : 999;
-		} else {
-			// フレンズの場合
-			orderA = attributeA ? FriendsAttributeOrder[attributeA as FriendsAttribute] ?? 999 : 999;
+		if (attributeA !== undefined && attributeB !== undefined) {
+			return -sortAttribute(attributeA, attributeB);
 		}
-
-		if (b.isPhoto) {
-			// フォトの場合
-			orderB = attributeB ? photoAttributeOrder[attributeB as PhotoAttribute] ?? 999 : 999;
-		} else {
-			// フレンズの場合
-			orderB = attributeB ? FriendsAttributeOrder[attributeB as FriendsAttribute] ?? 999 : 999;
-		}
-
-		if (orderA !== orderB) return orderA - orderB; // 昇順
 
 		// 3. 威力でソート（高 > 大 > 中 > 低 > 小）
 		const powerPriorityA = getPowerPriority(a.power);

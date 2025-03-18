@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import Papa from "papaparse";
 import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV } from "@/types/friends";
-import { BasicStatus } from "@/types/status";
+import { BasicStatus } from "@/types/friendsOrPhoto";
 import { calculateFriendsStatus, getLv99FromLv90, isStatusNull } from "./friendsStatus";
 import { PhotoAttribute } from "@/types/photo";
 

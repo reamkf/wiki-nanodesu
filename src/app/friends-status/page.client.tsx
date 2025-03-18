@@ -14,7 +14,7 @@ import {
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
-import { sortFriendsAttribute } from "@/utils/friends/friends";
+import { sortAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
 import { Table } from "../../components/table/Table";
 import {
@@ -353,7 +353,7 @@ export default function FriendsStatusTable({
 				sortingFn: (rowA, rowB, columnId) => {
 					const attributeA = rowA.getValue(columnId) as FriendsAttribute;
 					const attributeB = rowB.getValue(columnId) as FriendsAttribute;
-					return sortFriendsAttribute(attributeA, attributeB);
+					return sortAttribute(attributeA, attributeB);
 				},
 				meta: {
 					align: "center" as const,

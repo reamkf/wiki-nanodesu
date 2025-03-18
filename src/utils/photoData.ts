@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import Papa from "papaparse";
 import { PhotoDataRow, PhotoAttribute, PhotoStatus, RawPhotoCSV, RAW_PHOTO_CSV_HEADERS } from "@/types/photo";
-import { BasicStatus } from "@/types/status";
+import { BasicStatus } from "@/types/friendsOrPhoto";
 import { getFriendsData } from "@/utils/friends/friendsData";
 
 function convertToNumberElseNull(value: unknown): number | null {
