@@ -10,6 +10,7 @@ import { FriendsDataRow } from "@/types/friends";
 import { PhotoDataRow } from "@/types/photo";
 import PhotoIcon from "@/components/photo/PhotoIcon";
 import { PhotoNameLink } from "@/components/photo/PhotoNameLink";
+import { FriendsOrPhotoSkillType } from "@/types/abnormalStatus";
 
 // 共通型定義
 export interface WithFriendOrPhoto {
@@ -18,6 +19,7 @@ export interface WithFriendOrPhoto {
 	photoDataRow?: PhotoDataRow;
 	friendsId?: string;
 	friendsIdOrPhotoName?: string;
+	skillType: FriendsOrPhotoSkillType
 }
 
 // ユーティリティ関数
@@ -46,6 +48,8 @@ export const IconImage = ({ src, alt }: { src?: string; alt?: string }) => {
 export const FriendOrPhotoDisplay = ({ data }: { data: WithFriendOrPhoto }) => {
 	if (data.isPhoto && data.photoDataRow) {
 		// フォトの場合
+		const isChanged = data.skillType?.includes('変化後') || undefined;
+
 		return (
 			<div className="text-sm flex items-center space-x-2">
 				<PhotoIcon
@@ -54,6 +58,7 @@ export const FriendOrPhotoDisplay = ({ data }: { data: WithFriendOrPhoto }) => {
 				/>
 				<PhotoNameLink
 					photo={data.photoDataRow}
+					isChanged={isChanged}
 				/>
 			</div>
 		);

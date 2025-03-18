@@ -1,5 +1,5 @@
 import { FriendsSkillType } from "./friendsSkills";
-type FriendsOrPhotoSkillType = FriendsSkillType | 'とくせい(変化前)' | 'とくせい(変化後)';
+export type FriendsOrPhotoSkillType = FriendsSkillType | 'とくせい(変化前)' | 'とくせい(変化後)';
 
 export enum AbnormalStatusSkillEffectType {
 	give = '付与',
