@@ -14,7 +14,7 @@ export const PhotoNameLink = memo(function PhotoNameLink({ photo, isChanged }: P
 		<div className="flex flex-col">
 			<div className="text-xs text-gray-600 space-x-1">
 				<span>☆{photo.rarity}</span>
-				{isChanged !== undefined && isChanged ? <span className="text-pink-500">[変化後]</span> : <span>[変化前]</span>}
+				{isChanged !== undefined && (isChanged ? <span className="text-pink-500">[変化後]</span> : <span>[変化前]</span>)}
 			</div>
 			<SeesaaWikiLink
 				href={pageUrl}

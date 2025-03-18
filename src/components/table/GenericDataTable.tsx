@@ -48,7 +48,7 @@ export const IconImage = ({ src, alt }: { src?: string; alt?: string }) => {
 export const FriendOrPhotoDisplay = ({ data }: { data: WithFriendOrPhoto }) => {
 	if (data.isPhoto && data.photoDataRow) {
 		// フォトの場合
-		const isChanged = data.skillType?.includes('変化後') || undefined;
+		const isChanged = data.skillType?.includes('(変化後)') ? true : data.skillType?.includes('(変化前)') ? false : undefined;
 
 		return (
 			<div className="text-sm flex items-center space-x-2">
