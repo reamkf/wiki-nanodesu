@@ -127,7 +127,7 @@ export const getSearchableTextForFriendOrPhoto = (
 			}
 		default:
 			return (
-				(row as Record<string, unknown>)[columnId]?.toString() ?? ""
+				(row as unknown as Record<string, unknown>)[columnId]?.toString() ?? ""
 			);
 	}
 };
