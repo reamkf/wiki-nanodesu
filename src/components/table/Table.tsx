@@ -287,7 +287,22 @@ export function Table<TData, TValue>({
 												width: meta?.width,
 												minWidth: meta?.width,
 											}}
-											onClick={header.column.getToggleSortingHandler()}
+											onClick={header.column.getCanSort()
+												? (e) => {
+													e.preventDefault();
+													// 現在のソート状態を取得
+													const currentSortDirection = header.column.getIsSorted();
+													// 未ソート → 降順 → 昇順 → 未ソートの順番でトグル
+													if(currentSortDirection === 'asc'){
+														setSorting([]);
+													} else if(currentSortDirection === 'desc'){
+														setSorting([{id: header.id, desc: false}]);
+													} else {
+														setSorting([{id: header.id, desc: true}]);
+													}
+												}
+												: undefined
+											}
 										>
 											<div className="flex items-center justify-between gap-2">
 												<span className="font-semibold">

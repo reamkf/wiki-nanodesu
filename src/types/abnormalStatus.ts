@@ -106,10 +106,10 @@ export function getActivationRatePriority(activationRate: string): number {
 	if (!activationRate) return -1;
 
 	// 数値+%の形式（例：100%、75%など）をチェック
-	const percentMatch = activationRate.match(/^(\d+)%?$/);
+	const percentMatch = /(\d+(\.\d+)?)(%)?/.exec(activationRate);
 	if (percentMatch) {
 		// 数値を抽出して、100を基準にソート（大きいほど優先度が高い）
-		return 100 + parseInt(percentMatch[1], 10);
+		return parseFloat(percentMatch[1]);
 	}
 
 	const match = /(高|中|低)確率|(^-)|(-$)/.exec(activationRate);

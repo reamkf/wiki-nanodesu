@@ -219,7 +219,7 @@ export default function ClientTabs({
 				const priorityB = getActivationRatePriority(rateB);
 
 				// 優先度が高いほうが上に来るように降順でソート
-				return priorityB - priorityA;
+				return priorityA - priorityB;
 			},
 			meta: {
 				width: '100px',
