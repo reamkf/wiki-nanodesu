@@ -76,10 +76,10 @@ export function getPowerPriority(power: string): number {
 	const match = /\((\d+(?:\.\d+)?)(%)?(超|未満)?\)/.exec(power);
 	if(match){
 		const powerNum = parseFloat(match[1]);
-		const isPercent = match[2] === '%';
+		// const isPercent = match[2] === '%';
 		const adjust = match[3] === '超' ? 5 : match[3] === '未満' ? -5 : 0;
 		if(!isNaN(powerNum)){
-			return (isPercent ? powerNum * 100 : powerNum) + adjust;
+			return powerNum + adjust;
 		}
 	}
 
