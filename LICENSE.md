@@ -1,9 +1,6 @@
-**当サイトは非公式です。**
-
-当サイトに掲載されている内容の正確性に関して保証しません。
-
-当サイトを利用して発生した如何なる損害に関しても、当サイトは責任を負いません。
-
+**当サイトは非公式です。**<br />
+当サイトに掲載されている内容の正確性に関して保証しません。<br />
+当サイトを利用して発生した如何なる損害に関しても、当サイトは責任を負いません。<br />
 当サイトに掲載されている攻略、データ類の無断使用・無断転載は固くお断りします。
 
 ----
@@ -14,11 +11,11 @@
 
 ----
 
-上記を除く、本サイトのプログラムのソースコードはMITライセンスで提供します。
+**上記を除く**、本サイトのプログラムのソースコードはMITライセンスで提供します。
 
 Copyright 2025 reamkf
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files **except for the images and articles from the game** (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
