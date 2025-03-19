@@ -11,6 +11,13 @@ export function Footer() {
 				<div className="flex gap-2 text-sm text-gray-500 mt-4 items-center">
 					<Link href="/">アプリ版けものフレンズ３wikiなのです🦉</Link>
 					<Link
+						href="https://github.com/reamkf/wiki-nanodesu/blob/main/LICENSE.md"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						License
+					</Link>
+					<Link
 						href="https://github.com/reamkf/wiki-nanodesu" target="_blank" rel="noopener noreferrer"
 						className="flex items-center gap-1"
 					>
