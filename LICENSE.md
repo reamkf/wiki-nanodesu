@@ -8,7 +8,7 @@
 
 ----
 
-**上記を除く**、本サイトのプログラムのソースコードはMITライセンスで提供します。
+ゲーム内、[公式X](https://x.com/kemono_friends3) または[公式サイト](https://kemono-friends-3.jp) に由来する画像・文章等を除く、本サイトのプログラムのソースコードはMITライセンスで提供します。
 
 Copyright 2025 reamkf
 
