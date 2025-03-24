@@ -42,7 +42,7 @@ const sheetConfigs = [
 		filePath: 'csv/フレンズ掛け合い一覧.csv',
 		range: {
 			startColumn: 4,
-			endColumn: 14
+			endColumn: 15
 		}
 	}
 ]
