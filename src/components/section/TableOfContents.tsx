@@ -169,7 +169,6 @@ export function TableOfContents({
 			className="
 				bg-sky-100
 				hover:bg-sky-200
-				text-gray-800
 				rounded-lg
 				normal-case
 				px-4
