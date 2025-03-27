@@ -186,6 +186,7 @@ export default function ClientTabs({
 				if (!activationRate) return -Infinity;
 				return isNumber(activationRate) ? toPercent(parseFloat(activationRate)) : activationRate;
 			},
+			id: 'activationRate',
 			header: '発動率',
 			cell: ({ row }) => {
 				const activationRate = row.original.activationRate;
