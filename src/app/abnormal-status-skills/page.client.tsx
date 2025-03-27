@@ -17,8 +17,8 @@ import {
 	GenericDataTable,
 	formatText,
 	FriendOrPhotoDisplay,
-	getSearchableTextForFriendOrPhoto,
-	TextCell
+	TextCell,
+	getSearchableTextForFriendOrPhoto
 } from "@/components/table/GenericDataTable";
 import { PhotoAttributeIconAndName } from "@/components/photo/PhotoAttributeIconAndName";
 import { sortAttribute } from "@/utils/friends/friends";

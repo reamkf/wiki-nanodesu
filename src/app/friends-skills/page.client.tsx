@@ -14,7 +14,8 @@ import {
 	GenericDataTable,
 	formatText,
 	FriendOrPhotoDisplay,
-	TextCell
+	TextCell,
+	getSearchableTextForFriendOrPhoto
 } from "@/components/table/GenericDataTable";
 import { getActivationRatePriority } from "@/types/abnormalStatus";
 
@@ -39,19 +40,7 @@ export default function ClientTabs({
 
 	// 検索可能なテキストを取得する関数
 	const getSearchableText = useCallback((row: SkillWithFriend, columnId: string): string => {
-		switch (columnId) {
-			case "name":
-			case "icon":
-				return row.friendsDataRow.secondName
-					? `${row.friendsDataRow.secondName} ${row.friendsDataRow.name}`
-					: row.friendsDataRow.name;
-			case "attribute":
-				return row.friendsDataRow.attribute;
-			default:
-				return (
-					row[columnId as keyof SkillWithFriend]?.toString() ?? ""
-				);
-		}
+		return getSearchableTextForFriendOrPhoto(row, columnId);
 	}, []);
 
 	// カスタムフィルター関数の作成
