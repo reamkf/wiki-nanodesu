@@ -10,5 +10,5 @@ alwaysApply: true
 ---
 When supporting coding tasks:
 
-1. Use the editor's features to check, navigate, modify, or delete directory structures and file contents, rather than suggesting terminal commands like `ls` or `cat` for these operations.
+1. DO NOT use terminal commands like `cd`, `ls` or `cat`  to check, navigate, modify, or delete directory structures and file contents. Use the editor tools instead for these operations.
 2. Do not attempt to run commands like `bun dev` or `bun run build`. Assume the user will execute these commands themselves when needed.
