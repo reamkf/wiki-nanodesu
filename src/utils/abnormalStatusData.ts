@@ -2,8 +2,8 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import Papa from "papaparse";
 import { AbnormalStatusEffect, RawAbnormalStatusCSV, RAW_ABNORMAL_STATUS_CSV_HEADERS, AbnormalStatusWithFriend, AbnormalStatusType } from "@/types/abnormalStatus";
-import { getFriendsData } from "@/utils/friends/friendsData";
-import { getPhotoData } from "@/utils/photoData";
+import { getFriendsData } from "@/data/friendsData";
+import { getPhotoData } from "@/data/photoData";
 import { FriendsDataRow } from "@/types/friends";
 import { PhotoDataRow } from "@/types/photo";
 

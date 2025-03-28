@@ -3,7 +3,7 @@ import { join } from "path";
 import Papa from "papaparse";
 import { PhotoDataRow, PhotoAttribute, PhotoStatus, RawPhotoCSV, RAW_PHOTO_CSV_HEADERS } from "@/types/photo";
 import { BasicStatus } from "@/types/friendsOrPhoto";
-import { getFriendsData } from "@/utils/friends/friendsData";
+import { getFriendsData } from "@/data/friendsData";
 
 function convertToNumberElseNull(value: unknown): number | null {
 	if (typeof value === 'number') return value;

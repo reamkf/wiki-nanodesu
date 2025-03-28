@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import Papa from "papaparse";
 import { SkillEffect, RawSkillCSV, RAW_SKILL_CSV_HEADERS, SkillWithFriend } from "@/types/friendsSkills";
-import { getFriendsData } from "@/utils/friends/friendsData";
+import { getFriendsData } from "@/data/friendsData";
 import { FriendsDataRow } from "@/types/friends";
 
 // キャッシュ用の変数

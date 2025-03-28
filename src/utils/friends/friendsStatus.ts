@@ -1,7 +1,7 @@
 import { BasicStatus } from "@/types/friendsOrPhoto";
 import { FriendsDataRow, MegumiPattern, megumiRaiseStatus } from "@/types/friends";
 import { FriendsStatusListItem } from "@/types/friends";
-import { getFriendsData } from "./friendsData";
+import { getFriendsData } from "@/data/friendsData";
 import { calcKemosute } from "../status";
 import { toPercent } from "../common";
 

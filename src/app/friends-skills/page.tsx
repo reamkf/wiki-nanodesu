@@ -1,5 +1,5 @@
 import { generateMetadata } from "../metadata";
-import { getSkillsWithFriendsData, getEffectTypes } from "@/utils/friends/friendsSkillsData";
+import { getSkillsWithFriendsData, getEffectTypes } from "@/data/friendsSkillsData";
 import ClientTabs from "./page.client";
 import { TreeItemData } from "@/components/common/TreeList";
 import { PageTitle } from '@/components/PageTitle';

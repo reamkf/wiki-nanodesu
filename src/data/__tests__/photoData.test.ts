@@ -1,4 +1,4 @@
-import { getPhotoData } from "../photoData";
+import { getPhotoData } from "@/data/photoData";
 import { describe, it, expect, beforeAll } from "bun:test";
 import { PhotoAttribute } from "@/types/photo";
 

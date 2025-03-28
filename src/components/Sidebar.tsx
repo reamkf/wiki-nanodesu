@@ -1,7 +1,7 @@
 import { SidebarClient } from './Sidebar.client';
-import { getFriendsData } from '@/utils/friends/friendsData';
+import { getFriendsData } from '@/data/friendsData';
 import { FriendsDataRow } from '@/types/friends';
-import { getPhotoData } from '@/utils/photoData';
+import { getPhotoData } from '@/data/photoData';
 import { getWikiNanodaPageUrl } from '@/utils/seesaaWiki';
 
 export interface SidebarLinkItem {

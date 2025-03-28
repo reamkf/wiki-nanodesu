@@ -3,7 +3,7 @@ import { join } from "path";
 import Papa from "papaparse";
 import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV } from "@/types/friends";
 import { BasicStatus } from "@/types/friendsOrPhoto";
-import { calculateFriendsStatus, getLv99FromLv90, isStatusNull } from "./friendsStatus";
+import { calculateFriendsStatus, getLv99FromLv90, isStatusNull } from "@/utils/friends/friendsStatus";
 import { PhotoAttribute } from "@/types/photo";
 
 function convertToNumberElseNull(value: unknown): number | null {
