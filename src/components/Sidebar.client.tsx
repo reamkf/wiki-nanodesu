@@ -21,21 +21,10 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 	const [searchQuery, setSearchQuery] = useState('');
 	const searchInputRef = useRef<HTMLInputElement>(null);
 
-	const filteredLinksNanodesu = sideBarLinksNanodesu.filter(link =>
-		includesNormalizeQuery(link.text, searchQuery)
-	);
-
-	const filteredLinksNanoda = sideBarLinksNanoda.filter(link =>
-		includesNormalizeQuery(link.text, searchQuery)
-	);
-
-	const filteredFriendsLinks = friendsLinks.filter(link =>
-		includesNormalizeQuery(link.text, searchQuery)
-	);
-
-	const filteredPhotoLinks = photoLinks.filter(link =>
-		includesNormalizeQuery(link.text, searchQuery)
-	);
+	const filteredLinksNanodesu = sideBarLinksNanodesu.filter(link => includesNormalizeQuery(link.text, searchQuery));
+	const filteredLinksNanoda = sideBarLinksNanoda.filter(link => includesNormalizeQuery(link.text, searchQuery));
+	const filteredFriendsLinks = friendsLinks.filter(link => includesNormalizeQuery(link.text, searchQuery));
+	const filteredPhotoLinks = photoLinks.filter(link => includesNormalizeQuery(link.text, searchQuery));
 
 	return (
 		<aside className={`
@@ -90,7 +79,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 				</div>
 
 				{/* なのですトップページ */}
-				<div className="flex justify-center items-center block bg-sky-200 hover:bg-sky-300 hover:underline rounded-lg mb-2 transition-colors duration-200">
+				<div className="flex justify-center items-center bg-sky-200 hover:bg-sky-300 hover:underline rounded-lg mb-2 transition-colors duration-200">
 					<Image
 						src="/wiki-nanodesu/no_blue.png"
 						alt="「の」のアイコン"
@@ -123,7 +112,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 				</ul>
 
 				{/* なのだページリスト */}
-				<div className="flex justify-center items-center block bg-green-200 hover:bg-green-300 hover:underline rounded-lg mb-2 transition-colors duration-200">
+				<div className="flex justify-center items-center bg-green-200 hover:bg-green-300 hover:underline rounded-lg mb-2 transition-colors duration-200">
 					<Image
 						src="/wiki-nanodesu/no_green.png"
 						alt="「の」のアイコン"
@@ -158,7 +147,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 				{/* 検索時のみフレンズ名リストを表示 */}
 				{searchQuery && filteredFriendsLinks.length > 0 && (
 					<div className="mt-4">
-						<div className="flex items-center block border-b-2 border-green-700 mb-2 font-bold text-green-700 grow mt-2">
+						<div className="flex items-center border-b-2 border-green-700 mb-2 font-bold text-green-700 grow mt-2">
 							<div className="">
 								フレンズ一覧
 							</div>
@@ -182,7 +171,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 				{/* 検索時のみフォトリストを表示 */}
 				{searchQuery && filteredPhotoLinks.length > 0 && (
 					<div className="mt-4">
-						<div className="flex items-center block border-b-2 border-green-700 mb-2 font-bold text-green-700 grow mt-2">
+						<div className="flex items-center border-b-2 border-green-700 mb-2 font-bold text-green-700 grow mt-2">
 							<div className="">
 								フォト一覧
 							</div>
