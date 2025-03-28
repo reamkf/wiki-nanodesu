@@ -7,7 +7,7 @@ import {
 	Row,
 	flexRender,
 } from "@tanstack/react-table";
-import { ColumnMeta } from "@/types/common";
+import { ColumnMeta } from "@/types/table";
 
 // 汎用的なフィルタリング可能なデータテーブルコンポーネント
 export const FilterableDataTable = React.memo(({

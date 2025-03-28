@@ -1,6 +1,6 @@
 import { FilterFn, Row } from "@tanstack/react-table";
 import { normalizeQuery } from "@/utils/queryNormalizer";
-import { QueryParser } from "@/utils/query-parser/queryParser";
+import { QueryParser } from "@/utils/queryParser";
 
 type CustomFilterFnRowType = Record<string, unknown> | object;
 

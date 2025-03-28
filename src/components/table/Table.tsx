@@ -17,7 +17,7 @@ import {
 	FilterFnOption,
 } from "@tanstack/react-table";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { ColumnMeta } from "@/types/common";
+import { ColumnMeta } from "@/types/table";
 import { Select, MenuItem, IconButton } from "@mui/material";
 import {
 	FirstPage,

@@ -1,4 +1,9 @@
 ---
+description: 
+globs: 
+alwaysApply: false
+---
+---
 description: Wiki Nanodesu Project
 globs: 
 alwaysApply: true
@@ -44,4 +49,27 @@ alwaysApply: true
 - コメントは日本語で記載
 - `localStorage`のキーは`wiki-nanodesu.${page-name or ComponentName}.${key}`のように命名する
 - テストコードは`__tests__`フォルダに記載し、拡張子を`*.test.ts`とする
-- コンポーネントをサーバーサイドとクライアントサイドで分ける場合、`ComponentName.tsx`と`ComponentName.client.tsx`のように命名する
+- コンポーネントをサーバーサイドとクライアントサイドで分ける場合、`ComponentName.tsx`と`ComponentName.client.tsx`
+- ディレクトリ構成
+  ```
+	src
+  	├─app # ページ
+	│  ├─abnormal-status-skills
+	│  ├─friends-kakeai-graph
+	│  ├─friends-skills
+	│  ├─friends-status
+	│  └─page.tsx # トップページ
+	├─components
+	│  ├─about
+	│  ├─common
+	│  ├─friends
+	│  ├─photo
+	│  ├─section
+	│  ├─seesaawiki
+	│  └─table
+	├─contexts
+	├─data # CSVデータ読み込み関連
+	├─types
+	└─utils
+		└─friends
+  ```
