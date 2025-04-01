@@ -1,4 +1,4 @@
-import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
+import Image from "next/image";
 import { PhotoAttribute, photoAttributeColor, photoAttributeIconUrl } from "@/types/photo";
 import { memo } from "react";
 
@@ -20,7 +20,7 @@ export const PhotoAttributeIconAndName = memo(function PhotoAttributeIconAndName
 				className="flex flex-col items-center"
 			>
 				<span className="text-[11px] font-bold">{attribute}</span>
-				<SeesaaWikiImage
+				<Image
 					src={iconUrl}
 					alt={attribute}
 					width={40}
