@@ -13,8 +13,8 @@ export const photoAttributeColor = {
 }
 
 export const photoAttributeIconUrl = {
-	[PhotoAttribute.footprint]: 'https://image01.seesaawiki.jp/k/h/kemono_friends3_5ch/qgiGkSmtiA.png',
-	[PhotoAttribute.blue]: 'https://image02.seesaawiki.jp/k/h/kemono_friends3_5ch/PrbmdBx8J4.png',
+	[PhotoAttribute.footprint]: '/wiki-nanodesu/attribute-icons/photo/footprint.png',
+	[PhotoAttribute.blue]: '/wiki-nanodesu/attribute-icons/photo/blue.png',
 }
 
 export interface PhotoStatus {

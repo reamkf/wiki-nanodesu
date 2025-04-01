@@ -20,12 +20,12 @@ export const friendsAttributeColor = {
 }
 
 export const friendsAttributeIconUrl = {
-	[FriendsAttribute.funny]: 'https://image01.seesaawiki.jp/k/h/kemono_friends3_5ch/vXf03Kpfcp.png',
-	[FriendsAttribute.relax]: 'https://image01.seesaawiki.jp/k/h/kemono_friends3_5ch/OEyQU1TXsg.png',
-	[FriendsAttribute.friendry]: 'https://image02.seesaawiki.jp/k/h/kemono_friends3_5ch/1A7oOIefKg.png',
-	[FriendsAttribute.lovely]: 'https://image01.seesaawiki.jp/k/h/kemono_friends3_5ch/4NWcmHe3Ol.png',
-	[FriendsAttribute.mypace]: 'https://image01.seesaawiki.jp/k/h/kemono_friends3_5ch/w4NXdo915I.png',
-	[FriendsAttribute.active]: 'https://image01.seesaawiki.jp/k/h/kemono_friends3_5ch/sbHG16adu9.png',
+	[FriendsAttribute.funny]: '/wiki-nanodesu/attribute-icons/friends/funny.png',
+	[FriendsAttribute.relax]: '/wiki-nanodesu/attribute-icons/friends/relax.png',
+	[FriendsAttribute.friendry]: '/wiki-nanodesu/attribute-icons/friends/friendly.png',
+	[FriendsAttribute.lovely]: '/wiki-nanodesu/attribute-icons/friends/lovely.png',
+	[FriendsAttribute.mypace]: '/wiki-nanodesu/attribute-icons/friends/mypace.png',
+	[FriendsAttribute.active]: '/wiki-nanodesu/attribute-icons/friends/active.png',
 }
 
 export enum MegumiPattern {
