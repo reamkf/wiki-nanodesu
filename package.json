@@ -5,6 +5,7 @@
 	"scripts": {
 		"dev": "next dev --turbopack",
 		"build": "next build",
+		"build-turbopack": "next build --turbopack",
 		"lint": "next lint",
 		"test": "bun test",
 		"precommit": "bun test && bun lint",
