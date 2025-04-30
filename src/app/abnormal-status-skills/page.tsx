@@ -1,5 +1,5 @@
 import { generateMetadata } from "../metadata";
-import { getAbnormalStatusWithFriendsAndPhotos, getAbnormalStatusTypes } from "@/utils/abnormalStatusData";
+import { getAbnormalStatusWithFriendsAndPhotos, getAbnormalStatusTypes } from "@/data/abnormalStatusData";
 import ClientTabs from "./page.client";
 import { TreeItemData } from "@/components/common/TreeList";
 import { PageTitle } from '@/components/PageTitle';
