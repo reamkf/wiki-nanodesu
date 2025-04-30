@@ -55,7 +55,13 @@ export async function parsePhotoStatus(data: RawPhotoCSV): Promise<PhotoStatus> 
 	};
 }
 
+let photoDataCache: PhotoDataRow[] | null = null;
+
 export async function getPhotoData(): Promise<PhotoDataRow[]> {
+	if (photoDataCache) {
+		return photoDataCache;
+	}
+
     const csvPath = join(process.cwd(), "csv", "フォトデータ.csv");
     const csvFile = readFileSync(csvPath, "utf-8");
 
@@ -96,7 +102,8 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 						isWildPhoto: false,
 					};
                 }));
-				resolve([...parsedData, ...wildPhotoData]);
+				photoDataCache = [...parsedData, ...wildPhotoData];
+				resolve(photoDataCache);
             },
         });
     });

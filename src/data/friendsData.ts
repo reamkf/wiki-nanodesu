@@ -171,7 +171,13 @@ export async function fillStatuses(friendsDataRow: FriendsDataRow): Promise<Frie
 	};
 }
 
+let friendsDataCache: FriendsDataRow[] | null = null;
+
 export async function getFriendsData(): Promise<FriendsDataRow[]> {
+	if (friendsDataCache) {
+		return friendsDataCache;
+	}
+
     const csvPath = join(process.cwd(), "csv", "フレンズデータ.csv");
     const csvFile = readFileSync(csvPath, "utf-8");
 
@@ -213,6 +219,7 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 				const filledData = await Promise.all(parsedData.map(async (data) => {
 					return await fillStatuses(data);
 				}));
+				friendsDataCache = filledData;
                 resolve(filledData);
             },
         });
