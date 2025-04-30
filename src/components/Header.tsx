@@ -5,7 +5,7 @@ import { AboutButton } from "@/components/about/AboutButton";
 import { AboutModal } from "@/components/about/AboutModal";
 import Image from "next/image";
 import { useSidebar } from '@/contexts/SidebarContext';
-
+import { OwlIcon } from "@/components/OwlIcon";
 
 export function Header() {
 	const [isOpen, setIsOpen] = useState(false);
@@ -49,7 +49,7 @@ export function Header() {
 						className="w-[55px] h-[55px]"
 					/>
 					<h1 className="text-md sm:text-xl font-bold text-sky-600 leading-tight pl-1">
-						アプリ版けものフレンズ３<br className="sm:hidden" />wikiなのです🦉
+						アプリ版けものフレンズ３<br className="sm:hidden" />wikiなのです<OwlIcon />
 					</h1>
 				</div>
 				<AboutButton onClick={() => setIsOpen(true)} />

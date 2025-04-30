@@ -8,7 +8,7 @@ import { SidebarLinkItem } from './Sidebar';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { includesNormalizeQuery } from '@/utils/queryNormalizer';
 import { NanodesuLink } from '@/components/common/NanodesuLink';
-
+import { OwlIcon } from '@/components/OwlIcon';
 interface SidebarClientProps {
 	sideBarLinksNanodesu: SidebarLinkItem[];
 	sideBarLinksNanoda: SidebarLinkItem[];
@@ -92,7 +92,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						className="font-bold text-sky-700 p-2 pl-0 grow leading-tight"
 						onClick={close}
 					>
-						アプリ版けものフレンズ３wikiなのです🦉
+						アプリ版けものフレンズ３wikiなのです<OwlIcon />
 					</NanodesuLink>
 				</div>
 
