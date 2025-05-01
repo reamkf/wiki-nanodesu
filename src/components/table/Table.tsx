@@ -250,7 +250,7 @@ export function Table<TData, TValue>({
 			{/* テーブル上部のページネーションコントロール */}
 			<PaginationControls table={table} />
 
-			<table className="border-collapse w-full [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
+			<table className="border-collapse min-w-fit max-w-[1920px] [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
 				<colgroup>
 					{table.getHeaderGroups()[0].headers.map((header) => {
 						const meta = header.column.columnDef.meta as ColumnMeta & {
