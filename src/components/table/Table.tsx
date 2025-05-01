@@ -77,8 +77,7 @@ export interface SortableTableProps<TData, TValue> {
 		columnFilters?: ColumnFiltersState;
 		pagination?: PaginationState;
 	};
-	/** 初期ソートを簡単に設定するショートカット */
-	initialSorting?: { id: string; desc?: boolean };
+	initialSorting?: SortingState;
 	rowComponent?: React.FC<{ row: Row<TData> }>;
 }
 
@@ -207,9 +206,7 @@ export function Table<TData, TValue>({
 
 	// 状態管理: 初期ソートがあれば優先して適用するのです
 	const [sorting, setSorting] = useState<SortingState>(
-		() => initialSorting
-			? [{ id: initialSorting.id, desc: initialSorting.desc ?? true }]
-			: initialState?.sorting || []
+		() => initialSorting ?? initialState?.sorting ?? []
 	);
 
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
