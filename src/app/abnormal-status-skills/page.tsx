@@ -7,11 +7,8 @@ import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 import {
 	AbnormalStatusWithFriend,
 	AbnormalStatusSkillEffectType,
-	getPowerPriority,
-	getActivationRatePriority,
-	getSkillTypePriority,
-	getTargetPriority
 } from "@/types/abnormalStatus";
+import { getPowerPriority, getActivationRatePriority, getSkillTypePriority, getTargetPriority } from "@/utils/sortPriorities";
 import GoogleSheetsLink from "@/components/GoogleSheetsLink";
 import { sortAttribute } from "@/utils/friends/friends";
 

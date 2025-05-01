@@ -4,9 +4,8 @@ import React, { useMemo, useCallback, useState, useEffect } from "react";
 import {
 	AbnormalStatusWithFriend,
 	AbnormalStatusSkillEffectType,
-	getPowerPriority,
-	getActivationRatePriority
 } from "@/types/abnormalStatus";
+import { getPowerPriority, getActivationRatePriority } from "@/utils/sortPriorities";
 import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
 import { isNumber } from "@/utils/common";

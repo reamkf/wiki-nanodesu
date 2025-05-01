@@ -16,7 +16,7 @@ import {
 	getSearchableTextForFriendOrPhoto
 } from "@/components/table/GenericDataTable";
 import { Table } from "@/components/table/Table";
-import { getActivationRatePriority, getPowerPriority } from "@/types/abnormalStatus";
+import { getActivationRatePriority, getPowerPriority } from "@/utils/sortPriorities";
 import { AttributeCell, ActivationRateCell } from "@/components/table/cells";
 
 // フレンズセル
