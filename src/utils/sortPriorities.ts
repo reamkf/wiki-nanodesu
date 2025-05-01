@@ -36,6 +36,11 @@ export function getPowerPriority(power: string): number {
 		}
 	}
 
+	const parsed = parseFloat(power);
+	if(!isNaN(parsed)){
+		return parsed;
+	}
+
 	return 0;
 }
 
