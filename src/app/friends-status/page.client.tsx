@@ -16,7 +16,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
 import { sortAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
-import { Table } from "../../components/table/Table";
+import { Table } from "@/components/table/Table";
 import {
 	FilterCheckboxGroup,
 	CheckboxOption,
@@ -552,7 +552,7 @@ export default function FriendsStatusTable({
 
 			{/* テーブル */}
 			<div className="overflow-x-auto max-w-full">
-				<Table<ProcessedFriendsStatusListItem, unknown>
+				<Table
 					data={filteredData}
 					columns={columns}
 					tableId="friends-status"

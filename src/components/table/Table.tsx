@@ -77,7 +77,9 @@ export interface SortableTableProps<TData, TValue> {
 		columnFilters?: ColumnFiltersState;
 		pagination?: PaginationState;
 	};
-	rowComponent: React.FC<{ row: Row<TData> }>;
+	/** 初期ソートを簡単に設定するショートカット */
+	initialSorting?: { id: string; desc?: boolean };
+	rowComponent?: React.FC<{ row: Row<TData> }>;
 }
 
 interface PaginationControlsProps<TData> { table: ReactTable<TData>; }
@@ -145,13 +147,37 @@ function PaginationControls<TData>({
 	);
 }
 
+// デフォルトの行レンダラコンポーネント
+function DefaultRowComponent<TData>({ row }: { row: Row<TData> }) {
+	return (
+		<tr key={row.id} className="hover:bg-gray-50">
+			{row.getVisibleCells().map(cell => {
+				const meta = cell.column.columnDef.meta as ColumnMeta & { align?: string };
+				return (
+					<td
+						key={cell.id}
+						className="p-2 border-b text-sm"
+						style={{ textAlign: meta?.align || "left" }}
+					>
+						{flexRender(cell.column.columnDef.cell, cell.getContext())}
+					</td>
+				);
+			})}
+		</tr>
+	);
+}
+
 export function Table<TData, TValue>({
 	data,
 	columns,
 	tableId,
 	initialState,
-	rowComponent: RowComponent,
+	initialSorting,
+	rowComponent,
 }: SortableTableProps<TData, TValue>) {
+	// rowComponent が指定されていない場合はデフォルトを使用するのです
+	const RowComponent = rowComponent ?? DefaultRowComponent;
+
 	// localStorageのキー
 	const storageKeyPrefix = `wiki-nanodesu.Table.${tableId}`;
 
@@ -179,9 +205,11 @@ export function Table<TData, TValue>({
 		}
 	};
 
-	// 状態管理
+	// 状態管理: 初期ソートがあれば優先して適用するのです
 	const [sorting, setSorting] = useState<SortingState>(
-		() => initialState?.sorting || []
+		() => initialSorting
+			? [{ id: initialSorting.id, desc: initialSorting.desc ?? true }]
+			: initialState?.sorting || []
 	);
 
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(

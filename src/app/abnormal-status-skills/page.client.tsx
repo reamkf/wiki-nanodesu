@@ -14,7 +14,6 @@ import { isNumber, toPercent } from "@/utils/common";
 import { createCustomFilterFn } from "@/utils/tableFilters";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
 import {
-	GenericDataTable,
 	formatText,
 	FriendOrPhotoDisplay,
 	TextCell,
@@ -24,6 +23,8 @@ import { PhotoAttributeIconAndName } from "@/components/photo/PhotoAttributeIcon
 import { sortAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
 import { PhotoAttribute } from "@/types/photo";
+import { Table } from "@/components/table/Table";
+
 export default function ClientTabs({
 	statusTypes,
 	statusTypeData,
@@ -308,7 +309,7 @@ export default function ClientTabs({
 			// 注: 第三階層のデータはサーバー側でソート済みなので、クライアントでの追加ソートは不要
 
 			return (
-				<GenericDataTable
+				<Table
 					data={statusData}
 					columns={columns}
 					tableId={`abnormal-status-${categoryId}`}

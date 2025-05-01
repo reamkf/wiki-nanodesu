@@ -11,12 +11,12 @@ import { createCustomFilterFn } from "@/utils/tableFilters";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
 import { FriendsAttribute } from "@/types/friends";
 import {
-	GenericDataTable,
 	formatText,
 	FriendOrPhotoDisplay,
 	TextCell,
 	getSearchableTextForFriendOrPhoto
 } from "@/components/table/GenericDataTable";
+import { Table } from "@/components/table/Table";
 import { getActivationRatePriority } from "@/types/abnormalStatus";
 
 export default function ClientTabs({
@@ -242,7 +242,7 @@ export default function ClientTabs({
 			if (data.length === 0) return null;
 
 			return (
-				<GenericDataTable
+				<Table
 					data={data}
 					columns={columns}
 					tableId={`friends-skills-${categoryId}`}
