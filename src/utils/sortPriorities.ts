@@ -66,6 +66,23 @@ export function getActivationRatePriority(activationRate: string): number {
 	return 0;
 }
 
+// 発動回数の優先度を取得する関数
+export function getActivationCountPriority(activationCount: string | number): number {
+	if (!activationCount) return -1;
+
+	if (typeof activationCount === 'string') {
+		if(activationCount === "-" || activationCount === "∞") return Infinity;
+		const parsed = parseInt(activationCount);
+		if(!isNaN(parsed)){
+			return parsed;
+		}
+	} else if(typeof activationCount === 'number'){
+		return activationCount;
+	}
+
+	return -1;
+}
+
 // スキルタイプの優先度を取得する関数
 // FriendsOrPhotoSkillType を使用するように変更
 export function getSkillTypePriority(skillType: FriendsOrPhotoSkillType): number {

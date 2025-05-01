@@ -5,7 +5,7 @@ import {
 	AbnormalStatusWithFriend,
 	AbnormalStatusSkillEffectType,
 } from "@/types/abnormalStatus";
-import { getPowerPriority, getActivationRatePriority, getTargetPriority } from "@/utils/sortPriorities";
+import { getPowerPriority, getActivationRatePriority, getTargetPriority, getActivationCountPriority } from "@/utils/sortPriorities";
 import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
 import { isNumber } from "@/utils/common";
@@ -160,6 +160,11 @@ export default function ClientTabs({
 			header: '発動回数',
 			cell: ({ row }) => <TextCell text={row.original.activationCount} />,
 			filterFn: customFilterFn,
+			sortingFn: (rowA, rowB, columnId) => {
+				const countA = rowA.getValue(columnId) as string | number;
+				const countB = rowB.getValue(columnId) as string | number;
+				return getActivationCountPriority(countA) - getActivationCountPriority(countB);
+			},
 			meta: {
 				width: '100px',
 				align: 'center' as const,

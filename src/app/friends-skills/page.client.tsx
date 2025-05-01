@@ -16,7 +16,7 @@ import {
 	getSearchableTextForFriendOrPhoto
 } from "@/components/table/GenericDataTable";
 import { Table } from "@/components/table/Table";
-import { getActivationRatePriority, getPowerPriority, getTargetPriority } from "@/utils/sortPriorities";
+import { getActivationRatePriority, getPowerPriority, getTargetPriority, getActivationCountPriority } from "@/utils/sortPriorities";
 import { AttributeCell, ActivationRateCell } from "@/components/table/cells";
 
 // フレンズセル
@@ -173,6 +173,11 @@ export default function ClientTabs({
 			header: '発動回数',
 			cell: ({ row }) => <TextCell text={row.original.activationCount} />,
 			filterFn: customFilterFn,
+			sortingFn: (rowA, rowB, columnId) => {
+				const countA = rowA.getValue(columnId) as string | number;
+				const countB = rowB.getValue(columnId) as string | number;
+				return getActivationCountPriority(countA) - getActivationCountPriority(countB);
+			},
 			meta: {
 				width: '100px',
 				align: 'center' as const,
