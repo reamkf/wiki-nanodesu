@@ -32,7 +32,7 @@ function sortByAttribute(data: AbnormalStatusWithFriend[]): AbnormalStatusWithFr
 			return 0;
 		}
 
-		return sortAttribute(attributeA, attributeB);
+		return -sortAttribute(attributeA, attributeB);
 	});
 }
 
