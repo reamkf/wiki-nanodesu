@@ -17,7 +17,59 @@ import {
 	getSearchableTextForFriendOrPhoto
 } from "@/components/table/GenericDataTable";
 import { Table } from "@/components/table/Table";
-import { getActivationRatePriority } from "@/types/abnormalStatus";
+import { getActivationRatePriority, getPowerPriority } from "@/types/abnormalStatus";
+
+// --- ヘルパーコンポーネント定義 (セルレンダリング用) ---
+
+// フレンズセル
+const FriendCell = ({ data }: { data: SkillWithFriend }) => {
+	if (!data.friendsDataRow) {
+		// データがない場合はIDを表示（フォールバック）
+		return <div>{data.friendsId}</div>;
+	}
+	// isPhotoは常にfalseだが、FriendOrPhotoDisplayは汎用的なのでそのまま使う
+	return <FriendOrPhotoDisplay data={data} />;
+};
+
+// 属性セル
+const AttributeCell = ({ data }: { data: SkillWithFriend }) => {
+	if (!data.friendsDataRow?.attribute) {
+		return null;
+	}
+	return <FriendsAttributeIconAndName attribute={data.friendsDataRow.attribute} />;
+};
+
+// 威力セル
+const PowerCell = ({ data }: { data: SkillWithFriend }) => {
+	const power = data.power;
+	if (!power) return null;
+
+	// 数値でない場合はそのまま表示
+	if (!isNumber(power)) return formatText(power);
+
+	const powerNum = parseFloat(power);
+
+	// MP関連スキルかどうかの判定ロジックを共通化
+	const isMpRelated = (
+		['MP増加', 'MP減少', '毎ターンMP増加', '毎ターンMP減少', 'プラズムチャージ効果回数追加']
+	).some(effectType => data.effectType?.includes(effectType));
+
+	return isMpRelated ? powerNum.toString() : toPercent(powerNum);
+};
+
+// 発動率セル
+const ActivationRateCell = ({ data }: { data: SkillWithFriend }) => {
+	const activationRate = data.activationRate;
+	if (!activationRate) return null;
+
+	// 数値でない場合はそのまま表示
+	if (!isNumber(activationRate)) return formatText(activationRate);
+
+	const activationRateNum = parseFloat(activationRate);
+	return toPercent(activationRateNum);
+};
+
+// --- ClientTabs コンポーネント ---
 
 export default function ClientTabs({
 	effectTypes,
@@ -33,7 +85,7 @@ export default function ClientTabs({
 
 	// 初期選択として最初のエフェクトタイプを設定
 	useEffect(() => {
-		if (effectTypes.length > 0 && !selectedEffectType) {
+		if (selectedEffectType === null && effectTypes.length > 0) {
 			setSelectedEffectType(effectTypes[0]);
 		}
 	}, [effectTypes, selectedEffectType]);
@@ -51,14 +103,7 @@ export default function ClientTabs({
 		{
 			accessorKey: 'friendsId',
 			header: 'フレンズ',
-			cell: ({ row }) => {
-				const skill = row.original;
-				if (!skill.friendsDataRow) {
-					return <div>{skill.friendsId}</div>;
-				}
-
-				return <FriendOrPhotoDisplay data={skill} />;
-			},
+			cell: ({ row }) => <FriendCell data={row.original} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '250px'
@@ -68,15 +113,7 @@ export default function ClientTabs({
 			accessorFn: (row) => row.friendsDataRow?.attribute || '',
 			id: 'attribute',
 			header: '属性',
-			cell: ({ row }) => {
-				const skill = row.original;
-				if (!skill.friendsDataRow || !skill.friendsDataRow.attribute) {
-					return null;
-				}
-				return (
-					<FriendsAttributeIconAndName attribute={skill.friendsDataRow.attribute} />
-				);
-			},
+			cell: ({ row }) => <AttributeCell data={row.original} />,
 			filterFn: customFilterFn,
 			sortingFn: (rowA, rowB, columnId) => {
 				const attributeA = rowA.getValue(columnId) as FriendsAttribute;
@@ -100,49 +137,11 @@ export default function ClientTabs({
 			accessorFn: (row) => {
 				const power = row.power;
 				if (!power) return -Infinity;
-				return isNumber(power) ? parseFloat(power) : power;
+				return isNumber(power) ? parseFloat(power) : getPowerPriority(power);
 			},
 			id: 'power',
 			header: '威力',
-			cell: ({ row }) => {
-				const power = row.original.power;
-				if (!power) return null;
-
-				// 数値に変換
-				const powerNum = parseFloat(power);
-
-				// 数値でない場合はそのまま表示
-				if (!isNumber(power)) return formatText(power);
-
-				// MP関連のスキルかどうかを判断
-				const intFormatEffectTypes = [
-					'MP増加', 'MP減少', '毎ターンMP増加', '毎ターンMP減少',
-					'プラズムチャージ効果回数追加'
-				];
-				const isPercentFormat = !intFormatEffectTypes.some(effectType => row.original.effectType?.includes(effectType));
-
-				if (isPercentFormat) {
-					return toPercent(powerNum);
-				} else {
-					return powerNum.toString();
-				}
-			},
-			sortingFn: (rowA, rowB, columnId) => {
-				const valueA = rowA.getValue(columnId);
-				const valueB = rowB.getValue(columnId);
-
-				// どちらかがnullやundefinedの場合
-				if (valueA == null) return 1;
-				if (valueB == null) return -1;
-
-				// 両方とも数値の場合は数値比較
-				if (typeof valueA === 'number' && typeof valueB === 'number') {
-					return valueA - valueB;
-				}
-
-				// 文字列の場合は文字列比較
-				return String(valueA).localeCompare(String(valueB));
-			},
+			cell: ({ row }) => <PowerCell data={row.original} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '100px',
@@ -184,33 +183,12 @@ export default function ClientTabs({
 			accessorFn: (row) => {
 				const activationRate = row.activationRate;
 				if (!activationRate) return -Infinity;
-				return isNumber(activationRate) ? toPercent(parseFloat(activationRate)) : activationRate;
+				return isNumber(activationRate) ? parseFloat(activationRate) : getActivationRatePriority(activationRate);
 			},
 			id: 'activationRate',
 			header: '発動率',
-			cell: ({ row }) => {
-				const activationRate = row.original.activationRate;
-				if (!activationRate) return null;
-
-				// 数値に変換
-				const activationRateNum = parseFloat(activationRate);
-
-				// 数値でない場合はそのまま表示
-				if (!isNumber(activationRate)) return formatText(activationRate);
-
-				return toPercent(activationRateNum);
-			},
+			cell: ({ row }) => <ActivationRateCell data={row.original} />,
 			filterFn: customFilterFn,
-			sortingFn: (rowA, rowB) => {
-				const rateA = rowA.original.activationRate;
-				const rateB = rowB.original.activationRate;
-
-				const priorityA = getActivationRatePriority(rateA);
-				const priorityB = getActivationRatePriority(rateB);
-
-				// 優先度が高いほうが上に来るように降順でソート
-				return priorityA - priorityB;
-			},
 			meta: {
 				width: '100px',
 				align: 'center' as const,

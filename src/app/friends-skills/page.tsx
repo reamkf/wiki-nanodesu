@@ -8,9 +8,144 @@ import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 import { SkillWithFriend } from "@/types/friendsSkills";
 import GoogleSheetsLink from "@/components/GoogleSheetsLink";
 
+// --- 定数定義 ---
+
+// スキルカテゴリの構造定義
+// id が name と同じ場合は省略
+const SKILL_CATEGORIES_STRUCTURE = [
+	{
+		name: "バフ",
+		id: "buff",
+		children: [
+			{
+				name: "与ダメージ増加",
+				id: "buff-damage-increase",
+				children: [
+					{ name: "与ダメージ増加" },
+					{ name: "Beat!!!与ダメージ増加" },
+					{ name: "Action!与ダメージ増加" },
+					{ name: "Try!!与ダメージ増加" },
+				]
+			},
+			{
+				name: "被ダメージ減少",
+				id: "buff-damage-reduction",
+				children: [
+					{ name: "被ダメージ減少" },
+					{ name: "全体攻撃による被ダメージ減少" },
+				]
+			},
+			{ name: "攻撃命中率増加" },
+			{ name: "かいひ増加" },
+		]
+	},
+	{
+		name: "デバフ",
+		id: "debuff",
+		children: [
+			{ name: "与ダメージ減少" },
+			{
+				name: "被ダメージ増加",
+				id: "debuff-damage-increase",
+				children: [
+					{ name: "被ダメージ増加" },
+					{ name: "全体攻撃による被ダメージ増加" },
+				]
+			},
+			{ name: "攻撃命中率減少" },
+			{ name: "かいひ減少" },
+		]
+	},
+	{
+		name: "たいりょく回復",
+		id: "hp-recovery",
+		children: [
+			{ name: "回復" },
+			{ name: "毎ターン回復" },
+			{ name: "吸収" },
+			{ name: "毎ターン回復解除" },
+			{ name: "たいりょく回復量増加" },
+			{ name: "たいりょく回復量減少" },
+			{ name: "たいりょく回復量減少状態解除" },
+		]
+	},
+	{
+		name: "MP",
+		id: "mp",
+		children: [
+			{ name: "MP増加" },
+			{ name: "毎ターンMP増加" },
+			{ name: "MP減少" },
+			{ name: "毎ターンMP減少状態解除" },
+			{ name: "MP増加量減少状態解除" },
+		]
+	},
+	{
+		name: "バフ解除",
+		id: "buff-removal",
+		children: [
+			{ name: "与ダメージ増加状態解除" },
+			{ name: "被ダメージ減少状態解除" },
+			{ name: "攻撃命中率増加状態解除" },
+			{ name: "かいひ増加状態解除" },
+		]
+	},
+	{
+		name: "デバフ解除",
+		id: "debuff-removal",
+		children: [
+			{ name: "与ダメージ減少状態解除" },
+			{ name: "被ダメージ増加状態解除" },
+			{ name: "攻撃命中率減少状態解除" },
+			{ name: "かいひ減少状態解除" },
+		]
+	},
+	{
+		name: "その他",
+		id: "others",
+		children: [
+			{ name: "プラズムチャージ効果回数追加" },
+			{ name: "全体Beat" },
+			{ name: "均等割ダメージ" },
+			{ name: "コーラス参加" },
+			{ name: "おかわり増加" },
+			{ name: "おかわり最大値増加" },
+			{ name: "たいりょく1で耐える" },
+			{ name: "ギブアップ復帰" },
+		]
+	},
+];
+
+// 型エイリアス: idがオプショナルなTreeItemData
+type InputTreeItemData = Omit<TreeItemData, 'id' | 'children'> & { id?: string; children?: InputTreeItemData[] };
+
+// --- ヘルパー関数 ---
+
+/**
+ * TreeItemDataの配列に再帰的に isExpandedByDefault: true を追加し、idがない場合はnameで補完する関数
+ * @param items idがオプショナルなTreeItemDataの配列
+ * @returns idが補完され、isExpandedByDefaultが追加された新しいTreeItemDataの配列
+ */
+function processCategoryStructure(items: InputTreeItemData[] | undefined): TreeItemData[] | undefined {
+	if (!items) return undefined;
+	return items.map(item => {
+		const newItem: TreeItemData = {
+			...item,
+			id: item.id ?? item.name, // id がなければ name で補完
+			isExpandedByDefault: true,
+			children: processCategoryStructure(item.children) // 子要素にも再帰的に適用
+		};
+		return newItem;
+	});
+}
+
+// --- メタデータ ---
+
 export const metadata = generateMetadata({
 	title: "スキル別フレンズ一覧",
 });
+
+// --- ページコンポーネント ---
 
 export default async function FriendsSkillsPage() {
 	const skillsData = await getSkillsWithFriendsData();
@@ -24,123 +159,8 @@ export default async function FriendsSkillsPage() {
 		);
 	});
 
-	const skillCategories: TreeItemData[] = [
-		{
-			name: "バフ",
-			id: "buff",
-			children: [
-				{
-					name: "与ダメージ増加",
-					id: "buff-damage-increase",
-					children: [
-						{ name: "与ダメージ増加", id: "与ダメージ増加" },
-						{ name: "Beat!!!与ダメージ増加", id: "Beat!!!与ダメージ増加" },
-						{ name: "Action!与ダメージ増加", id: "Action!与ダメージ増加" },
-						{ name: "Try!!与ダメージ増加", id: "Try!!与ダメージ増加" },
-					]
-				},
-				{
-					name: "被ダメージ減少",
-					id: "buff-damage-reduction",
-					children: [
-						{ name: "被ダメージ減少", id: "被ダメージ減少" },
-						{ name: "全体攻撃による被ダメージ減少", id: "全体攻撃による被ダメージ減少" },
-					]
-				},
-				{ name: "攻撃命中率増加", id: "攻撃命中率増加" },
-				{ name: "かいひ増加", id: "かいひ増加" },
-			]
-		},
-		{
-			name: "デバフ",
-			id: "debuff",
-			children: [
-				{ name: "与ダメージ減少", id: "与ダメージ減少" },
-				{
-					name: "被ダメージ増加",
-					id: "debuff-damage-increase",
-					children: [
-						{ name: "被ダメージ増加", id: "被ダメージ増加" },
-						{ name: "全体攻撃による被ダメージ増加", id: "全体攻撃による被ダメージ増加" },
-					]
-				},
-				{ name: "攻撃命中率減少", id: "攻撃命中率減少" },
-				{ name: "かいひ減少", id: "かいひ減少" },
-			]
-		},
-		{
-			name: "たいりょく回復",
-			id: "hp-recovery",
-			children: [
-				{ name: "回復", id: "回復" },
-				{ name: "毎ターン回復", id: "毎ターン回復" },
-				{ name: "吸収", id: "吸収" },
-				{ name: "毎ターン回復解除", id: "毎ターン回復解除" },
-				{ name: "たいりょく回復量増加", id: "たいりょく回復量増加" },
-				{ name: "たいりょく回復量減少", id: "たいりょく回復量減少" },
-				{ name: "たいりょく回復量減少状態解除", id: "たいりょく回復量減少状態解除" },
-			]
-		},
-		{
-			name: "MP",
-			id: "mp",
-			children: [
-				{ name: "MP増加", id: "MP増加" },
-				{ name: "毎ターンMP増加", id: "毎ターンMP増加" },
-				{ name: "MP減少", id: "MP減少" },
-				{ name: "毎ターンMP減少状態解除", id: "毎ターンMP減少状態解除" },
-				{ name: "MP増加量減少状態解除", id: "MP増加量減少状態解除" },
-			]
-		},
-		{
-			name: "バフ解除",
-			id: "buff-removal",
-			children: [
-				{ name: "与ダメージ増加状態解除", id: "与ダメージ増加状態解除" },
-				{ name: "被ダメージ減少状態解除", id: "被ダメージ減少状態解除" },
-				{ name: "攻撃命中率増加状態解除", id: "攻撃命中率増加状態解除" },
-				{ name: "かいひ増加状態解除", id: "かいひ増加状態解除" },
-			]
-		},
-		{
-			name: "デバフ解除",
-			id: "debuff-removal",
-			children: [
-				{ name: "与ダメージ減少状態解除", id: "与ダメージ減少状態解除" },
-				{ name: "被ダメージ増加状態解除", id: "被ダメージ増加状態解除" },
-				{ name: "攻撃命中率減少状態解除", id: "攻撃命中率減少状態解除" },
-				{ name: "かいひ減少状態解除", id: "かいひ減少状態解除" },
-			]
-		},
-		{
-			name: "その他",
-			id: "others",
-			children: [
-				{ name: "プラズムチャージ効果回数追加", id: "プラズムチャージ効果回数追加" },
-				{ name: "全体Beat", id: "全体Beat" },
-				{ name: "均等割ダメージ", id: "均等割ダメージ" },
-				{ name: "コーラス参加", id: "コーラス参加" },
-				{ name: "おかわり増加", id: "おかわり増加" },
-				{ name: "おかわり最大値増加", id: "おかわり最大値増加" },
-				{ name: "たいりょく1で耐える", id: "たいりょく1で耐える" },
-				{ name: "ギブアップ復帰", id: "ギブアップ復帰" },
-			]
-		},
-	];
-
-	// デフォルトですべて展開する
-	for (const category of skillCategories) {
-		category.isExpandedByDefault = true;
-		if (category.children) {
-			for (const child of category.children) {
-				if (child.children) {
-					for (const subChild of child.children) {
-						subChild.isExpandedByDefault = true;
-					}
-				}
-			}
-		}
-	}
+	// カテゴリ構造を処理して、id補完とデフォルト展開フラグを追加
+	const skillCategories = processCategoryStructure(SKILL_CATEGORIES_STRUCTURE as InputTreeItemData[]) || [];
 
 	return (
 		<div className="min-h-screen">
