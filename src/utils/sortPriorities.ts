@@ -82,14 +82,12 @@ export function getSkillTypePriority(skillType: FriendsOrPhotoSkillType): number
 	return 0;
 }
 
-
 // 対象の優先度を取得する関数
 export function getTargetPriority(target: string): number {
 	if (!target) return -1;
 
-	if (target.includes('味方全体')) return 3;
-	if (target.includes('自身を除く') && target.includes('味方全体')) return 2;
-	if (target.includes('自身')) return 1;
+	if ((target.includes('味方全体') && !target.includes('自身を除く')) || target.includes('相手全体')) return 3;
+	if (target.includes('味方全体')) return 2;
 
 	return 0;
 }

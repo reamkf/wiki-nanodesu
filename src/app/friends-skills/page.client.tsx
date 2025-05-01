@@ -16,7 +16,7 @@ import {
 	getSearchableTextForFriendOrPhoto
 } from "@/components/table/GenericDataTable";
 import { Table } from "@/components/table/Table";
-import { getActivationRatePriority, getPowerPriority } from "@/utils/sortPriorities";
+import { getActivationRatePriority, getPowerPriority, getTargetPriority } from "@/utils/sortPriorities";
 import { AttributeCell, ActivationRateCell } from "@/components/table/cells";
 
 // フレンズセル
@@ -122,6 +122,11 @@ export default function ClientTabs({
 			header: '対象',
 			cell: ({ row }) => <TextCell text={row.original.target} />,
 			filterFn: customFilterFn,
+			sortingFn: (rowA, rowB, columnId) => {
+				const targetA = rowA.getValue(columnId) as string;
+				const targetB = rowB.getValue(columnId) as string;
+				return getTargetPriority(targetA) - getTargetPriority(targetB);
+			},
 			meta: {
 				width: '150px',
 				align: 'center' as const,

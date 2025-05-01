@@ -5,7 +5,7 @@ import {
 	AbnormalStatusWithFriend,
 	AbnormalStatusSkillEffectType,
 } from "@/types/abnormalStatus";
-import { getPowerPriority, getActivationRatePriority } from "@/utils/sortPriorities";
+import { getPowerPriority, getActivationRatePriority, getTargetPriority } from "@/utils/sortPriorities";
 import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
 import { isNumber } from "@/utils/common";
@@ -110,6 +110,11 @@ export default function ClientTabs({
 			header: '対象',
 			cell: ({ row }) => <TextCell text={row.original.target} />,
 			filterFn: customFilterFn,
+			sortingFn: (rowA, rowB, columnId) => {
+				const targetA = rowA.getValue(columnId) as string;
+				const targetB = rowB.getValue(columnId) as string;
+				return getTargetPriority(targetA) - getTargetPriority(targetB);
+			},
 			meta: {
 				width: '150px',
 				align: 'center' as const,
