@@ -25,6 +25,38 @@ import { FriendsAttribute } from "@/types/friends";
 import { PhotoAttribute } from "@/types/photo";
 import { Table } from "@/components/table/Table";
 
+// --- ヘルパーコンポーネント定義 (セルレンダリング用) ---
+
+// 属性セル
+const AttributeCell = ({ data }: { data: AbnormalStatusWithFriend }) => {
+	if (data.isPhoto && data.photoDataRow) {
+		return <PhotoAttributeIconAndName attribute={data.photoDataRow.attribute} />;
+	} else if (!data.isPhoto && data.friendsDataRow) {
+		return <FriendsAttributeIconAndName attribute={data.friendsDataRow.attribute} />;
+	}
+	return null;
+};
+
+// 威力セル
+const PowerCell = ({ data }: { data: AbnormalStatusWithFriend }) => {
+	const power = data.power;
+	if (!power) return null;
+	if (!isNumber(power)) return formatText(power);
+	const powerNum = parseFloat(power);
+	return powerNum.toString();
+};
+
+// 発動率セル
+const ActivationRateCell = ({ data }: { data: AbnormalStatusWithFriend }) => {
+	const activationRate = data.activationRate;
+	if (!activationRate) return null;
+	if (!isNumber(activationRate)) return formatText(activationRate);
+	const activationRateNum = parseFloat(activationRate);
+	return toPercent(activationRateNum);
+};
+
+// --- ClientTabs コンポーネント ---
+
 export default function ClientTabs({
 	statusTypes,
 	statusTypeData,
@@ -37,9 +69,9 @@ export default function ClientTabs({
 	// 選択された状態異常タイプの状態を管理
 	const [selectedStatusType, setSelectedStatusType] = useState<string | null>(null);
 
-	// 初期選択として最初の状態異常タイプを設定
+	// 初期選択：statusTypesが利用可能になったら、最初のタイプを選択
 	useEffect(() => {
-		if (statusTypes.length > 0 && !selectedStatusType) {
+		if (selectedStatusType === null && statusTypes.length > 0) {
 			setSelectedStatusType(statusTypes[0]);
 		}
 	}, [statusTypes, selectedStatusType]);
@@ -74,27 +106,13 @@ export default function ClientTabs({
 			},
 			id: 'attribute',
 			header: '属性',
-			cell: ({ row }) => {
-				const status = row.original;
-
-				if (status.isPhoto && status.photoDataRow) {
-					// フォトの場合
-					return (
-						<PhotoAttributeIconAndName attribute={status.photoDataRow.attribute} />
-					);
-				} else if (!status.isPhoto && status.friendsDataRow) {
-					// フレンズの場合
-					return (
-						<FriendsAttributeIconAndName attribute={status.friendsDataRow.attribute} />
-					);
-				}
-
-				return null;
-			},
+			// セルレンダリングをヘルパーコンポーネントに委譲
+			cell: ({ row }) => <AttributeCell data={row.original} />,
 			filterFn: customFilterFn,
 			sortingFn: (rowA, rowB, columnId) => {
 				const attributeA = rowA.getValue(columnId) as FriendsAttribute | PhotoAttribute;
 				const attributeB = rowB.getValue(columnId) as FriendsAttribute | PhotoAttribute;
+
 				return sortAttribute(attributeA, attributeB);
 			},
 			meta: {
@@ -113,34 +131,16 @@ export default function ClientTabs({
 		{
 			accessorFn: (row) => {
 				const power = row.power;
-				if (!power) return -Infinity;
-				return isNumber(power) ? parseFloat(power) : power;
+				if (!power) return -Infinity; // ソート用に未定義は最小値とする
+				// 数値でない場合は優先度を返す
+				return isNumber(power) ? parseFloat(power) : getPowerPriority(power);
 			},
 			id: 'power',
 			header: '威力',
-			cell: ({ row }) => {
-				const power = row.original.power;
-				if (!power) return null;
-
-				// 数値に変換
-				const powerNum = parseFloat(power);
-
-				// 数値でない場合はそのまま表示
-				if (!isNumber(power)) return formatText(power);
-
-				return powerNum.toString();
-			},
-			sortingFn: (rowA, rowB) => {
-				const powerA = rowA.original.power;
-				const powerB = rowB.original.power;
-
-				// 優先度に基づいてソート
-				const priorityA = getPowerPriority(powerA);
-				const priorityB = getPowerPriority(powerB);
-
-				// 優先度が高いほうが上に来るように降順でソート
-				return priorityA - priorityB;
-			},
+			// セルレンダリングをヘルパーコンポーネントに委譲
+			cell: ({ row }) => <PowerCell data={row.original} />,
+			// accessorFnで数値または優先度を返すようにしたので、デフォルトの数値ソートで良いはず
+			// sortingFn は不要（デフォルトのソートを利用）
 			filterFn: customFilterFn,
 			meta: {
 				width: '100px',
@@ -181,32 +181,11 @@ export default function ClientTabs({
 			accessorFn: (row) => {
 				const activationRate = row.activationRate;
 				if (!activationRate) return -Infinity;
-				return isNumber(activationRate) ? toPercent(parseFloat(activationRate)) : activationRate;
+				return isNumber(activationRate) ? parseFloat(activationRate) : getActivationRatePriority(activationRate);
 			},
 			id: 'activationRate',
 			header: '発動率',
-			cell: ({ row }) => {
-				const activationRate = row.original.activationRate;
-				if (!activationRate) return null;
-
-				// 数値に変換
-				const activationRateNum = parseFloat(activationRate);
-
-				// 数値でない場合はそのまま表示
-				if (!isNumber(activationRate)) return formatText(activationRate);
-
-				return toPercent(activationRateNum);
-			},
-			sortingFn: (rowA, rowB) => {
-				const rateA = rowA.original.activationRate;
-				const rateB = rowB.original.activationRate;
-
-				const priorityA = getActivationRatePriority(rateA);
-				const priorityB = getActivationRatePriority(rateB);
-
-				// 優先度が高いほうが上に来るように降順でソート
-				return priorityA - priorityB;
-			},
+			cell: ({ row }) => <ActivationRateCell data={row.original} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '100px',
