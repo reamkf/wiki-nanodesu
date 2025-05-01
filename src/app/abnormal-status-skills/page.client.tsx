@@ -7,55 +7,21 @@ import {
 	getPowerPriority,
 	getActivationRatePriority
 } from "@/types/abnormalStatus";
-import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
 import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
-import { isNumber, toPercent } from "@/utils/common";
+import { isNumber } from "@/utils/common";
 import { createCustomFilterFn } from "@/utils/tableFilters";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
 import {
-	formatText,
 	FriendOrPhotoDisplay,
 	TextCell,
 	getSearchableTextForFriendOrPhoto
 } from "@/components/table/GenericDataTable";
-import { PhotoAttributeIconAndName } from "@/components/photo/PhotoAttributeIconAndName";
 import { sortAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
 import { PhotoAttribute } from "@/types/photo";
 import { Table } from "@/components/table/Table";
-
-// --- ヘルパーコンポーネント定義 (セルレンダリング用) ---
-
-// 属性セル
-const AttributeCell = ({ data }: { data: AbnormalStatusWithFriend }) => {
-	if (data.isPhoto && data.photoDataRow) {
-		return <PhotoAttributeIconAndName attribute={data.photoDataRow.attribute} />;
-	} else if (!data.isPhoto && data.friendsDataRow) {
-		return <FriendsAttributeIconAndName attribute={data.friendsDataRow.attribute} />;
-	}
-	return null;
-};
-
-// 威力セル
-const PowerCell = ({ data }: { data: AbnormalStatusWithFriend }) => {
-	const power = data.power;
-	if (!power) return null;
-	if (!isNumber(power)) return formatText(power);
-	const powerNum = parseFloat(power);
-	return powerNum.toString();
-};
-
-// 発動率セル
-const ActivationRateCell = ({ data }: { data: AbnormalStatusWithFriend }) => {
-	const activationRate = data.activationRate;
-	if (!activationRate) return null;
-	if (!isNumber(activationRate)) return formatText(activationRate);
-	const activationRateNum = parseFloat(activationRate);
-	return toPercent(activationRateNum);
-};
-
-// --- ClientTabs コンポーネント ---
+import { AttributeCell, ActivationRateCell, CommonPowerCell } from "@/components/table/cells";
 
 export default function ClientTabs({
 	statusTypes,
@@ -66,23 +32,18 @@ export default function ClientTabs({
 	statusTypeData: Record<string, AbnormalStatusWithFriend[]>,
 	abnormalStatusCategories: TreeItemData[]
 }) {
-	// 選択された状態異常タイプの状態を管理
 	const [selectedStatusType, setSelectedStatusType] = useState<string | null>(null);
 
-	// 初期選択：statusTypesが利用可能になったら、最初のタイプを選択
 	useEffect(() => {
 		if (selectedStatusType === null && statusTypes.length > 0) {
 			setSelectedStatusType(statusTypes[0]);
 		}
 	}, [statusTypes, selectedStatusType]);
 
-	// 検索可能なテキストを取得する関数
 	const getSearchableText = useCallback((row: AbnormalStatusWithFriend, columnId: string): string => {
-		// 基本的な検索用テキストは共通関数から取得
 		return getSearchableTextForFriendOrPhoto(row, columnId);
 	}, []);
 
-	// カスタムフィルター関数の作成
 	const customFilterFn = useMemo(() => createCustomFilterFn(getSearchableText), [getSearchableText]);
 
 	// テーブルのカラム定義
@@ -106,7 +67,6 @@ export default function ClientTabs({
 			},
 			id: 'attribute',
 			header: '属性',
-			// セルレンダリングをヘルパーコンポーネントに委譲
 			cell: ({ row }) => <AttributeCell data={row.original} />,
 			filterFn: customFilterFn,
 			sortingFn: (rowA, rowB, columnId) => {
@@ -137,8 +97,7 @@ export default function ClientTabs({
 			},
 			id: 'power',
 			header: '威力',
-			// セルレンダリングをヘルパーコンポーネントに委譲
-			cell: ({ row }) => <PowerCell data={row.original} />,
+			cell: ({ row }) => <CommonPowerCell data={row.original} />,
 			// accessorFnで数値または優先度を返すようにしたので、デフォルトの数値ソートで良いはず
 			// sortingFn は不要（デフォルトのソートを利用）
 			filterFn: customFilterFn,
@@ -215,7 +174,6 @@ export default function ClientTabs({
 		const { effectType, isPhoto } = status;
 		const [, entityType, effectTypeId] = categoryId.split('-');
 
-		// フレンズかフォトかで分ける
 		const isPhotoCategory = entityType === 'photo';
 		if (isPhoto !== isPhotoCategory) return false;
 
@@ -300,7 +258,6 @@ export default function ClientTabs({
 		return null;
 	}, [columns, filterStatusDataByCategoryAndSubcategory]);
 
-	// カテゴリーが選択されたときの処理
 	const handleSelectCategory = useCallback((id: string) => {
 		const statusType = id.includes('-') ? id.split('-')[0] : id;
 		setSelectedStatusType(statusType);

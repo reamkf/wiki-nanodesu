@@ -2,7 +2,6 @@
 
 import React, { useMemo, useCallback, useState, useEffect } from "react";
 import { SkillWithFriend } from "@/types/friendsSkills";
-import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
 import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
 import { toPercent, isNumber } from "@/utils/common";
@@ -18,25 +17,14 @@ import {
 } from "@/components/table/GenericDataTable";
 import { Table } from "@/components/table/Table";
 import { getActivationRatePriority, getPowerPriority } from "@/types/abnormalStatus";
-
-// --- ヘルパーコンポーネント定義 (セルレンダリング用) ---
+import { AttributeCell, ActivationRateCell } from "@/components/table/cells";
 
 // フレンズセル
 const FriendCell = ({ data }: { data: SkillWithFriend }) => {
 	if (!data.friendsDataRow) {
-		// データがない場合はIDを表示（フォールバック）
 		return <div>{data.friendsId}</div>;
 	}
-	// isPhotoは常にfalseだが、FriendOrPhotoDisplayは汎用的なのでそのまま使う
 	return <FriendOrPhotoDisplay data={data} />;
-};
-
-// 属性セル
-const AttributeCell = ({ data }: { data: SkillWithFriend }) => {
-	if (!data.friendsDataRow?.attribute) {
-		return null;
-	}
-	return <FriendsAttributeIconAndName attribute={data.friendsDataRow.attribute} />;
 };
 
 // 威力セル
@@ -44,7 +32,6 @@ const PowerCell = ({ data }: { data: SkillWithFriend }) => {
 	const power = data.power;
 	if (!power) return null;
 
-	// 数値でない場合はそのまま表示
 	if (!isNumber(power)) return formatText(power);
 
 	const powerNum = parseFloat(power);
@@ -57,20 +44,6 @@ const PowerCell = ({ data }: { data: SkillWithFriend }) => {
 	return isMpRelated ? powerNum.toString() : toPercent(powerNum);
 };
 
-// 発動率セル
-const ActivationRateCell = ({ data }: { data: SkillWithFriend }) => {
-	const activationRate = data.activationRate;
-	if (!activationRate) return null;
-
-	// 数値でない場合はそのまま表示
-	if (!isNumber(activationRate)) return formatText(activationRate);
-
-	const activationRateNum = parseFloat(activationRate);
-	return toPercent(activationRateNum);
-};
-
-// --- ClientTabs コンポーネント ---
-
 export default function ClientTabs({
 	effectTypes,
 	effectTypeData,
@@ -80,22 +53,18 @@ export default function ClientTabs({
 	effectTypeData: Record<string, SkillWithFriend[]>,
 	skillCategories: TreeItemData[]
 }) {
-	// 選択されたエフェクトタイプの状態を管理
 	const [selectedEffectType, setSelectedEffectType] = useState<string | null>(null);
 
-	// 初期選択として最初のエフェクトタイプを設定
 	useEffect(() => {
 		if (selectedEffectType === null && effectTypes.length > 0) {
 			setSelectedEffectType(effectTypes[0]);
 		}
 	}, [effectTypes, selectedEffectType]);
 
-	// 検索可能なテキストを取得する関数
 	const getSearchableText = useCallback((row: SkillWithFriend, columnId: string): string => {
 		return getSearchableTextForFriendOrPhoto(row, columnId);
 	}, []);
 
-	// カスタムフィルター関数の作成
 	const customFilterFn = useMemo(() => createCustomFilterFn(getSearchableText), [getSearchableText]);
 
 	// テーブルのカラム定義
@@ -231,7 +200,6 @@ export default function ClientTabs({
 		return null;
 	}, [columns, effectTypeData]);
 
-	// カテゴリーが選択されたときの処理
 	const handleSelectCategory = useCallback((id: string) => {
 		if (effectTypeData[id]) {
 			setSelectedEffectType(id);
