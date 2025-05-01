@@ -21,7 +21,7 @@ import {
 	FilterCheckboxGroup,
 	CheckboxOption,
 } from "../../components/table/FilterCheckboxGroup";
-import { ColumnMeta } from "@/types/table";
+import { ColumnMeta } from "@/components/table/Table";
 import { STATUS_TYPES, getSearchableText, getFilteredAndSortedData } from "@/utils/friends/friendsStatusHelpers";
 import { createCustomFilterFn } from "@/utils/tableFilters";
 

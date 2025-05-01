@@ -17,7 +17,6 @@ import {
 	FilterFnOption,
 } from "@tanstack/react-table";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { ColumnMeta } from "@/types/table";
 import { Select, MenuItem, IconButton } from "@mui/material";
 import {
 	FirstPage,
@@ -144,6 +143,13 @@ function PaginationControls<TData>({
 			</div>
 		</div>
 	);
+}
+
+export type AlignType = "left" | "center" | "right";
+
+export interface ColumnMeta {
+	align: AlignType;
+	width?: string;
 }
 
 // デフォルトの行レンダラコンポーネント
