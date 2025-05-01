@@ -48,7 +48,7 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 				<>
 					<Box
 						ref={graphRef}
-						className="relative bg-gray-100 border border-gray-300 border-4 rounded-lg"
+						className="relative bg-gray-100 border-gray-300 border-4 rounded-lg"
 					>
 						<FriendsGraph data={graphData} onSelectFriend={handleSelectFriend} />
 					</Box>
