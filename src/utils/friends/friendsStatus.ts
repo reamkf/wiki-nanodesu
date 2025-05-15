@@ -325,10 +325,8 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 		for (const statusType of statusTypes) {
 			const kemosute = calcKemosute(statusType.status);
 
-			// 衣装補正の計算（仮の衣装数として2を使用）
-			const costumeBonus = calculateCostumeBonus(friend.numOfClothes, friend.has12poke);
-
 			// 衣装補正込みのステータスを計算
+			const costumeBonus = calculateCostumeBonus(friend.numOfClothes, friend.has12poke);
 			const kemosuteWithCostume = calculateStatusWithCostume(kemosute, costumeBonus.kemosute ?? 0);
 			const hpWithCostume = calculateStatusWithCostume(statusType.status.hp, costumeBonus.hp ?? 0);
 			const atkWithCostume = calculateStatusWithCostume(statusType.status.atk, costumeBonus.atk ?? 0);
@@ -341,7 +339,7 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 				yasei: statusType.yasei,
 				status: statusType.status,
 				statusType: statusType.statusType,
-				// ソート用の数値データを事前計算
+				// ソート用の数値データ
 				sortValues: {
 					name: friend.name,
 					attribute: friend.attribute,
@@ -355,7 +353,7 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 					atkWithCostume: atkWithCostume.value ?? -Infinity,
 					defWithCostume: defWithCostume.value ?? -Infinity,
 				},
-				// 表示用の文字列を事前計算
+				// 表示用の文字列
 				displayValues: {
 					kemosute: kemosute && Math.round(kemosute).toLocaleString() || "?????",
 					hp: statusType.status.hp?.toLocaleString() || "?????",
