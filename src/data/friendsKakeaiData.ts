@@ -36,6 +36,9 @@ export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 		const nodes: Map<string, FriendNode> = new Map();
 		const links: FriendLink[] = [];
 
+		// 掛け合い先のノード数
+		const kakeaiTargetNum = Object.keys(kakeaiData[0]).filter(key => key.startsWith('掛け合い先')).length;
+
 		// 掛け合いデータからノードとリンクを作成
 		kakeaiData.forEach(kakeai => {
 			const sourceId = kakeai['掛け合い元'];
@@ -54,7 +57,7 @@ export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 			}
 
 			// 掛け合い先のノード追加とリンク作成
-			for (let i = 1; i <= 10; i++) {
+			for (let i = 1; i <= kakeaiTargetNum; i++) {
 				const targetId = kakeai[`掛け合い先${i}`];
 				if (!targetId) continue;
 
