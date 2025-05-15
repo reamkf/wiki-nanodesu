@@ -1,6 +1,6 @@
 "use client";
 
-import { ProcessedFriendsStatusListItem } from "@/utils/friends/friendsStatus";
+import { FriendsStatusListItemWithDisplayValue } from "@/utils/friends/friendsStatus";
 import FriendsIcon from "../../components/friends/FriendsIcon";
 import { FriendsNameLink } from "../../components/friends/FriendsNameLink";
 import {
@@ -10,7 +10,6 @@ import {
 	Cell,
 	flexRender,
 	ColumnDef,
-	FilterFn,
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
@@ -22,16 +21,10 @@ import {
 	CheckboxOption,
 } from "../../components/table/FilterCheckboxGroup";
 import { ColumnMeta } from "@/components/table/Table";
-import { STATUS_TYPES, getSearchableText, getFilteredAndSortedData } from "@/utils/friends/friendsStatusHelpers";
+import { STATUS_TYPES, getSearchableText, sortAndFilterFriendsList } from "@/utils/friends/friendsStatusHelpers";
 import { createCustomFilterFn } from "@/utils/tableFilters";
 
-const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
-
-interface FriendsStatusTableProps {
-	friendsStatusList: ProcessedFriendsStatusListItem[];
-	preFilteredData?: ProcessedFriendsStatusListItem[];
-	defaultStatusTypes?: string[];
-}
+const columnHelper = createColumnHelper<FriendsStatusListItemWithDisplayValue>();
 
 const statusTypeBackgroundColor: {
 	[key: string]: {
@@ -131,19 +124,17 @@ function StatusTypeLabel({
 	);
 };
 
-interface StatusCellProps {
-	value: number;
-	isEstimated: boolean;
-	showCostumeBonus: boolean;
-	costumeBonus?: number;
-}
-
-const StatusCell: React.FC<StatusCellProps> = ({
+function StatusCell({
 	value,
 	isEstimated,
 	showCostumeBonus,
 	costumeBonus,
-}) => {
+}: {
+	value: number;
+	isEstimated: boolean;
+	showCostumeBonus: boolean;
+	costumeBonus?: number;
+}){
 	return (
 		<>
 			<div
@@ -167,13 +158,13 @@ const StatusCell: React.FC<StatusCellProps> = ({
 };
 
 // カスタム検索関数
-const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = createCustomFilterFn<ProcessedFriendsStatusListItem>(getSearchableText);
+const customFilterFn = createCustomFilterFn<FriendsStatusListItemWithDisplayValue>(getSearchableText);
 
 // メモ化された行コンポーネント
 const TableRow = React.memo(function TableRow({
 	row,
 }: {
-	row: Row<ProcessedFriendsStatusListItem>;
+	row: Row<FriendsStatusListItemWithDisplayValue>;
 }) {
 	const statusType = row.original.statusType;
 	const bgColorClass =
@@ -183,7 +174,7 @@ const TableRow = React.memo(function TableRow({
 		<tr className={bgColorClass}>
 			{row
 				.getVisibleCells()
-				.map((cell: Cell<ProcessedFriendsStatusListItem, unknown>) => (
+				.map((cell: Cell<FriendsStatusListItemWithDisplayValue, unknown>) => (
 					<td
 						key={cell.id}
 						className="border-[1px] border-gray-300 px-4 py-2"
@@ -201,9 +192,11 @@ const TableRow = React.memo(function TableRow({
 
 export default function FriendsStatusTable({
 	friendsStatusList,
-	preFilteredData,
 	defaultStatusTypes,
-}: FriendsStatusTableProps) {
+}: {
+	friendsStatusList: FriendsStatusListItemWithDisplayValue[];
+	defaultStatusTypes?: string[];
+}) {
 	const [isMounted, setIsMounted] = useState(false);
 
 	const defaultStatusTypesSet = useMemo(() =>
@@ -262,12 +255,12 @@ export default function FriendsStatusTable({
 
 	const filteredData = useMemo(() => {
 		// まだマウントされていない場合は、サーバーからのプリフィルターデータを使用
-		if (!isMounted && preFilteredData) {
-			return preFilteredData;
+		if (!isMounted) {
+			return friendsStatusList;
 		}
 
 		// クライアント側でフィルタリングとソートを行う
-		return getFilteredAndSortedData(
+		return sortAndFilterFriendsList(
 			friendsStatusList,
 			selectedStatusTypes,
 			hideNullStatus,
@@ -280,7 +273,6 @@ export default function FriendsStatusTable({
 		selectedStatusTypes,
 		hideNullStatus,
 		isMounted,
-		preFilteredData,
 		sorting,
 		showCostumeBonus,
 	]);
@@ -477,7 +469,7 @@ export default function FriendsStatusTable({
 				},
 			}),
 		];
-		return cols as ColumnDef<ProcessedFriendsStatusListItem, unknown>[];
+		return cols as ColumnDef<FriendsStatusListItemWithDisplayValue, unknown>[];
 	}, [showCostumeBonus]);
 
 	if (!isMounted) return null;

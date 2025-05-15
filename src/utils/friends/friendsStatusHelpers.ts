@@ -1,4 +1,4 @@
-import { ProcessedFriendsStatusListItem } from "@/utils/friends/friendsStatus";
+import { FriendsStatusListItemWithDisplayValue } from "@/utils/friends/friendsStatus";
 
 export const STATUS_TYPES = [
 	"☆6/Lv200/野生4",
@@ -13,7 +13,7 @@ export const STATUS_TYPES = [
  * 検索用のテキストを取得する
  */
 export function getSearchableText(
-	row: ProcessedFriendsStatusListItem,
+	row: FriendsStatusListItemWithDisplayValue,
 	columnId: string
 ): string {
 	switch (columnId) {
@@ -34,14 +34,14 @@ export function getSearchableText(
 /**
  * ステータスタイプでフィルタリングおよびソートされたデータを取得する
  */
-export function getFilteredAndSortedData(
-	data: ProcessedFriendsStatusListItem[],
+export function sortAndFilterFriendsList(
+	data: FriendsStatusListItemWithDisplayValue[],
 	selectedStatusTypes: Set<string>,
 	hideNullStatus: boolean,
 	sortBy: string = "kemosute",
 	sortDesc: boolean = true,
 	showCostumeBonus: boolean = false
-): ProcessedFriendsStatusListItem[] {
+): FriendsStatusListItemWithDisplayValue[] {
 	const filtered = data.filter((item) => {
 		if (
 			hideNullStatus &&

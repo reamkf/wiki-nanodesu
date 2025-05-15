@@ -218,7 +218,7 @@ export function calculateFriendsStatus(
 }
 
 // 事前計算済みのデータ型
-export interface ProcessedFriendsStatusListItem extends FriendsStatusListItem {
+export interface FriendsStatusListItemWithDisplayValue extends FriendsStatusListItem {
 	sortValues: {
 		name: string;
 		attribute: FriendsDataRow["attribute"];
@@ -266,11 +266,11 @@ function calculateStatusWithCostume(
 	return { value: baseValue + costumeBonus, bonus: costumeBonus };
 }
 
-export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusListItem[]> {
+export async function getFriendsStatusList(): Promise<FriendsStatusListItemWithDisplayValue[]> {
 	const friendsData = await getFriendsData();
 
 	// メモリ効率のため、一度に1つのフレンズのデータを処理
-	const result: ProcessedFriendsStatusListItem[] = [];
+	const result: FriendsStatusListItemWithDisplayValue[] = [];
 	let index = 0;
 
 	for (const friend of friendsData) {

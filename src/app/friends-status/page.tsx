@@ -1,29 +1,24 @@
 import { generateMetadata } from "../metadata";
 import FriendsStatusTable from "./page.client";
 import { PageTitle } from "@/components/PageTitle";
-import { getFriendsStatusList, ProcessedFriendsStatusListItem } from "@/utils/friends/friendsStatus";
-import { STATUS_TYPES, getFilteredAndSortedData } from "@/utils/friends/friendsStatusHelpers";
+import { getFriendsStatusList } from "@/utils/friends/friendsStatus";
+import { STATUS_TYPES, sortAndFilterFriendsList } from "@/utils/friends/friendsStatusHelpers";
 
 export const metadata = generateMetadata({
 	title: "フレンズステータスランキング",
 });
 
-// デフォルトのフィルタリングとソートをサーバー側で実行
-async function getProcessedStatusList(): Promise<{
-	allData: ProcessedFriendsStatusListItem[];
-	filteredData: ProcessedFriendsStatusListItem[];
-}> {
+// デフォルトのソートをサーバー側で実行
+async function getSortedStatusList(){
 	const allData = await getFriendsStatusList();
 
-	// デフォルトのフィルター設定
 	const defaultStatusTypesSet = new Set(STATUS_TYPES);
 	const hideNullStatus = false;
 	const sortBy = "kemosute";
 	const sortDesc = true;
 	const showCostumeBonus = false;
 
-	// サーバー側でフィルタリングとソートを実行
-	const filteredData = getFilteredAndSortedData(
+	const sortedData = sortAndFilterFriendsList(
 		allData,
 		defaultStatusTypesSet,
 		hideNullStatus,
@@ -32,18 +27,15 @@ async function getProcessedStatusList(): Promise<{
 		showCostumeBonus
 	);
 
-	return { allData, filteredData };
+	return sortedData;
 }
 
 export default async function FriendsStatus() {
-	const { allData, filteredData } = await getProcessedStatusList();
+	const sortedFriendsStatusList = await getSortedStatusList();
 
 	return (
 		<div>
 			<PageTitle title="フレンズステータスランキング" />
-			{/* <p className="mb-4 text-xl font-bold">
-				※このページは製作途中です。
-			</p> */}
 
 			<p className="mb-4">
 				<span className="flex items-center gap-2">
@@ -52,8 +44,7 @@ export default async function FriendsStatus() {
 			</p>
 
 			<FriendsStatusTable
-				friendsStatusList={allData}
-				preFilteredData={filteredData}
+				friendsStatusList={sortedFriendsStatusList}
 				defaultStatusTypes={Array.from(STATUS_TYPES)}
 			/>
 		</div>
