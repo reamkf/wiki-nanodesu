@@ -1,10 +1,8 @@
-import { readFileSync } from "fs";
-import { join } from "path";
-import Papa from "papaparse";
 import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV } from "@/types/friends";
 import { BasicStatus } from "@/types/friendsOrPhoto";
 import { calculateFriendsStatus, getLv99FromLv90, isStatusNull } from "@/utils/friends/friendsStatus";
 import { PhotoAttribute } from "@/types/photo";
+import { readCsv } from '../utils/readCsv';
 
 function convertToNumberElseNull(value: unknown): number | null {
 	if (typeof value === 'number') return value;
@@ -178,52 +176,46 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 		return friendsDataCache;
 	}
 
-    const csvPath = join(process.cwd(), "csv", "フレンズデータ.csv");
-    const csvFile = readFileSync(csvPath, "utf-8");
+	return readCsv<RawFriendsCSV, FriendsDataRow>(
+		'フレンズデータ.csv',
+		{},
+		async (data: RawFriendsCSV[]) => {
+			const parsedData = await Promise.all(data.map(async (row) => {
+				const convertToBoolean = (value: unknown): boolean => {
+					if (typeof value === 'string') return value !== '';
+					if (typeof value === 'boolean') return value;
+					return false;
+				};
 
-    return new Promise<FriendsDataRow[]>(async (resolve) => {
-        Papa.parse(csvFile, {
-            header: true,
-            dynamicTyping: true,
-            skipEmptyLines: true,
-            complete: async (results) => {
-                const parsedData = await Promise.all((results.data as RawFriendsCSV[]).map(async (row) => {
-					const convertToBoolean = (value: unknown): boolean => {
-						if (typeof value === 'string') return value !== '';
-						if (typeof value === 'boolean') return value;
-						return false;
-					};
-
-					return {
-						id: row.ID || '',
-						name: row.フレンズ名 || '',
-						secondName: row.属性違い二つ名 || '',
-						isHc: convertToBoolean(row.HC),
-						attribute: (row.属性 as FriendsAttribute) || FriendsAttribute.friendry,
-						implementDate: row.実装日 || '',
-						implementType: row.実装種別 || '',
-						implementTypeDetail: row.実装種別詳細 || '',
-						listIndex: row.一覧順 || 0,
-						iconUrl: row.アイコンURL || '',
-						rarity: row.初期けも級 || 0,
-						hasYasei5: convertToBoolean(row.野生大解放),
-						has12poke: convertToBoolean(row['12ポケ']),
-						numOfClothes: row.特別衣装数 || 0,
-						cv: row.CV || '',
-						status: await parseFriendsStatus(row),
-						wildPhotoAttribute: (row.動物フォト属性 as PhotoAttribute) || PhotoAttribute.none,
-						wildPhotoTrait: row.動物フォトとくせい効果変化前 || '',
-						wildPhotoTraitChanged: row.動物フォトとくせい効果変化後 || '',
-					};
-                }));
-				const filledData = await Promise.all(parsedData.map(async (data) => {
-					return await fillStatuses(data);
-				}));
-				friendsDataCache = filledData;
-                resolve(filledData);
-            },
-        });
-    });
+				return {
+					id: row.ID || '',
+					name: row.フレンズ名 || '',
+					secondName: row.属性違い二つ名 || '',
+					isHc: convertToBoolean(row.HC),
+					attribute: (row.属性 as FriendsAttribute) || FriendsAttribute.friendry,
+					implementDate: row.実装日 || '',
+					implementType: row.実装種別 || '',
+					implementTypeDetail: row.実装種別詳細 || '',
+					listIndex: row.一覧順 || 0,
+					iconUrl: row.アイコンURL || '',
+					rarity: row.初期けも級 || 0,
+					hasYasei5: convertToBoolean(row.野生大解放),
+					has12poke: convertToBoolean(row['12ポケ']),
+					numOfClothes: row.特別衣装数 || 0,
+					cv: row.CV || '',
+					status: await parseFriendsStatus(row),
+					wildPhotoAttribute: (row.動物フォト属性 as PhotoAttribute) || PhotoAttribute.none,
+					wildPhotoTrait: row.動物フォトとくせい効果変化前 || '',
+					wildPhotoTraitChanged: row.動物フォトとくせい効果変化後 || '',
+				};
+			}));
+			const filledData = await Promise.all(parsedData.map(async (dataRow) => {
+				return await fillStatuses(dataRow);
+			}));
+			friendsDataCache = filledData;
+			return filledData;
+		}
+	);
 }
 
 export async function getFriendsDataRow(id: string): Promise<FriendsDataRow | null> {

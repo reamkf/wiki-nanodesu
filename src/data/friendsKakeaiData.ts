@@ -1,35 +1,15 @@
-import fs from 'fs';
-import path from 'path';
-import Papa from 'papaparse';
 import { FriendNode, FriendLink, GraphData } from '@/types/friends-kakeai-graph';
 import { getFriendsData } from '@/data/friendsData';
 import { getWikiNanodaPageUrl } from '@/utils/seesaaWiki';
-
-const readCsvFile = <T>(filePath: string): Promise<T[]> => {
-	return new Promise((resolve, reject) => {
-		try {
-			const csvPath = path.join(process.cwd(), filePath);
-			const csvFile = fs.readFileSync(csvPath, 'utf-8');
-
-			Papa.parse(csvFile, {
-				header: true,
-				skipEmptyLines: true,
-				complete: (results) => {
-					resolve(results.data as T[]);
-				},
-				error: (error: Error) => {
-					reject(error);
-				}
-			});
-		} catch (error) {
-			reject(error);
-		}
-	});
-};
+import { readCsv } from '../utils/readCsv';
 
 export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 	try {
-		const kakeaiData = await readCsvFile<Record<string, string>>('csv/フレンズ掛け合い一覧.csv');
+		const kakeaiData = await readCsv<Record<string, string>, Record<string, string>>(
+			'フレンズ掛け合い一覧.csv',
+			{},
+			async (data) => data
+		);
 		const friendsData = await getFriendsData();
 
 		// ノードとリンクを格納する配列

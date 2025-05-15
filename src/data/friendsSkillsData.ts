@@ -1,9 +1,7 @@
-import { readFileSync } from "fs";
-import { join } from "path";
-import Papa from "papaparse";
 import { SkillEffect, RawSkillCSV, RAW_SKILL_CSV_HEADERS, SkillWithFriend } from "@/types/friendsSkills";
 import { getFriendsData } from "@/data/friendsData";
 import { FriendsDataRow } from "@/types/friends";
+import { readCsv } from "../utils/readCsv";
 
 // キャッシュ用の変数
 let skillsDataCache: SkillEffect[] | null = null;
@@ -19,56 +17,42 @@ export async function getSkillsData(): Promise<SkillEffect[]> {
 		return skillsDataCache;
 	}
 
-	const csvPath = join(process.cwd(), "csv", "スキル別フレンズ一覧.csv");
-	const csvFile = readFileSync(csvPath, "utf-8");
-
-	return new Promise<SkillEffect[]>((resolve) => {
-		Papa.parse(csvFile, {
-			header: true,
-			dynamicTyping: true,
-			skipEmptyLines: true,
-			// 重複ヘッダーを自動的にリネームしないようにする
-			transformHeader: (header: string, index: number) => {
-				// ヘッダーがRAW_SKILL_CSV_HEADERSに含まれているかチェック
+	return readCsv<RawSkillCSV, SkillEffect>(
+		'スキル別フレンズ一覧.csv',
+		{
+			transformHeader: (header: string, index?: number) => {
 				if (RAW_SKILL_CSV_HEADERS.includes(header as typeof RAW_SKILL_CSV_HEADERS[number])) {
 					return header;
 				}
-				// 含まれていない場合は空文字を返して無視する
 				console.warn(`Unknown header at index ${index}: ${header}`);
-				return `__ignored_${index}`;
-			},
-			complete: (results) => {
-				const parsedData = (results.data as RawSkillCSV[]).map((row) => {
-					return {
-						effectType: String(row['効果種別'] || ''),
-						friendsId: String(row['フレンズID'] || ''),
-						skillType: String(row['わざ種別'] || ''),
-						power: String(row['威力'] || ''),
-						target: String(row['対象'] || ''),
-						condition: String(row['条件'] || ''),
-						effectTurn: String(row['効果ターン'] || ''),
-						activationRate: String(row['発動率'] || ''),
-						activationCount: String(row['発動回数'] || ''),
-						note: String(row['備考'] || '')
-					};
-				});
-
-				// 無効なデータを除外
-				const validData = parsedData.filter(item =>
-					item.effectType && item.effectType.trim() !== '' &&
-					(item.friendsId || item.skillType)
-				) as SkillEffect[];
-
-				// キャッシュを更新
-				skillsDataCache = validData;
-				resolve(validData);
-			},
-			error: (error: Error) => {
-				console.error("Error parsing CSV:", error);
-				resolve([]);
+				return `__ignored_${index !== undefined ? index : 'unknown'}`;
 			}
-		});
-	});
+		},
+		async (data: RawSkillCSV[]) => {
+			const parsedData = data.map((row) => {
+				return {
+					effectType: String(row['効果種別'] || ''),
+					friendsId: String(row['フレンズID'] || ''),
+					skillType: String(row['わざ種別'] || ''),
+					power: String(row['威力'] || ''),
+					target: String(row['対象'] || ''),
+					condition: String(row['条件'] || ''),
+					effectTurn: String(row['効果ターン'] || ''),
+					activationRate: String(row['発動率'] || ''),
+					activationCount: String(row['発動回数'] || ''),
+					note: String(row['備考'] || '')
+				};
+			});
+
+			const validData = parsedData.filter(item =>
+				item.effectType && item.effectType.trim() !== '' &&
+				(item.friendsId || item.skillType)
+			) as SkillEffect[];
+
+			skillsDataCache = validData;
+			return validData;
+		}
+	);
 }
 
 /**

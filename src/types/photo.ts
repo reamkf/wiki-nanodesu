@@ -59,6 +59,7 @@ export interface RawPhotoCSV {
 	変化後たいりょく: number;
 	変化後こうげき: number;
 	変化後まもり: number;
+	[key: string]: unknown;
 }
 
 export const RAW_PHOTO_CSV_HEADERS = [
