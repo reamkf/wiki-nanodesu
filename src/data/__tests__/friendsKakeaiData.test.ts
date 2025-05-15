@@ -94,4 +94,26 @@ describe('getFriendsKakeaiData', () => {
 			['ブラックバック', 'オーストラリアデビル', 'タスマニアデビル', 'でびるさま', 'ライジュウ']
 		]);
 	});
+
+	// 基本的なグラフ整合性テストを追加
+	describe('基本的なグラフ整合性', async () => {
+		test('全てのノードにプライマリグループが設定されている', () => {
+			friendsKakeaiData.nodes.forEach(node => {
+				expect(node.group).toBeDefined();
+				expect(node.groups).toContain(node.group!);
+			});
+		});
+
+		test('全てのリンクのvalueは1である', () => {
+			expect(friendsKakeaiData.links.every(link => link.value === 1)).toBe(true);
+		});
+
+		test('全てのリンクのsourceとtargetが有効なノードIDである', () => {
+			const nodeIds = new Set(friendsKakeaiData.nodes.map(n => n.id));
+			friendsKakeaiData.links.forEach(link => {
+				expect(nodeIds.has(link.source)).toBe(true);
+				expect(nodeIds.has(link.target)).toBe(true);
+			});
+		});
+	});
 });
