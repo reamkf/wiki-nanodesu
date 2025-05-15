@@ -100,19 +100,32 @@ const statusTypeBackgroundColor: {
 	},
 };
 
-const renderYaseiLevel = (statusType: string) => {
-	const [, lv, yasei] = statusType.split("/");
+function StatusTypeLabel({
+	statusType,
+	showRank = true,
+	showLv = true,
+	showYasei = true,
+} : {
+	statusType: string;
+	showRank?: boolean;
+	showLv?: boolean;
+	showYasei?: boolean;
+}){
+	const [rank, lv, yasei] = statusType.split("/");
 	const isYasei5 = statusType.includes("野生5");
 
 	return (
 		<>
-			{lv}/
-			{isYasei5 ? (
-				<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded-sm">
-					{yasei}
-				</span>
-			) : (
-				`${yasei}`
+			{showRank && rank + "/"}
+			{showLv && lv + "/"}
+			{showYasei && (
+				isYasei5 ? (
+					<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded-sm">
+						{yasei}
+					</span>
+				) : (
+					`${yasei}`
+				)
 			)}
 		</>
 	);
@@ -318,21 +331,11 @@ export default function FriendsStatusTable({
 				id: "name",
 				header: "フレンズ名",
 				cell: (info) => {
-					const statusType = info.row.original.statusType;
-					const isYasei5 = statusType.includes("野生5");
-					const [baseText, yasei] = statusType.split("/野生");
 					return (
 						<div>
 							<FriendsNameLink friend={info.row.original.friendsDataRow} />
 							<div className="text-xs text-gray-700">
-								{baseText}/
-								{isYasei5 ? (
-									<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded-sm">
-										野生{yasei}
-									</span>
-								) : (
-									`野生${yasei}`
-								)}
+								<StatusTypeLabel statusType={info.row.original.statusType}/>
 							</div>
 						</div>
 					);
@@ -483,7 +486,7 @@ export default function FriendsStatusTable({
 	const statusTypeOptions: CheckboxOption[] = STATUS_TYPES.map(
 		(statusType) => ({
 			id: statusType,
-			label: renderYaseiLevel(statusType),
+			label: <StatusTypeLabel statusType={statusType} showRank={false} />,
 			styles: {
 				backgroundColor: {
 					unchecked: statusTypeBackgroundColor[statusType].checkbox.unchecked,
