@@ -349,7 +349,7 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 					hp: statusType.status.hp === null ? -Infinity : statusType.status.hp,
 					atk: statusType.status.atk === null ? -Infinity : statusType.status.atk,
 					def: statusType.status.def === null ? -Infinity : statusType.status.def,
-					avoid: friend.status.avoid === null ? -Infinity : friend.status.avoid,
+					avoid: statusType.yasei === 5 ? (friend.status.avoidYasei5 ?? -Infinity) : friend.status.avoid ?? -Infinity,
 					kemosuteWithCostume: kemosuteWithCostume.value === null ? -Infinity : kemosuteWithCostume.value,
 					hpWithCostume: hpWithCostume.value === null ? -Infinity : hpWithCostume.value,
 					atkWithCostume: atkWithCostume.value === null ? -Infinity : atkWithCostume.value,
