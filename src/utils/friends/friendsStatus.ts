@@ -345,23 +345,23 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 				sortValues: {
 					name: friend.name,
 					attribute: friend.attribute,
-					kemosute: kemosute === null ? -Infinity : kemosute,
-					hp: statusType.status.hp === null ? -Infinity : statusType.status.hp,
-					atk: statusType.status.atk === null ? -Infinity : statusType.status.atk,
-					def: statusType.status.def === null ? -Infinity : statusType.status.def,
-					avoid: statusType.yasei === 5 ? (friend.status.avoidYasei5 ?? -Infinity) : friend.status.avoid ?? -Infinity,
-					kemosuteWithCostume: kemosuteWithCostume.value === null ? -Infinity : kemosuteWithCostume.value,
-					hpWithCostume: hpWithCostume.value === null ? -Infinity : hpWithCostume.value,
-					atkWithCostume: atkWithCostume.value === null ? -Infinity : atkWithCostume.value,
-					defWithCostume: defWithCostume.value === null ? -Infinity : defWithCostume.value,
+					kemosute: kemosute ?? -Infinity,
+					hp: statusType.status.hp ?? -Infinity,
+					atk: statusType.status.atk ?? -Infinity,
+					def: statusType.status.def ?? -Infinity,
+					avoid: statusType.yasei === 5 ? (friend.status.avoidYasei5 ?? -Infinity) : (friend.status.avoid ?? -Infinity),
+					kemosuteWithCostume: kemosuteWithCostume.value ?? -Infinity,
+					hpWithCostume: hpWithCostume.value ?? -Infinity,
+					atkWithCostume: atkWithCostume.value ?? -Infinity,
+					defWithCostume: defWithCostume.value ?? -Infinity,
 				},
 				// 表示用の文字列を事前計算
 				displayValues: {
-					kemosute: kemosute === null ? "?????" : Math.round(kemosute).toLocaleString(),
-					hp: statusType.status.hp === null ? "?????" : statusType.status.hp.toLocaleString(),
-					atk: statusType.status.atk === null ? "?????" : statusType.status.atk.toLocaleString(),
-					def: statusType.status.def === null ? "?????" : statusType.status.def.toLocaleString(),
-					avoid: friend.status.avoid === null ? "???%" : toPercent((statusType.yasei === 5 ? friend.status.avoidYasei5 : friend.status.avoid) ?? -1, 1)
+					kemosute: kemosute && Math.round(kemosute).toLocaleString() || "?????",
+					hp: statusType.status.hp?.toLocaleString() || "?????",
+					atk: statusType.status.atk?.toLocaleString() || "?????",
+					def: statusType.status.def?.toLocaleString() || "?????",
+					avoid: ((avoid: number | null) => avoid && toPercent(avoid, 1) || "???%")(statusType.yasei === 5 ? friend.status.avoidYasei5 : friend.status.avoid)
 				},
 				originalIndex: index++,
 			});
