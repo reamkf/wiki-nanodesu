@@ -1,4 +1,4 @@
-import { FriendsAttribute } from "@/types/friends";
+import { FriendsAttribute, FriendsDataRow } from "@/types/friends";
 import { PhotoAttribute } from "@/types/photo";
 
 export const AttributeOrder = {
@@ -15,4 +15,8 @@ export const AttributeOrder = {
 
 export function sortAttribute(attributeA: FriendsAttribute | PhotoAttribute, attributeB: FriendsAttribute | PhotoAttribute): number {
 	return AttributeOrder[attributeB] - AttributeOrder[attributeA];
+}
+
+export function getFullName(friends: FriendsDataRow): string {
+	return friends.secondName ? `【${friends.secondName}】${friends.name}` : friends.name;
 }
