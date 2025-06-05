@@ -20,8 +20,8 @@ export const PhotoNameLink = memo(function PhotoNameLink({ photo, isChanged }: P
 					<span>☆{photo.rarity}</span>
 					{isChanged !== undefined && (
 						isChanged ?
-							<span className="bg-pink-100 text-pink-500 p-[4px] text-[0.6rem] rounded-sm">変化後</span>
-						:   <span className="bg-gray-100 text-gray-700 p-[4px] text-[0.6rem] rounded-sm">変化前</span>
+							<span className="bg-pink-100 text-pink-500 px-[4px] py-[2px] text-[0.6rem] rounded-sm">変化後</span>
+						:   <span className="bg-gray-100 text-gray-700 px-[4px] py-[2px] text-[0.6rem] rounded-sm">変化前</span>
 					)}
 				</div>
 				{photo.name}
