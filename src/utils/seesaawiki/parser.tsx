@@ -1,7 +1,9 @@
 import React from "react";
 
 export function parseSeesaaWikiNewLine(text: string): React.ReactElement {
-	const parts = text.split('~~');
+	text = text.replace(/(~~)(~~~)*/g, '~~~$2');
+	text = text.replace(/~~~/g, '\n');
+	const parts = text.split('\n');
 
 	return (
 		<>
