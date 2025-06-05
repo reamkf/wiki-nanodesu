@@ -44,8 +44,16 @@ const sheetConfigs = [
 			startColumn: 4,
 			endColumn: 15
 		}
-	}
-]
+	},
+	{
+		sheetName: "フォト火力データCSV用",
+		filePath: "csv/フォト火力データ.csv",
+		range: {
+			startColumn: 1,
+			endColumn: 4,
+		},
+	},
+];
 
 // ================== Add menu =======================
 
