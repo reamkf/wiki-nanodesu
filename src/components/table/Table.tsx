@@ -78,6 +78,7 @@ export interface SortableTableProps<TData, TValue> {
 	};
 	initialSorting?: SortingState;
 	rowComponent?: React.FC<{ row: Row<TData> }>;
+	rowMinHeight?: string;
 }
 
 interface PaginationControlsProps<TData> { table: ReactTable<TData>; }
@@ -153,7 +154,7 @@ export interface ColumnMeta {
 }
 
 // デフォルトの行レンダラコンポーネント
-function DefaultRowComponent<TData>({ row }: { row: Row<TData> }) {
+function DefaultRowComponent<TData>({ row, minHeight }: { row: Row<TData>; minHeight?: string }) {
 	return (
 		<tr key={row.id} className="hover:bg-gray-50">
 			{row.getVisibleCells().map(cell => {
@@ -162,7 +163,11 @@ function DefaultRowComponent<TData>({ row }: { row: Row<TData> }) {
 					<td
 						key={cell.id}
 						className="p-2 border-b text-sm"
-						style={{ textAlign: meta?.align || "left" }}
+						style={{
+							textAlign: meta?.align || "left",
+							height: minHeight || 'auto',
+							verticalAlign: 'middle'
+						}}
 					>
 						{flexRender(cell.column.columnDef.cell, cell.getContext())}
 					</td>
@@ -179,6 +184,7 @@ export function Table<TData, TValue>({
 	initialState,
 	initialSorting,
 	rowComponent,
+	rowMinHeight,
 }: SortableTableProps<TData, TValue>) {
 	// rowComponent が指定されていない場合はデフォルトを使用するのです
 	const RowComponent = rowComponent ?? DefaultRowComponent;
@@ -399,7 +405,7 @@ export function Table<TData, TValue>({
 				</thead>
 				<tbody>
 					{table.getRowModel().rows.map((row) => (
-						<RowComponent key={row.id} row={row} />
+						<RowComponent key={row.id} row={row} minHeight={rowMinHeight} />
 					))}
 				</tbody>
 			</table>
