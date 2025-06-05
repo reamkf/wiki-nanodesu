@@ -67,10 +67,18 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 		implementDate: friend.implementDate,
 		rarity: 3,
 		attribute: friend.wildPhotoAttribute as PhotoAttribute || PhotoAttribute.none,
-		trait: friend.wildPhotoTrait,
-		traitChanged: friend.wildPhotoTraitChanged,
+		illustratorName: '',
+		iconUrl: '',
+		iconUrlChanged: '',
+		trait: friend.wildPhotoTrait || '',
+		traitChanged: friend.wildPhotoTraitChanged || '',
+		status: {
+			status1: parseBasicStatus(null, null, null, true),
+			statusMedium: parseBasicStatus(null, null, null, true),
+			statusMax: parseBasicStatus(null, null, null, true),
+		},
 		isWildPhoto: true,
-	} as unknown as PhotoDataRow));
+	} as PhotoDataRow));
 
 	return readCsv<RawPhotoCSV, PhotoDataRow>(
 		'フォトデータ.csv',
