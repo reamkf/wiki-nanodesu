@@ -1,5 +1,5 @@
 import { FriendsAttributeIconAndName } from '@/components/friends/FriendsAttributeIconAndName';
-import { PhotoAttributeIconAndName } from '@/components/photo/PhotoAttributeIconAndName';
+import { PhotoAttributeIcon } from '@/components/photo/PhotoAttributeIconAndName';
 import { FriendsDataRow } from '@/types/friends';
 import { PhotoDataRow } from '@/types/photo';
 import { formatText } from './GenericDataTable';
@@ -27,7 +27,7 @@ interface DataWithPower {
  */
 export const AttributeCell = ({ data }: { data: DataWithAttribute }) => {
 	if (data.isPhoto && data.photoDataRow?.attribute) {
-		return <PhotoAttributeIconAndName attribute={data.photoDataRow.attribute} />;
+		return <PhotoAttributeIcon attribute={data.photoDataRow.attribute} />;
 	} else if (!data.isPhoto && data.friendsDataRow?.attribute) {
 		return <FriendsAttributeIconAndName attribute={data.friendsDataRow.attribute} />;
 	}
