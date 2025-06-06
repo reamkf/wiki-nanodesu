@@ -18,18 +18,18 @@
 サイトに関するIssueやPull Requestを歓迎します。
 
 ## 技術スタック
-- Bun 1.2.2
-- Next.js 15.2.1 (App Router, SSG)
-- TypeScript 5.7.3
-- Tailwind CSS 3.4.11
-- React 19.0.0
+- Bun 1.2
+- Next.js 15 (App Router, SSG)
+- TypeScript
+- Tailwind CSS v4
+- React 19
 - GitHub Pages
 
 ## 開発環境
 
 ### セットアップ
 1. Gitをインストールする
-2. Bun 1.2.2をインストールする
+2. Bunをインストールする
 3. リポジトリをcloneする
 	```sh
 	git clone https://github.com/reamkf/wiki-nanodesu.git
