@@ -1,8 +1,15 @@
-name: Deploy Next.js site to Pages
+name: Deploy Next.js site to GitHub Pages
 
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - "README.md"
+      - "LICENSE.md"
+      - ".vscode/*"
+      - ".cursor/*"
+      - ".cursorignore"
+      - "gas/*"
   workflow_dispatch:
 
 permissions:
