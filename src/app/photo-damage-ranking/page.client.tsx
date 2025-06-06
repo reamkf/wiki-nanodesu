@@ -63,7 +63,13 @@ function ConditionCell({ data }: { data: DamageDataWithPhoto }) {
 };
 
 export default function ClientPage({ photoData, photoDamageData }: ClientPageProps) {
-	const [baseAttack, setBaseAttack] = useState<number>(15000);
+	const [baseAttack, setBaseAttack] = useState<number>(() => {
+		if (typeof window !== "undefined") {
+			const saved = localStorage.getItem("wiki-nanodesu.photo-damage-ranking.baseAttack");
+			return saved ? parseInt(saved) : 20000;
+		}
+		return 20000;
+	});
 	const [isMounted, setIsMounted] = useState(false);
 
 	const [selectedAttributes, setSelectedAttributes] = useState<Set<PhotoAttribute>>(() => {
@@ -96,11 +102,12 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {
+			localStorage.setItem("wiki-nanodesu.photo-damage-ranking.baseAttack", baseAttack.toString());
 			localStorage.setItem("wiki-nanodesu.photo-damage-ranking.selectedAttributes", JSON.stringify(Array.from(selectedAttributes)));
 			localStorage.setItem("wiki-nanodesu.photo-damage-ranking.selectedRarities", JSON.stringify(Array.from(selectedRarities)));
 			localStorage.setItem("wiki-nanodesu.photo-damage-ranking.selectedChangeStates", JSON.stringify(Array.from(selectedChangeStates)));
 		}
-	}, [selectedAttributes, selectedRarities, selectedChangeStates]);
+	}, [baseAttack, selectedAttributes, selectedRarities, selectedChangeStates]);
 
 	const damageDataWithPhoto = useMemo(() => {
 		return photoDamageData
