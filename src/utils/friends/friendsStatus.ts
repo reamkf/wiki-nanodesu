@@ -218,7 +218,7 @@ export function calculateFriendsStatus(
 }
 
 // 事前計算済みのデータ型
-export interface ProcessedFriendsStatusListItem extends FriendsStatusListItem {
+export interface FriendsStatusListItemWithDisplayValue extends FriendsStatusListItem {
 	sortValues: {
 		name: string;
 		attribute: FriendsDataRow["attribute"];
@@ -266,11 +266,11 @@ function calculateStatusWithCostume(
 	return { value: baseValue + costumeBonus, bonus: costumeBonus };
 }
 
-export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusListItem[]> {
+export async function getFriendsStatusList(): Promise<FriendsStatusListItemWithDisplayValue[]> {
 	const friendsData = await getFriendsData();
 
 	// メモリ効率のため、一度に1つのフレンズのデータを処理
-	const result: ProcessedFriendsStatusListItem[] = [];
+	const result: FriendsStatusListItemWithDisplayValue[] = [];
 	let index = 0;
 
 	for (const friend of friendsData) {
@@ -325,10 +325,8 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 		for (const statusType of statusTypes) {
 			const kemosute = calcKemosute(statusType.status);
 
-			// 衣装補正の計算（仮の衣装数として2を使用）
-			const costumeBonus = calculateCostumeBonus(friend.numOfClothes, friend.has12poke);
-
 			// 衣装補正込みのステータスを計算
+			const costumeBonus = calculateCostumeBonus(friend.numOfClothes, friend.has12poke);
 			const kemosuteWithCostume = calculateStatusWithCostume(kemosute, costumeBonus.kemosute ?? 0);
 			const hpWithCostume = calculateStatusWithCostume(statusType.status.hp, costumeBonus.hp ?? 0);
 			const atkWithCostume = calculateStatusWithCostume(statusType.status.atk, costumeBonus.atk ?? 0);
@@ -341,27 +339,27 @@ export async function getFriendsStatusList(): Promise<ProcessedFriendsStatusList
 				yasei: statusType.yasei,
 				status: statusType.status,
 				statusType: statusType.statusType,
-				// ソート用の数値データを事前計算
+				// ソート用の数値データ
 				sortValues: {
 					name: friend.name,
 					attribute: friend.attribute,
-					kemosute: kemosute === null ? -Infinity : kemosute,
-					hp: statusType.status.hp === null ? -Infinity : statusType.status.hp,
-					atk: statusType.status.atk === null ? -Infinity : statusType.status.atk,
-					def: statusType.status.def === null ? -Infinity : statusType.status.def,
-					avoid: friend.status.avoid === null ? -Infinity : friend.status.avoid,
-					kemosuteWithCostume: kemosuteWithCostume.value === null ? -Infinity : kemosuteWithCostume.value,
-					hpWithCostume: hpWithCostume.value === null ? -Infinity : hpWithCostume.value,
-					atkWithCostume: atkWithCostume.value === null ? -Infinity : atkWithCostume.value,
-					defWithCostume: defWithCostume.value === null ? -Infinity : defWithCostume.value,
+					kemosute: kemosute ?? -Infinity,
+					hp: statusType.status.hp ?? -Infinity,
+					atk: statusType.status.atk ?? -Infinity,
+					def: statusType.status.def ?? -Infinity,
+					avoid: statusType.yasei === 5 ? (friend.status.avoidYasei5 ?? -Infinity) : (friend.status.avoid ?? -Infinity),
+					kemosuteWithCostume: kemosuteWithCostume.value ?? -Infinity,
+					hpWithCostume: hpWithCostume.value ?? -Infinity,
+					atkWithCostume: atkWithCostume.value ?? -Infinity,
+					defWithCostume: defWithCostume.value ?? -Infinity,
 				},
-				// 表示用の文字列を事前計算
+				// 表示用の文字列
 				displayValues: {
-					kemosute: kemosute === null ? "?????" : Math.round(kemosute).toLocaleString(),
-					hp: statusType.status.hp === null ? "?????" : statusType.status.hp.toLocaleString(),
-					atk: statusType.status.atk === null ? "?????" : statusType.status.atk.toLocaleString(),
-					def: statusType.status.def === null ? "?????" : statusType.status.def.toLocaleString(),
-					avoid: friend.status.avoid === null ? "???%" : toPercent((statusType.yasei === 5 ? friend.status.avoidYasei5 : friend.status.avoid) ?? -1, 1)
+					kemosute: kemosute && Math.round(kemosute).toLocaleString() || "?????",
+					hp: statusType.status.hp?.toLocaleString() || "?????",
+					atk: statusType.status.atk?.toLocaleString() || "?????",
+					def: statusType.status.def?.toLocaleString() || "?????",
+					avoid: ((avoid: number | null) => avoid && toPercent(avoid, 1) || "???%")(statusType.yasei === 5 ? friend.status.avoidYasei5 : friend.status.avoid)
 				},
 				originalIndex: index++,
 			});

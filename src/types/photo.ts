@@ -38,6 +38,13 @@ export interface PhotoDataRow {
 	isWildPhoto: boolean;
 }
 
+export interface PhotoDamageDataRow {
+	photoId: string;
+	changeState: '変化前' | '変化後';
+	condition: string;
+	damageMultiplier: number;
+}
+
 export interface RawPhotoCSV {
 	レア度: number;
 	フォト名: string;
@@ -59,6 +66,15 @@ export interface RawPhotoCSV {
 	変化後たいりょく: number;
 	変化後こうげき: number;
 	変化後まもり: number;
+	[key: string]: unknown;
+}
+
+export interface RawPhotoDamageCSV {
+	フォトID: string;
+	'変化前・後': string;
+	条件: string;
+	与ダメ増加: number;
+	[key: string]: unknown;
 }
 
 export const RAW_PHOTO_CSV_HEADERS = [
@@ -82,4 +98,11 @@ export const RAW_PHOTO_CSV_HEADERS = [
 	'変化後たいりょく',
 	'変化後こうげき',
 	'変化後まもり',
+] as const;
+
+export const RAW_PHOTO_DAMAGE_CSV_HEADERS = [
+	'フォトID',
+	'変化前・後',
+	'条件',
+	'与ダメ増加',
 ] as const;

@@ -1,11 +1,9 @@
-import { readFileSync } from "fs";
-import { join } from "path";
-import Papa from "papaparse";
 import { AbnormalStatusEffect, RawAbnormalStatusCSV, RAW_ABNORMAL_STATUS_CSV_HEADERS, AbnormalStatusWithFriend, AbnormalStatusType } from "@/types/abnormalStatus";
 import { getFriendsData } from "@/data/friendsData";
 import { getPhotoData } from "@/data/photoData";
 import { FriendsDataRow } from "@/types/friends";
 import { PhotoDataRow } from "@/types/photo";
+import { readCsv } from "../utils/readCsv";
 
 // キャッシュ用の変数
 let abnormalStatusDataCache: AbnormalStatusEffect[] | null = null;
@@ -21,57 +19,43 @@ export async function getAbnormalStatusData(): Promise<AbnormalStatusEffect[]> {
 		return abnormalStatusDataCache;
 	}
 
-	const csvPath = join(process.cwd(), "csv", "状態異常スキル一覧.csv");
-	const csvFile = readFileSync(csvPath, "utf-8");
-
-	return new Promise<AbnormalStatusEffect[]>((resolve) => {
-		Papa.parse(csvFile, {
-			header: true,
-			dynamicTyping: true,
-			skipEmptyLines: true,
-			// 重複ヘッダーを自動的にリネームしないようにする
-			transformHeader: (header: string, index: number) => {
-				// ヘッダーがRAW_ABNORMAL_STATUS_CSV_HEADERSに含まれているかチェック
+	return readCsv<RawAbnormalStatusCSV, AbnormalStatusEffect>(
+		'状態異常スキル一覧.csv',
+		{
+			transformHeader: (header: string, index?: number) => {
 				if (RAW_ABNORMAL_STATUS_CSV_HEADERS.includes(header as typeof RAW_ABNORMAL_STATUS_CSV_HEADERS[number])) {
 					return header;
 				}
-				// 含まれていない場合は空文字を返して無視する
 				console.warn(`Unknown header at index ${index}: ${header}`);
-				return `__ignored_${index}`;
-			},
-			complete: (results) => {
-				const parsedData = (results.data as RawAbnormalStatusCSV[]).map((row) => {
-					return {
-						friendsIdOrPhotoName: String(row['フレンズID/フォト名'] || ''),
-						skillType: String(row['わざ種別'] || ''),
-						abnormalStatus: String(row['状態異常'] || ''),
-						effectType: String(row['効果種別'] || ''),
-						power: String(row['威力'] || ''),
-						target: String(row['対象'] || ''),
-						condition: String(row['条件'] || ''),
-						effectTurn: String(row['効果ターン'] || ''),
-						activationRate: String(row['発動率'] || ''),
-						activationCount: String(row['発動回数'] || ''),
-						note: String(row['備考'] || '')
-					};
-				});
-
-				// 無効なデータを除外
-				const validData = parsedData.filter(item =>
-					item.friendsIdOrPhotoName && item.friendsIdOrPhotoName.trim() !== '' &&
-					item.abnormalStatus && item.abnormalStatus.trim() !== ''
-				) as AbnormalStatusEffect[];
-
-				// キャッシュを更新
-				abnormalStatusDataCache = validData;
-				resolve(validData);
-			},
-			error: (error: Error) => {
-				console.error("Error parsing CSV:", error);
-				resolve([]);
+				return `__ignored_${index !== undefined ? index : 'unknown'}`;
 			}
-		});
-	});
+		},
+		async (data: RawAbnormalStatusCSV[]) => {
+			const parsedData = data.map((row) => {
+				return {
+					friendsIdOrPhotoName: String(row['フレンズID/フォト名'] || ''),
+					skillType: String(row['わざ種別'] || ''),
+					abnormalStatus: String(row['状態異常'] || ''),
+					effectType: String(row['効果種別'] || ''),
+					power: String(row['威力'] || ''),
+					target: String(row['対象'] || ''),
+					condition: String(row['条件'] || ''),
+					effectTurn: String(row['効果ターン'] || ''),
+					activationRate: String(row['発動率'] || ''),
+					activationCount: String(row['発動回数'] || ''),
+					note: String(row['備考'] || '')
+				};
+			});
+
+			const validData = parsedData.filter(item =>
+				item.friendsIdOrPhotoName && item.friendsIdOrPhotoName.trim() !== '' &&
+				item.abnormalStatus && item.abnormalStatus.trim() !== ''
+			) as AbnormalStatusEffect[];
+
+			abnormalStatusDataCache = validData;
+			return validData;
+		}
+	);
 }
 
 /**

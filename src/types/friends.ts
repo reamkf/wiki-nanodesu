@@ -212,4 +212,5 @@ export interface RawFriendsCSV {
 	動物フォト属性: string;
 	動物フォトとくせい効果変化前: string;
 	動物フォトとくせい効果変化後: string;
+	[key: string]: unknown;
 }

@@ -1,9 +1,7 @@
-import { readFileSync } from "fs";
-import { join } from "path";
-import Papa from "papaparse";
 import { PhotoDataRow, PhotoAttribute, PhotoStatus, RawPhotoCSV, RAW_PHOTO_CSV_HEADERS } from "@/types/photo";
 import { BasicStatus } from "@/types/friendsOrPhoto";
 import { getFriendsData } from "@/data/friendsData";
+import { readCsv } from '../utils/readCsv';
 
 function convertToNumberElseNull(value: unknown): number | null {
 	if (typeof value === 'number') return value;
@@ -55,9 +53,12 @@ export async function parsePhotoStatus(data: RawPhotoCSV): Promise<PhotoStatus> 
 	};
 }
 
+let photoDataCache: PhotoDataRow[] | null = null;
+
 export async function getPhotoData(): Promise<PhotoDataRow[]> {
-    const csvPath = join(process.cwd(), "csv", "フォトデータ.csv");
-    const csvFile = readFileSync(csvPath, "utf-8");
+	if (photoDataCache) {
+		return photoDataCache;
+	}
 
 	const friendsData = await getFriendsData();
 	const wildPhotoData = friendsData.filter(friend => !friend.isHc).map(friend => ({
@@ -66,40 +67,47 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 		implementDate: friend.implementDate,
 		rarity: 3,
 		attribute: friend.wildPhotoAttribute as PhotoAttribute || PhotoAttribute.none,
-		trait: friend.wildPhotoTrait,
-		traitChanged: friend.wildPhotoTraitChanged,
+		illustratorName: '',
+		iconUrl: '',
+		iconUrlChanged: '',
+		trait: friend.wildPhotoTrait || '',
+		traitChanged: friend.wildPhotoTraitChanged || '',
+		status: {
+			status1: parseBasicStatus(null, null, null, true),
+			statusMedium: parseBasicStatus(null, null, null, true),
+			statusMax: parseBasicStatus(null, null, null, true),
+		},
 		isWildPhoto: true,
-	} as unknown as PhotoDataRow))
+	} as PhotoDataRow));
 
-    return new Promise<PhotoDataRow[]>(async (resolve) => {
-        Papa.parse(csvFile, {
-            header: true,
-            dynamicTyping: true,
-            skipEmptyLines: true,
-            transformHeader: (header: string) => {
-                return RAW_PHOTO_CSV_HEADERS.includes(header as typeof RAW_PHOTO_CSV_HEADERS[number]) ? header : '';
-            },
-            complete: async (results) => {
-                const parsedData = await Promise.all((results.data as RawPhotoCSV[]).map(async (row) => {
-					return {
-						name: row.フォト名 || '',
-						rarity: row.レア度 || 0,
-						attribute: (row.属性 as PhotoAttribute) || PhotoAttribute.none,
-						implementType: row.入手 || '',
-						implementDate: row.実装日 || '',
-						illustratorName: row.イラストレーター名 || '',
-						iconUrl: row.変化前アイコンURL || '',
-						iconUrlChanged: row.変化後アイコンURL || '',
-						trait: row['とくせい(変化前)'] || '',
-						traitChanged: row['とくせい(変化後)'] || '',
-						status: await parsePhotoStatus(row),
-						isWildPhoto: false,
-					};
-                }));
-				resolve([...parsedData, ...wildPhotoData]);
-            },
-        });
-    });
+	return readCsv<RawPhotoCSV, PhotoDataRow>(
+		'フォトデータ.csv',
+		{
+			transformHeader: (header: string) => {
+				return RAW_PHOTO_CSV_HEADERS.includes(header as typeof RAW_PHOTO_CSV_HEADERS[number]) ? header : '';
+			}
+		},
+		async (data: RawPhotoCSV[]) => {
+			const parsedData = await Promise.all(data.map(async (row) => {
+				return {
+					name: row.フォト名 || '',
+					rarity: row.レア度 || 0,
+					attribute: (row.属性 as PhotoAttribute) || PhotoAttribute.none,
+					implementType: row.入手 || '',
+					implementDate: row.実装日 || '',
+					illustratorName: row.イラストレーター名 || '',
+					iconUrl: row.変化前アイコンURL || '',
+					iconUrlChanged: row.変化後アイコンURL || '',
+					trait: row['とくせい(変化前)'] || '',
+					traitChanged: row['とくせい(変化後)'] || '',
+					status: await parsePhotoStatus(row),
+					isWildPhoto: false,
+				};
+			}));
+			photoDataCache = [...parsedData, ...wildPhotoData];
+			return photoDataCache;
+		}
+	);
 }
 
 export async function getPhotoDataByName(name: string): Promise<PhotoDataRow | null> {

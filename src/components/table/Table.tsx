@@ -17,7 +17,6 @@ import {
 	FilterFnOption,
 } from "@tanstack/react-table";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { ColumnMeta } from "@/types/table";
 import { Select, MenuItem, IconButton } from "@mui/material";
 import {
 	FirstPage,
@@ -77,7 +76,9 @@ export interface SortableTableProps<TData, TValue> {
 		columnFilters?: ColumnFiltersState;
 		pagination?: PaginationState;
 	};
-	rowComponent: React.FC<{ row: Row<TData> }>;
+	initialSorting?: SortingState;
+	rowComponent?: React.FC<{ row: Row<TData> }>;
+	rowMinHeight?: string;
 }
 
 interface PaginationControlsProps<TData> { table: ReactTable<TData>; }
@@ -145,13 +146,49 @@ function PaginationControls<TData>({
 	);
 }
 
+export type AlignType = "left" | "center" | "right";
+
+export interface ColumnMeta {
+	align: AlignType;
+	width?: string;
+}
+
+// デフォルトの行レンダラコンポーネント
+function DefaultRowComponent<TData>({ row, minHeight }: { row: Row<TData>; minHeight?: string }) {
+	return (
+		<tr key={row.id} className="hover:bg-gray-50">
+			{row.getVisibleCells().map(cell => {
+				const meta = cell.column.columnDef.meta as ColumnMeta & { align?: string };
+				return (
+					<td
+						key={cell.id}
+						className="p-2 border-b text-sm"
+						style={{
+							textAlign: meta?.align || "left",
+							height: minHeight || 'auto',
+							verticalAlign: 'middle'
+						}}
+					>
+						{flexRender(cell.column.columnDef.cell, cell.getContext())}
+					</td>
+				);
+			})}
+		</tr>
+	);
+}
+
 export function Table<TData, TValue>({
 	data,
 	columns,
 	tableId,
 	initialState,
-	rowComponent: RowComponent,
+	initialSorting,
+	rowComponent,
+	rowMinHeight,
 }: SortableTableProps<TData, TValue>) {
+	// rowComponent が指定されていない場合はデフォルトを使用するのです
+	const RowComponent = rowComponent ?? DefaultRowComponent;
+
 	// localStorageのキー
 	const storageKeyPrefix = `wiki-nanodesu.Table.${tableId}`;
 
@@ -179,9 +216,9 @@ export function Table<TData, TValue>({
 		}
 	};
 
-	// 状態管理
+	// 状態管理: 初期ソートがあれば優先して適用するのです
 	const [sorting, setSorting] = useState<SortingState>(
-		() => initialState?.sorting || []
+		() => initialSorting ?? initialState?.sorting ?? []
 	);
 
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
@@ -250,7 +287,7 @@ export function Table<TData, TValue>({
 			{/* テーブル上部のページネーションコントロール */}
 			<PaginationControls table={table} />
 
-			<table className="border-collapse w-full [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
+			<table className="border-collapse min-w-fit max-w-[1920px] [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
 				<colgroup>
 					{table.getHeaderGroups()[0].headers.map((header) => {
 						const meta = header.column.columnDef.meta as ColumnMeta & {
@@ -368,7 +405,7 @@ export function Table<TData, TValue>({
 				</thead>
 				<tbody>
 					{table.getRowModel().rows.map((row) => (
-						<RowComponent key={row.id} row={row} />
+						<RowComponent key={row.id} row={row} minHeight={rowMinHeight} />
 					))}
 				</tbody>
 			</table>

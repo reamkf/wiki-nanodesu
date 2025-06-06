@@ -1,6 +1,6 @@
 "use client";
 
-import { ProcessedFriendsStatusListItem } from "@/utils/friends/friendsStatus";
+import { FriendsStatusListItemWithDisplayValue } from "@/utils/friends/friendsStatus";
 import FriendsIcon from "../../components/friends/FriendsIcon";
 import { FriendsNameLink } from "../../components/friends/FriendsNameLink";
 import {
@@ -10,28 +10,21 @@ import {
 	Cell,
 	flexRender,
 	ColumnDef,
-	FilterFn,
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
 import { sortAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
-import { Table } from "../../components/table/Table";
+import { Table } from "@/components/table/Table";
 import {
 	FilterCheckboxGroup,
 	CheckboxOption,
 } from "../../components/table/FilterCheckboxGroup";
-import { ColumnMeta } from "@/types/table";
-import { STATUS_TYPES, getSearchableText, getFilteredAndSortedData } from "@/utils/friends/friendsStatusHelpers";
+import { ColumnMeta } from "@/components/table/Table";
+import { STATUS_TYPES, getSearchableText, sortAndFilterFriendsList } from "@/utils/friends/friendsStatusHelpers";
 import { createCustomFilterFn } from "@/utils/tableFilters";
 
-const columnHelper = createColumnHelper<ProcessedFriendsStatusListItem>();
-
-interface FriendsStatusTableProps {
-	friendsStatusList: ProcessedFriendsStatusListItem[];
-	preFilteredData?: ProcessedFriendsStatusListItem[];
-	defaultStatusTypes?: string[];
-}
+const columnHelper = createColumnHelper<FriendsStatusListItemWithDisplayValue>();
 
 const statusTypeBackgroundColor: {
 	[key: string]: {
@@ -100,37 +93,48 @@ const statusTypeBackgroundColor: {
 	},
 };
 
-const renderYaseiLevel = (statusType: string) => {
-	const [, lv, yasei] = statusType.split("/");
+function StatusTypeLabel({
+	statusType,
+	showRank = true,
+	showLv = true,
+	showYasei = true,
+} : {
+	statusType: string;
+	showRank?: boolean;
+	showLv?: boolean;
+	showYasei?: boolean;
+}){
+	const [rank, lv, yasei] = statusType.split("/");
 	const isYasei5 = statusType.includes("野生5");
 
 	return (
 		<>
-			{lv}/
-			{isYasei5 ? (
-				<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded-sm">
-					{yasei}
-				</span>
-			) : (
-				`${yasei}`
+			{showRank && rank + "/"}
+			{showLv && lv + "/"}
+			{showYasei && (
+				isYasei5 ? (
+					<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded-sm">
+						{yasei}
+					</span>
+				) : (
+					`${yasei}`
+				)
 			)}
 		</>
 	);
 };
 
-interface StatusCellProps {
-	value: number;
-	isEstimated: boolean;
-	showCostumeBonus: boolean;
-	costumeBonus?: number;
-}
-
-const StatusCell: React.FC<StatusCellProps> = ({
+function StatusCell({
 	value,
 	isEstimated,
 	showCostumeBonus,
 	costumeBonus,
-}) => {
+}: {
+	value: number;
+	isEstimated: boolean;
+	showCostumeBonus: boolean;
+	costumeBonus?: number;
+}){
 	return (
 		<>
 			<div
@@ -154,13 +158,13 @@ const StatusCell: React.FC<StatusCellProps> = ({
 };
 
 // カスタム検索関数
-const customFilterFn: FilterFn<ProcessedFriendsStatusListItem> = createCustomFilterFn<ProcessedFriendsStatusListItem>(getSearchableText);
+const customFilterFn = createCustomFilterFn<FriendsStatusListItemWithDisplayValue>(getSearchableText);
 
 // メモ化された行コンポーネント
 const TableRow = React.memo(function TableRow({
 	row,
 }: {
-	row: Row<ProcessedFriendsStatusListItem>;
+	row: Row<FriendsStatusListItemWithDisplayValue>;
 }) {
 	const statusType = row.original.statusType;
 	const bgColorClass =
@@ -170,7 +174,7 @@ const TableRow = React.memo(function TableRow({
 		<tr className={bgColorClass}>
 			{row
 				.getVisibleCells()
-				.map((cell: Cell<ProcessedFriendsStatusListItem, unknown>) => (
+				.map((cell: Cell<FriendsStatusListItemWithDisplayValue, unknown>) => (
 					<td
 						key={cell.id}
 						className="border-[1px] border-gray-300 px-4 py-2"
@@ -188,9 +192,11 @@ const TableRow = React.memo(function TableRow({
 
 export default function FriendsStatusTable({
 	friendsStatusList,
-	preFilteredData,
 	defaultStatusTypes,
-}: FriendsStatusTableProps) {
+}: {
+	friendsStatusList: FriendsStatusListItemWithDisplayValue[];
+	defaultStatusTypes?: string[];
+}) {
 	const [isMounted, setIsMounted] = useState(false);
 
 	const defaultStatusTypesSet = useMemo(() =>
@@ -249,12 +255,12 @@ export default function FriendsStatusTable({
 
 	const filteredData = useMemo(() => {
 		// まだマウントされていない場合は、サーバーからのプリフィルターデータを使用
-		if (!isMounted && preFilteredData) {
-			return preFilteredData;
+		if (!isMounted) {
+			return friendsStatusList;
 		}
 
 		// クライアント側でフィルタリングとソートを行う
-		return getFilteredAndSortedData(
+		return sortAndFilterFriendsList(
 			friendsStatusList,
 			selectedStatusTypes,
 			hideNullStatus,
@@ -267,7 +273,6 @@ export default function FriendsStatusTable({
 		selectedStatusTypes,
 		hideNullStatus,
 		isMounted,
-		preFilteredData,
 		sorting,
 		showCostumeBonus,
 	]);
@@ -318,21 +323,11 @@ export default function FriendsStatusTable({
 				id: "name",
 				header: "フレンズ名",
 				cell: (info) => {
-					const statusType = info.row.original.statusType;
-					const isYasei5 = statusType.includes("野生5");
-					const [baseText, yasei] = statusType.split("/野生");
 					return (
 						<div>
 							<FriendsNameLink friend={info.row.original.friendsDataRow} />
 							<div className="text-xs text-gray-700">
-								{baseText}/
-								{isYasei5 ? (
-									<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded-sm">
-										野生{yasei}
-									</span>
-								) : (
-									`野生${yasei}`
-								)}
+								<StatusTypeLabel statusType={info.row.original.statusType}/>
 							</div>
 						</div>
 					);
@@ -474,7 +469,7 @@ export default function FriendsStatusTable({
 				},
 			}),
 		];
-		return cols as ColumnDef<ProcessedFriendsStatusListItem, unknown>[];
+		return cols as ColumnDef<FriendsStatusListItemWithDisplayValue, unknown>[];
 	}, [showCostumeBonus]);
 
 	if (!isMounted) return null;
@@ -483,7 +478,7 @@ export default function FriendsStatusTable({
 	const statusTypeOptions: CheckboxOption[] = STATUS_TYPES.map(
 		(statusType) => ({
 			id: statusType,
-			label: renderYaseiLevel(statusType),
+			label: <StatusTypeLabel statusType={statusType} showRank={false} />,
 			styles: {
 				backgroundColor: {
 					unchecked: statusTypeBackgroundColor[statusType].checkbox.unchecked,
@@ -552,7 +547,7 @@ export default function FriendsStatusTable({
 
 			{/* テーブル */}
 			<div className="overflow-x-auto max-w-full">
-				<Table<ProcessedFriendsStatusListItem, unknown>
+				<Table
 					data={filteredData}
 					columns={columns}
 					tableId="friends-status"

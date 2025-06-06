@@ -2,7 +2,7 @@ import { SidebarClient } from './Sidebar.client';
 import { getFriendsData } from '@/data/friendsData';
 import { FriendsDataRow } from '@/types/friends';
 import { getPhotoData } from '@/data/photoData';
-import { getWikiNanodaPageUrl } from '@/utils/seesaaWiki';
+import { getWikiNanodaPageUrl } from '@/utils/seesaawiki/encoding';
 
 export interface SidebarLinkItem {
 	href: string;
@@ -47,6 +47,10 @@ export async function Sidebar() {
 		{
 			href: '/friends-kakeai-graph',
 			text: 'フレンズ掛け合いグラフ',
+		},
+		{
+			href: '/photo-damage-ranking',
+			text: 'フォト火力ランキング',
 		},
 	];
 
@@ -94,7 +98,6 @@ export async function Sidebar() {
 		'フォト一覧',
 		'動物フォト一覧',
 		'効果別フォト早見表',
-		'フォト火力ランキング',
 		'フレンズ成長',
 		'フォト強化',
 		'成長素材入手先',

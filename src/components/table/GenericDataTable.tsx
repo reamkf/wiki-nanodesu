@@ -1,9 +1,7 @@
 "use client";
 
 import React from "react";
-import { ColumnDef } from "@tanstack/react-table";
-import { FilterableDataTable } from "@/components/table/FilterableDataTable";
-import { parseSeesaaWikiNewLine } from "@/utils/seesaaWiki";
+import { parseSeesaaWikiNewLine } from "@/utils/seesaawiki/parser";
 import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
 import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
 import { FriendsDataRow } from "@/types/friends";
@@ -77,25 +75,6 @@ export const FriendOrPhotoDisplay = ({ data }: { data: WithFriendOrPhoto }) => {
 		// データがない場合
 		return <div>{data.friendsIdOrPhotoName || data.friendsId}</div>;
 	}
-};
-
-// テーブルラッパーコンポーネント
-export const GenericDataTable = <T extends Record<string, unknown>>({
-	data,
-	columns,
-	tableId
-}: {
-	data: T[];
-	columns: ColumnDef<T, unknown>[];
-	tableId: string;
-}) => {
-	return (
-		<FilterableDataTable
-			data={data}
-			columns={columns as ColumnDef<Record<string, unknown>, unknown>[]}
-			tableId={tableId}
-		/>
-	);
 };
 
 // カラムセル用のテキスト表示コンポーネント
