@@ -348,13 +348,19 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 			<div className="p-1 space-y-4 max-w-240">
 				<div className="rounded-lg p-4 border border-gray-200 bg-gray-50">
 					<div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
-						<div className="space-y-2">
-							<h3 className="text-sm font-medium text-gray-700">レアリティ</h3>
-							<FilterCheckboxGroup
-								options={rarityOptions}
-								selectedIds={new Set(Array.from(selectedRarities).map(String))}
-								onChange={handleRarityChange}
-							/>
+
+					<div className="space-y-2">
+							<h3 className="text-sm font-medium text-gray-700">こうげき値設定</h3>
+							<FormControl variant="outlined" size="small" className="w-32">
+								<Select
+									value={baseAttack}
+									onChange={(e) => setBaseAttack(Number(e.target.value))}
+								>
+									{[10000, 12500, 15000, 17500, 20000, 22500, 25000, 27500, 30000].map(value => (
+										<MenuItem key={value} value={value}>{value.toLocaleString()}</MenuItem>
+									))}
+								</Select>
+							</FormControl>
 						</div>
 
 						<div className="space-y-2">
@@ -376,17 +382,12 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 						</div>
 
 						<div className="space-y-2">
-							<h3 className="text-sm font-medium text-gray-700">こうげき値設定</h3>
-							<FormControl variant="outlined" size="small" className="w-full">
-								<Select
-									value={baseAttack}
-									onChange={(e) => setBaseAttack(Number(e.target.value))}
-								>
-									{[10000, 12500, 15000, 17500, 20000, 22500, 25000, 27500, 30000].map(value => (
-										<MenuItem key={value} value={value}>{value.toLocaleString()}</MenuItem>
-									))}
-								</Select>
-							</FormControl>
+							<h3 className="text-sm font-medium text-gray-700">レアリティ</h3>
+							<FilterCheckboxGroup
+								options={rarityOptions}
+								selectedIds={new Set(Array.from(selectedRarities).map(String))}
+								onChange={handleRarityChange}
+							/>
 						</div>
 					</div>
 				</div>
