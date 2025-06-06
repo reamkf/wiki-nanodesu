@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test';
-import { getWikiNanodaPageUrl } from '../seesaaWiki';
+import { getWikiNanodaPageUrl } from '../seesaawiki/encoding';
 
 const testCases = [
 	{

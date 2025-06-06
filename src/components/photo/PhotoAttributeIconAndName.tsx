@@ -4,9 +4,10 @@ import { memo } from "react";
 
 interface PhotoAttributeIconAndNameProps {
 	attribute: PhotoAttribute;
+	showText?: boolean;
 }
 
-export const PhotoAttributeIconAndName = memo(function PhotoAttributeIconAndName({ attribute }: PhotoAttributeIconAndNameProps) {
+export const PhotoAttributeIcon = memo(function PhotoAttributeIconAndName({ attribute, showText = true }: PhotoAttributeIconAndNameProps) {
 	if(attribute === PhotoAttribute.none) {
 		return '-';
 	}
@@ -19,7 +20,7 @@ export const PhotoAttributeIconAndName = memo(function PhotoAttributeIconAndName
 				style={{ color: textColor }}
 				className="flex flex-col items-center"
 			>
-				<span className="text-[11px] font-bold">{attribute}</span>
+				{showText && <span className="text-[11px] font-bold">{attribute}</span>}
 				<Image
 					src={iconUrl}
 					alt={attribute}

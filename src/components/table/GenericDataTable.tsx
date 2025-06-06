@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { parseSeesaaWikiNewLine } from "@/utils/seesaaWiki";
+import { parseSeesaaWikiNewLine } from "@/utils/seesaawiki/parser";
 import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
 import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
 import { FriendsDataRow } from "@/types/friends";
