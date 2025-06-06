@@ -280,8 +280,7 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 		});
 	};
 
-	const attributeOptions: CheckboxOption[] = Object.values(PhotoAttribute)
-		.filter(attr => attr !== PhotoAttribute.none)
+	const attributeOptions: CheckboxOption[] = [PhotoAttribute.footprint, PhotoAttribute.blue]
 		.map(attr => ({
 			id: attr,
 			label: <PhotoAttributeIcon attribute={attr} showText={false} />,
