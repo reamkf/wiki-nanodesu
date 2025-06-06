@@ -159,7 +159,6 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 		switch (columnId) {
 			case 'name':
 			case 'attribute':
-			case 'implementType':
 				return getSearchableTextForFriendOrPhoto(photoAsWithFriendOrPhoto, columnId);
 			case 'trait':
 				return [row.photoData.trait, row.photoData.traitChanged].filter(Boolean).join(' ');
@@ -174,7 +173,7 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 
 	const columns = useMemo<ColumnDef<DamageDataWithPhoto>[]>(() => [
 		{
-			accessorKey: 'photoId',
+			accessorKey: 'name',
 			header: 'フォト名',
 			cell: ({ row }) => {
 				if (!row.original.photoData) {
