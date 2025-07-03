@@ -168,7 +168,7 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 			case 'attribute':
 				return getSearchableTextForFriendOrPhoto(photoAsWithFriendOrPhoto, columnId);
 			case 'trait':
-				return [row.photoData.trait, row.photoData.traitChanged].filter(Boolean).join(' ');
+				return row.changeState === '変化後' ? row.photoData.traitChanged : row.photoData.trait;
 			case 'condition':
 				return row.condition || '';
 			default:
