@@ -61,12 +61,12 @@ export default async function Page() {
 				当サイトを利用して発生した如何なる損害に関しても、当サイトは責任を負いません。<br/>
 				当サイトに掲載されている攻略、データ類の無断使用・無断転載は固くお断りします。<br/><br/>
 
-				当免責事項及びサイトの掲載情報は、予告なく変更される場合があります。
+				本免責事項及びサイトの掲載情報は、予告なく変更または削除される場合があります。
 			</p>
 
 			<Heading title="ゲーム内画像等について" id="license-image" level={2}/>
 			<p className="mb-4">
-				ゲーム内、<a href="https://x.com/kemono_friends3" target="_blank" rel="noopener noreferrer">公式X</a> または<a href="https://kemono-friends-3.jp" target="_blank" rel="noopener noreferrer">公式サイト</a> に由来する画像・文章等の著作権は、「けものフレンズプロジェクト２Ｇ」及び「SEGA」「アピリッツ」又はその関連団体に帰属します。<br />
+				ゲーム内、<a href="https://x.com/kemono_friends3" target="_blank" rel="noopener noreferrer">公式X</a>または<a href="https://kemono-friends-3.jp" target="_blank" rel="noopener noreferrer">公式サイト</a>に由来する画像・文章等の著作権は、「けものフレンズプロジェクト２Ｇ」及び「SEGA」「アピリッツ」又はその関連団体に帰属します。<br />
 				フレンズの属性アイコンは <a href="https://github.com/nanase/kf-assets" className="text-blue-600 underline break-words break-all" target="_blank" rel="noopener noreferrer">nanase/kf-assets</a> を使用しています。
 				<br/>
 				画像の転載・流用や、著作権者様へのお問い合わせはお控え下さい。
