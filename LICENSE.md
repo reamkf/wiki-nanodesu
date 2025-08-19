@@ -1,16 +1,8 @@
-**当サイトは非公式です。**<br />
-ゲーム内、[公式X](https://x.com/kemono_friends3) または[公式サイト](https://kemono-friends-3.jp) に由来する画像・文章等の著作権は、「けものフレンズプロジェクト２Ｇ」及び「SEGA」「アピリッツ」又はその関連団体に帰属します。<br />
-画像の転載・流用や、著作権者様へのお問い合わせはお控え下さい。
+ゲーム内、[公式X](https://x.com/kemono_friends3) または[公式サイト](https://kemono-friends-3.jp) に由来する画像・文章、及びオープンソースソフトウェアの権利表記に関しては、 https://reamkf.github.io/wiki-nanodesu/license を参照してください。
 
-当サイトに掲載されている内容の正確性に関して保証しません。<br />
-当サイトを利用して発生した如何なる損害に関しても、当サイトは責任を負いません。<br />
-当サイトに掲載されている攻略、データ類の無断使用・無断転載は固くお断りします。
-
-フレンズの属性アイコンは https://github.com/nanase/kf-assets を使用しています。
+それらを除く、本サイト自体のソースコードはMITライセンスで提供します。
 
 ----
-
-ゲーム内、[公式X](https://x.com/kemono_friends3) または[公式サイト](https://kemono-friends-3.jp) に由来する画像・文章等を除く、本サイトのプログラムのソースコードはMITライセンスで提供します。
 
 Copyright 2025 reamkf
 
