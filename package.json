@@ -5,13 +5,15 @@
 	"scripts": {
 		"dev": "next dev --turbopack",
 		"build": "next build",
+		"prebuild": "bun run licenses:generate",
 		"build-turbopack": "next build --turbopack",
 		"lint": "next lint",
 		"test": "bun test",
 		"precommit": "bun test && bun lint",
 		"clasp:login": "clasp login",
 		"gas:push": "clasp push",
-		"gas:pull": "clasp pull"
+		"gas:pull": "clasp pull",
+		"licenses:generate": "bun scripts/generate-licenses.ts"
 	},
 	"dependencies": {
 		"@emotion/react": "^11.14.0",
@@ -41,6 +43,8 @@
 		"bun-types": "^1.2.11",
 		"eslint": "^9.25.1",
 		"eslint-config-next": "^15.3.1",
+		"license-checker": "^25.0.1",
+		"license-checker-rseidelsohn": "^4.4.2",
 		"postcss": "^8.5.3",
 		"react-scan": "^0.2.14",
 		"tailwind-scrollbar": "^4.0.2",
