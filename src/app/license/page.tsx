@@ -1,6 +1,5 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { PageTitle } from '@/components/PageTitle';
 import { Heading } from '@/components/section/Heading';
 
 // license-checker の出力の一部のみ使用する
@@ -54,8 +53,6 @@ export default async function Page() {
 	const licenses = await readLicenses();
 	return (
 		<>
-			<PageTitle title="ライセンス" />
-
 			<Heading title="免責事項" id="disclaimer" level={2}/>
 			<p className="mb-4">
 				当サイトは有志による非公式サイトであり、公式(「けものフレンズプロジェクト２Ｇ」及び「SEGA」「アピリッツ」又はその関連団体)とは一切関係ありません。記載内容について公式への問い合わせはご遠慮ください。
