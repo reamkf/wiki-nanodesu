@@ -57,6 +57,11 @@
 	```sh
 	bun run build
 	```
+- サーバーの起動
+	```sh
+	bun run serve
+	```
+	※サーバーの起動にはビルドに加えて`out/wiki-nanodesu` <-> `out`のシンボリックリンクを作成する必要があります。
 
 ### Google Sheets APIからのデータ取得
 スプレッドシートからローカルでCSVファイルを取得するには、以下の手順で設定してください。
