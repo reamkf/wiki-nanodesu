@@ -83,20 +83,6 @@
 	bun fetch-csv
 	```
 
-### Google Apps Script（レガシー）
-- ログイン
-	```sh
-	bun run clasp:login
-	```
-- GASにコードをpushする
-	```sh
-	bun run gas:push
-	```
-- GASからコードをpullする
-	```sh
-	bun run gas:pull
-	```
-
 ### デプロイ
 [GitHub](https://github.com/reamkf/wiki-nanodesu) のmainブランチへpushすると、GitHub Actionsにより自動でGitHub Pagesへデプロイされる
 
