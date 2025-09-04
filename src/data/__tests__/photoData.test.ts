@@ -38,7 +38,7 @@ describe('getPhotoData', () => {
 			});
 
 			it('実装日が2024/06/20である', () => {
-				expect(samplePhotoData?.implementDate).toBe('Thu Jun 20 2024 00:00:00 GMT+0900 (日本標準時)');
+				expect(samplePhotoData?.implementDate).toBe('2024/06/20');
 			});
 
 			it('イラストレーター名が只野まぐである', () => {
@@ -130,7 +130,7 @@ describe('getPhotoData', () => {
 			});
 
 			it('実装日が2021/10/14である', () => {
-				expect(umiNekoPhotoData?.implementDate).toBe('Thu Oct 14 2021 00:00:00 GMT+0900 (日本標準時)');
+				expect(umiNekoPhotoData?.implementDate).toBe('2021/10/14');
 			});
 
 			it('レア度が3である', () => {

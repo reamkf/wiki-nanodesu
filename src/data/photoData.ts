@@ -2,12 +2,7 @@ import { PhotoDataRow, PhotoAttribute, PhotoStatus, RawPhotoCSV, RAW_PHOTO_CSV_H
 import { BasicStatus } from "@/types/friendsOrPhoto";
 import { getFriendsData } from "@/data/friendsData";
 import { readCsv } from '../utils/readCsv';
-
-function convertToNumberElseNull(value: unknown): number | null {
-	if (typeof value === 'number') return value;
-	if (typeof value === 'string') return parseInt(value);
-	return null;
-}
+import { parseNumericValue } from '@/utils/common';
 
 /**
  * ベースステータスをパースする
@@ -23,9 +18,9 @@ function parseBasicStatus (
 ): BasicStatus {
 	return {
 		kemosute: null,
-		hp: convertToNumberElseNull(hp),
-		def: convertToNumberElseNull(def),
-		atk: convertToNumberElseNull(atk),
+		hp: parseNumericValue(hp),
+		def: parseNumericValue(def),
+		atk: parseNumericValue(atk),
 		estimated: estimated
 	};
 }
@@ -33,21 +28,21 @@ function parseBasicStatus (
 export async function parsePhotoStatus(data: RawPhotoCSV): Promise<PhotoStatus> {
 	return {
 		status1: parseBasicStatus(
-			convertToNumberElseNull(data['Lv.1たいりょく']),
-			convertToNumberElseNull(data['Lv.1こうげき']),
-			convertToNumberElseNull(data['Lv.1まもり']),
+			parseNumericValue(data['Lv.1たいりょく']),
+			parseNumericValue(data['Lv.1こうげき']),
+			parseNumericValue(data['Lv.1まもり']),
 			false
 		),
 		statusMedium: parseBasicStatus(
-			convertToNumberElseNull(data['変化前たいりょく']),
-			convertToNumberElseNull(data['変化前こうげき']),
-			convertToNumberElseNull(data['変化前まもり']),
+			parseNumericValue(data['変化前たいりょく']),
+			parseNumericValue(data['変化前こうげき']),
+			parseNumericValue(data['変化前まもり']),
 			false
 		),
 		statusMax: parseBasicStatus(
-			convertToNumberElseNull(data['変化後たいりょく']),
-			convertToNumberElseNull(data['変化後こうげき']),
-			convertToNumberElseNull(data['変化後まもり']),
+			parseNumericValue(data['変化後たいりょく']),
+			parseNumericValue(data['変化後こうげき']),
+			parseNumericValue(data['変化後まもり']),
 			false
 		)
 	};
