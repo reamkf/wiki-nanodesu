@@ -3,12 +3,8 @@ import { BasicStatus } from "@/types/friendsOrPhoto";
 import { calculateFriendsStatus, getLv99FromLv90, isStatusNull } from "@/utils/friends/friendsStatus";
 import { PhotoAttribute } from "@/types/photo";
 import { readCsv } from '../utils/readCsv';
+import { parseNumericValue } from '@/utils/common';
 
-function convertToNumberElseNull(value: unknown): number | null {
-	if (typeof value === 'number') return value;
-	if (typeof value === 'string') return parseInt(value);
-	return null;
-}
 
 /**
  * ベースステータスをパースする
@@ -25,10 +21,10 @@ function parseBasicStatus (
 	estimated: boolean = true
 ): BasicStatus {
 	return {
-		kemosute: convertToNumberElseNull(kemosute),
-		hp: convertToNumberElseNull(hp),
-		def: convertToNumberElseNull(def),
-		atk: convertToNumberElseNull(atk),
+		kemosute: parseNumericValue(kemosute),
+		hp: parseNumericValue(hp),
+		def: parseNumericValue(def),
+		atk: parseNumericValue(atk),
 		estimated: estimated
 	};
 }
@@ -49,55 +45,55 @@ export async function parseFriendsStatus(data: RawFriendsCSV): Promise<FriendsSt
 	};
 
 	return {
-		avoid: convertToNumberElseNull(data.かいひ),
-		avoidYasei5: convertToNumberElseNull(data.かいひ野生5),
-		plasm: convertToNumberElseNull(data.ぷらずむ),
-		beatFlags: convertToNumberElseNull(data.Beatフラッグ),
+		avoid: parseNumericValue(data.かいひ, true),
+		avoidYasei5: parseNumericValue(data.かいひ野生5, true),
+		plasm: parseNumericValue(data.ぷらずむ),
+		beatFlags: parseNumericValue(data.Beatフラッグ),
 		actionFlags: (typeof data.Actionフラッグ === 'string' ? data.Actionフラッグ.split(',') : [data.Actionフラッグ || 0]).map(Number),
 		tryFlags: (typeof data.Tryフラッグ === 'string' ? data.Tryフラッグ.split(',') : [data.Tryフラッグ || 0]).map(Number),
 		flagDamageUp: {
-			beat: convertToNumberElseNull(data.Beat補正),
-			action: convertToNumberElseNull(data.Action補正),
-			try: convertToNumberElseNull(data.Try補正)
+			beat: parseNumericValue(data.Beat補正, false),
+			action: parseNumericValue(data.Action補正, false),
+			try: parseNumericValue(data.Try補正, false)
 		},
 		flagDamageUpYasei5: {
-			beat: convertToNumberElseNull(data.Beat補正野生5),
-			action: convertToNumberElseNull(data.Action補正野生5),
-			try: convertToNumberElseNull(data.Try補正野生5)
+			beat: parseNumericValue(data.Beat補正野生5, false),
+			action: parseNumericValue(data.Action補正野生5, false),
+			try: parseNumericValue(data.Try補正野生5, false)
 		},
 		statusInitial: parseBasicStatus(
-			convertToNumberElseNull(data['Lv最大けもステ']),
-			convertToNumberElseNull(data['Lv最大たいりょく']),
-			convertToNumberElseNull(data['Lv最大こうげき']),
-			convertToNumberElseNull(data['Lv最大まもり']),
+			parseNumericValue(data['Lv最大けもステ']),
+			parseNumericValue(data['Lv最大たいりょく']),
+			parseNumericValue(data['Lv最大こうげき']),
+			parseNumericValue(data['Lv最大まもり']),
 			false
 		),
 		status90: parseBasicStatus(
 			data['Lv90けもステ'],
-			convertToNumberElseNull(data['Lv90たいりょく']),
-			convertToNumberElseNull(data['Lv90こうげき']),
-			convertToNumberElseNull(data['Lv90まもり']),
+			parseNumericValue(data['Lv90たいりょく']),
+			parseNumericValue(data['Lv90こうげき']),
+			parseNumericValue(data['Lv90まもり']),
 			false
 		),
 		status99: parseBasicStatus(
 			data['Lv99けもステ'],
-			convertToNumberElseNull(data['Lv99たいりょく']),
-			convertToNumberElseNull(data['Lv99こうげき']),
-			convertToNumberElseNull(data['Lv99まもり']),
+			parseNumericValue(data['Lv99たいりょく']),
+			parseNumericValue(data['Lv99こうげき']),
+			parseNumericValue(data['Lv99まもり']),
 			false
 		),
 		status90Yasei5: parseBasicStatus(
 			data['Lv90野生5けもステ'],
-			convertToNumberElseNull(data['Lv90野生5たいりょく']),
-			convertToNumberElseNull(data['Lv90野生5こうげき']),
-			convertToNumberElseNull(data['Lv90野生5まもり']),
+			parseNumericValue(data['Lv90野生5たいりょく']),
+			parseNumericValue(data['Lv90野生5こうげき']),
+			parseNumericValue(data['Lv90野生5まもり']),
 			false
 		),
 		status99Yasei5: parseBasicStatus(
 			data['Lv99野生5けもステ'],
-			convertToNumberElseNull(data['Lv99野生5たいりょく']),
-			convertToNumberElseNull(data['Lv99野生5こうげき']),
-			convertToNumberElseNull(data['Lv99野生5まもり']),
+			parseNumericValue(data['Lv99野生5たいりょく']),
+			parseNumericValue(data['Lv99野生5こうげき']),
+			parseNumericValue(data['Lv99野生5まもり']),
 			false
 		),
 		status150: nullStatus,
@@ -107,33 +103,33 @@ export async function parseFriendsStatus(data: RawFriendsCSV): Promise<FriendsSt
 		statusBase: {
 			lv1: parseBasicStatus(
 				null,
-				convertToNumberElseNull(data['☆1Lv1たいりょく']),
-				convertToNumberElseNull(data['☆1Lv1こうげき']),
-				convertToNumberElseNull(data['☆1Lv1まもり'])
+				parseNumericValue(data['☆1Lv1たいりょく']),
+				parseNumericValue(data['☆1Lv1こうげき']),
+				parseNumericValue(data['☆1Lv1まもり'])
 			),
 			lv90: parseBasicStatus(
 				null,
-				convertToNumberElseNull(data['☆1Lv90たいりょく']),
-				convertToNumberElseNull(data['☆1Lv90こうげき']),
-				convertToNumberElseNull(data['☆1Lv90まもり'])
+				parseNumericValue(data['☆1Lv90たいりょく']),
+				parseNumericValue(data['☆1Lv90こうげき']),
+				parseNumericValue(data['☆1Lv90まもり'])
 			),
 			lv99: parseBasicStatus(
 				null,
-				convertToNumberElseNull(data['☆1Lv99たいりょく']),
-				convertToNumberElseNull(data['☆1Lv99こうげき']),
-				convertToNumberElseNull(data['☆1Lv99まもり'])
+				parseNumericValue(data['☆1Lv99たいりょく']),
+				parseNumericValue(data['☆1Lv99こうげき']),
+				parseNumericValue(data['☆1Lv99まもり'])
 			),
 			yasei4: parseBasicStatus(
 				null,
-				convertToNumberElseNull(data['☆1野生解放1-4合計たいりょく']),
-				convertToNumberElseNull(data['☆1野生解放1-4合計こうげき']),
-				convertToNumberElseNull(data['☆1野生解放1-4合計まもり']),
+				parseNumericValue(data['☆1野生解放1-4合計たいりょく']),
+				parseNumericValue(data['☆1野生解放1-4合計こうげき']),
+				parseNumericValue(data['☆1野生解放1-4合計まもり']),
 			),
 			yasei5: parseBasicStatus(
 				null,
-				convertToNumberElseNull(data['☆1野生解放1-5合計たいりょく']),
-				convertToNumberElseNull(data['☆1野生解放1-5合計こうげき']),
-				convertToNumberElseNull(data['☆1野生解放1-5合計まもり'])
+				parseNumericValue(data['☆1野生解放1-5合計たいりょく']),
+				parseNumericValue(data['☆1野生解放1-5合計こうげき']),
+				parseNumericValue(data['☆1野生解放1-5合計まもり'])
 			),
 			megumiPattern: convertMegumiPattern(data['Lv100+上昇パターン'])
 		}

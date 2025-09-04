@@ -1,8 +1,15 @@
-name: Deploy Next.js site to Pages
+name: Deploy Next.js site to GitHub Pages
 
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - "README.md"
+      - "LICENSE.md"
+      - ".vscode/*"
+      - ".cursor/*"
+      - ".cursorignore"
+      - "gas/*"
   workflow_dispatch:
 
 permissions:
@@ -44,7 +51,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build with Next.js
-        run: bun run build
+        run: bun run prebuild && bun run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

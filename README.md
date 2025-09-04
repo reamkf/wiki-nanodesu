@@ -18,18 +18,18 @@
 サイトに関するIssueやPull Requestを歓迎します。
 
 ## 技術スタック
-- Bun 1.2.2
-- Next.js 15.2.1 (App Router, SSG)
-- TypeScript 5.7.3
-- Tailwind CSS 3.4.11
-- React 19.0.0
+- Bun 1.2
+- Next.js 15 (App Router, SSG)
+- TypeScript
+- Tailwind CSS v4
+- React 19
 - GitHub Pages
 
 ## 開発環境
 
 ### セットアップ
 1. Gitをインストールする
-2. Bun 1.2.2をインストールする
+2. Bunをインストールする
 3. リポジトリをcloneする
 	```sh
 	git clone https://github.com/reamkf/wiki-nanodesu.git
@@ -57,19 +57,35 @@
 	```sh
 	bun run build
 	```
+- サーバーの起動
+	```sh
+	bun run serve
+	```
+	※サーバーの起動にはビルドに加えて`out/wiki-nanodesu` <-> `out`のシンボリックリンクを作成する必要があります。
 
-### Google Apps Script
-- ログイン
+### Google Sheets APIからのデータ取得
+スプレッドシートからローカルでCSVファイルを取得するには、以下の手順で設定してください。
+
+1. **Google Cloud ConsoleでAPIキーを作成**
+   - [Google Cloud Console](https://console.cloud.google.com/) にアクセス
+   - 「APIとサービス」→「ライブラリ」で「Google Sheets API」を有効にする
+   - 「APIとサービス」→「認証情報」で「認証情報を作成」→「APIキー」を選択
+   - 作成したAPIキーを「キーを制限」で「Google Sheets API」のみに制限することを推奨
+
+2. **スプレッドシートを公開設定にする**
+   - 対象のスプレッドシートで「共有」をクリック
+   - 「リンクを知っている全員が閲覧可」に設定
+   - （注意: APIキー認証では公開されたスプレッドシートのみアクセス可能）
+
+3. **環境変数を設定**
 	```sh
-	bun run clasp:login
+	cp .env.example .env
 	```
-- GASにコードをpushする
+	.envファイルを編集して`GOOGLE_API_KEY`を設定
+
+4. **CSVファイルを取得**
 	```sh
-	bun run gas:push
-	```
-- GASからコードをpullする
-	```sh
-	bun run gas:pull
+	bun fetch-csv
 	```
 
 ### デプロイ

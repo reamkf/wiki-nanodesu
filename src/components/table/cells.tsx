@@ -4,6 +4,7 @@ import { FriendsDataRow } from '@/types/friends';
 import { PhotoDataRow } from '@/types/photo';
 import { formatText } from './GenericDataTable';
 import { isNumber, toPercent } from '@/utils/common';
+import { parseNumericValue } from '@/utils/common';
 
 // AttributeCell 用データ型
 interface DataWithAttribute {
@@ -36,13 +37,18 @@ export const AttributeCell = ({ data }: { data: DataWithAttribute }) => {
 
 /**
  * 発動率を表示するセルコンポーネント
- * 数値の場合はパーセント表示、文字列の場合はそのまま表示する
+ * %表記の場合はそのまま表示、数値の場合はパーセント表示する
  */
 export const ActivationRateCell = ({ data }: { data: DataWithActivationRate }) => {
 	const activationRate = data.activationRate;
 	if (activationRate == null) return null;
 
 	const activationRateStr = String(activationRate);
+
+	// %表記の場合はそのまま表示
+	if (activationRateStr.includes('%')) {
+		return formatText(activationRateStr);
+	}
 
 	if (!isNumber(activationRateStr)) return formatText(activationRateStr);
 
@@ -52,7 +58,7 @@ export const ActivationRateCell = ({ data }: { data: DataWithActivationRate }) =
 
 /**
  * 威力 (Power) を表示する基本的なセルコンポーネント
- * 数値でない場合は文字列としてフォーマットし、数値の場合はそのまま表示する
+ * %表記の場合はそのまま表示、数値の場合はそのまま表示する
  */
 export const CommonPowerCell = ({ data }: { data: DataWithPower }) => {
 	const power = data.power;
@@ -60,8 +66,13 @@ export const CommonPowerCell = ({ data }: { data: DataWithPower }) => {
 
 	const powerStr = String(power);
 
+	// %表記の場合はそのまま表示
+	if (powerStr.includes('%')) {
+		return formatText(powerStr);
+	}
+
 	if (!isNumber(powerStr)) return formatText(powerStr);
 
-	const powerNum = parseFloat(powerStr);
+	const powerNum = parseNumericValue(powerStr) || 0;
 	return powerNum.toString();
 };

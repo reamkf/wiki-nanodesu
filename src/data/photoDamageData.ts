@@ -1,11 +1,7 @@
 import { PhotoDamageDataRow, RawPhotoDamageCSV, RAW_PHOTO_DAMAGE_CSV_HEADERS } from "@/types/photo";
 import { readCsv } from '../utils/readCsv';
+import { parseNumericValue } from '@/utils/common';
 
-function convertToNumberElseNull(value: unknown): number | null {
-	if (typeof value === 'number') return value;
-	if (typeof value === 'string') return parseFloat(value);
-	return null;
-}
 
 let photoDamageDataCache: PhotoDamageDataRow[] | null = null;
 
@@ -27,7 +23,7 @@ export async function getPhotoDamageData(): Promise<PhotoDamageDataRow[]> {
 					photoId: row.フォトID || '',
 					changeState: (row['変化前・後'] as '変化前' | '変化後') || '変化前',
 					condition: row.条件 === '-' ? '' : (row.条件 || ''),
-					damageMultiplier: convertToNumberElseNull(row.与ダメ増加) || 1.0,
+					damageMultiplier: parseNumericValue(row.与ダメ増加) || 1.0,
 				};
 			});
 			photoDamageDataCache = parsedData;

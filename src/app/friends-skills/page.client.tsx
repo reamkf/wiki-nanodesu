@@ -4,20 +4,19 @@ import React, { useMemo, useCallback, useState, useEffect } from "react";
 import { SkillWithFriend } from "@/types/friendsSkills";
 import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
-import { toPercent, isNumber } from "@/utils/common";
+import { isNumber } from "@/utils/common";
 import { sortAttribute } from "@/utils/friends/friends";
 import { createCustomFilterFn } from "@/utils/tableFilters";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
 import { FriendsAttribute } from "@/types/friends";
 import {
-	formatText,
 	FriendOrPhotoDisplay,
 	TextCell,
 	getSearchableTextForFriendOrPhoto
 } from "@/components/table/GenericDataTable";
 import { Table } from "@/components/table/Table";
 import { getActivationRatePriority, getPowerPriority, getTargetPriority, getActivationCountPriority } from "@/utils/sortPriorities";
-import { AttributeCell, ActivationRateCell } from "@/components/table/cells";
+import { CommonPowerCell, AttributeCell, ActivationRateCell } from "@/components/table/cells";
 
 // フレンズセル
 const FriendCell = ({ data }: { data: SkillWithFriend }) => {
@@ -25,23 +24,6 @@ const FriendCell = ({ data }: { data: SkillWithFriend }) => {
 		return <div>{data.friendsId}</div>;
 	}
 	return <FriendOrPhotoDisplay data={data} />;
-};
-
-// 威力セル
-const PowerCell = ({ data }: { data: SkillWithFriend }) => {
-	const power = data.power;
-	if (!power) return null;
-
-	if (!isNumber(power)) return formatText(power);
-
-	const powerNum = parseFloat(power);
-
-	// MP関連スキルかどうかの判定ロジックを共通化
-	const isMpRelated = (
-		['MP増加', 'MP減少', '毎ターンMP増加', '毎ターンMP減少', 'プラズムチャージ効果回数追加']
-	).some(effectType => data.effectType?.includes(effectType));
-
-	return isMpRelated ? powerNum.toString() : toPercent(powerNum);
 };
 
 export default function ClientTabs({
@@ -110,7 +92,7 @@ export default function ClientTabs({
 			},
 			id: 'power',
 			header: '威力',
-			cell: ({ row }) => <PowerCell data={row.original} />,
+			cell: ({ row }) => <CommonPowerCell data={row.original} />,
 			filterFn: customFilterFn,
 			meta: {
 				width: '100px',

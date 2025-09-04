@@ -3,6 +3,7 @@ import { getFriendsData } from '@/data/friendsData';
 import { FriendsDataRow } from '@/types/friends';
 import { getPhotoData } from '@/data/photoData';
 import { getWikiNanodaPageUrl } from '@/utils/seesaawiki/encoding';
+import { getCurrentSeasonCount } from '@/utils/dojoSeason';
 
 export interface SidebarLinkItem {
 	href: string;
@@ -68,7 +69,7 @@ export async function Sidebar() {
 		'家具',
 		'シーサーバル道場・概要',
 		'シーサーバル道場・基本戦術',
-		'シーサーバル道場（β2-30）',
+		`シーサーバル道場（β2-${getCurrentSeasonCount()}）`,
 		'ちからくらべ',
 		'とくべつくんれん',
 		'むちゃ攻略',
