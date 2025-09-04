@@ -58,7 +58,32 @@
 	bun run build
 	```
 
-### Google Apps Script
+### Google Sheets APIからのデータ取得
+スプレッドシートからローカルでCSVファイルを取得するには、以下の手順で設定してください。
+
+1. **Google Cloud ConsoleでAPIキーを作成**
+   - [Google Cloud Console](https://console.cloud.google.com/) にアクセス
+   - 「APIとサービス」→「ライブラリ」で「Google Sheets API」を有効にする
+   - 「APIとサービス」→「認証情報」で「認証情報を作成」→「APIキー」を選択
+   - 作成したAPIキーを「キーを制限」で「Google Sheets API」のみに制限することを推奨
+
+2. **スプレッドシートを公開設定にする**
+   - 対象のスプレッドシートで「共有」をクリック
+   - 「リンクを知っている全員が閲覧可」に設定
+   - （注意: APIキー認証では公開されたスプレッドシートのみアクセス可能）
+
+3. **環境変数を設定**
+	```sh
+	cp .env.example .env
+	```
+	.envファイルを編集して`GOOGLE_API_KEY`を設定
+
+4. **CSVファイルを取得**
+	```sh
+	bun fetch-csv
+	```
+
+### Google Apps Script（レガシー）
 - ログイン
 	```sh
 	bun run clasp:login
