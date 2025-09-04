@@ -32,9 +32,16 @@ const PowerCell = ({ data }: { data: SkillWithFriend }) => {
 	const power = data.power;
 	if (!power) return null;
 
-	if (!isNumber(power)) return formatText(power);
+	const powerStr = String(power);
 
-	const powerNum = parseFloat(power);
+	// %表記の場合はそのまま表示
+	if (powerStr.includes('%')) {
+		return formatText(powerStr);
+	}
+
+	if (!isNumber(powerStr)) return formatText(powerStr);
+
+	const powerNum = parseFloat(powerStr);
 
 	// MP関連スキルかどうかの判定ロジックを共通化
 	const isMpRelated = (
