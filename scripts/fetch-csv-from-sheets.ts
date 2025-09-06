@@ -11,6 +11,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as dotenv from 'dotenv';
+import { execSync } from 'child_process';
 
 // 環境変数を読み込み
 dotenv.config();
@@ -276,6 +277,15 @@ async function main(): Promise<void> {
 		}
 
 		if (errorCount > 0) {
+			process.exit(1);
+		}
+
+		// gitのコミットを作成
+		try {
+			execSync('git add csv/*.csv');
+			execSync('git commit -m "chore: update csv files"');
+		} catch (error) {
+			console.error('❌ gitのコミットに失敗しました:', error);
 			process.exit(1);
 		}
 
