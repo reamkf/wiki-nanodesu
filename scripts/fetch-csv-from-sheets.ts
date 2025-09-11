@@ -16,6 +16,30 @@ import { execSync } from 'child_process';
 // 環境変数を読み込み
 dotenv.config();
 
+const ANSI = {
+	reset: '\x1b[0m',
+	green: '\x1b[32m',
+	red: '\x1b[31m',
+	yellow: '\x1b[33m',
+	dim: '\x1b[2m'
+} as const;
+
+function logInfo(message: string, ...args: unknown[]): void {
+	console.log(`${ANSI.dim}${message}${ANSI.reset}`, ...args);
+}
+
+function logSuccess(message: string, ...args: unknown[]): void {
+	console.log(`${ANSI.green}${message}${ANSI.reset}`, ...args);
+}
+
+function logWarn(message: string, ...args: unknown[]): void {
+	console.warn(`${ANSI.yellow}${message}${ANSI.reset}`, ...args);
+}
+
+function logError(message: string, ...args: unknown[]): void {
+	console.error(`${ANSI.red}${message}${ANSI.reset}`, ...args);
+}
+
 // シート設定（GASのsheetConfigsと同等）
 interface SheetConfig {
 	sheetName: string;
@@ -75,7 +99,7 @@ async function fetchWithRetry(url: string): Promise<Response> {
 					delayMs = Math.max(COOLDOWN_MS, base + jitter);
 				}
 				if (attempt < MAX_RETRIES) {
-					console.warn(`   Google Sheets API 呼び出しに失敗しました(status=${status})。 ${delayMs}ms 後に再試行します。`);
+					logWarn(`   Google Sheets API 呼び出しに失敗しました(status=${status})。 ${delayMs}ms 後に再試行します。`);
 					await sleep(delayMs);
 					continue;
 				}
@@ -89,7 +113,7 @@ async function fetchWithRetry(url: string): Promise<Response> {
 				const base = INITIAL_BACKOFF_MS * Math.pow(BACKOFF_MULTIPLIER, attempt);
 				const jitter = Math.floor(Math.random() * 250);
 				const delayMs = Math.max(COOLDOWN_MS, base + jitter);
-				console.warn(`   Google Sheets API 呼び出しに失敗しました(${err instanceof Error ? err.message : String(err)})。 ${delayMs}ms 後に再試行します。`);
+				logWarn(`   Google Sheets API 呼び出しに失敗しました(${err instanceof Error ? err.message : String(err)})。 ${delayMs}ms 後に再試行します。`);
 				await sleep(delayMs);
 				continue;
 			}
@@ -237,9 +261,6 @@ async function fetchSheetData(apiKey: string, config: SheetConfig): Promise<unkn
 
 	const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(range)}?key=${apiKey}`;
 
-	console.log(`   範囲: ${range}`);
-	console.log(`   API URL: ${url}`);
-
 	try {
 		const response = await fetchWithRetry(url);
 
@@ -251,7 +272,7 @@ async function fetchSheetData(apiKey: string, config: SheetConfig): Promise<unkn
 		const data = await response.json();
 
 		if (!data.values || data.values.length === 0) {
-			console.warn(`   ⚠️  シート「${config.sheetName}」にデータがありません。スキップします。`);
+			logWarn(`   ⚠️  シート「${config.sheetName}」にデータがありません。スキップします。`);
 			return [];
 		}
 
@@ -269,7 +290,6 @@ async function fetchSheetData(apiKey: string, config: SheetConfig): Promise<unkn
  * シートからデータを取得してCSVとして保存
  */
 async function processSheet(apiKey: string, config: SheetConfig): Promise<void> {
-	console.log(`シート「${config.sheetName}」を処理中...`);
 
 	try {
 		// シートからデータを取得
@@ -300,10 +320,8 @@ async function processSheet(apiKey: string, config: SheetConfig): Promise<void> 
 		// CSVファイルとして保存
 		fs.writeFileSync(config.filePath, csvData, 'utf8');
 
-		console.log(`   ${config.filePath} に保存しました（${values.length}行）`);
-
 	} catch (error) {
-		console.error(`   ❌ シート「${config.sheetName}」の処理でエラーが発生しました:`, error);
+		logError(`   ❌ シート「${config.sheetName}」の処理でエラーが発生しました:`, error as unknown);
 		throw error;
 	}
 }
@@ -312,12 +330,11 @@ async function processSheet(apiKey: string, config: SheetConfig): Promise<void> 
  * メイン処理
  */
 async function main(): Promise<void> {
-	console.log('🦉 Google Sheets APIを使用してCSVファイルを取得するのです...');
+	logInfo('🦉 Google Sheets からCSVファイルを取得中...');
 
 	try {
 		// APIキーを取得
 		const apiKey = getApiKey();
-		console.log(`スプレッドシートID: ${SPREADSHEET_ID}`);
 
 		// 各シート設定に基づいてデータを処理
 		let successCount = 0;
@@ -328,14 +345,14 @@ async function main(): Promise<void> {
 				await processSheet(apiKey, config);
 				successCount++;
 			} catch (error) {
-				console.error(`シート「${config.sheetName}」の処理に失敗しました:`, error);
+				logError(`シート「${config.sheetName}」の処理に失敗しました:`, error as unknown);
 				errorCount++;
 			}
 		}
 
-		console.log(`\n✅ 成功: ${successCount}ファイル`);
+		logSuccess(`成功: ${successCount}ファイル`);
 		if (errorCount > 0) {
-			console.log(`❌ 失敗: ${errorCount}ファイル`);
+			logError(`失敗: ${errorCount}ファイル`);
 		}
 
 		if (errorCount > 0) {
@@ -350,23 +367,18 @@ async function main(): Promise<void> {
 				// 差分がある場合はコミット
 				execSync('git add csv/*.csv');
 				execSync('git commit -m "chore: update csv files"');
-				console.log('差分が見つかりました。コミットしました。');
+				logSuccess('差分が見つかりました。コミットしました。');
 			} else {
-				console.log('差分はありませんでした。');
+				logInfo('差分はありませんでした。');
 			}
 
 		} catch (error) {
-			console.error('❌ gitのコミットに失敗しました:', error);
+			logError('❌ gitのコミットに失敗しました:', error as unknown);
 			process.exit(1);
 		}
 
 	} catch (error) {
-		console.error('❌ 処理中にエラーが発生しました:', error);
-		console.error('\nトラブルシューティング:');
-		console.error('1. .envファイルが正しく設定されているか確認してください');
-		console.error('2. Google Cloud ConsoleでGoogle Sheets APIが有効になっているか確認してください');
-		console.error('3. APIキーがGoogle Sheets APIの使用権限を持っているか確認してください');
-		console.error('4. スプレッドシートが公開されているか確認してください（APIキー認証の場合）');
+		logError('❌ 処理中にエラーが発生しました:', error as unknown);
 		process.exit(1);
 	}
 }
