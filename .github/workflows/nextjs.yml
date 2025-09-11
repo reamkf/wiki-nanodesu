@@ -84,6 +84,16 @@ jobs:
           run_url="$repo_url/actions/runs/$GITHUB_RUN_ID"
           commit_url="$repo_url/commit/$GITHUB_SHA"
           short_sha=$(echo "$GITHUB_SHA" | cut -c1-7)
+          actor_url="$GITHUB_SERVER_URL/$GITHUB_ACTOR"
+          actor_icon="https://github.com/${GITHUB_ACTOR}.png?size=64"
+          ref_url="$repo_url/tree/$GITHUB_REF_NAME"
+          # Pages URL フォールバック
+          page_url="${PAGE_URL}"
+          if [ -z "$page_url" ]; then
+            owner=${GITHUB_REPOSITORY%%/*}
+            repo=${GITHUB_REPOSITORY##*/}
+            page_url="https://${owner}.github.io/${repo}/"
+          fi
           if [ "$STATUS" = "success" ]; then
             color=3066993
           elif [ "$STATUS" = "failure" ]; then
@@ -93,18 +103,25 @@ jobs:
           fi
           payload=$(cat <<EOF
           {
+            "username": "GitHub",
+            "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
             "embeds": [
               {
                 "title": "GitHub Pages Deploy - ${STATUS}",
                 "url": "${run_url}",
                 "color": ${color},
+                "author": {
+                  "name": "${GITHUB_ACTOR}",
+                  "url": "${actor_url}",
+                  "icon_url": "${actor_icon}"
+                },
                 "description": "wiki-nanodesu デプロイ結果なのです。",
                 "fields": [
                   {"name":"Repository","value":"[${GITHUB_REPOSITORY}](${repo_url})","inline":true},
                   {"name":"Commit","value":"[\`${short_sha}\`](${commit_url})","inline":true},
-                  {"name":"Actor","value":"${GITHUB_ACTOR}","inline":true},
-                  {"name":"Ref","value":"${GITHUB_REF_NAME}","inline":true},
-                  {"name":"Pages URL","value":"${PAGE_URL}","inline":false}
+                  {"name":"Actor","value":"[${GITHUB_ACTOR}](${actor_url})","inline":true},
+                  {"name":"Ref","value":"[${GITHUB_REF_NAME}](${ref_url})","inline":true},
+                  {"name":"Pages URL","value":"${page_url}","inline":false}
                 ],
                 "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
               }
