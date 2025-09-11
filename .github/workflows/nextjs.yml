@@ -96,10 +96,13 @@ jobs:
           fi
           if [ "$STATUS" = "success" ]; then
             color=3066993
+            title="✅ wiki-nanodesu deployment success"
           elif [ "$STATUS" = "failure" ]; then
             color=15158332
+            title="❌ wiki-nanodesu deployment failed"
           else
             color=15105570
+            title="⚠️ wiki-nanodesu deployment ${STATUS}"
           fi
           payload=$(cat <<EOF
           {
@@ -107,7 +110,7 @@ jobs:
             "avatar_url": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png",
             "embeds": [
               {
-                "title": "GitHub Pages Deploy - ${STATUS}",
+                "title": "${title}",
                 "url": "${run_url}",
                 "color": ${color},
                 "author": {
@@ -118,10 +121,10 @@ jobs:
                 "description": "wiki-nanodesu デプロイ結果なのです。",
                 "fields": [
                   {"name":"Repository","value":"[${GITHUB_REPOSITORY}](${repo_url})","inline":true},
-                  {"name":"Commit","value":"[\`${short_sha}\`](${commit_url})","inline":true},
-                  {"name":"Actor","value":"[${GITHUB_ACTOR}](${actor_url})","inline":true},
+                  {"name":"Pages URL","value":"${page_url}","inline":false},
                   {"name":"Ref","value":"[${GITHUB_REF_NAME}](${ref_url})","inline":true},
-                  {"name":"Pages URL","value":"${page_url}","inline":false}
+                  {"name":"Commit","value":"[\`${short_sha}\`](${commit_url})","inline":true},
+                  {"name":"Actor","value":"[${GITHUB_ACTOR}](${actor_url})","inline":true}
                 ],
                 "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
               }
