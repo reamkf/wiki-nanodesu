@@ -118,7 +118,6 @@ jobs:
                   "url": "${actor_url}",
                   "icon_url": "${actor_icon}"
                 },
-                "description": "wiki-nanodesu デプロイ結果なのです。",
                 "fields": [
                   {"name":"Repository","value":"[${GITHUB_REPOSITORY}](${repo_url})","inline":true},
                   {"name":"Pages URL","value":"${page_url}","inline":false},
