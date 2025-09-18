@@ -4,7 +4,7 @@ import { FriendsOrPhotoSkillType } from '@/types/abnormalStatus'; // 必要に�
 export const POWER_PRIORITY_MAP: Record<string, number> = {
 	'完全耐性': 1000,
 	'大幅に': 500,
-	'-': 100,
+	'-': 95,
 	'高': 90,
 	'大': 85,
 	'中': 49,
