@@ -362,8 +362,14 @@ async function main(): Promise<void> {
 		// gitのコミットを作成
 		try {
 			// 差分があるかどうかを確認
-			const diff = execSync('git diff --exit-code csv/*.csv');
-			if (diff.toString().trim().length > 0) {
+			let diffExists = false;
+			try {
+				execSync('git diff --exit-code csv/*.csv').toString(); // 差分がある場合はexit code 1でエラーがthrowされる
+			} catch {
+				// TODO: コマンド実行自体に失敗した場合もエラーになるので、それをハンドリングする
+				diffExists = true;
+			}
+			if (diffExists) {
 				// 差分がある場合はコミット
 				execSync('git add csv/*.csv');
 				execSync('git commit -m "chore: update csv files"');
