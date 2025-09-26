@@ -7,7 +7,8 @@ export enum FriendsAttribute {
 	relax = "リラックス",
 	active = "アクティブ",
 	lovely = "ラブリー",
-	mypace = "マイペース"
+	mypace = "マイペース",
+	none = "none"
 }
 
 export const friendsAttributeColor = {
@@ -17,6 +18,7 @@ export const friendsAttributeColor = {
 	[FriendsAttribute.lovely]: '#ffb3b3',
 	[FriendsAttribute.mypace]: '#88abda',
 	[FriendsAttribute.active]: '#a6cf00',
+	[FriendsAttribute.none]: '#000000',
 }
 
 export const friendsAttributeIconUrl = {
@@ -26,6 +28,7 @@ export const friendsAttributeIconUrl = {
 	[FriendsAttribute.lovely]: '/wiki-nanodesu/attribute-icons/friends/lovely.png',
 	[FriendsAttribute.mypace]: '/wiki-nanodesu/attribute-icons/friends/mypace.png',
 	[FriendsAttribute.active]: '/wiki-nanodesu/attribute-icons/friends/active.png',
+	[FriendsAttribute.none]: '/wiki-nanodesu/attribute-icons/friends/none.png',
 }
 
 export enum MegumiPattern {
@@ -76,6 +79,7 @@ export interface FriendsStatus {
 	beatFlags: number | null;
 	actionFlags: number[] | null;
 	tryFlags: number[] | null;
+	specialFlags: number[][] | null;
 
 	flagDamageUp: FriendsFlagDamageUp;
 	flagDamageUpYasei5: FriendsFlagDamageUp;
@@ -99,6 +103,7 @@ export interface FriendsDataRow {
 	secondName: string;
 	isHc: boolean;
 	attribute: FriendsAttribute;
+	subAttribute: FriendsAttribute;
 	implementDate: string;
 	implementType: string;
 	implementTypeDetail: string;
@@ -148,6 +153,7 @@ export interface RawFriendsCSV {
 	Beatフラッグ: number;
 	Actionフラッグ: string;
 	Tryフラッグ: string;
+	Specialフラッグ: string;
 	Beat補正: number;
 	Action補正: number;
 	Try補正: number;

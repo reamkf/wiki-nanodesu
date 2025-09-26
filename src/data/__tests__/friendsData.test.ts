@@ -42,6 +42,10 @@ describe('getFriendsData', () => {
 				expect(sampleFriendsData?.attribute).toBe(FriendsAttribute.mypace);
 			});
 
+			it('サブ属性がない', () => {
+				expect(sampleFriendsData?.subAttribute).toBe(FriendsAttribute.none);
+			});
+
 			it('初期けも級が4である', () => {
 				expect(sampleFriendsData?.rarity).toBe(4);
 			});
@@ -52,6 +56,24 @@ describe('getFriendsData', () => {
 
 			it('12ポケがfalseである', () => {
 				expect(sampleFriendsData?.has12poke).toBe(false);
+			});
+
+			describe('フラッグ', () => {
+				it('Beatフラッグが2である', () => {
+					expect(sampleFriendsData?.status.beatFlags).toBe(2);
+				});
+
+				it('Actionフラッグが[15, 15]である', () => {
+					expect(sampleFriendsData?.status.actionFlags).toEqual([15, 15]);
+				});
+
+				it('Tryフラッグが[20]である', () => {
+					expect(sampleFriendsData?.status.tryFlags).toEqual([20]);
+				});
+
+				it('Specialフラッグがnullである', () => {
+					expect(sampleFriendsData?.status.specialFlags).toEqual(null);
+				});
 			});
 
 			describe('動物フォトデータ', () => {
@@ -174,6 +196,58 @@ describe('getFriendsData', () => {
 
 			it('めぐみパターンが正しい', () => {
 				expect(sampleFriendsData?.status.statusBase.megumiPattern).toBe(MegumiPattern.atk50);
+			});
+		});
+	});
+
+	describe('ドラゴンサーバルのデータ', () => {
+		let sampleFriendsData: Awaited<ReturnType<typeof getFriendsData>>[number] | undefined;
+
+		beforeAll(() => {
+			sampleFriendsData = friendsData.find(friend => friend.id === 'ドラゴンサーバル');
+		});
+
+		describe('基本情報', () => {
+			it('idがドラゴンサーバルである', () => {
+				expect(sampleFriendsData?.id).toBe('ドラゴンサーバル');
+			});
+
+			it('フレンズ名がドラゴンサーバルである', () => {
+				expect(sampleFriendsData?.name).toBe('ドラゴンサーバル');
+			});
+
+			it('属性違い二つ名がない', () => {
+				expect(sampleFriendsData?.secondName).toBe('');
+			});
+
+			it('HCでない', () => {
+				expect(sampleFriendsData?.isHc).toBe(false);
+			});
+
+			it('属性がファニーである', () => {
+				expect(sampleFriendsData?.attribute).toBe(FriendsAttribute.funny);
+			});
+
+			it('サブ属性がフレンドリーである', () => {
+				expect(sampleFriendsData?.subAttribute).toBe(FriendsAttribute.friendry);
+			});
+		});
+
+		describe('フラッグ', () => {
+			it('Beatフラッグが2である', () => {
+				expect(sampleFriendsData?.status.beatFlags).toBe(2);
+			});
+
+			it('Actionフラッグが[30]である', () => {
+				expect(sampleFriendsData?.status.actionFlags).toEqual([30]);
+			});
+
+			it('Tryフラッグが[40]である', () => {
+				expect(sampleFriendsData?.status.tryFlags).toEqual([40]);
+			});
+
+			it('Specialフラッグが[[20, 30]]である', () => {
+				expect(sampleFriendsData?.status.specialFlags).toEqual([[20, 30]]);
 			});
 		});
 	});

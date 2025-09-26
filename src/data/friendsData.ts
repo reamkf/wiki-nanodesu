@@ -51,6 +51,16 @@ export async function parseFriendsStatus(data: RawFriendsCSV): Promise<FriendsSt
 		beatFlags: parseNumericValue(data.Beatフラッグ),
 		actionFlags: (typeof data.Actionフラッグ === 'string' ? data.Actionフラッグ.split(',') : [data.Actionフラッグ || 0]).map(Number),
 		tryFlags: (typeof data.Tryフラッグ === 'string' ? data.Tryフラッグ.split(',') : [data.Tryフラッグ || 0]).map(Number),
+		specialFlags: typeof data.Specialフラッグ === 'string'
+			? data.Specialフラッグ.split(',').map(str => {
+				const match = /^A(\d+)T(\d+)$/.exec(str);
+				if (!match) {
+					return null;
+				}
+				const [, action, tryValue] = match;
+				return [Number(action), Number(tryValue)];
+			}).filter((flag): flag is [number, number] => flag !== null)
+			: null,
 		flagDamageUp: {
 			beat: parseNumericValue(data.Beat補正, false),
 			action: parseNumericValue(data.Action補正, false),
@@ -188,7 +198,8 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 					name: row.フレンズ名 || '',
 					secondName: row.属性違い二つ名 || '',
 					isHc: convertToBoolean(row.HC),
-					attribute: (row.属性 as FriendsAttribute) || FriendsAttribute.friendry,
+					attribute: (row.属性 as FriendsAttribute) || FriendsAttribute.none,
+					subAttribute: (row.サブ属性 as FriendsAttribute) || FriendsAttribute.none,
 					implementDate: row.実装日 || '',
 					implementType: row.実装種別 || '',
 					implementTypeDetail: row.実装種別詳細 || '',
