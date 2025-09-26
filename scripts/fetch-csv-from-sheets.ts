@@ -129,7 +129,7 @@ const sheetConfigs: SheetConfig[] = [
 		filePath: 'csv/フレンズデータ.csv',
 		range: {
 			startColumn: 1,
-			endColumn: 102
+			endColumn: 103
 		}
 	},
 	{
