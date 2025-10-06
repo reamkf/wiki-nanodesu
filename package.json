@@ -12,7 +12,7 @@
 		"test": "bun test",
 		"precommit": "bun test && bun lint",
 		"licenses:generate": "bun scripts/generate-licenses.ts",
-		"fetch-csv": "bun scripts/fetch-csv-from-sheets.ts"
+		"fetch-csv": "bun scripts/fetch-csv-from-sheets.ts --commit"
 	},
 	"dependencies": {
 		"@emotion/react": "^11.14.0",

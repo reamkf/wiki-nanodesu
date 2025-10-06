@@ -6,6 +6,8 @@
  * 使用方法:
  * 1. .envファイルにGOOGLE_SPREADSHEET_IDとGOOGLE_API_KEYを設定
  * 2. bun run fetch-csv を実行
+ * 3. --commit オプションを指定すると、変更があった場合に自動的にgit add/commitを実行します
+ *    例: bun run fetch-csv --commit
  */
 
 import * as fs from 'fs';
@@ -332,6 +334,9 @@ async function processSheet(apiKey: string, config: SheetConfig): Promise<void> 
 async function main(): Promise<void> {
 	logInfo('🦉 Google Sheets からCSVファイルを取得中...');
 
+	const args = process.argv.slice(2);
+	const shouldCommit = args.includes('--commit');
+
 	try {
 		// APIキーを取得
 		const apiKey = getApiKey();
@@ -359,30 +364,27 @@ async function main(): Promise<void> {
 			process.exit(1);
 		}
 
-		// gitのコミットを作成
-		try {
-			// 差分があるかどうかを確認
-			let diffExists = false;
+		if (shouldCommit) {
 			try {
-				execSync('git diff --exit-code csv/*.csv').toString(); // 差分がある場合はexit code 1でエラーがthrowされる
-			} catch {
-				// TODO: コマンド実行自体に失敗した場合もエラーになるので、それをハンドリングする
-				diffExists = true;
-			}
-			if (diffExists) {
-				// 差分がある場合はコミット
-				execSync('git add csv/*.csv');
-				execSync('git commit -m "chore: update csv files"');
-				logSuccess('差分が見つかりました。コミットしました。');
-			} else {
-				logInfo('差分はありませんでした。');
-			}
+				let diffExists = false;
+				try {
+					execSync('git diff --exit-code csv/*.csv').toString();
+				} catch {
+					diffExists = true;
+				}
+				if (diffExists) {
+					execSync('git add csv/*.csv');
+					execSync('git commit -m "chore: update csv files"');
+					logSuccess('差分が見つかりました。コミットしました。');
+				} else {
+					logInfo('差分はありませんでした。');
+				}
 
-		} catch (error) {
-			logError('❌ gitのコミットに失敗しました:', error as unknown);
-			process.exit(1);
+			} catch (error) {
+				logError('❌ gitのコミットに失敗しました:', error as unknown);
+				process.exit(1);
+			}
 		}
-
 	} catch (error) {
 		logError('❌ 処理中にエラーが発生しました:', error as unknown);
 		process.exit(1);
