@@ -24,10 +24,10 @@
 		"@tanstack/react-table": "^8.21.3",
 		"d3": "^7.9.0",
 		"encoding-japanese": "^2.2.0",
-		"next": "^15.5.2",
+		"next": "16.1.0",
 		"papaparse": "^5.5.3",
-		"react": "^19.1.1",
-		"react-dom": "^19.1.1"
+		"react": "19.2.3",
+		"react-dom": "19.2.3"
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.3.1",
@@ -36,12 +36,12 @@
 		"@types/encoding-japanese": "^2.2.1",
 		"@types/node": "22.13.1",
 		"@types/papaparse": "^5.3.16",
-		"@types/react": "^19.1.12",
-		"@types/react-dom": "^19.1.9",
+		"@types/react": "19.2.7",
+		"@types/react-dom": "19.2.3",
 		"bun-types": "^1.2.21",
 		"dotenv": "^16.6.1",
 		"eslint": "^9.34.0",
-		"eslint-config-next": "^15.5.2",
+		"eslint-config-next": "16.1.0",
 		"license-checker": "^25.0.1",
 		"license-checker-rseidelsohn": "^4.4.2",
 		"postcss": "^8.5.6",
@@ -51,5 +51,9 @@
 		"tailwindcss": "^4.1.12",
 		"typescript": "5.7.3"
 	},
-	"type": "module"
+	"type": "module",
+	"overrides": {
+		"@types/react": "19.2.7",
+		"@types/react-dom": "19.2.3"
+	}
 }
