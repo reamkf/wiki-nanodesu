@@ -98,15 +98,26 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			.attr('viewBox', [0, 0, width, height])
 			.style('background-color', 'transparent')
 			.style('border-radius', '8px')
-			.style('touch-action', 'none');
+			.style('touch-action', 'none')
+			.style('cursor', 'grab');
 
 		// ズーム機能
 		const g = svg.append('g');
 
 		const zoom = d3.zoom<SVGSVGElement, unknown>()
 			.scaleExtent([0.2, 4])
+			.on('start', (event) => {
+				if (event.sourceEvent && event.sourceEvent.type !== 'wheel') {
+					svg.style('cursor', 'grabbing');
+				}
+			})
 			.on('zoom', (event) => {
 				g.attr('transform', event.transform);
+			})
+			.on('end', (event) => {
+				if (event.sourceEvent && event.sourceEvent.type !== 'wheel') {
+					svg.style('cursor', 'grab');
+				}
 			});
 
 		// 初期ズーム設定（少し引いた状態で表示）
@@ -342,6 +353,8 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			if (!event.active) simulation.alphaTarget(0.3).restart();
 			event.subject.fx = event.subject.x;
 			event.subject.fy = event.subject.y;
+			const nodeElement = d3.select(`[data-friend-id="${event.subject.id}"]`);
+			nodeElement.style('cursor', 'grabbing');
 		}
 
 		function dragged(event: d3.D3DragEvent<SVGGElement, FriendNode, FriendNode>) {
@@ -353,6 +366,8 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			if (!event.active) simulation.alphaTarget(0);
 			event.subject.fx = null;
 			event.subject.fy = null;
+			const nodeElement = d3.select(`[data-friend-id="${event.subject.id}"]`);
+			nodeElement.style('cursor', 'pointer');
 		}
 
 		// 初期更新
