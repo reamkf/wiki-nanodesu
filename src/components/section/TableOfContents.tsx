@@ -214,7 +214,7 @@ export function TableOfContents({
 
 			{/* AboutModal.tsxと同じ実装のダイアログ */}
 			<Transition appear show={open} as={Fragment}>
-				<Dialog as="div" className="relative z-10" onClose={handleCloseDialog}>
+				<Dialog as="div" className="relative z-50" onClose={handleCloseDialog}>
 					<TransitionChild
 						as={Fragment}
 						enter="ease-out duration-200"

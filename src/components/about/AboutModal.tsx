@@ -11,7 +11,7 @@ interface AboutModalProps {
 export function AboutModal({ isOpen, onClose }: AboutModalProps) {
 	return (
 		<Transition appear show={isOpen} as={Fragment}>
-			<Dialog as="div" className="relative z-10" onClose={onClose}>
+			<Dialog as="div" className="relative z-50" onClose={onClose}>
 				<TransitionChild
 					as={Fragment}
 					enter="ease-out duration-200"
