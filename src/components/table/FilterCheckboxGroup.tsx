@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { FormGroup, FormControlLabel, Checkbox, Grid2 } from "@mui/material";
+import { FormGroup, FormControlLabel, Checkbox, Grid } from "@mui/material";
 
 export interface CheckboxOption {
 	id: string;
@@ -29,9 +29,9 @@ export function FilterCheckboxGroup({
 }: FilterCheckboxGroupProps) {
 	return (
 		<FormGroup>
-			<Grid2 container spacing={1.3}>
+			<Grid container spacing={1.3}>
 				{options.map((option) => (
-					<Grid2 key={option.id}>
+					<Grid key={option.id}>
 						<FormControlLabel
 							className="w-fit rounded-md m-0 transition-colors duration-200"
 							sx={{
@@ -60,9 +60,9 @@ export function FilterCheckboxGroup({
 							}
 							label={<div className="text-base p-1">{option.label}</div>}
 						/>
-					</Grid2>
+					</Grid>
 				))}
-			</Grid2>
+			</Grid>
 		</FormGroup>
 	);
 }
