@@ -4,6 +4,7 @@ import React from "react";
 import { parseSeesaaWikiNewLine } from "@/utils/seesaawiki/parser";
 import { SeesaaWikiImage } from "@/components/seesaawiki/SeesaaWikiImage";
 import { FriendsNameLink } from "@/components/friends/FriendsNameLink";
+import FriendsIcon from "@/components/friends/FriendsIcon";
 import { FriendsDataRow } from "@/types/friends";
 import { PhotoDataRow } from "@/types/photo";
 import PhotoIcon from "@/components/photo/PhotoIcon";
@@ -64,10 +65,7 @@ export const FriendOrPhotoDisplay = ({ data }: { data: WithFriendOrPhoto }) => {
 		// フレンズの場合
 		return (
 			<div className="text-sm flex items-center space-x-2">
-				<IconImage
-					src={data.friendsDataRow.iconUrl}
-					alt={data.friendsDataRow.name}
-				/>
+				<FriendsIcon friendsData={data.friendsDataRow} size={45} />
 				<FriendsNameLink friend={data.friendsDataRow} />
 			</div>
 		);

@@ -114,6 +114,30 @@ export interface FriendsDataRow {
 	has12poke: boolean;
 	numOfClothes: number;
 	cv: string;
+
+	miracleName: string;
+	miracleEffectLv1: string;
+	miracleEffectLv5: string;
+	miracleRequiredMp: number | null;
+	isMiraclePlus: boolean;
+
+	tokuiWazaName: string;
+	tokuiWazaEffect: string;
+
+	taikiSkillName: string;
+	taikiSkillEffect: string;
+	taikiSkillActivationRate: number | null;
+	taikiSkillActivationCount: number | null;
+
+	tokuseiName: string;
+	tokuseiEffect: string;
+
+	kisekiTokuseiName: string;
+	kisekiTokuseiEffect: string;
+
+	nanairoTokuseiName: string;
+	nanairoTokuseiEffect: string;
+
 	status: FriendsStatus;
 	wildPhotoAttribute: PhotoAttribute;
 	wildPhotoTrait: string;

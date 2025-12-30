@@ -210,6 +210,30 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 					has12poke: convertToBoolean(row['12ポケ']),
 					numOfClothes: row.特別衣装数 || 0,
 					cv: row.CV || '',
+
+					miracleName: row.けものミラクル技名 || '',
+					miracleEffectLv1: row.けものミラクル効果Lv1 || '',
+					miracleEffectLv5: row.けものミラクル効果Lv5 || '',
+					miracleRequiredMp: parseNumericValue(row.けものミラクル必要MP, false),
+					isMiraclePlus: convertToBoolean(row['けものミラクル＋']),
+
+					tokuiWazaName: row.とくいわざ技名 || '',
+					tokuiWazaEffect: row.とくいわざ効果 || '',
+
+					taikiSkillName: row.たいきスキル技名 || '',
+					taikiSkillEffect: row.たいきスキル効果 || '',
+					taikiSkillActivationRate: parseNumericValue(row.たいきスキル発動率, false),
+					taikiSkillActivationCount: parseNumericValue(row.たいきスキル発動回数, false),
+
+					tokuseiName: row.とくせい技名 || '',
+					tokuseiEffect: row.とくせい効果 || '',
+
+					kisekiTokuseiName: row.キセキとくせい技名 || '',
+					kisekiTokuseiEffect: row.キセキとくせい効果 || '',
+
+					nanairoTokuseiName: row.なないろとくせい技名 || '',
+					nanairoTokuseiEffect: row.なないろとくせい効果 || '',
+
 					status: await parseFriendsStatus(row),
 					wildPhotoAttribute: (row.動物フォト属性 as PhotoAttribute) || PhotoAttribute.none,
 					wildPhotoTrait: row.動物フォトとくせい効果変化前 || '',

@@ -5,9 +5,10 @@ import { memo } from "react";
 interface PhotoAttributeIconAndNameProps {
 	attribute: PhotoAttribute;
 	showText?: boolean;
+	size?: number;
 }
 
-export const PhotoAttributeIcon = memo(function PhotoAttributeIconAndName({ attribute, showText = true }: PhotoAttributeIconAndNameProps) {
+export const PhotoAttributeIcon = memo(function PhotoAttributeIconAndName({ attribute, showText = true, size = 40 }: PhotoAttributeIconAndNameProps) {
 	if(attribute === PhotoAttribute.none) {
 		return '-';
 	}
@@ -24,8 +25,8 @@ export const PhotoAttributeIcon = memo(function PhotoAttributeIconAndName({ attr
 				<Image
 					src={iconUrl}
 					alt={attribute}
-					width={40}
-					height={40}
+					width={size}
+					height={size}
 				/>
 			</div>
 		</>
