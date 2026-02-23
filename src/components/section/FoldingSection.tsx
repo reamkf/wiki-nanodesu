@@ -55,8 +55,6 @@ export function FoldingSection({
 		}
 	};
 
-
-	// トグルボタンコンポーネント - 上部と下部で再利用
 	const ToggleButton = ({
 		useIcon = true,
 		labelText = null,
