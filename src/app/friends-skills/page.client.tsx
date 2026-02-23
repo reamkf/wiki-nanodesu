@@ -35,9 +35,7 @@ export default function ClientTabs({
 	effectTypeData: Record<string, SkillWithFriend[]>,
 	skillCategories: TreeItemData[]
 }) {
-	const [selectedEffectType, setSelectedEffectType] = useState<string | null>(
-		() => effectTypes.length > 0 ? effectTypes[0] : null
-	);
+	const [selectedEffectType, setSelectedEffectType] = useState<string | null>(null);
 
 	const getSearchableText = useCallback((row: SkillWithFriend, columnId: string): string => {
 		return getSearchableTextForFriendOrPhoto(row, columnId);
