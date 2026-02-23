@@ -45,9 +45,22 @@
 	```sh
 	bun dev
 	```
-- テスト
+- ユニットテスト
 	```sh
 	bun test
+	```
+- E2Eテスト（Playwright）
+	```sh
+	bun run build
+	bun run test:e2e
+	```
+	ビルド済みの静的ファイル（`out/`）に対してブラウザテストを実行します。初回はPlaywrightブラウザのインストールが必要です。
+	```sh
+	bunx playwright install chromium
+	```
+	UIモードで実行する場合:
+	```sh
+	bun run test:e2e:ui
 	```
 - リント
 	```sh
@@ -61,7 +74,6 @@
 	```sh
 	bun run serve
 	```
-	※サーバーの起動にはビルドに加えて`out/wiki-nanodesu` <-> `out`のシンボリックリンクを作成する必要があります。
 
 ### Google Sheets APIからのデータ取得
 スプレッドシートからローカルでCSVファイルを取得するには、以下の手順で設定してください。

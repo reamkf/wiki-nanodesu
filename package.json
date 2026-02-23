@@ -7,9 +7,11 @@
 		"build": "next build",
 		"prebuild": "bun run licenses:generate",
 		"build-turbopack": "next build --turbopack",
-		"serve": "serve out",
+		"serve": "bun scripts/serve.ts",
 		"lint": "next lint",
 		"test": "bun test",
+		"test:e2e": "bunx playwright test",
+		"test:e2e:ui": "bunx playwright test --ui",
 		"precommit": "bun test && bun lint",
 		"licenses:generate": "bun scripts/generate-licenses.ts",
 		"fetch-csv": "bun scripts/fetch-csv-from-sheets.ts --commit"
@@ -31,6 +33,7 @@
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.3.3",
+		"@playwright/test": "^1.58.2",
 		"@tailwindcss/postcss": "^4.1.18",
 		"@types/d3": "^7.4.3",
 		"@types/encoding-japanese": "^2.2.1",
@@ -46,7 +49,6 @@
 		"license-checker-rseidelsohn": "^4.4.2",
 		"postcss": "^8.5.6",
 		"react-scan": "^0.4.3",
-		"serve": "^14.2.5",
 		"tailwind-scrollbar": "^4.0.2",
 		"tailwindcss": "^4.1.18",
 		"typescript": "5.9.3"
