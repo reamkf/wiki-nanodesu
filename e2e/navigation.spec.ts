@@ -109,6 +109,86 @@ test.describe("サイドバー", () => {
 			page.locator("h2", { hasText: "フレンズステータスランキング" })
 		).toBeVisible();
 	});
+
+	test("検索で一致しないリンクが非表示になる", async ({ page }) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+
+		await searchInput.fill("ステータス");
+
+		// 一致するリンクは表示される
+		await expect(
+			sidebar.getByText("フレンズステータスランキング")
+		).toBeVisible();
+
+		// 一致しないリンクは非表示になる
+		await expect(sidebar.getByText("スキル別フレンズ一覧")).toBeHidden();
+	});
+
+	test("検索時にフレンズ一覧セクションが表示される", async ({ page }) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+
+		await searchInput.fill("サーバル");
+
+		// フレンズ一覧セクションヘッダーが表示される
+		const sectionHeader = sidebar.locator(
+			"div.border-b-2",
+			{ hasText: "フレンズ一覧" }
+		);
+		await expect(sectionHeader).toBeVisible();
+	});
+
+	test("検索クリア後にフレンズ一覧セクションが非表示になる", async ({
+		page,
+	}) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+
+		// フレンズ名を検索
+		await searchInput.fill("サーバル");
+		const sectionHeader = sidebar.locator(
+			"div.border-b-2",
+			{ hasText: "フレンズ一覧" }
+		);
+		await expect(sectionHeader).toBeVisible();
+
+		// クリアボタンで検索をリセット
+		const clearButton = sidebar.getByLabel("検索をクリア");
+		await clearButton.click();
+
+		// フレンズ一覧セクションヘッダーが非表示になる
+		await expect(sectionHeader).toBeHidden();
+	});
+
+	test("空の検索結果で適切に表示される", async ({ page }) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+
+		// 一致しないクエリを入力
+		await searchInput.fill("zzzzzzz");
+
+		// 内部ナビゲーションリンクがすべて非表示になる
+		const internalLinks = [
+			"状態異常スキル一覧",
+			"スキル別フレンズ一覧",
+			"フレンズステータスランキング",
+			"フレンズ掛け合いグラフ",
+			"フォト火力ランキング",
+		];
+
+		for (const linkText of internalLinks) {
+			await expect(sidebar.getByText(linkText)).toBeHidden();
+		}
+	});
 });
 
 test.describe("サイドバー（モバイル）", () => {
