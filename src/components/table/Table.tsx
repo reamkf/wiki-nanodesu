@@ -229,13 +229,22 @@ export function Table<TData, TValue>({
 		() => initialState?.pagination || getStoredState('pagination', { pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE })
 	);
 
-	const storeStateCallback = useCallback(storeState, [storageKeyPrefix]);
+	const storeStateCallback = useCallback(<T,>(key: string, value: T) => {
+		if (typeof window === 'undefined') return;
+
+		try {
+			localStorage.setItem(`${storageKeyPrefix}.${key}`, JSON.stringify(value));
+		} catch (e) {
+			console.info(`Error storing state for ${key}:`, e);
+		}
+	}, [storageKeyPrefix]);
 
 	// ページネーション状態が変更されたときlocalStorageに保存
 	useEffect(() => {
 		storeStateCallback('pagination', pagination);
 	}, [pagination, storeStateCallback]);
 
+	// eslint-disable-next-line react-hooks/incompatible-library
 	const table = useReactTable({
 		data,
 		columns,

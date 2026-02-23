@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useCallback, useState, useEffect } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import {
 	AbnormalStatusWithFriend,
 	AbnormalStatusSkillEffectType,
@@ -31,13 +31,9 @@ export default function ClientTabs({
 	statusTypeData: Record<string, AbnormalStatusWithFriend[]>,
 	abnormalStatusCategories: TreeItemData[]
 }) {
-	const [selectedStatusType, setSelectedStatusType] = useState<string | null>(null);
-
-	useEffect(() => {
-		if (selectedStatusType === null && statusTypes.length > 0) {
-			setSelectedStatusType(statusTypes[0]);
-		}
-	}, [statusTypes, selectedStatusType]);
+	const [selectedStatusType, setSelectedStatusType] = useState<string | null>(
+		() => statusTypes.length > 0 ? statusTypes[0] : null
+	);
 
 	const getSearchableText = useCallback((row: AbnormalStatusWithFriend, columnId: string): string => {
 		return getSearchableTextForFriendOrPhoto(row, columnId);

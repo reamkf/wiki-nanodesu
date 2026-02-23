@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useCallback, useState, useEffect } from "react";
+import React, { useMemo, useCallback, useState, useEffect, useSyncExternalStore } from "react";
 import { PhotoDataRow, PhotoDamageDataRow, PhotoAttribute } from "@/types/photo";
 import { ColumnDef } from "@tanstack/react-table";
 import { createCustomFilterFn } from "@/utils/tableFilters";
@@ -70,7 +70,11 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 		}
 		return 20000;
 	});
-	const [isMounted, setIsMounted] = useState(false);
+	const isMounted = useSyncExternalStore(
+		(cb) => { cb(); return () => {}; },
+		() => true,
+		() => false,
+	);
 
 	const [selectedAttributes, setSelectedAttributes] = useState<Set<PhotoAttribute>>(() => {
 		if (typeof window !== "undefined") {
@@ -95,10 +99,6 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 		}
 		return new Set(['変化前', '変化後']);
 	});
-
-	useEffect(() => {
-		setIsMounted(true);
-	}, []);
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {

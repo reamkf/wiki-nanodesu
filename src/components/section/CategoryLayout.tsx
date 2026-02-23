@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { Box } from "@mui/material";
 import { TableOfContents } from "@/components/section/TableOfContents";
 import { TreeItemData } from "../common/TreeList";
@@ -27,7 +27,7 @@ export function CategoryLayout({
 	emptyMessage = "データがありません"
 }: CategoryLayoutProps) {
 	// カテゴリーセクションをレンダリングする関数
-	const renderCategorySections = useCallback((categories: TreeItemData[], level = 1) => {
+	const renderCategorySections = (categories: TreeItemData[], level = 1) => {
 		return categories.map((category) => {
 			// 子カテゴリーがある場合
 			if (category.children && category.children.length > 0) {
@@ -72,7 +72,7 @@ export function CategoryLayout({
 				</div>
 			);
 		});
-	}, [renderContent, selectedCategory, emptyMessage]);
+	};
 
 	return (
 		<>

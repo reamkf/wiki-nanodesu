@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useCallback, useState, useEffect } from "react";
+import React, { useMemo, useCallback, useState } from "react";
 import { SkillWithFriend } from "@/types/friendsSkills";
 import { TreeItemData } from "@/components/common/TreeList";
 import { ColumnDef } from "@tanstack/react-table";
@@ -35,13 +35,9 @@ export default function ClientTabs({
 	effectTypeData: Record<string, SkillWithFriend[]>,
 	skillCategories: TreeItemData[]
 }) {
-	const [selectedEffectType, setSelectedEffectType] = useState<string | null>(null);
-
-	useEffect(() => {
-		if (selectedEffectType === null && effectTypes.length > 0) {
-			setSelectedEffectType(effectTypes[0]);
-		}
-	}, [effectTypes, selectedEffectType]);
+	const [selectedEffectType, setSelectedEffectType] = useState<string | null>(
+		() => effectTypes.length > 0 ? effectTypes[0] : null
+	);
 
 	const getSearchableText = useCallback((row: SkillWithFriend, columnId: string): string => {
 		return getSearchableTextForFriendOrPhoto(row, columnId);

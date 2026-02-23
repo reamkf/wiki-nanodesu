@@ -11,7 +11,7 @@ import {
 	flexRender,
 	ColumnDef,
 } from "@tanstack/react-table";
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useSyncExternalStore } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
 import { sortAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
@@ -197,8 +197,11 @@ export default function FriendsStatusTable({
 	friendsStatusList: FriendsStatusListItemWithDisplayValue[];
 	defaultStatusTypes?: string[];
 }) {
-	const [isMounted, setIsMounted] = useState(false);
-
+	const isMounted = useSyncExternalStore(
+		(cb) => { cb(); return () => {}; },
+		() => true,
+		() => false,
+	);
 	const defaultStatusTypesSet = useMemo(() =>
 		new Set(defaultStatusTypes || STATUS_TYPES),
 		[defaultStatusTypes]
@@ -232,11 +235,6 @@ export default function FriendsStatusTable({
 
 	// ソート状態
 	const [sorting, setSorting] = useState<SortingState>([{id: 'kemosute', desc: true}]);
-
-	// 初回レンダリング時に設定を読み込む
-	useEffect(() => {
-		setIsMounted(true);
-	}, []);
 
 	// 設定の永続化
 	useEffect(() => {

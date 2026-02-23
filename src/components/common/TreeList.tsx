@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Box, ListItemButton, ListItemText } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
@@ -11,6 +11,23 @@ export interface TreeItemData {
 	name: string;
 	children?: TreeItemData[];
 	isExpandedByDefault?: boolean; // デフォルトで展開するかどうか
+}
+
+// 検索キーワードに一致するアイテムを含むかどうかを再帰的に確認する関数
+function containsSearchKeyword(item: TreeItemData, keyword: string): boolean {
+	if (!keyword) return true;
+
+	// 自身の名前が検索キーワードを含む場合
+	if (includesNormalizeQuery(item.name, keyword)) {
+		return true;
+	}
+
+	// 子要素を検索
+	if (item.children && item.children.length > 0) {
+		return item.children.some(child => containsSearchKeyword(child, keyword));
+	}
+
+	return false;
 }
 
 interface TreeListProps {
@@ -69,67 +86,43 @@ export function TreeList({
 		}));
 	}, []);
 
-	// 検索キーワードに一致するアイテムを含むかどうかを再帰的に確認する関数
-	const containsSearchKeyword = useCallback((item: TreeItemData, keyword: string): boolean => {
-		if (!keyword) return true;
+	// 検索キーワードがある場合、検索結果に基づいて展開すべきIDを計算
+	const searchExpandedIds = useMemo(() => {
+		if (!searchKeyword) return new Set<string>();
 
-		// 自身の名前が検索キーワードを含む場合
-		if (includesNormalizeQuery(item.name, keyword)) {
-			return true;
-		}
+		const idsToExpand = new Set<string>();
 
-		// 子要素を検索
-		if (item.children && item.children.length > 0) {
-			return item.children.some(child => containsSearchKeyword(child, keyword));
-		}
+		const walk = (treeItems: TreeItemData[]) => {
+			treeItems.forEach(item => {
+				if (containsSearchKeyword(item, searchKeyword)) {
+					idsToExpand.add(item.id);
 
-		return false;
-	}, []);
-
-	// 検索キーワードがある場合、検索結果に基づいて展開状態を更新
-	useEffect(() => {
-		if (searchKeyword) {
-			const newExpandedState = { ...expandedState };
-			let hasChanges = false;
-
-			// 検索キーワードに一致する項目の親を全て展開する関数
-			const expandParentsWithMatches = (treeItems: TreeItemData[]) => {
-				treeItems.forEach(item => {
-					if (containsSearchKeyword(item, searchKeyword)) {
-						// この項目または子孫が検索キーワードに一致する場合、展開する
-						if (!newExpandedState[item.id]) {
-							newExpandedState[item.id] = true;
-							hasChanges = true;
-						}
-
-						// 検索キーワードに直接一致する項目の場合、その子要素も展開する
-						if (includesNormalizeQuery(item.name, searchKeyword) &&
-							item.children && item.children.length > 0) {
-							// 子要素を展開
-							item.children.forEach(child => {
-								if (!newExpandedState[child.id]) {
-									newExpandedState[child.id] = true;
-									hasChanges = true;
-								}
-							});
-						}
-
-						// 子要素がある場合は再帰的に処理
-						if (item.children && item.children.length > 0) {
-							expandParentsWithMatches(item.children);
-						}
+					if (includesNormalizeQuery(item.name, searchKeyword) &&
+						item.children && item.children.length > 0) {
+						item.children.forEach(child => {
+							idsToExpand.add(child.id);
+						});
 					}
-				});
-			};
 
-			expandParentsWithMatches(items);
+					if (item.children && item.children.length > 0) {
+						walk(item.children);
+					}
+				}
+			});
+		};
 
-			// 変更があった場合のみ状態を更新
-			if (hasChanges) {
-				setExpandedState(newExpandedState);
-			}
-		}
-	}, [searchKeyword, items, containsSearchKeyword, expandedState]); // expandedStateは依存配列から除外
+		walk(items);
+		return idsToExpand;
+	}, [searchKeyword, items]);
+
+	// ユーザー操作 + 検索による展開をマージした状態
+	const effectiveExpandedState = useMemo(() => {
+		if (searchExpandedIds.size === 0) return expandedState;
+
+		const merged = { ...expandedState };
+		searchExpandedIds.forEach(id => { merged[id] = true; });
+		return merged;
+	}, [expandedState, searchExpandedIds]);
 
 	// 検索キーワードに一致する項目のIDを収集する
 	const matchingItemIds = useMemo(() => {
@@ -188,13 +181,13 @@ export function TreeList({
 
 		collectMatchingIds(items);
 		return matchIds;
-	}, [items, searchKeyword, containsSearchKeyword]);
+	}, [items, searchKeyword]);
 
 	// 再帰的にアイテムをレンダリングする関数
-	const renderTreeItems = useCallback((treeItems: TreeItemData[], level = 0) => {
+	const renderTreeItems = (treeItems: TreeItemData[], level = 0) => {
 		return treeItems.map(item => {
 			const hasChildren = !!(item.children && item.children.length > 0);
-			const isExpanded = expandedState[item.id];
+			const isExpanded = effectiveExpandedState[item.id];
 
 			// 検索キーワードがある場合、このアイテムが表示対象かどうかをチェック
 			if (searchKeyword && !matchingItemIds.has(item.id)) {
@@ -262,7 +255,7 @@ export function TreeList({
 				</React.Fragment>
 			);
 		}).filter(Boolean); // nullの項目を除外
-	}, [handleItemClick, handleToggleExpand, expandedState, searchKeyword, matchingItemIds]);
+	};
 
 	// メインのレンダリング
 	return (

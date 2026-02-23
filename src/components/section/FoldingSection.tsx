@@ -14,6 +14,36 @@ interface FoldingSectionProps {
 	closeButtonLabel?: string | React.ReactNode | null,
 }
 
+function ToggleButton({
+	useIcon = true,
+	labelText = null,
+	isOpened,
+	onToggle,
+}: {
+	useIcon?: boolean;
+	labelText?: string | React.ReactNode | null;
+	isOpened: boolean;
+	onToggle: () => void;
+}) {
+	const iconClassName = 'text-xl min-w-0 p-0 m-0';
+
+	return (
+		<Button
+			onClick={onToggle}
+			variant="text"
+			size="small"
+			className="text-gray-500 hover:bg-gray-100 m-0 p-0 my-1 min-w-0"
+		>
+			{useIcon && (
+				isOpened ?
+					<IndeterminateCheckBoxOutlinedIcon className={iconClassName} /> :
+					<AddBoxOutlinedIcon className={iconClassName} />
+			)}
+			{labelText && <span className='ml-1 text-black translate-y-[1px]'>{labelText}</span>}
+		</Button>
+	);
+}
+
 /**
  * 折りたたみ可能なセクションコンポーネント
  * - 開閉アニメーション付き
@@ -55,36 +85,10 @@ export function FoldingSection({
 		}
 	};
 
-	const ToggleButton = ({
-		useIcon = true,
-		labelText = null,
-	}: {
-		useIcon?: boolean;
-		labelText?: string | React.ReactNode | null;
-	}) => {
-		const iconClassName = 'text-xl min-w-0 p-0 m-0';
-
-		return (
-			<Button
-				onClick={handleToggle}
-				variant="text"
-				size="small"
-				className="text-gray-500 hover:bg-gray-100 m-0 p-0 my-1 min-w-0"
-			>
-				{useIcon && (
-					isOpened ?
-						<IndeterminateCheckBoxOutlinedIcon className={iconClassName} /> :
-						<AddBoxOutlinedIcon className={iconClassName} />
-				)}
-				{labelText && <span className='ml-1 text-black translate-y-[1px]'>{labelText}</span>}
-			</Button>
-		);
-	};
-
 	return (
 		<Box className={className} ref={sectionRef}>
 			{/* 上部トグルボタン+ラベル */}
-			<ToggleButton useIcon={true} labelText={toggleButtonLabel}/>
+			<ToggleButton useIcon={true} labelText={toggleButtonLabel} isOpened={isOpened} onToggle={handleToggle}/>
 
 			{/* コンテンツ部分 */}
 			<Collapse
@@ -97,7 +101,7 @@ export function FoldingSection({
 			</Collapse>
 
 			{/* 下部閉じるボタン(セクションが開いている場合のみ表示) */}
-			{isOpened && <ToggleButton useIcon={false} labelText={closeButtonLabel} />}
+			{isOpened && <ToggleButton useIcon={false} labelText={closeButtonLabel} isOpened={isOpened} onToggle={handleToggle} />}
 		</Box>
 	);
 }

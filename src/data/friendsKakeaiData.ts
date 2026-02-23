@@ -475,7 +475,6 @@ const isCompleteGraph = (nodeIds: string[], graph: Map<string, Set<string>>): bo
  * @param nodes フレンズノードの配列
  * @param graph 隣接リスト形式のグラフ
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const detectStarGraphs = (nodes: FriendNode[], graph: Map<string, Set<string>>): void => {
 	let groupId = 20000; // 他のグループとIDが被らないように大きな値から開始
 
