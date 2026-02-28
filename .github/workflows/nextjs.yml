@@ -75,7 +75,7 @@ jobs:
             ${{ runner.os }}-nextjs-${{ hashFiles('**/bun.lock') }}-
 
       - name: Build with Next.js
-        run: bun --bun run build
+        run: bun run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
@@ -101,7 +101,7 @@ jobs:
           key: ${{ runner.os }}-bun-modules-${{ hashFiles('**/bun.lock') }}
 
       - name: Run lint
-        run: bun --bun run lint
+        run: bun run lint
 
   test:
     runs-on: ubuntu-latest
@@ -122,7 +122,7 @@ jobs:
           key: ${{ runner.os }}-bun-modules-${{ hashFiles('**/bun.lock') }}
 
       - name: Run tests
-        run: bun --bun run test
+        run: bun run test
 
   test-e2e:
     runs-on: ubuntu-latest
@@ -146,7 +146,7 @@ jobs:
         run: bunx playwright install --with-deps
 
       - name: Build with Next.js
-        run: bun --bun run build
+        run: bun run build
 
       - name: Run E2E tests
         run: bun run test:e2e
