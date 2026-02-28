@@ -25,7 +25,7 @@ function parseBasicStatus (
 	};
 }
 
-export function parsePhotoStatus(data: RawPhotoCSV): PhotoStatus {
+function parsePhotoStatus(data: RawPhotoCSV): PhotoStatus {
 	return {
 		status1: parseBasicStatus(
 			parseNumericValue(data['Lv.1たいりょく']),
@@ -121,9 +121,4 @@ export async function getPhotoDataMap(): Promise<Map<string, PhotoDataRow>> {
 	const photoData = await getPhotoData();
 	photoDataMapCache = new Map(photoData.map(p => [p.name, p]));
 	return photoDataMapCache;
-}
-
-export async function getPhotoDataByName(name: string): Promise<PhotoDataRow | null> {
-	const photoDataMap = await getPhotoDataMap();
-	return photoDataMap.get(name) || null;
 }

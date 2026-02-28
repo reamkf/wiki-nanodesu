@@ -1,7 +1,7 @@
 const BASE_DATE = new Date('2020-08-01T00:00:00Z');  // UTC
 const BASE_COUNT = 2;
 
-export function getJSTDate(date: Date) {
+function getJSTDate(date: Date) {
 	// UTCの時刻に9時間を加算してJSTに変換（ミリ秒単位で計算）
 	const jstTime = date.getTime() + (9 * 60 * 60 * 1000);
 	const jstDate = new Date(jstTime);

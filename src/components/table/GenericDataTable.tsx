@@ -26,7 +26,7 @@ export const formatText = (text: string): React.ReactElement => {
 };
 
 // SeesaaWikiImageラッパー
-export const IconImage = ({ src, alt }: { src?: string; alt?: string }) => {
+const IconImage = ({ src, alt }: { src?: string; alt?: string }) => {
 	if (!src) return null;
 
 	return (

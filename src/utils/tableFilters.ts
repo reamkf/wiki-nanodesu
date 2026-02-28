@@ -10,7 +10,7 @@ interface QueryParserCache {
 }
 
 // クエリパーサーのキャッシュ
-export const queryParserCache: QueryParserCache = {
+const queryParserCache: QueryParserCache = {
 	evaluatorCache: new Map<string, (text: string) => boolean>()
 };
 

@@ -11,7 +11,7 @@ let abnormalStatusTypesCache: string[] | null = null;
 /**
  * 状態異常データのCSVデータを取得する
  */
-export async function getAbnormalStatusData(): Promise<AbnormalStatusEffect[]> {
+async function getAbnormalStatusData(): Promise<AbnormalStatusEffect[]> {
 	// キャッシュがあればそれを返す
 	if (abnormalStatusDataCache) {
 		return abnormalStatusDataCache;

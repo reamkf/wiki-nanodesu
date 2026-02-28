@@ -7,6 +7,69 @@ import { TreeItemData } from "../common/TreeList";
 import { Heading } from "@/components/section/Heading";
 import { FoldingSection } from "@/components/section/FoldingSection";
 
+interface CategorySectionProps {
+	category: TreeItemData;
+	level: 1 | 2 | 3;
+	renderContent: (categoryId: string) => ReactNode;
+	selectedCategory: string | null;
+	emptyMessage: string;
+}
+
+/** 個別のカテゴリーセクションを再帰的にレンダリングするコンポーネント */
+function CategorySection({
+	category,
+	level,
+	renderContent,
+	selectedCategory,
+	emptyMessage
+}: CategorySectionProps) {
+	// 子カテゴリーがある場合
+	if (category.children && category.children.length > 0) {
+		return (
+			<div id={`section-${category.id}`}>
+				<Heading
+					title={category.name}
+					id={category.id}
+					level={level}
+				/>
+				<div className="mt-2">
+					{category.children.map((child) => (
+						<CategorySection
+							key={child.id}
+							category={child}
+							level={Math.min(level + 1, 3) as 1 | 2 | 3}
+							renderContent={renderContent}
+							selectedCategory={selectedCategory}
+							emptyMessage={emptyMessage}
+						/>
+					))}
+				</div>
+			</div>
+		);
+	}
+
+	// リーフカテゴリの場合
+	const content = renderContent(category.id);
+	if (!content) return null;
+
+	return (
+		<div id={`section-${category.id}`}>
+			<Heading
+				title={category.name}
+				id={`${category.id}`}
+				level={level}
+			/>
+			<FoldingSection
+				isOpenByDefault={selectedCategory === category.id}
+			>
+				<div className="mt-2 overflow-x-auto">
+					{content || <div>{emptyMessage}</div>}
+				</div>
+			</FoldingSection>
+		</div>
+	);
+}
+
 interface CategoryLayoutProps {
 	categories: TreeItemData[];
 	renderContent: (categoryId: string) => ReactNode;
@@ -26,54 +89,6 @@ export function CategoryLayout({
 	selectedCategory,
 	emptyMessage = "データがありません"
 }: CategoryLayoutProps) {
-	// カテゴリーセクションをレンダリングする関数
-	const renderCategorySections = (categories: TreeItemData[], level = 1) => {
-		return categories.map((category) => {
-			// 子カテゴリーがある場合
-			if (category.children && category.children.length > 0) {
-				return (
-					<div
-						key={category.id}
-						id={`section-${category.id}`}
-					>
-						<Heading
-							title={category.name}
-							id={category.id}
-							level={level as 1 | 2 | 3}
-						/>
-						<div className="mt-2">
-							{renderCategorySections(category.children, level + 1)}
-						</div>
-					</div>
-				);
-			}
-
-			// サブカテゴリの場合
-			const content = renderContent(category.id);
-			if (!content) return null;
-
-			return (
-				<div
-					key={category.id}
-					id={`section-${category.id}`}
-				>
-					<Heading
-						title={category.name}
-						id={`${category.id}`}
-						level={level as 1 | 2 | 3}
-					/>
-					<FoldingSection
-						isOpenByDefault={selectedCategory === category.id}
-					>
-						<div className="mt-2 overflow-x-auto">
-							{content || <div>{emptyMessage}</div>}
-						</div>
-					</FoldingSection>
-				</div>
-			);
-		});
-	};
-
 	return (
 		<>
 			<Box>
@@ -87,7 +102,13 @@ export function CategoryLayout({
 			<Box>
 				{categories.map((category) => (
 					<div key={category.id} className="mb-8">
-						{renderCategorySections([category])}
+						<CategorySection
+							category={category}
+							level={1}
+							renderContent={renderContent}
+							selectedCategory={selectedCategory}
+							emptyMessage={emptyMessage}
+						/>
 					</div>
 				))}
 			</Box>

@@ -9,7 +9,7 @@ export function isStatusNull(status: BasicStatus): boolean {
 	return status.hp === null || status.atk === null || status.def === null;
 }
 
-export function getInitialLv(rarityOrFriendsDataRow: number | FriendsDataRow): number {
+function getInitialLv(rarityOrFriendsDataRow: number | FriendsDataRow): number {
 	if (typeof rarityOrFriendsDataRow === 'number') {
 		return rarityOrFriendsDataRow * 10 + 3;
 	} else {

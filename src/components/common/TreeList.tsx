@@ -15,6 +15,108 @@ export interface TreeItemData {
 	isExpandedByDefault?: boolean; // デフォルトで展開するかどうか
 }
 
+/** TreeItemRowに渡すprops */
+interface TreeItemRowProps {
+	item: TreeItemData;
+	level: number;
+	effectiveExpandedState: Record<string, boolean>;
+	matchingItemIds: Set<string>;
+	searchKeyword: string;
+	onItemClick: (id: string) => void;
+	onToggleExpand: (id: string, e: React.MouseEvent) => void;
+}
+
+/** 単一のツリーアイテムを再帰的にレンダリングするコンポーネント */
+const TreeItemRow = React.memo(function TreeItemRow({
+	item,
+	level,
+	effectiveExpandedState,
+	matchingItemIds,
+	searchKeyword,
+	onItemClick,
+	onToggleExpand,
+}: TreeItemRowProps) {
+	const hasChildren = !!(item.children && item.children.length > 0);
+	const isExpanded = effectiveExpandedState[item.id];
+
+	// 検索キーワードがある場合、このアイテムが表示対象かどうかをチェック
+	if (searchKeyword && !matchingItemIds.has(item.id)) {
+		return null; // 検索結果に含まれない場合は表示しない
+	}
+
+	// 項目が検索キーワードに直接一致するかどうか
+	const isDirectMatch = searchKeyword &&
+		includesNormalizeQuery(item.name, searchKeyword);
+
+	return (
+		<React.Fragment>
+			<ListItemButton
+				onClick={() => onItemClick(item.id)}
+				className={`
+					py-1
+					pr-8
+					hover:bg-sky-100
+					rounded flex items-center
+					${isDirectMatch ? 'bg-sky-50' : ''}
+				`}
+				style={{ paddingLeft: `${level * 1.5}rem` }}
+			>
+				{/* 展開/折りたたみアイコン (子要素がある場合のみ) */}
+				{hasChildren && (
+					<Box
+						component="span"
+						onClick={(e) => onToggleExpand(item.id, e)}
+						className="mr-1 cursor-pointer"
+					>
+						{isExpanded ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
+					</Box>
+				)}
+
+				{/* 箇条書きの点を表示 (子要素がない場合のみ) */}
+				{!hasChildren && (
+					<Box
+						component="span"
+						className="mr-2"
+					>
+						•
+					</Box>
+				)}
+
+				<ListItemText
+					primary={item.name}
+					slotProps={{
+						primary: {
+							className: `
+								${level === 0 ? 'text-[0.9rem] font-bold' : 'text-[0.85rem]'}
+								${isDirectMatch ? 'font-medium' : ''}
+							`
+						}
+					}}
+					className="my-0"
+				/>
+			</ListItemButton>
+
+			{/* 子要素があり、展開されている場合は子要素をレンダリング */}
+			{hasChildren && isExpanded && (
+				<Box>
+					{(item.children || []).map(child => (
+						<TreeItemRow
+							key={child.id}
+							item={child}
+							level={level + 1}
+							effectiveExpandedState={effectiveExpandedState}
+							matchingItemIds={matchingItemIds}
+							searchKeyword={searchKeyword}
+							onItemClick={onItemClick}
+							onToggleExpand={onToggleExpand}
+						/>
+					))}
+				</Box>
+			)}
+		</React.Fragment>
+	);
+});
+
 // 検索キーワードに一致するアイテムを含むかどうかを再帰的に確認する関数
 function containsSearchKeyword(item: TreeItemData, keyword: string): boolean {
 	if (!keyword) return true;
@@ -185,85 +287,22 @@ export function TreeList({
 		return matchIds;
 	}, [items, searchKeyword]);
 
-	// 再帰的にアイテムをレンダリングする関数
-	const renderTreeItems = (treeItems: TreeItemData[], level = 0) => {
-		return treeItems.map(item => {
-			const hasChildren = !!(item.children && item.children.length > 0);
-			const isExpanded = effectiveExpandedState[item.id];
-
-			// 検索キーワードがある場合、このアイテムが表示対象かどうかをチェック
-			if (searchKeyword && !matchingItemIds.has(item.id)) {
-				return null; // 検索結果に含まれない場合は表示しない
-			}
-
-			// 項目が検索キーワードに直接一致するかどうか
-			const isDirectMatch = searchKeyword &&
-				includesNormalizeQuery(item.name, searchKeyword);
-
-			return (
-				<React.Fragment key={item.id}>
-					<ListItemButton
-						onClick={() => handleItemClick(item.id)}
-						className={`
-							py-1
-							pr-8
-							hover:bg-sky-100
-							rounded flex items-center
-							${isDirectMatch ? 'bg-sky-50' : ''}
-						`}
-						style={{ paddingLeft: `${level * 1.5}rem` }}
-					>
-						{/* 展開/折りたたみアイコン (子要素がある場合のみ) */}
-						{hasChildren && (
-							<Box
-								component="span"
-								onClick={(e) => handleToggleExpand(item.id, e)}
-								className="mr-1 cursor-pointer"
-							>
-								{isExpanded ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
-							</Box>
-						)}
-
-						{/* 箇条書きの点を表示 (子要素がない場合のみ) */}
-						{!hasChildren && (
-							<Box
-								component="span"
-								className="mr-2"
-							>
-								•
-							</Box>
-						)}
-
-						<ListItemText
-							primary={item.name}
-							slotProps={{
-								primary: {
-									className: `
-										${level === 0 ? 'text-[0.9rem] font-bold' : 'text-[0.85rem]'}
-										${isDirectMatch ? 'font-medium' : ''}
-									`
-								}
-							}}
-							className="my-0"
-						/>
-					</ListItemButton>
-
-					{/* 子要素があり、展開されている場合は子要素をレンダリング */}
-					{hasChildren && isExpanded && (
-						<Box>
-							{renderTreeItems(item.children || [], level + 1)}
-						</Box>
-					)}
-				</React.Fragment>
-			);
-		}).filter(Boolean); // nullの項目を除外
-	};
-
 	// メインのレンダリング
 	return (
 		<Box className={`pb-1 w-full ${className}`}>
 			<div className="pt-0">
-				{renderTreeItems(items)}
+				{items.map(item => (
+					<TreeItemRow
+						key={item.id}
+						item={item}
+						level={0}
+						effectiveExpandedState={effectiveExpandedState}
+						matchingItemIds={matchingItemIds}
+						searchKeyword={searchKeyword}
+						onItemClick={handleItemClick}
+						onToggleExpand={handleToggleExpand}
+					/>
+				))}
 			</div>
 		</Box>
 	);

@@ -10,7 +10,7 @@ let effectTypesCache: string[] | null = null;
 /**
  * スキル別フレンズ一覧のCSVデータを取得する
  */
-export async function getSkillsData(): Promise<SkillEffect[]> {
+async function getSkillsData(): Promise<SkillEffect[]> {
 	// キャッシュがあればそれを返す
 	if (skillsDataCache) {
 		return skillsDataCache;
@@ -93,33 +93,6 @@ export async function getSkillsWithFriendsData(): Promise<SkillWithFriend[]> {
 		console.error("Error in getSkillsWithFriendsData:", error);
 		return [];
 	}
-}
-
-/**
- * 効果種別でフィルタリングしたスキルデータとフレンズデータを取得
- * @param effectType 効果種別
- */
-export async function getSkillsWithFriendsByEffectType(effectType: string): Promise<SkillWithFriend[]> {
-	const skillsWithFriends = await getSkillsWithFriendsData();
-	return skillsWithFriends.filter(skill => skill.effectType === effectType);
-}
-
-/**
- * 効果種別でフィルタリングしたスキルデータを取得する
- * @param effectType 効果種別
- */
-export async function getSkillsByEffectType(effectType: string): Promise<SkillEffect[]> {
-	const skillsData = await getSkillsData();
-	return skillsData.filter(skill => skill.effectType === effectType);
-}
-
-/**
- * 特定のフレンズIDのスキルデータを取得する
- * @param friendsId フレンズID
- */
-export async function getSkillsByFriendsId(friendsId: string): Promise<SkillEffect[]> {
-	const skillsData = await getSkillsData();
-	return skillsData.filter(skill => skill.friendsId === friendsId);
 }
 
 /**

@@ -1,7 +1,7 @@
 /**
  * クエリで使用可能なトークンの種類
  */
-export enum TokenType {
+enum TokenType {
     WORD = 'WORD',
     AND = 'AND',
     OR = 'OR',

@@ -54,7 +54,7 @@ function ToggleButton({
  * - 上部と下部に折りたたみボタンを配置
  */
 export function FoldingSection({
-	isOpenByDefault: isOpenByDefault = false,
+	isOpenByDefault: initialOpen = false,
 	onToggle = NOOP,
 	className,
 	children,
@@ -63,8 +63,14 @@ export function FoldingSection({
 }: FoldingSectionProps) {
 	const sectionRef = useRef<HTMLDivElement>(null);
 
-	// 初期状態をデフォルト値から設定
-	const [isOpened, setIsOpened] = useState(isOpenByDefault);
+	const [isOpened, setIsOpened] = useState(initialOpen);
+	const [prevInitialOpen, setPrevInitialOpen] = useState(initialOpen);
+	if (prevInitialOpen !== initialOpen) {
+		setPrevInitialOpen(initialOpen);
+		if (initialOpen) {
+			setIsOpened(true);
+		}
+	}
 
 	// 開く際に追跡状態を更新
 	const handleToggle = () => {

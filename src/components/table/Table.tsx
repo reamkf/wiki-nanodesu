@@ -67,7 +67,7 @@ function PaginationButton({ onClick, disabled, icon }: PaginationButtonProps) {
 	);
 }
 
-export interface SortableTableProps<TData, TValue> {
+interface SortableTableProps<TData, TValue> {
 	data: TData[];
 	columns: ColumnDef<TData, TValue>[];
 	tableId: string;
@@ -146,7 +146,7 @@ function PaginationControls<TData>({
 	);
 }
 
-export type AlignType = "left" | "center" | "right";
+type AlignType = "left" | "center" | "right";
 
 export interface ColumnMeta {
 	align: AlignType;

@@ -37,7 +37,7 @@ function convertMegumiPattern(value: string | null): MegumiPattern {
 	return MegumiPattern.unknown;
 };
 
-export function parseFriendsStatus(data: RawFriendsCSV): FriendsStatus {
+function parseFriendsStatus(data: RawFriendsCSV): FriendsStatus {
 	const nullStatus = {
 		hp: null,
 		atk: null,
@@ -146,7 +146,7 @@ export function parseFriendsStatus(data: RawFriendsCSV): FriendsStatus {
 	};
 }
 
-export function fillStatuses(friendsDataRow: FriendsDataRow): FriendsDataRow {
+function fillStatuses(friendsDataRow: FriendsDataRow): FriendsDataRow {
 	if(isStatusNull(friendsDataRow.status.statusBase.lv99) && !isStatusNull(friendsDataRow.status.statusBase.lv90)) {
 		friendsDataRow.status.statusBase.lv99 = getLv99FromLv90(friendsDataRow.status.statusBase.lv90);
 	}
@@ -235,9 +235,4 @@ export async function getFriendsDataMap(): Promise<Map<string, FriendsDataRow>> 
 	const friendsData = await getFriendsData();
 	friendsDataMapCache = new Map(friendsData.map(f => [f.id, f]));
 	return friendsDataMapCache;
-}
-
-export async function getFriendsDataRow(id: string): Promise<FriendsDataRow | null> {
-	const friendsDataMap = await getFriendsDataMap();
-	return friendsDataMap.get(id) || null;
 }

@@ -23,18 +23,3 @@ export interface GraphData {
 	nodes: FriendNode[];
 	links: FriendLink[];
 }
-
-// CSVから取得するフレンズ掛け合いデータの型定義
-export interface RawKakeaiData {
-	フレンズ1ID: string;
-	フレンズ1名: string;
-	フレンズ2ID: string;
-	フレンズ2名: string;
-}
-
-// CSVから取得するフレンズ基本データの型定義
-export interface RawFriendData {
-	ID: string;
-	名前: string;
-	アイコンURL?: string;
-}

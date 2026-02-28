@@ -1,7 +1,7 @@
 import { FriendsOrPhotoSkillType } from '@/types/abnormalStatus'; // 必要に応じて型をインポート
 
 // 威力のソート優先度マップ
-export const POWER_PRIORITY_MAP: Record<string, number> = {
+const POWER_PRIORITY_MAP: Record<string, number> = {
 	'完全耐性': 1000,
 	'大幅に': 500,
 	'-': 95,
@@ -45,7 +45,8 @@ export function getPowerPriority(power: string): number {
 }
 
 // 発動率のソート優先度マップ
-export const ACTIVATION_RATE_PRIORITY_MAP: Record<string, number> = {
+// 内部でのみ使用するマップ
+const ACTIVATION_RATE_PRIORITY_MAP: Record<string, number> = {
 	'-': 100,
 	'高確率': 90,
 	'中確率': 50,
