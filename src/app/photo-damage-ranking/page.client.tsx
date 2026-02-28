@@ -64,6 +64,67 @@ function ConditionCell({ data }: { data: DamageDataWithPhoto }) {
 	);
 };
 
+const ATTRIBUTE_OPTIONS: CheckboxOption[] = [PhotoAttribute.footprint, PhotoAttribute.blue]
+	.map(attr => ({
+		id: attr,
+		label: <PhotoAttributeIcon attribute={attr} showText={false} />,
+		styles: attr === PhotoAttribute.footprint ? {
+			backgroundColor: {
+				unchecked: "#fef3c7",
+				checked: "#fde68a",
+				hover: "#fcd34d",
+			},
+			textColor: "#FF3C60",
+		} : {
+			backgroundColor: {
+				unchecked: "#EAEBFF",
+				checked: "#D6D8FF",
+				hover: "#ADB1FF",
+			},
+			textColor: "#613FFF",
+		},
+	}));
+
+const RARITY_OPTIONS: CheckboxOption[] = [4, 3, 2].map(rarity => ({
+	id: rarity.toString(),
+	label: `☆${rarity}`,
+	styles: {
+		backgroundColor: {
+			unchecked: "#fef3c7",
+			checked: "#fde68a",
+			hover: "#fcd34d",
+		},
+		textColor: "#d97706",
+	},
+}));
+
+const CHANGE_STATE_OPTIONS: CheckboxOption[] = [
+	{
+		id: '変化前',
+		label: '変化前',
+		styles: {
+			backgroundColor: {
+				unchecked: "#f3f4f6",
+				checked: "#e5e7eb",
+				hover: "#d1d5db",
+			},
+			textColor: "#374151",
+		},
+	},
+	{
+		id: '変化後',
+		label: '変化後',
+		styles: {
+			backgroundColor: {
+				unchecked: "#fce7f3",
+				checked: "#fbcfe8",
+				hover: "#f9a8d4",
+			},
+			textColor: "#ec4899",
+		},
+	}
+];
+
 export default function ClientPage({ photoData, photoDamageData }: ClientPageProps) {
 	const [baseAttack, setBaseAttack] = useState<number>(() => {
 		if (typeof window !== "undefined") {
@@ -289,67 +350,6 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 		});
 	};
 
-	const attributeOptions: CheckboxOption[] = [PhotoAttribute.footprint, PhotoAttribute.blue]
-		.map(attr => ({
-			id: attr,
-			label: <PhotoAttributeIcon attribute={attr} showText={false} />,
-			styles: attr === PhotoAttribute.footprint ? {
-				backgroundColor: {
-					unchecked: "#fef3c7",
-					checked: "#fde68a",
-					hover: "#fcd34d",
-				},
-				textColor: "#FF3C60",
-			} : {
-				backgroundColor: {
-					unchecked: "#EAEBFF",
-					checked: "#D6D8FF",
-					hover: "#ADB1FF",
-				},
-				textColor: "#613FFF",
-			},
-		}));
-
-	const rarityOptions: CheckboxOption[] = [4, 3, 2].map(rarity => ({
-		id: rarity.toString(),
-		label: `☆${rarity}`,
-		styles: {
-			backgroundColor: {
-				unchecked: "#fef3c7",
-				checked: "#fde68a",
-				hover: "#fcd34d",
-			},
-			textColor: "#d97706",
-		},
-	}));
-
-	const changeStateOptions: CheckboxOption[] = [
-		{
-			id: '変化前',
-			label: '変化前',
-			styles: {
-				backgroundColor: {
-					unchecked: "#f3f4f6",
-					checked: "#e5e7eb",
-					hover: "#d1d5db",
-				},
-				textColor: "#374151",
-			},
-		},
-		{
-			id: '変化後',
-			label: '変化後',
-			styles: {
-				backgroundColor: {
-					unchecked: "#fce7f3",
-					checked: "#fbcfe8",
-					hover: "#f9a8d4",
-				},
-				textColor: "#ec4899",
-			},
-		}
-	];
-
 	if (!isMounted) return null;
 
 	return (
@@ -375,7 +375,7 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 						<div className="space-y-2">
 							<h3 className="text-sm font-medium text-gray-700">属性</h3>
 							<FilterCheckboxGroup
-								options={attributeOptions}
+								options={ATTRIBUTE_OPTIONS}
 								selectedIds={selectedAttributes}
 								onChange={handleAttributeChange}
 							/>
@@ -384,7 +384,7 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 						<div className="space-y-2">
 							<h3 className="text-sm font-medium text-gray-700">状態</h3>
 							<FilterCheckboxGroup
-								options={changeStateOptions}
+								options={CHANGE_STATE_OPTIONS}
 								selectedIds={selectedChangeStates}
 								onChange={handleChangeStateChange}
 							/>
@@ -393,7 +393,7 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 						<div className="space-y-2">
 							<h3 className="text-sm font-medium text-gray-700">レアリティ</h3>
 							<FilterCheckboxGroup
-								options={rarityOptions}
+								options={RARITY_OPTIONS}
 								selectedIds={new Set(Array.from(selectedRarities).map(String))}
 								onChange={handleRarityChange}
 							/>

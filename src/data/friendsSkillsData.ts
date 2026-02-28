@@ -29,11 +29,17 @@ export async function getSkillsData(): Promise<SkillEffect[]> {
 			}
 		},
 		async (data: RawSkillCSV[]) => {
-			const parsedData = data.map((row) => {
-				return {
-					effectType: String(row['効果種別'] || ''),
-					friendsId: String(row['フレンズID'] || ''),
-					skillType: String(row['わざ種別'] || ''),
+			const validData: SkillEffect[] = [];
+			for (const row of data) {
+				const effectType = String(row['効果種別'] || '');
+				const friendsId = String(row['フレンズID'] || '');
+				const skillType = String(row['わざ種別'] || '');
+				if (!effectType || effectType.trim() === '' || (!friendsId && !skillType)) continue;
+
+				validData.push({
+					effectType,
+					friendsId,
+					skillType,
 					power: String(row['威力'] || ''),
 					target: String(row['対象'] || ''),
 					condition: String(row['条件'] || ''),
@@ -41,13 +47,8 @@ export async function getSkillsData(): Promise<SkillEffect[]> {
 					activationRate: String(row['発動率'] || ''),
 					activationCount: String(row['発動回数'] || ''),
 					note: String(row['備考'] || '')
-				};
-			});
-
-			const validData = parsedData.filter(item =>
-				item.effectType && item.effectType.trim() !== '' &&
-				(item.friendsId || item.skillType)
-			) as SkillEffect[];
+				} as SkillEffect);
+			}
 
 			skillsDataCache = validData;
 			return validData;
@@ -70,29 +71,23 @@ export async function getSkillsWithFriendsData(): Promise<SkillWithFriend[]> {
 			getFriendsData()
 		]);
 
-		// フレンズIDの重複を防ぐためにMapを使用
+		const friendsDataMap = new Map(friendsData.map(f => [f.id, f]));
+
 		const friendsIdMap = new Map<string, FriendsDataRow | undefined>();
 
-		// まず一意のフレンズIDのリストを作成
-		const uniqueFriendsIds = Array.from(new Set(
-			skillsData
-				.filter(skill => skill.friendsId && skill.friendsId.trim() !== '')
-				.map(skill => skill.friendsId)
-		));
+		const uniqueFriendsIdsSet = new Set<string>();
+		for (const skill of skillsData) {
+			if (skill.friendsId && skill.friendsId.trim() !== '') {
+				uniqueFriendsIdsSet.add(skill.friendsId);
+			}
+		}
+		const uniqueFriendsIds = Array.from(uniqueFriendsIdsSet);
 
-		// 一意のフレンズIDに対してフレンズデータを取得
-		await Promise.all(
-			uniqueFriendsIds.map(async (friendsId) => {
-				if (!friendsId) return;
-				try {
-					const friend = friendsData.find(friend => friend.id === friendsId);
-					friendsIdMap.set(friendsId, friend || undefined);
-				} catch (error) {
-					console.error(`Error fetching friend data for ${friendsId}:`, error);
-					friendsIdMap.set(friendsId, undefined);
-				}
-			})
-		);
+		uniqueFriendsIds.forEach((friendsId) => {
+			if (!friendsId) return;
+			const friend = friendsDataMap.get(friendsId);
+			friendsIdMap.set(friendsId, friend || undefined);
+		});
 
 		// スキルデータとフレンズデータを結合
 		const enrichedData = skillsData.map(skill => {

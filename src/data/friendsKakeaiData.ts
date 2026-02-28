@@ -55,9 +55,10 @@ export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 		});
 
 		// 2. IDセットからNode Mapを一括作成
+		const friendsDataMap = new Map(friendsData.map(f => [f.id, f]));
 		const nodes = new Map<string, FriendNode>();
 		allFriendIds.forEach(id => {
-			const friend = friendsData.find(f => f.id === id);
+			const friend = friendsDataMap.get(id);
 			nodes.set(id, {
 				id: id,
 				name: friend?.name || id,
@@ -315,6 +316,7 @@ const processCycleDetection = (currentPath: string[], cycles: Set<string>[]): vo
 const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, Set<string>>): void => {
 	let groupId = COMPLETE_GRAPH_GROUP_ID_START;
 	const sortedNodeIds = getSortedNodeIdsByNeighborCount(nodes, graph, SORTED_NODE_IDS_DEFAULT_LIMIT);
+	const sortedNodeIdIndexMap = new Map(sortedNodeIds.map((id, idx) => [id, idx]));
 	const detectedCompleteGraphs: Set<string>[] = [];
 	const topNodes = sortedNodeIds.slice(0, COMPLETE_GRAPH_TOP_NODES_FOR_MAXIMAL_SEARCH);
 	for (const startNodeId of topNodes) {
@@ -331,7 +333,7 @@ const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, Set<string
 		let neighborsArr = Array.from(neighborSet);
 		if (neighborsArr.length > COMPLETE_GRAPH_MAXIMAL_SEARCH_NEIGHBOR_LIMIT) {
 			neighborsArr = neighborsArr
-				.filter(n => sortedNodeIds.indexOf(n) < COMPLETE_GRAPH_MAXIMAL_SEARCH_NEIGHBOR_FILTER_INDEX)
+				.filter(n => (sortedNodeIdIndexMap.get(n) ?? Infinity) < COMPLETE_GRAPH_MAXIMAL_SEARCH_NEIGHBOR_FILTER_INDEX)
 				.slice(0, COMPLETE_GRAPH_MAXIMAL_SEARCH_NEIGHBOR_LIMIT);
 		}
 
@@ -386,8 +388,7 @@ const findMaximalCompleteGraph = (nodeIds: string[], graph: Map<string, Set<stri
 	// 各ノードの隣接ノードをキャッシュ
 	const neighborsCache = new Map<string, Set<string>>();
 	nodeIds.forEach(id => {
-		const neighbors = graph.get(id) || new Set<string>();
-		neighborsCache.set(id, new Set(neighbors));
+		neighborsCache.set(id, graph.get(id) || new Set<string>());
 	});
 
 	// ノードをソート（隣接ノード数が多い順）
@@ -451,13 +452,8 @@ const getSortedNodeIdsByNeighborCount = (
 const isCompleteGraph = (nodeIds: string[], graph: Map<string, Set<string>>): boolean => {
 	const requiredEdgeCount = nodeIds.length * (nodeIds.length - 1) / 2;
 	let actualEdgeCount = 0;
-	const neighborsCache = new Map<string, Set<string>>();
-	nodeIds.forEach(id => {
-		const neighbors = graph.get(id) || new Set<string>();
-		neighborsCache.set(id, new Set(neighbors));
-	});
 	for (let i = 0; i < nodeIds.length; i++) {
-		const neighbors = neighborsCache.get(nodeIds[i])!;
+		const neighbors = graph.get(nodeIds[i]) || new Set<string>();
 		for (let j = i + 1; j < nodeIds.length; j++) {
 			if (neighbors.has(nodeIds[j])) {
 				actualEdgeCount++;
@@ -546,8 +542,9 @@ const checkStarShape = (centerId: string, peripheryIds: string[], graph: Map<str
  * @param groupId 割り当てるグループID
  */
 const assignGroupToNodes = (nodes: FriendNode[], nodeIds: Set<string>, groupId: number): void => {
+	const nodeMap = new Map(nodes.map(n => [n.id, n]));
 	for (const nodeId of nodeIds) {
-		const node = nodes.find(n => n.id === nodeId);
+		const node = nodeMap.get(nodeId);
 		if (node) {
 			// グループ配列に追加
 			node.groups.push(groupId);
@@ -856,10 +853,9 @@ const areGroupsDenselyConnected = (
 
 	for (const nodeA of groupA) {
 		const neighbors = graph.get(nodeA) || new Set<string>();
-		const neighborsSet = new Set(neighbors);
 
 		for (const nodeB of groupB) {
-			if (neighborsSet.has(nodeB)) {
+			if (neighbors.has(nodeB)) {
 				actualConnections++;
 			}
 		}

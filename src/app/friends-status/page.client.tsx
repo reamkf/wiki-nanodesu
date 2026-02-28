@@ -190,6 +190,48 @@ const TableRow = React.memo(function TableRow({
 	);
 });
 
+const STATUS_TYPE_OPTIONS: CheckboxOption[] = STATUS_TYPES.map(
+	(statusType) => ({
+		id: statusType,
+		label: <StatusTypeLabel statusType={statusType} showRank={false} />,
+		styles: {
+			backgroundColor: {
+				unchecked: statusTypeBackgroundColor[statusType].checkbox.unchecked,
+				checked: statusTypeBackgroundColor[statusType].checkbox.checked,
+				hover: statusTypeBackgroundColor[statusType].checkbox.hover,
+			},
+			textColor: statusTypeBackgroundColor[statusType].checkbox.color,
+		},
+	})
+);
+
+const OTHER_OPTIONS: CheckboxOption[] = [
+	{
+		id: "showCostumeBonus",
+		label: "衣装補正を含む",
+		styles: {
+			backgroundColor: {
+				unchecked: "#fefce8",
+				checked: "#fef9c3",
+				hover: "#fef08a",
+			},
+			textColor: "#ca8a04",
+		},
+	},
+	{
+		id: "hideNullStatus",
+		label: "不明なステータスを非表示",
+		styles: {
+			backgroundColor: {
+				unchecked: "#f3f4f6",
+				checked: "#e5e7eb",
+				hover: "#d1d5db",
+			},
+			textColor: "#4b5563",
+		},
+	},
+];
+
 export default function FriendsStatusTable({
 	friendsStatusList,
 	defaultStatusTypes,
@@ -472,62 +514,18 @@ export default function FriendsStatusTable({
 
 	if (!isMounted) return null;
 
-	// FilterCheckboxGroup用のオプションを作成
-	const statusTypeOptions: CheckboxOption[] = STATUS_TYPES.map(
-		(statusType) => ({
-			id: statusType,
-			label: <StatusTypeLabel statusType={statusType} showRank={false} />,
-			styles: {
-				backgroundColor: {
-					unchecked: statusTypeBackgroundColor[statusType].checkbox.unchecked,
-					checked: statusTypeBackgroundColor[statusType].checkbox.checked,
-					hover: statusTypeBackgroundColor[statusType].checkbox.hover,
-				},
-				textColor: statusTypeBackgroundColor[statusType].checkbox.color,
-			},
-		})
-	);
-
-	// オプション用のチェックボックスオプション
-	const otherOptions: CheckboxOption[] = [
-		{
-			id: "showCostumeBonus",
-			label: "衣装補正を含む",
-			styles: {
-				backgroundColor: {
-					unchecked: "#fefce8",
-					checked: "#fef9c3",
-					hover: "#fef08a",
-				},
-				textColor: "#ca8a04",
-			},
-		},
-		{
-			id: "hideNullStatus",
-			label: "不明なステータスを非表示",
-			styles: {
-				backgroundColor: {
-					unchecked: "#f3f4f6",
-					checked: "#e5e7eb",
-					hover: "#d1d5db",
-				},
-				textColor: "#4b5563",
-			},
-		},
-	];
-
 	return (
 		<div className="space-y-2">
 			{/* ステータスタイプ選択 */}
 			<FilterCheckboxGroup
-				options={statusTypeOptions}
+				options={STATUS_TYPE_OPTIONS}
 				selectedIds={selectedStatusTypes}
 				onChange={handleSelectedStatusTypeChange}
 			/>
 
 			{/* オプション */}
 			<FilterCheckboxGroup
-				options={otherOptions}
+				options={OTHER_OPTIONS}
 				selectedIds={
 					new Set([
 						...(showCostumeBonus ? ["showCostumeBonus"] : []),

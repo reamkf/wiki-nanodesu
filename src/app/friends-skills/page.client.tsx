@@ -37,11 +37,7 @@ export default function ClientTabs({
 }) {
 	const [selectedEffectType, setSelectedEffectType] = useState<string | null>(null);
 
-	const getSearchableText = useCallback((row: SkillWithFriend, columnId: string): string => {
-		return getSearchableTextForFriendOrPhoto(row, columnId);
-	}, []);
-
-	const customFilterFn = useMemo(() => createCustomFilterFn(getSearchableText), [getSearchableText]);
+	const customFilterFn = useMemo(() => createCustomFilterFn<SkillWithFriend>(getSearchableTextForFriendOrPhoto), []);
 
 	// テーブルのカラム定義
 	const columns = useMemo<ColumnDef<SkillWithFriend>[]>(() => [

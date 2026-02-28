@@ -22,6 +22,8 @@ import { PhotoAttribute } from "@/types/photo";
 import { Table } from "@/components/table/Table";
 import { AttributeCell, ActivationRateCell, CommonPowerCell } from "@/components/table/cells";
 
+const ABNORMAL_STATUS_EFFECT_TYPES = Object.values(AbnormalStatusSkillEffectType);
+
 export default function ClientTabs({
 	statusTypes,
 	statusTypeData,
@@ -35,11 +37,7 @@ export default function ClientTabs({
 		() => statusTypes.length > 0 ? statusTypes[0] : null
 	);
 
-	const getSearchableText = useCallback((row: AbnormalStatusWithFriend, columnId: string): string => {
-		return getSearchableTextForFriendOrPhoto(row, columnId);
-	}, []);
-
-	const customFilterFn = useMemo(() => createCustomFilterFn(getSearchableText), [getSearchableText]);
+	const customFilterFn = useMemo(() => createCustomFilterFn<AbnormalStatusWithFriend>(getSearchableTextForFriendOrPhoto), []);
 
 	// テーブルのカラム定義
 	const columns = useMemo<ColumnDef<AbnormalStatusWithFriend>[]>(() => [
@@ -194,11 +192,6 @@ export default function ClientTabs({
 		return effectTypeMap[effectTypeId] === effectType;
 	}, []);
 
-	// enumの値の配列を取得
-	const abnormalStatusEffectTypes = useMemo(() =>
-		Object.values(AbnormalStatusSkillEffectType),
-	[]);
-
 	// 状態異常とサブカテゴリでデータをフィルタリングする関数
 	const filterStatusDataByCategoryAndSubcategory = useCallback((categoryId: string): AbnormalStatusWithFriend[] => {
 		// カテゴリIDの形式は「{状態異常}-{entityType}-{effectType}」
@@ -227,13 +220,13 @@ export default function ClientTabs({
 		if (effectTypeId === 'all') {
 			return statusData.filter(status => {
 				return status.isPhoto === isPhotoCategory &&
-					abnormalStatusEffectTypes.includes(status.effectType);
+					ABNORMAL_STATUS_EFFECT_TYPES.includes(status.effectType);
 			});
 		}
 
 		// 効果タイプIDが指定されている場合
 		return statusData.filter(status => getCategoryForStatus(status, categoryId));
-	}, [statusTypeData, getCategoryForStatus, abnormalStatusEffectTypes]);
+	}, [statusTypeData, getCategoryForStatus]);
 
 	// カテゴリIDに基づいてコンテンツをレンダリングする関数
 	const renderContent = useCallback((categoryId: string) => {

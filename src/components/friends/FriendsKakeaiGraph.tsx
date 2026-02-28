@@ -128,6 +128,8 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 		// ノードとリンクのデータを複製して使用
 		const nodes = data.nodes.map(node => ({ ...node }));
 		const links = data.links.map(link => ({ ...link }));
+		// O(1)ルックアップ用のノードMap
+		const nodeMap = new Map(nodes.map(n => [n.id, n]));
 
 		// 全グループ（重複を含む）を収集
 		const allGroups = new Map<number, FriendNode[]>();
@@ -330,7 +332,7 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			// ノードの座標を取得するヘルパー関数
 			const getNodeCoord = (nodeRef: string | FriendNode, prop: 'x' | 'y'): number => {
 				if (typeof nodeRef === 'string') {
-					const foundNode = data.nodes.find(node => node.id === nodeRef);
+					const foundNode = nodeMap.get(nodeRef);
 					return foundNode?.[prop] || 0;
 				}
 				return (nodeRef as FriendNode)[prop] || 0;

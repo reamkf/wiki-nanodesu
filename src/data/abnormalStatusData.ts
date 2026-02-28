@@ -31,11 +31,16 @@ export async function getAbnormalStatusData(): Promise<AbnormalStatusEffect[]> {
 			}
 		},
 		async (data: RawAbnormalStatusCSV[]) => {
-			const parsedData = data.map((row) => {
-				return {
-					friendsIdOrPhotoName: String(row['フレンズID/フォト名'] || ''),
+			const validData: AbnormalStatusEffect[] = [];
+			for (const row of data) {
+				const friendsIdOrPhotoName = String(row['フレンズID/フォト名'] || '');
+				const abnormalStatus = String(row['状態異常'] || '');
+				if (!friendsIdOrPhotoName || friendsIdOrPhotoName.trim() === '' || !abnormalStatus || abnormalStatus.trim() === '') continue;
+
+				validData.push({
+					friendsIdOrPhotoName,
 					skillType: String(row['わざ種別'] || ''),
-					abnormalStatus: String(row['状態異常'] || ''),
+					abnormalStatus,
 					effectType: String(row['効果種別'] || ''),
 					power: String(row['威力'] || ''),
 					target: String(row['対象'] || ''),
@@ -44,13 +49,8 @@ export async function getAbnormalStatusData(): Promise<AbnormalStatusEffect[]> {
 					activationRate: String(row['発動率'] || ''),
 					activationCount: String(row['発動回数'] || ''),
 					note: String(row['備考'] || '')
-				};
-			});
-
-			const validData = parsedData.filter(item =>
-				item.friendsIdOrPhotoName && item.friendsIdOrPhotoName.trim() !== '' &&
-				item.abnormalStatus && item.abnormalStatus.trim() !== ''
-			) as AbnormalStatusEffect[];
+				} as AbnormalStatusEffect);
+			}
 
 			abnormalStatusDataCache = validData;
 			return validData;
@@ -70,11 +70,13 @@ export async function getAbnormalStatusTypes(): Promise<AbnormalStatusType[]> {
 	const abnormalStatusData = await getAbnormalStatusData();
 
 	// 状態異常の種類を重複なしで取得
-	const types = Array.from(new Set(
-		abnormalStatusData
-			.filter(status => status.abnormalStatus && status.abnormalStatus.trim() !== '')
-			.map(status => status.abnormalStatus)
-	)).sort();
+	const typesSet = new Set<string>();
+	for (const status of abnormalStatusData) {
+		if (status.abnormalStatus && status.abnormalStatus.trim() !== '') {
+			typesSet.add(status.abnormalStatus);
+		}
+	}
+	const types = Array.from(typesSet).sort();
 
 	// キャッシュを更新
 	abnormalStatusTypesCache = types;
@@ -109,19 +111,22 @@ export async function getAbnormalStatusWithFriendsAndPhotos(): Promise<AbnormalS
 				.map(status => status.friendsIdOrPhotoName)
 		));
 
+		const friendsDataMap = new Map(friendsData.map(f => [f.id, f]));
+		const photoDataMap = new Map(photoData.map(p => [p.name, p]));
+
 		// フレンズデータとフォトデータを取得
 		uniqueIdentifiers.forEach((identifier) => {
 			if (!identifier) return;
 
 			// フレンズIDとして検索
-			const friend = friendsData.find(friend => friend.id === identifier);
+			const friend = friendsDataMap.get(identifier);
 			if (friend) {
 				friendsIdMap.set(identifier, friend);
 				return;
 			}
 
 			// フォト名として検索
-			const photo = photoData.find(photo => photo.name === identifier);
+			const photo = photoDataMap.get(identifier);
 			if (photo) {
 				photoNameMap.set(identifier, photo);
 			}

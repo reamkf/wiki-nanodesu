@@ -81,30 +81,22 @@ function calculateFriendsStatusRawForEachParam(
 	rank: number,
 	yasei: 0 | 4 | 5,
 ): BasicStatus {
+	const base = friendsDataRow.status.statusBase;
 	return {
 		hp: calculateFriendsStatusRaw(
 			lv, rank, yasei,
-			friendsDataRow.status.statusBase.lv1.hp,
-			friendsDataRow.status.statusBase.lv90.hp,
-			friendsDataRow.status.statusBase.lv99.hp,
-			friendsDataRow.status.statusBase.yasei4.hp,
-			friendsDataRow.status.statusBase.yasei5.hp
+			base.lv1.hp, base.lv90.hp, base.lv99.hp,
+			base.yasei4.hp, base.yasei5.hp
 		),
 		atk: calculateFriendsStatusRaw(
 			lv, rank, yasei,
-			friendsDataRow.status.statusBase.lv1.atk,
-			friendsDataRow.status.statusBase.lv90.atk,
-			friendsDataRow.status.statusBase.lv99.atk,
-			friendsDataRow.status.statusBase.yasei4.atk,
-			friendsDataRow.status.statusBase.yasei5.atk
+			base.lv1.atk, base.lv90.atk, base.lv99.atk,
+			base.yasei4.atk, base.yasei5.atk
 		),
 		def: calculateFriendsStatusRaw(
 			lv, rank, yasei,
-			friendsDataRow.status.statusBase.lv1.def,
-			friendsDataRow.status.statusBase.lv90.def,
-			friendsDataRow.status.statusBase.lv99.def,
-			friendsDataRow.status.statusBase.yasei4.def,
-			friendsDataRow.status.statusBase.yasei5.def
+			base.lv1.def, base.lv90.def, base.lv99.def,
+			base.yasei4.def, base.yasei5.def
 		),
 		estimated: true
 	}
@@ -131,17 +123,19 @@ export function calculateFriendsStatus(
 		estimated: true
 	};
 
+	const base = friendsDataRow.status.statusBase;
+
 	const initialLv = getInitialLv(friendsDataRow);
 
 	const isYaseiAvailable: boolean =
-		yasei === 4 ? !isStatusNull(friendsDataRow.status.statusBase.yasei4)
-		: yasei === 5 ? !isStatusNull(friendsDataRow.status.statusBase.yasei5)
+		yasei === 4 ? !isStatusNull(base.yasei4)
+		: yasei === 5 ? !isStatusNull(base.yasei5)
 		: yasei === 0 ? true
 		: false;
 
 	// Lv.100以上はLv99のステータス+めぐみ上昇値で計算
 	if (lv >= 100) {
-		if (friendsDataRow.status.statusBase.megumiPattern === MegumiPattern.unknown) {
+		if (base.megumiPattern === MegumiPattern.unknown) {
 			return nullStatus;
 		}
 
@@ -151,7 +145,7 @@ export function calculateFriendsStatus(
 			return nullStatus;
 		}
 
-		const megumiRaise = megumiRaiseStatus[friendsDataRow.status.statusBase.megumiPattern];
+		const megumiRaise = megumiRaiseStatus[base.megumiPattern];
 		return {
 			hp: statusLv99.hp + megumiRaise.hp * (lv - 99),
 			atk: statusLv99.atk + megumiRaise.atk * (lv - 99),
@@ -173,7 +167,7 @@ export function calculateFriendsStatus(
 			return friendsDataRow.status.status90Yasei5;
 		}
 		// 計算
-		if (isYaseiAvailable && !isStatusNull(friendsDataRow.status.statusBase.lv90)) {
+		if (isYaseiAvailable && !isStatusNull(base.lv90)) {
 			return calculateFriendsStatusRawForEachParam(friendsDataRow, lv, rank, yasei);
 		}
 	}
@@ -186,29 +180,29 @@ export function calculateFriendsStatus(
 			return friendsDataRow.status.status99Yasei5;
 		}
 		// 計算
-		if (isYaseiAvailable && !isStatusNull(friendsDataRow.status.statusBase.lv99)) {
+		if (isYaseiAvailable && !isStatusNull(base.lv99)) {
 			return calculateFriendsStatusRawForEachParam(friendsDataRow, lv, rank, yasei);
 		}
 	}
 
 	else if (lv === 1){
-		if (isYaseiAvailable && !isStatusNull(friendsDataRow.status.statusBase.lv1)) {
+		if (isYaseiAvailable && !isStatusNull(base.lv1)) {
 			return calculateFriendsStatusRawForEachParam(friendsDataRow, lv, rank, yasei);
 		}
 	}
 
 	// Lv 2-89, 91-98
-	else if (isYaseiAvailable && !isStatusNull(friendsDataRow.status.statusBase.lv90)) {
+	else if (isYaseiAvailable && !isStatusNull(base.lv90)) {
 		if (
 			lv >= 2 && lv <= 89
-			&& !isStatusNull(friendsDataRow.status.statusBase.lv1)
+			&& !isStatusNull(base.lv1)
 		) {
 			return calculateFriendsStatusRawForEachParam(friendsDataRow, lv, rank, yasei);
 		}
 
 		if (
 			lv >= 91 && lv <= 98
-			&& !isStatusNull(friendsDataRow.status.statusBase.lv99)
+			&& !isStatusNull(base.lv99)
 		) {
 			return calculateFriendsStatusRawForEachParam(friendsDataRow, lv, rank, yasei);
 		}

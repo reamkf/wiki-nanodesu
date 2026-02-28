@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import FriendsGraph from '@/components/friends/FriendsKakeaiGraph';
+import React, { useRef } from 'react';
+import dynamic from 'next/dynamic';
+
+const FriendsGraph = dynamic(() => import('@/components/friends/FriendsKakeaiGraph'), { ssr: false });
 import { GraphData } from '@/types/friends-kakeai-graph';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
@@ -13,7 +15,7 @@ interface FriendsKakeaiGraphPageProps {
 }
 
 const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initialData }) => {
-	const [graphData] = useState<GraphData>(initialData);
+	const graphData = initialData;
 	const graphRef = useRef<HTMLDivElement>(null);
 
 	// データが空かどうか確認
