@@ -18,11 +18,11 @@
 サイトに関するIssueやPull Requestを歓迎します。
 
 ## 技術スタック
-- Bun 1.2
-- Next.js 15 (App Router, SSG)
+- Bun
+- Next.js (App Router, SSG)
 - TypeScript
 - Tailwind CSS v4
-- React 19
+- React
 - GitHub Pages
 
 ## 開発環境
@@ -49,12 +49,13 @@
 	```sh
 	bun test
 	```
-- E2Eテスト（Playwright）
+- E2Eテスト
+	ビルド済みの静的ファイル(`out/`)に対してブラウザテストを実行
 	```sh
 	bun run build
 	bun run test:e2e
 	```
-	ビルド済みの静的ファイル（`out/`）に対してブラウザテストを実行します。初回はPlaywrightブラウザのインストールが必要です。
+	初回はPlaywrightブラウザのインストールが必要:
 	```sh
 	bunx playwright install chromium
 	```
