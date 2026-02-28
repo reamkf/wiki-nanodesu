@@ -37,7 +37,7 @@ function convertMegumiPattern(value: string | null): MegumiPattern {
 	return MegumiPattern.unknown;
 };
 
-export async function parseFriendsStatus(data: RawFriendsCSV): Promise<FriendsStatus> {
+export function parseFriendsStatus(data: RawFriendsCSV): FriendsStatus {
 	const nullStatus = {
 		hp: null,
 		atk: null,
@@ -146,18 +146,18 @@ export async function parseFriendsStatus(data: RawFriendsCSV): Promise<FriendsSt
 	};
 }
 
-export async function fillStatuses(friendsDataRow: FriendsDataRow): Promise<FriendsDataRow> {
+export function fillStatuses(friendsDataRow: FriendsDataRow): FriendsDataRow {
 	if(isStatusNull(friendsDataRow.status.statusBase.lv99) && !isStatusNull(friendsDataRow.status.statusBase.lv90)) {
 		friendsDataRow.status.statusBase.lv99 = getLv99FromLv90(friendsDataRow.status.statusBase.lv90);
 	}
-	const status90 = await calculateFriendsStatus(friendsDataRow, 90, 6, 4);
-	const status99 = await calculateFriendsStatus(friendsDataRow, 99, 6, 4);
-	const status150 = await calculateFriendsStatus(friendsDataRow, 150, 6, 4);
-	const status200 = await calculateFriendsStatus(friendsDataRow, 200, 6, 4);
-	const status90Yasei5 = await calculateFriendsStatus(friendsDataRow, 90, 6, 5);
-	const status99Yasei5 = await calculateFriendsStatus(friendsDataRow, 99, 6, 5);
-	const status150Yasei5 = await calculateFriendsStatus(friendsDataRow, 150, 6, 5);
-	const status200Yasei5 = await calculateFriendsStatus(friendsDataRow, 200, 6, 5);
+	const status90 = calculateFriendsStatus(friendsDataRow, 90, 6, 4);
+	const status99 = calculateFriendsStatus(friendsDataRow, 99, 6, 4);
+	const status150 = calculateFriendsStatus(friendsDataRow, 150, 6, 4);
+	const status200 = calculateFriendsStatus(friendsDataRow, 200, 6, 4);
+	const status90Yasei5 = calculateFriendsStatus(friendsDataRow, 90, 6, 5);
+	const status99Yasei5 = calculateFriendsStatus(friendsDataRow, 99, 6, 5);
+	const status150Yasei5 = calculateFriendsStatus(friendsDataRow, 150, 6, 5);
+	const status200Yasei5 = calculateFriendsStatus(friendsDataRow, 200, 6, 5);
 
 	return {
 		...friendsDataRow,
@@ -186,7 +186,7 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 		'フレンズデータ.csv',
 		{},
 		async (data: RawFriendsCSV[]) => {
-			const parsedData = await Promise.all(data.map(async (row) => {
+			const parsedData = data.map((row) => {
 				const convertToBoolean = (value: unknown): boolean => {
 					if (typeof value === 'string') return value !== '';
 					if (typeof value === 'boolean') return value;
@@ -210,15 +210,13 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 					has12poke: convertToBoolean(row['12ポケ']),
 					numOfClothes: row.特別衣装数 || 0,
 					cv: row.CV || '',
-					status: await parseFriendsStatus(row),
+					status: parseFriendsStatus(row),
 					wildPhotoAttribute: (row.動物フォト属性 as PhotoAttribute) || PhotoAttribute.none,
 					wildPhotoTrait: row.動物フォトとくせい効果変化前 || '',
 					wildPhotoTraitChanged: row.動物フォトとくせい効果変化後 || '',
 				};
-			}));
-			const filledData = await Promise.all(parsedData.map(async (dataRow) => {
-				return await fillStatuses(dataRow);
-			}));
+			});
+			const filledData = parsedData.map(dataRow => fillStatuses(dataRow));
 			friendsDataCache = filledData;
 			return filledData;
 		}

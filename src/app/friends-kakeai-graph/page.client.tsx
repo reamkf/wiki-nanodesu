@@ -3,7 +3,8 @@
 import React, { useState, useRef } from 'react';
 import FriendsGraph from '@/components/friends/FriendsKakeaiGraph';
 import { GraphData } from '@/types/friends-kakeai-graph';
-import { Box, Alert } from '@mui/material';
+import Box from '@mui/material/Box';
+import Alert from '@mui/material/Alert';
 import { PageTitle } from '@/components/PageTitle';
 import { SeesaaWikiLink } from '@/components/seesaawiki/SeesaaWikiLink';
 

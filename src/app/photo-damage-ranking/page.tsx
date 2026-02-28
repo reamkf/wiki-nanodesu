@@ -12,8 +12,10 @@ export const metadata = generateMetadata({
 });
 
 export default async function PhotoDamageRankingPage() {
-	const photoData = await getPhotoData();
-	const photoDamageData = await getPhotoDamageData();
+	const [photoData, photoDamageData] = await Promise.all([
+		getPhotoData(),
+		getPhotoDamageData(),
+	]);
 
 	return (
 		<div className="min-h-screen">

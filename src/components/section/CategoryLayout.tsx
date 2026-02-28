@@ -1,7 +1,7 @@
 "use client";
 
 import React, { ReactNode } from "react";
-import { Box } from "@mui/material";
+import Box from "@mui/material/Box";
 import { TableOfContents } from "@/components/section/TableOfContents";
 import { TreeItemData } from "../common/TreeList";
 import { Heading } from "@/components/section/Heading";

@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { Box, ListItemButton, ListItemText } from '@mui/material';
+import Box from '@mui/material/Box';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { includesNormalizeQuery } from '@/utils/queryNormalizer';

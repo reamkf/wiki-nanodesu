@@ -1,7 +1,10 @@
 "use client";
 
 import React from "react";
-import { FormGroup, FormControlLabel, Checkbox, Grid } from "@mui/material";
+import FormGroup from "@mui/material/FormGroup";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Checkbox from "@mui/material/Checkbox";
+import Grid from "@mui/material/Grid";
 
 export interface CheckboxOption {
 	id: string;

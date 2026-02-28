@@ -5,7 +5,10 @@ import { Dialog, Transition, DialogTitle, DialogPanel, TransitionChild } from "@
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import SearchIcon from '@mui/icons-material/Search';
-import { Box, Button, TextField, InputAdornment } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
 import { TreeList, TreeItemData } from '../common/TreeList';
 
 interface TableOfContentsProps {

@@ -31,12 +31,14 @@ const COMPLETE_GRAPH_MAXIMAL_SEARCH_NEIGHBOR_FILTER_INDEX = 50; // 欲張り法�
 
 export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 	try {
-		const kakeaiData = await readCsv<Record<string, string>, Record<string, string>>(
-			'フレンズ掛け合い一覧.csv',
-			{},
-			async (data) => data
-		);
-		const friendsData = await getFriendsData();
+		const [kakeaiData, friendsData] = await Promise.all([
+			readCsv<Record<string, string>, Record<string, string>>(
+				'フレンズ掛け合い一覧.csv',
+				{},
+				async (data) => data
+			),
+			getFriendsData()
+		]);
 
 		// 掛け合い先のノード数
 		const kakeaiTargetNum = Object.keys(kakeaiData[0] || {}).filter(key => key.startsWith('掛け合い先')).length;

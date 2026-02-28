@@ -17,13 +17,13 @@ import {
 	FilterFnOption,
 } from "@tanstack/react-table";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { Select, MenuItem, IconButton } from "@mui/material";
-import {
-	FirstPage,
-	LastPage,
-	NavigateNext,
-	NavigateBefore,
-} from "@mui/icons-material";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import IconButton from "@mui/material/IconButton";
+import FirstPage from "@mui/icons-material/FirstPage";
+import LastPage from "@mui/icons-material/LastPage";
+import NavigateNext from "@mui/icons-material/NavigateNext";
+import NavigateBefore from "@mui/icons-material/NavigateBefore";
 import { defaultCustomFilterFn } from "@/utils/tableFilters";
 
 // ソート用の矢印SVGコンポーネント

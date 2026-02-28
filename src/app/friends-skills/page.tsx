@@ -148,8 +148,10 @@ export const metadata = generateMetadata({
 // --- ページコンポーネント ---
 
 export default async function FriendsSkillsPage() {
-	const skillsData = await getSkillsWithFriendsData();
-	const effectTypes = await getEffectTypes();
+	const [skillsData, effectTypes] = await Promise.all([
+		getSkillsWithFriendsData(),
+		getEffectTypes(),
+	]);
 
 	// 効果種別ごとにデータをフィルタリング
 	const effectTypeData: Record<string, SkillWithFriend[]> = {};

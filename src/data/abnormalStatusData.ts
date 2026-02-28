@@ -92,9 +92,11 @@ export async function getAbnormalStatusWithFriendsAndPhotos(): Promise<AbnormalS
 	}
 
 	try {
-		const abnormalStatusData = await getAbnormalStatusData();
-		const friendsData = await getFriendsData();
-		const photoData = await getPhotoData();
+		const [abnormalStatusData, friendsData, photoData] = await Promise.all([
+			getAbnormalStatusData(),
+			getFriendsData(),
+			getPhotoData()
+		]);
 
 		// フレンズID/フォト名のマッピングを作成
 		const friendsIdMap = new Map<string, FriendsDataRow | undefined>();

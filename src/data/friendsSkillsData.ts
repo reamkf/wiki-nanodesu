@@ -65,8 +65,10 @@ export async function getSkillsWithFriendsData(): Promise<SkillWithFriend[]> {
 	}
 
 	try {
-		const skillsData = await getSkillsData();
-		const friendsData = await getFriendsData();
+		const [skillsData, friendsData] = await Promise.all([
+			getSkillsData(),
+			getFriendsData()
+		]);
 
 		// フレンズIDの重複を防ぐためにMapを使用
 		const friendsIdMap = new Map<string, FriendsDataRow | undefined>();

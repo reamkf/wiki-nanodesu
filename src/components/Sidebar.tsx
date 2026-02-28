@@ -11,7 +11,11 @@ export interface SidebarLinkItem {
 }
 
 export async function Sidebar() {
-	const friendsData = await getFriendsData();
+	const [friendsData, photoData] = await Promise.all([
+		getFriendsData(),
+		getPhotoData(),
+	]);
+
 	const friendsPageNameList: string[] = friendsData
 		.sort(
 			(a, b) => a.name.localeCompare(b.name)
@@ -19,8 +23,6 @@ export async function Sidebar() {
 		.map((friend: FriendsDataRow) =>
 			friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name
 		);
-
-	const photoData = await getPhotoData();
 
 	const photoPageNameList: string[] = photoData
 		.filter(photo => !photo.isWildPhoto)

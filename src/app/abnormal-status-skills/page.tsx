@@ -174,8 +174,10 @@ export const metadata = generateMetadata({
 });
 
 export default async function AbnormalStatusPage() {
-	const allStatusData = await getAbnormalStatusWithFriendsAndPhotos();
-	const statusTypes = await getAbnormalStatusTypes();
+	const [allStatusData, statusTypes] = await Promise.all([
+		getAbnormalStatusWithFriendsAndPhotos(),
+		getAbnormalStatusTypes(),
+	]);
 
 	// 事前に状態異常タイプごとにデータをグループ化しておく
 	const groupedDataByType: Record<string, AbnormalStatusWithFriend[]> = {};

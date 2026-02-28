@@ -9,7 +9,9 @@ import { FriendOrPhotoDisplay, WithFriendOrPhoto, getSearchableTextForFriendOrPh
 import { parseSeesaaWikiText } from "@/utils/seesaawiki/parser";
 import { FilterCheckboxGroup, CheckboxOption } from "@/components/table/FilterCheckboxGroup";
 import { PhotoAttributeIcon } from "@/components/photo/PhotoAttributeIconAndName";
-import { FormControl, Select, MenuItem } from "@mui/material";
+import FormControl from "@mui/material/FormControl";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
 
 interface DamageDataWithPhoto extends PhotoDamageDataRow {
 	photoData?: PhotoDataRow;

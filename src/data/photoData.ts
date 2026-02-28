@@ -25,7 +25,7 @@ function parseBasicStatus (
 	};
 }
 
-export async function parsePhotoStatus(data: RawPhotoCSV): Promise<PhotoStatus> {
+export function parsePhotoStatus(data: RawPhotoCSV): PhotoStatus {
 	return {
 		status1: parseBasicStatus(
 			parseNumericValue(data['Lv.1たいりょく']),
@@ -83,7 +83,7 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 			}
 		},
 		async (data: RawPhotoCSV[]) => {
-			const parsedData = await Promise.all(data.map(async (row) => {
+			const parsedData = data.map((row) => {
 				return {
 					name: row.フォト名 || '',
 					rarity: row.レア度 || 0,
@@ -95,10 +95,10 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 					iconUrlChanged: row.変化後アイコンURL || '',
 					trait: row['とくせい(変化前)'] || '',
 					traitChanged: row['とくせい(変化後)'] || '',
-					status: await parsePhotoStatus(row),
+					status: parsePhotoStatus(row),
 					isWildPhoto: false,
 				};
-			}));
+			});
 			photoDataCache = [...parsedData, ...wildPhotoData];
 			return photoDataCache;
 		}
