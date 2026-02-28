@@ -187,14 +187,14 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 		'フレンズデータ.csv',
 		{},
 		async (data: RawFriendsCSV[]) => {
-			const parsedData = data.map((row) => {
-				const convertToBoolean = (value: unknown): boolean => {
-					if (typeof value === 'string') return value !== '';
-					if (typeof value === 'boolean') return value;
-					return false;
-				};
+			const convertToBoolean = (value: unknown): boolean => {
+				if (typeof value === 'string') return value !== '';
+				if (typeof value === 'boolean') return value;
+				return false;
+			};
 
-				return {
+			const filledData = data.map((row) => {
+				const parsed = {
 					id: row.ID || '',
 					name: row.フレンズ名 || '',
 					secondName: row.属性違い二つ名 || '',
@@ -216,8 +216,8 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 					wildPhotoTrait: row.動物フォトとくせい効果変化前 || '',
 					wildPhotoTraitChanged: row.動物フォトとくせい効果変化後 || '',
 				};
+				return fillStatuses(parsed);
 			});
-			const filledData = parsedData.map(dataRow => fillStatuses(dataRow));
 			friendsDataCache = filledData;
 			return filledData;
 		}
@@ -238,6 +238,6 @@ export async function getFriendsDataMap(): Promise<Map<string, FriendsDataRow>> 
 }
 
 export async function getFriendsDataRow(id: string): Promise<FriendsDataRow | null> {
-	const friendsData = await getFriendsData();
-	return friendsData.find(friend => friend.id === id) || null;
+	const friendsDataMap = await getFriendsDataMap();
+	return friendsDataMap.get(id) || null;
 }

@@ -179,11 +179,11 @@ export default async function AbnormalStatusPage() {
 		getAbnormalStatusTypes(),
 	]);
 
-	// 事前に状態異常タイプごとにデータをグループ化しておく
+	// 状態異常タイプごとにデータをグループ化
 	const groupedDataByType: Record<string, AbnormalStatusWithFriend[]> = {};
-	statusTypes.forEach(type => {
-		groupedDataByType[type] = allStatusData.filter(d => d.abnormalStatus === type);
-	});
+	for (const d of allStatusData) {
+		(groupedDataByType[d.abnormalStatus] ??= []).push(d);
+	}
 
 	// 状態異常のリスト（ハードコードされているが、必要なら動的に取得しても良い）
 	const abnormalStatusList = [

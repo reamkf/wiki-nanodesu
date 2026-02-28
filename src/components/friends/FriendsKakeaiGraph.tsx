@@ -1,7 +1,12 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
-import * as d3 from 'd3';
+import React, { useRef, useEffect } from 'react';
+import { select } from 'd3-selection';
+import { forceSimulation, forceLink, forceManyBody, forceCenter, forceCollide, forceX, forceY } from 'd3-force';
+import { zoom as d3Zoom } from 'd3-zoom';
+import { drag as d3Drag } from 'd3-drag';
+import { color as d3Color } from 'd3-color';
+import type { D3DragEvent } from 'd3-drag';
 import { FriendNode, FriendLink, GraphData } from '@/types/friends-kakeai-graph';
 
 // グループ色の配列
@@ -64,15 +69,15 @@ interface FriendsGraphProps {
 
 const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => {
 	const svgRef = useRef<SVGSVGElement>(null);
-	const [dimensions, setDimensions] = useState({ width: 1000, height: 500 });
+	const dimensionsRef = useRef({ width: 1000, height: 500 });
 
 	useEffect(() => {
 		const handleResize = () => {
 			const aspectRatio = Math.max(Math.min(window.innerHeight / window.innerWidth, 1.1), 0.5);
-			setDimensions({
+			dimensionsRef.current = {
 				width: 1000,
 				height: 1000 * aspectRatio
-			});
+			};
 		};
 
 		window.addEventListener('resize', handleResize);
@@ -87,12 +92,12 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 		if (!svgRef.current || !data.nodes.length) return;
 
 		// 既存のSVG要素をクリア
-		d3.select(svgRef.current).selectAll('*').remove();
+		select(svgRef.current).selectAll('*').remove();
 
-		const { width, height } = dimensions;
+		const { width, height } = dimensionsRef.current;
 
 		// SVGを設定
-		const svg = d3.select(svgRef.current)
+		const svg = select(svgRef.current)
 			.attr('width', width)
 			.attr('height', height)
 			.attr('viewBox', [0, 0, width, height])
@@ -104,7 +109,7 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 		// ズーム機能
 		const g = svg.append('g');
 
-		const zoom = d3.zoom<SVGSVGElement, unknown>()
+		const zoom = d3Zoom<SVGSVGElement, unknown>()
 			.scaleExtent([0.2, 4])
 			.on('start', (event) => {
 				if (event.sourceEvent && event.sourceEvent.type !== 'wheel') {
@@ -149,45 +154,68 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 		const hulls = g.append('g').attr('class', 'hulls');
 
 		// シミュレーション設定
-		const simulation = d3.forceSimulation<FriendNode>(nodes)
-			.force('link', d3.forceLink<FriendNode, FriendLink>(links)
+		const simulation = forceSimulation<FriendNode>(nodes)
+			.force('link', forceLink<FriendNode, FriendLink>(links)
 				.id(d => d.id)
 				.distance(100))
-			.force('charge', d3.forceManyBody().strength(-1000))
-			.force('center', d3.forceCenter(width / 2, height / 2))
-			.force('collision', d3.forceCollide().radius(25))
-			.force('x', d3.forceX().strength(0.1))
-			.force('y', d3.forceY().strength(0.1));
+			.force('charge', forceManyBody().strength(-1000))
+			.force('center', forceCenter(width / 2, height / 2))
+			.force('collision', forceCollide().radius(25))
+			.force('x', forceX().strength(0.1))
+			.force('y', forceY().strength(0.1));
+
+		// 各ノードのグループをSetに変換
+		const nodeGroupSets = new Map<string, Set<number>>();
+		for (const node of nodes) {
+			if (node.groups) {
+				nodeGroupSets.set(node.id, new Set(node.groups));
+			}
+		}
 
 		// グループごとのノード集合を強化するカスタムフォース
+		const nodesLen = nodes.length;
 		const groupForce = () => {
-			for (let i = 0; i < nodes.length; i++) {
+			for (let i = 0; i < nodesLen; i++) {
 				const nodeI = nodes[i];
+				if (!nodeI.x || !nodeI.y) continue;
 				const groupI = nodeI.group || 0;
+				const groupSetI = nodeGroupSets.get(nodeI.id);
 
-				for (let j = i + 1; j < nodes.length; j++) {
+				for (let j = i + 1; j < nodesLen; j++) {
 					const nodeJ = nodes[j];
+					if (!nodeJ.x || !nodeJ.y) continue;
 					const groupJ = nodeJ.group || 0;
 
-					// 共通のグループを持つノード間に引力を追加
-					const hasCommonGroup = nodeI.groups?.some(g => nodeJ.groups?.includes(g));
-
-					if ((groupI === groupJ || hasCommonGroup) && nodeI.x && nodeI.y && nodeJ.x && nodeJ.y) {
-						// 同じグループ内のノード間に引力を追加
-						const dx = nodeJ.x - nodeI.x;
-						const dy = nodeJ.y - nodeI.y;
-
-						if (dx !== 0 || dy !== 0) {
-							const forceStrength = 0.05;
-							const forceX = (dx / Math.sqrt(dx * dx + dy * dy)) * forceStrength;
-							const forceY = (dy / Math.sqrt(dx * dx + dy * dy)) * forceStrength;
-
-							nodeI.x += forceX;
-							nodeI.y += forceY;
-							nodeJ.x -= forceX;
-							nodeJ.y -= forceY;
+					// 共通のグループを持つか確認
+					let hasCommonGroup = false;
+					if (groupSetI) {
+						const groupSetJ = nodeGroupSets.get(nodeJ.id);
+						if (groupSetJ) {
+							for (const g of groupSetI) {
+								if (groupSetJ.has(g)) {
+									hasCommonGroup = true;
+									break;
+								}
+							}
 						}
 					}
+
+					if (groupI !== groupJ && !hasCommonGroup) continue;
+
+					// 同じグループ内のノード間に引力を追加
+					const dx = nodeJ.x - nodeI.x;
+					const dy = nodeJ.y - nodeI.y;
+					if (dx === 0 && dy === 0) continue;
+
+					const dist = Math.sqrt(dx * dx + dy * dy);
+					const forceStrength = 0.05;
+					const fx = (dx / dist) * forceStrength;
+					const fy = (dy / dist) * forceStrength;
+
+					nodeI.x += fx;
+					nodeI.y += fy;
+					nodeJ.x -= fx;
+					nodeJ.y -= fy;
 				}
 			}
 		};
@@ -222,7 +250,7 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			})
 			.call(
 				// @ts-expect-error - D3の型定義問題を一時的に回避
-				d3.drag<SVGGElement, FriendNode>()
+				d3Drag<SVGGElement, FriendNode>()
 					.on('start', dragstarted)
 					.on('drag', dragged)
 					.on('end', dragended)
@@ -259,7 +287,7 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			.attr('loading', 'lazy')
 			.attr('referrerPolicy', 'no-referrer')
 			.on('error', function() {
-				d3.select(this).attr('href', createPlaceholderImage('?'));
+				select(this).attr('href', createPlaceholderImage('?'));
 			});
 
 		// ラベルを追加
@@ -282,7 +310,7 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 
 				const colorIndex = groupId % GROUP_COLORS.length;
 				const groupColor = GROUP_COLORS[colorIndex];
-				const darkerColor = d3.color(groupColor)?.darker().toString() || '#333';
+				const darkerColor = d3Color(groupColor)?.darker().toString() || '#333';
 
 				try {
 					// グループ内のノードから長方形の座標を計算
@@ -333,9 +361,9 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 			const getNodeCoord = (nodeRef: string | FriendNode, prop: 'x' | 'y'): number => {
 				if (typeof nodeRef === 'string') {
 					const foundNode = nodeMap.get(nodeRef);
-					return foundNode?.[prop] || 0;
+					return Math.round(foundNode?.[prop] || 0);
 				}
-				return (nodeRef as FriendNode)[prop] || 0;
+				return Math.round((nodeRef as FriendNode)[prop] || 0);
 			};
 
 			link
@@ -344,31 +372,31 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 				.attr('x2', d => getNodeCoord(d.target, 'x'))
 				.attr('y2', d => getNodeCoord(d.target, 'y'));
 
-			node.attr('transform', d => `translate(${d.x || 0},${d.y || 0})`);
+			node.attr('transform', d => `translate(${Math.round(d.x || 0)},${Math.round(d.y || 0)})`);
 
 			// 凸包を更新
 			updateHulls();
 		});
 
 		// ドラッグイベントハンドラー
-		function dragstarted(event: d3.D3DragEvent<SVGGElement, FriendNode, FriendNode>) {
+		function dragstarted(event: D3DragEvent<SVGGElement, FriendNode, FriendNode>) {
 			if (!event.active) simulation.alphaTarget(0.3).restart();
 			event.subject.fx = event.subject.x;
 			event.subject.fy = event.subject.y;
-			const nodeElement = d3.select(`[data-friend-id="${event.subject.id}"]`);
+			const nodeElement = select(`[data-friend-id="${event.subject.id}"]`);
 			nodeElement.style('cursor', 'grabbing');
 		}
 
-		function dragged(event: d3.D3DragEvent<SVGGElement, FriendNode, FriendNode>) {
+		function dragged(event: D3DragEvent<SVGGElement, FriendNode, FriendNode>) {
 			event.subject.fx = event.x;
 			event.subject.fy = event.y;
 		}
 
-		function dragended(event: d3.D3DragEvent<SVGGElement, FriendNode, FriendNode>) {
+		function dragended(event: D3DragEvent<SVGGElement, FriendNode, FriendNode>) {
 			if (!event.active) simulation.alphaTarget(0);
 			event.subject.fx = null;
 			event.subject.fy = null;
-			const nodeElement = d3.select(`[data-friend-id="${event.subject.id}"]`);
+			const nodeElement = select(`[data-friend-id="${event.subject.id}"]`);
 			nodeElement.style('cursor', 'pointer');
 		}
 
@@ -382,7 +410,7 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 		return () => {
 			simulation.stop();
 		};
-	}, [data, dimensions, onSelectFriend]);
+	}, [data, onSelectFriend]);
 
 	return (
 		<div style={{

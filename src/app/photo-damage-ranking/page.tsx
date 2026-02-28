@@ -1,5 +1,5 @@
 import { generateMetadata } from "../metadata";
-import { getPhotoData } from "@/data/photoData";
+import { getPhotoDataMap } from "@/data/photoData";
 import { getPhotoDamageData } from "@/data/photoDamageData";
 import ClientPage from "./page.client";
 import { PageTitle } from '@/components/PageTitle';
@@ -12,10 +12,12 @@ export const metadata = generateMetadata({
 });
 
 export default async function PhotoDamageRankingPage() {
-	const [photoData, photoDamageData] = await Promise.all([
-		getPhotoData(),
+	const [photoDamageData, photoDataMap] = await Promise.all([
 		getPhotoDamageData(),
+		getPhotoDataMap(),
 	]);
+
+	const photoDataRecord = Object.fromEntries(photoDataMap);
 
 	return (
 		<div className="min-h-screen">
@@ -76,7 +78,7 @@ export default async function PhotoDamageRankingPage() {
 				</div>
 			</div>
 
-			<ClientPage photoData={photoData} photoDamageData={photoDamageData} />
+			<ClientPage photoDamageData={photoDamageData} photoDataRecord={photoDataRecord} />
 		</div>
 	);
 }

@@ -7,6 +7,8 @@ import Collapse from '@mui/material/Collapse';
 import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
 import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
 
+const NOOP = () => {};
+
 interface FoldingSectionProps {
 	isOpenByDefault?: boolean;
 	onToggle?: () => void;
@@ -53,7 +55,7 @@ function ToggleButton({
  */
 export function FoldingSection({
 	isOpenByDefault: isOpenByDefault = false,
-	onToggle = () => {},
+	onToggle = NOOP,
 	className,
 	children,
 	toggleButtonLabel = null,
@@ -66,7 +68,7 @@ export function FoldingSection({
 
 	// 開く際に追跡状態を更新
 	const handleToggle = () => {
-		setIsOpened(!isOpened);
+		setIsOpened(prev => !prev);
 
 		// クローズ時、セクションの上部までスクロール
 		if (isOpened && sectionRef.current) {

@@ -153,13 +153,11 @@ export default async function FriendsSkillsPage() {
 		getEffectTypes(),
 	]);
 
-	// 効果種別ごとにデータをフィルタリング
+	// 効果種別ごとにデータをグループ化
 	const effectTypeData: Record<string, SkillWithFriend[]> = {};
-	effectTypes.forEach(effectType => {
-		effectTypeData[effectType] = skillsData.filter(
-			skill => skill.effectType === effectType
-		);
-	});
+	for (const skill of skillsData) {
+		(effectTypeData[skill.effectType] ??= []).push(skill);
+	}
 
 	// カテゴリ構造を処理して、id補完とデフォルト展開フラグを追加
 	const skillCategories = processCategoryStructure(SKILL_CATEGORIES_STRUCTURE as InputTreeItemData[]) || [];

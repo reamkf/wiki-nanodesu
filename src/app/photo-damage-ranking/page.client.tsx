@@ -19,8 +19,8 @@ interface DamageDataWithPhoto extends PhotoDamageDataRow {
 }
 
 interface ClientPageProps {
-	photoData: PhotoDataRow[];
 	photoDamageData: PhotoDamageDataRow[];
+	photoDataRecord: Record<string, PhotoDataRow>;
 }
 
 function PowerCell({ data, calculationKey }: { data: DamageDataWithPhoto, calculationKey: string }) {
@@ -125,7 +125,7 @@ const CHANGE_STATE_OPTIONS: CheckboxOption[] = [
 	}
 ];
 
-export default function ClientPage({ photoData, photoDamageData }: ClientPageProps) {
+export default function ClientPage({ photoDamageData, photoDataRecord }: ClientPageProps) {
 	const [baseAttack, setBaseAttack] = useState<number>(() => {
 		if (typeof window !== "undefined") {
 			const saved = localStorage.getItem("wiki-nanodesu.photo-damage-ranking.baseAttack");
@@ -175,9 +175,7 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 	const damageDataWithPhoto = useMemo(() => {
 		return photoDamageData
 			.map(damage => {
-				const relatedPhoto = photoData.find(photo =>
-					photo.name === damage.photoId || photo.name === damage.photoId + '(フォト)'
-				);
+				const relatedPhoto = photoDataRecord[damage.photoId] || photoDataRecord[damage.photoId + '(フォト)'];
 
 				const calculatePower = (attackValue: number, pocketLv: number) => {
 					if (!relatedPhoto) return 0;
@@ -201,7 +199,7 @@ export default function ClientPage({ photoData, photoDamageData }: ClientPagePro
 				};
 			})
 			.filter(damage => damage.photoData !== undefined);
-	}, [photoData, photoDamageData, baseAttack]);
+	}, [photoDataRecord, photoDamageData, baseAttack]);
 
 	const filteredData = useMemo(() => {
 		if (!isMounted) {
