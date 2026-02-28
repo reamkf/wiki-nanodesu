@@ -1,5 +1,5 @@
 import { FriendNode, FriendLink, GraphData } from '@/types/friends-kakeai-graph';
-import { getFriendsData } from '@/data/friendsData';
+import { getFriendsDataMap } from '@/data/friendsData';
 import { getWikiNanodaPageUrl } from '@/utils/seesaawiki/encoding';
 import { readCsv } from '../utils/readCsv';
 
@@ -31,13 +31,13 @@ const COMPLETE_GRAPH_MAXIMAL_SEARCH_NEIGHBOR_FILTER_INDEX = 50; // 欲張り法�
 
 export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 	try {
-		const [kakeaiData, friendsData] = await Promise.all([
+		const [kakeaiData, friendsDataMap] = await Promise.all([
 			readCsv<Record<string, string>, Record<string, string>>(
 				'フレンズ掛け合い一覧.csv',
 				{},
 				async (data) => data
 			),
-			getFriendsData()
+			getFriendsDataMap()
 		]);
 
 		// 掛け合い先のノード数
@@ -55,7 +55,6 @@ export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 		});
 
 		// 2. IDセットからNode Mapを一括作成
-		const friendsDataMap = new Map(friendsData.map(f => [f.id, f]));
 		const nodes = new Map<string, FriendNode>();
 		allFriendIds.forEach(id => {
 			const friend = friendsDataMap.get(id);
@@ -542,7 +541,7 @@ const checkStarShape = (centerId: string, peripheryIds: string[], graph: Map<str
  * @param groupId 割り当てるグループID
  */
 const assignGroupToNodes = (nodes: FriendNode[], nodeIds: Set<string>, groupId: number): void => {
-	const nodeMap = new Map(nodes.map(n => [n.id, n]));
+	const nodeMap = createNodeMap(nodes);
 	for (const nodeId of nodeIds) {
 		const node = nodeMap.get(nodeId);
 		if (node) {
@@ -562,7 +561,7 @@ const assignGroupToNodes = (nodes: FriendNode[], nodeIds: Set<string>, groupId: 
  * @param links フレンズ間のリンク配列
  */
 const assignGroupsToRemainingNodes = (nodes: FriendNode[], links: FriendLink[]): void => {
-	const nodeMap = new Map(nodes.map(node => [node.id, node]));
+	const nodeMap = createNodeMap(nodes);
 	let groupId = nodes.reduce((max, node) => {
 		const maxGroupInNode = node.groups.length > 0 ? Math.max(...node.groups) : 0;
 		return Math.max(max, maxGroupInNode);
@@ -594,6 +593,32 @@ const assignGroupsToRemainingNodes = (nodes: FriendNode[], links: FriendLink[]):
 // -----------------------------------------------------------------
 
 /**
+ * ノード配列からIDをキーとするMapを作成する
+ * @param nodes フレンズノードの配列
+ * @returns ノードIDからFriendNodeへのMap
+ */
+const createNodeMap = (nodes: FriendNode[]): Map<string, FriendNode> =>
+	new Map(nodes.map(n => [n.id, n]));
+
+/**
+ * ノード配列からグループIDをキー、ノードIDのセットを値とするMapを作成する
+ * @param nodes フレンズノードの配列
+ * @returns グループIDからノードIDセットへのMap
+ */
+const buildGroupNodeSets = (nodes: FriendNode[]): Map<number, Set<string>> => {
+	const groupNodeSets = new Map<number, Set<string>>();
+	nodes.forEach(node => {
+		node.groups.forEach(groupId => {
+			if (!groupNodeSets.has(groupId)) {
+				groupNodeSets.set(groupId, new Set<string>());
+			}
+			groupNodeSets.get(groupId)?.add(node.id);
+		});
+	});
+	return groupNodeSets;
+};
+
+/**
  * あるセットが別のセットのサブセットかどうかをチェック
  * @param subset チェックするサブセット
  * @param superset スーパーセット
@@ -615,17 +640,7 @@ const isSubset = (subset: Set<string>, superset: Set<string>): boolean => {
  */
 const removeSubsetGroups = (nodes: FriendNode[]): void => {
 	// 各グループに属するノードのIDセットを作成
-	const groupNodeSets = new Map<number, Set<string>>();
-
-	// ノードからグループ情報を収集
-	nodes.forEach(node => {
-		node.groups.forEach(groupId => {
-			if (!groupNodeSets.has(groupId)) {
-				groupNodeSets.set(groupId, new Set<string>());
-			}
-			groupNodeSets.get(groupId)?.add(node.id);
-		});
-	});
+	const groupNodeSets = buildGroupNodeSets(nodes);
 
 	// 削除すべきグループIDを収集
 	const groupsToRemove = new Set<number>();
@@ -724,17 +739,7 @@ const generateCombinations = <T>(array: T[], k: number, maxCombinations: number 
  */
 const mergeHighlyConnectedGroups = (nodes: FriendNode[], graph: Map<string, Set<string>>): void => {
 	// 各グループに属するノードのIDセットを作成
-	const groupNodeSets = new Map<number, Set<string>>();
-
-	// グループIDが明示的に設定されているノードのみを収集
-	nodes.forEach(node => {
-		node.groups.forEach(groupId => {
-			if (!groupNodeSets.has(groupId)) {
-				groupNodeSets.set(groupId, new Set<string>());
-			}
-			groupNodeSets.get(groupId)?.add(node.id);
-		});
-	});
+	const groupNodeSets = buildGroupNodeSets(nodes);
 
 	// 統合すべきグループのペアを特定
 	const groupsToMerge: [number, number][] = [];

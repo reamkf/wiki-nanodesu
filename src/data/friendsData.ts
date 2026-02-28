@@ -176,6 +176,7 @@ export function fillStatuses(friendsDataRow: FriendsDataRow): FriendsDataRow {
 }
 
 let friendsDataCache: FriendsDataRow[] | null = null;
+let friendsDataMapCache: Map<string, FriendsDataRow> | null = null;
 
 export async function getFriendsData(): Promise<FriendsDataRow[]> {
 	if (friendsDataCache) {
@@ -221,6 +222,19 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 			return filledData;
 		}
 	);
+}
+
+/**
+ * フレンズIDをキーとするMapを返す
+ * @returns フレンズIDからFriendsDataRowへのMap
+ */
+export async function getFriendsDataMap(): Promise<Map<string, FriendsDataRow>> {
+	if (friendsDataMapCache) {
+		return friendsDataMapCache;
+	}
+	const friendsData = await getFriendsData();
+	friendsDataMapCache = new Map(friendsData.map(f => [f.id, f]));
+	return friendsDataMapCache;
 }
 
 export async function getFriendsDataRow(id: string): Promise<FriendsDataRow | null> {

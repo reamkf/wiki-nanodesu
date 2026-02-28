@@ -49,6 +49,7 @@ export function parsePhotoStatus(data: RawPhotoCSV): PhotoStatus {
 }
 
 let photoDataCache: PhotoDataRow[] | null = null;
+let photoDataMapCache: Map<string, PhotoDataRow> | null = null;
 
 export async function getPhotoData(): Promise<PhotoDataRow[]> {
 	if (photoDataCache) {
@@ -109,7 +110,20 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 	);
 }
 
-export async function getPhotoDataByName(name: string): Promise<PhotoDataRow | null> {
+/**
+ * フォト名をキーとするMapを返す
+ * @returns フォト名からPhotoDataRowへのMap
+ */
+export async function getPhotoDataMap(): Promise<Map<string, PhotoDataRow>> {
+	if (photoDataMapCache) {
+		return photoDataMapCache;
+	}
 	const photoData = await getPhotoData();
-	return photoData.find(photo => photo.name === name) || null;
+	photoDataMapCache = new Map(photoData.map(p => [p.name, p]));
+	return photoDataMapCache;
+}
+
+export async function getPhotoDataByName(name: string): Promise<PhotoDataRow | null> {
+	const photoDataMap = await getPhotoDataMap();
+	return photoDataMap.get(name) || null;
 }

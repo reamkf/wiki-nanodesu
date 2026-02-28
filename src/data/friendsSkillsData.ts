@@ -1,6 +1,5 @@
 import { SkillEffect, RawSkillCSV, RAW_SKILL_CSV_HEADERS, SkillWithFriend } from "@/types/friendsSkills";
-import { getFriendsData } from "@/data/friendsData";
-import { FriendsDataRow } from "@/types/friends";
+import { getFriendsDataMap } from "@/data/friendsData";
 import { readCsv } from "../utils/readCsv";
 
 // キャッシュ用の変数
@@ -66,33 +65,15 @@ export async function getSkillsWithFriendsData(): Promise<SkillWithFriend[]> {
 	}
 
 	try {
-		const [skillsData, friendsData] = await Promise.all([
+		const [skillsData, friendsDataMap] = await Promise.all([
 			getSkillsData(),
-			getFriendsData()
+			getFriendsDataMap()
 		]);
-
-		const friendsDataMap = new Map(friendsData.map(f => [f.id, f]));
-
-		const friendsIdMap = new Map<string, FriendsDataRow | undefined>();
-
-		const uniqueFriendsIdsSet = new Set<string>();
-		for (const skill of skillsData) {
-			if (skill.friendsId && skill.friendsId.trim() !== '') {
-				uniqueFriendsIdsSet.add(skill.friendsId);
-			}
-		}
-		const uniqueFriendsIds = Array.from(uniqueFriendsIdsSet);
-
-		uniqueFriendsIds.forEach((friendsId) => {
-			if (!friendsId) return;
-			const friend = friendsDataMap.get(friendsId);
-			friendsIdMap.set(friendsId, friend || undefined);
-		});
 
 		// スキルデータとフレンズデータを結合
 		const enrichedData = skillsData.map(skill => {
-			const friendsDataRow = friendsIdMap.get(skill.friendsId);
-			return { ...skill, friendsDataRow: friendsDataRow };
+			const friendsDataRow = friendsDataMap.get(skill.friendsId);
+			return { ...skill, friendsDataRow };
 		}).filter((item): item is SkillWithFriend =>
 			item.friendsDataRow !== undefined
 		);

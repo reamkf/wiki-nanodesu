@@ -1,8 +1,6 @@
 import { AbnormalStatusEffect, RawAbnormalStatusCSV, RAW_ABNORMAL_STATUS_CSV_HEADERS, AbnormalStatusWithFriend, AbnormalStatusType } from "@/types/abnormalStatus";
-import { getFriendsData } from "@/data/friendsData";
-import { getPhotoData } from "@/data/photoData";
-import { FriendsDataRow } from "@/types/friends";
-import { PhotoDataRow } from "@/types/photo";
+import { getFriendsDataMap } from "@/data/friendsData";
+import { getPhotoDataMap } from "@/data/photoData";
 import { readCsv } from "../utils/readCsv";
 
 // キャッシュ用の変数
@@ -94,49 +92,17 @@ export async function getAbnormalStatusWithFriendsAndPhotos(): Promise<AbnormalS
 	}
 
 	try {
-		const [abnormalStatusData, friendsData, photoData] = await Promise.all([
+		const [abnormalStatusData, friendsDataMap, photoDataMap] = await Promise.all([
 			getAbnormalStatusData(),
-			getFriendsData(),
-			getPhotoData()
+			getFriendsDataMap(),
+			getPhotoDataMap()
 		]);
-
-		// フレンズID/フォト名のマッピングを作成
-		const friendsIdMap = new Map<string, FriendsDataRow | undefined>();
-		const photoNameMap = new Map<string, PhotoDataRow | undefined>();
-
-		// まず一意のID/名前リストを作成
-		const uniqueIdentifiers = Array.from(new Set(
-			abnormalStatusData
-				.filter(status => status.friendsIdOrPhotoName && status.friendsIdOrPhotoName.trim() !== '')
-				.map(status => status.friendsIdOrPhotoName)
-		));
-
-		const friendsDataMap = new Map(friendsData.map(f => [f.id, f]));
-		const photoDataMap = new Map(photoData.map(p => [p.name, p]));
-
-		// フレンズデータとフォトデータを取得
-		uniqueIdentifiers.forEach((identifier) => {
-			if (!identifier) return;
-
-			// フレンズIDとして検索
-			const friend = friendsDataMap.get(identifier);
-			if (friend) {
-				friendsIdMap.set(identifier, friend);
-				return;
-			}
-
-			// フォト名として検索
-			const photo = photoDataMap.get(identifier);
-			if (photo) {
-				photoNameMap.set(identifier, photo);
-			}
-		});
 
 		// 状態異常データとフレンズ/フォトデータを結合
 		const enrichedData = abnormalStatusData.map(status => {
 			const identifier = status.friendsIdOrPhotoName;
-			const friendsDataRow = friendsIdMap.get(identifier);
-			const photoDataRow = photoNameMap.get(identifier);
+			const friendsDataRow = friendsDataMap.get(identifier);
+			const photoDataRow = !friendsDataRow ? photoDataMap.get(identifier) : undefined;
 			const isPhoto = !friendsDataRow && !!photoDataRow || identifier.includes('フォト') || false;
 
 			return {
