@@ -249,7 +249,6 @@ jobs:
                   "icon_url": "${actor_icon}"
                 },
                 "fields": [
-                  {"name":"Repository","value":"[${GITHUB_REPOSITORY}](${repo_url})","inline":true},
                   {"name":"Build Status","value":"${BUILD_STATUS_DISPLAY}","inline":true},
                   {"name":"Lint Status","value":"${LINT_STATUS_DISPLAY}","inline":true},
                   {"name":"Test Status","value":"${TEST_STATUS_DISPLAY}","inline":true},
