@@ -252,7 +252,7 @@ jobs:
                   {"name":"Build Status","value":"${BUILD_STATUS_DISPLAY}","inline":true},
                   {"name":"Lint Status","value":"${LINT_STATUS_DISPLAY}","inline":true},
                   {"name":"Test Status","value":"${TEST_STATUS_DISPLAY}","inline":true},
-                  {"name":"E2E Status","value":"${E2E_STATUS_DISPLAY}","inline":true},
+                  {"name":"E2E Test Status","value":"${E2E_STATUS_DISPLAY}","inline":true},
                   {"name":"Deploy Status","value":"${DEPLOY_STATUS_DISPLAY}","inline":true},
                   {"name":"Pages URL","value":"${page_url}","inline":false},
                   {"name":"Ref","value":"[${GITHUB_REF_NAME}](${ref_url})","inline":true},
