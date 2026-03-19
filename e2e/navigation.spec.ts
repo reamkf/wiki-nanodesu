@@ -189,6 +189,31 @@ test.describe("サイドバー", () => {
 			await expect(sidebar.getByText(linkText)).toBeHidden();
 		}
 	});
+
+	test("漢字の読み仮名で検索するとヒットする", async ({ page }) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+
+		// 「状態」の読み「じょうたい」で検索 → 「状態異常スキル一覧」がヒット
+		await searchInput.fill("じょうたい");
+		await expect(
+			sidebar.getByText("状態異常スキル一覧")
+		).toBeVisible();
+
+		// 「切」の読み「せつ」で検索 → フレンズ一覧に「カマイタチ・切」がヒット
+		const clearButton = sidebar.getByLabel("検索をクリア");
+		await clearButton.click();
+		await searchInput.fill("せつ");
+		const sectionHeader = sidebar.locator("div.border-b-2", {
+			hasText: "フレンズ一覧",
+		});
+		await expect(sectionHeader).toBeVisible();
+		await expect(
+			sidebar.getByRole("link", { name: /カマイタチ・切/ })
+		).toBeVisible();
+	});
 });
 
 test.describe("サイドバー（モバイル）", () => {

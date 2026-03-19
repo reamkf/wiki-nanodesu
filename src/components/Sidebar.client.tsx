@@ -21,10 +21,14 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 	const [searchQuery, setSearchQuery] = useState('');
 	const searchInputRef = useRef<HTMLInputElement>(null);
 
-	const filteredLinksNanodesu = sideBarLinksNanodesu.filter(link => includesNormalizeQuery(link.text, searchQuery));
-	const filteredLinksNanoda = sideBarLinksNanoda.filter(link => includesNormalizeQuery(link.text, searchQuery));
-	const filteredFriendsLinks = friendsLinks.filter(link => includesNormalizeQuery(link.text, searchQuery));
-	const filteredPhotoLinks = photoLinks.filter(link => includesNormalizeQuery(link.text, searchQuery));
+	const matchesSearch = (link: SidebarLinkItem) =>
+		includesNormalizeQuery(link.text, searchQuery) ||
+		(link.textHiragana !== undefined && includesNormalizeQuery(link.textHiragana, searchQuery));
+
+	const filteredLinksNanodesu = sideBarLinksNanodesu.filter(matchesSearch);
+	const filteredLinksNanoda = sideBarLinksNanoda.filter(matchesSearch);
+	const filteredFriendsLinks = friendsLinks.filter(matchesSearch);
+	const filteredPhotoLinks = photoLinks.filter(matchesSearch);
 
 	return (
 		<aside className={`

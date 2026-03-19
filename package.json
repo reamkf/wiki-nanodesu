@@ -26,6 +26,8 @@
 		"@tanstack/react-table": "^8.21.3",
 		"d3": "^7.9.0",
 		"encoding-japanese": "^2.2.0",
+		"kuroshiro": "^1.2.0",
+		"kuroshiro-analyzer-kuromoji": "^1.1.0",
 		"next": "16.2.0",
 		"papaparse": "^5.5.3",
 		"react": "19.2.4",

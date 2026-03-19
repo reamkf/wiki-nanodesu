@@ -4,10 +4,13 @@ import { FriendsDataRow } from '@/types/friends';
 import { getPhotoData } from '@/data/photoData';
 import { getWikiNanodaPageUrl } from '@/utils/seesaawiki/encoding';
 import { getCurrentSeasonCount } from '@/utils/dojoSeason';
+import { toHiragana } from '@/utils/kanjiToHiragana';
 
 export interface SidebarLinkItem {
 	href: string;
 	text: string;
+	/** 検索用：漢字をひらがなに変換した読み仮名（漢字の読みでもヒットするように） */
+	textHiragana?: string;
 }
 
 export async function Sidebar() {
@@ -34,7 +37,7 @@ export async function Sidebar() {
 		// 		.map((friend) => (friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name) + '(フォト)')
 		// ).sort((a, b) => a.replace(/^【.*】/, '').localeCompare(b.replace(/^【.*】/, '')));
 
-	const sideBarLinksNanodesu: SidebarLinkItem[] = [
+	const sideBarLinksNanodesuBase: { href: string; text: string }[] = [
 		{
 			href: '/abnormal-status-skills',
 			text: '状態異常スキル一覧',
@@ -149,19 +152,45 @@ export async function Sidebar() {
 		'情報提供場'
 	];
 
-	const sideBarLinksNanoda: SidebarLinkItem[] = sideBarPagesNanoda.map((page) => ({
+	const sideBarLinksNanodaBase: { href: string; text: string }[] = sideBarPagesNanoda.map((page) => ({
 		href: getWikiNanodaPageUrl(page),
 		text: page,
 	}));
 
-	const friendsLinks: SidebarLinkItem[] = friendsPageNameList.map((page) => ({
+	const friendsLinksBase: { href: string; text: string }[] = friendsPageNameList.map((page) => ({
 		href: getWikiNanodaPageUrl(page),
 		text: page,
 	}));
 
-	const photoLinks: SidebarLinkItem[] = photoPageNameList.map((name) => ({
+	const photoLinksBase: { href: string; text: string }[] = photoPageNameList.map((name) => ({
 		href: getWikiNanodaPageUrl(name),
 		text: name,
+	}));
+
+	const allTextsToConvert = [
+		...sideBarLinksNanodesuBase.map((l) => l.text),
+		...sideBarLinksNanodaBase.map((l) => l.text),
+		...friendsLinksBase.map((l) => l.text),
+		...photoLinksBase.map((l) => l.text),
+	];
+	const hiraganaResults = await Promise.all(allTextsToConvert.map((t) => toHiragana(t)));
+
+	let idx = 0;
+	const sideBarLinksNanodesu: SidebarLinkItem[] = sideBarLinksNanodesuBase.map((link) => ({
+		...link,
+		textHiragana: hiraganaResults[idx++],
+	}));
+	const sideBarLinksNanoda: SidebarLinkItem[] = sideBarLinksNanodaBase.map((link) => ({
+		...link,
+		textHiragana: hiraganaResults[idx++],
+	}));
+	const friendsLinks: SidebarLinkItem[] = friendsLinksBase.map((link) => ({
+		...link,
+		textHiragana: hiraganaResults[idx++],
+	}));
+	const photoLinks: SidebarLinkItem[] = photoLinksBase.map((link) => ({
+		...link,
+		textHiragana: hiraganaResults[idx++],
 	}));
 
 	return <SidebarClient
