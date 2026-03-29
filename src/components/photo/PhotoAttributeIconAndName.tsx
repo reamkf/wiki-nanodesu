@@ -26,6 +26,7 @@ export const PhotoAttributeIcon = memo(function PhotoAttributeIconAndName({ attr
 					alt={attribute}
 					width={40}
 					height={40}
+					className="w-10 h-auto"
 				/>
 			</div>
 		</>

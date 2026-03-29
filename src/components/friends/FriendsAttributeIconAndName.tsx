@@ -22,6 +22,7 @@ export const FriendsAttributeIconAndName = memo(function FriendsAttributeIconAnd
 					alt={attribute}
 					width={40}
 					height={40}
+					className="w-9 h-auto"
 				/>
 			</div>
 		</>
