@@ -115,6 +115,7 @@ export interface FriendsDataRow {
 	numOfClothes: number;
 	cv: string;
 	status: FriendsStatus;
+	miracleRequiredMp: number | null;
 	wildPhotoAttribute: PhotoAttribute;
 	wildPhotoTrait: string;
 	wildPhotoTraitChanged: string;

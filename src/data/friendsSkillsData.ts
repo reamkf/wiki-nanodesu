@@ -7,6 +7,28 @@ let skillsDataCache: SkillEffect[] | null = null;
 let skillsWithFriendsCache: SkillWithFriend[] | null = null;
 let effectTypesCache: string[] | null = null;
 
+function formatNoteWithRequiredMp(note: string, skillType: string, effectType: string, requiredMp: number | null): string {
+	const shouldAddRequiredMp = skillType === 'けものミラクル' || effectType === 'MP増加' || effectType === '毎ターンMP増加';
+	if (!shouldAddRequiredMp) {
+		return note;
+	}
+
+	const mpText = requiredMp !== null ? String(requiredMp) : '';
+	const header = `必要MP${mpText}`;
+
+	const filteredParts = note
+		.split('~~')
+		.map(part => part.trim())
+		.filter(part => part !== '' && !/^必要MP\s*[0-9]+$/.test(part));
+
+	const body = filteredParts.join('~~');
+	if (body === '') {
+		return `${header}\n`;
+	}
+
+	return `${header}\n${body}`;
+}
+
 /**
  * スキル別フレンズ一覧のCSVデータを取得する
  */
@@ -73,7 +95,15 @@ export async function getSkillsWithFriendsData(): Promise<SkillWithFriend[]> {
 		// スキルデータとフレンズデータを結合
 		const enrichedData = skillsData.map(skill => {
 			const friendsDataRow = friendsDataMap.get(skill.friendsId);
-			return { ...skill, friendsDataRow };
+			if (!friendsDataRow) {
+				return { ...skill, friendsDataRow };
+			}
+
+			return {
+				...skill,
+				note: formatNoteWithRequiredMp(skill.note, skill.skillType, skill.effectType, friendsDataRow.miracleRequiredMp),
+				friendsDataRow
+			};
 		}).filter((item): item is SkillWithFriend =>
 			item.friendsDataRow !== undefined
 		);

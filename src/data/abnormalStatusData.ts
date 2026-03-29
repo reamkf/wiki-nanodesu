@@ -8,6 +8,28 @@ let abnormalStatusDataCache: AbnormalStatusEffect[] | null = null;
 let abnormalStatusWithFriendsCache: AbnormalStatusWithFriend[] | null = null;
 let abnormalStatusTypesCache: string[] | null = null;
 
+function formatNoteWithRequiredMp(note: string, skillType: string, abnormalStatus: string, requiredMp: number | null): string {
+	const shouldAddRequiredMp = skillType === 'けものミラクル' || abnormalStatus === 'MP増加' || abnormalStatus === '毎ターンMP増加';
+	if (!shouldAddRequiredMp) {
+		return note;
+	}
+
+	const mpText = requiredMp !== null ? String(requiredMp) : '';
+	const header = `必要MP${mpText}`;
+
+	const filteredParts = note
+		.split('~~')
+		.map(part => part.trim())
+		.filter(part => part !== '' && !/^必要MP\s*[0-9]+$/.test(part));
+
+	const body = filteredParts.join('~~');
+	if (body === '') {
+		return `${header}\n`;
+	}
+
+	return `${header}\n${body}`;
+}
+
 /**
  * 状態異常データのCSVデータを取得する
  */
@@ -33,11 +55,12 @@ async function getAbnormalStatusData(): Promise<AbnormalStatusEffect[]> {
 			for (const row of data) {
 				const friendsIdOrPhotoName = String(row['フレンズID/フォト名'] || '');
 				const abnormalStatus = String(row['状態異常'] || '');
+				const skillType = String(row['わざ種別'] || '');
 				if (!friendsIdOrPhotoName || friendsIdOrPhotoName.trim() === '' || !abnormalStatus || abnormalStatus.trim() === '') continue;
 
 				validData.push({
 					friendsIdOrPhotoName,
-					skillType: String(row['わざ種別'] || ''),
+					skillType,
 					abnormalStatus,
 					effectType: String(row['効果種別'] || ''),
 					power: String(row['威力'] || ''),
@@ -107,6 +130,7 @@ export async function getAbnormalStatusWithFriendsAndPhotos(): Promise<AbnormalS
 
 			return {
 				...status,
+				note: formatNoteWithRequiredMp(status.note, status.skillType, status.abnormalStatus, friendsDataRow?.miracleRequiredMp || null),
 				friendsDataRow,
 				photoDataRow,
 				isPhoto: isPhoto

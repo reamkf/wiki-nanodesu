@@ -58,6 +58,10 @@ describe('getFriendsData', () => {
 				expect(sampleFriendsData?.has12poke).toBe(false);
 			});
 
+			it('けものミラクル必要MPが120である', () => {
+				expect(sampleFriendsData?.miracleRequiredMp).toBe(120);
+			});
+
 			describe('フラッグ', () => {
 				it('Beatフラッグが2である', () => {
 					expect(sampleFriendsData?.status.beatFlags).toBe(2);
@@ -230,6 +234,10 @@ describe('getFriendsData', () => {
 
 			it('サブ属性がフレンドリーである', () => {
 				expect(sampleFriendsData?.subAttribute).toBe(FriendsAttribute.friendry);
+			});
+
+			it('けものミラクル必要MPが80である', () => {
+				expect(sampleFriendsData?.miracleRequiredMp).toBe(80);
 			});
 		});
 
