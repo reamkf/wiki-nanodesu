@@ -53,7 +53,7 @@
 		"react-scan": "^0.5.3",
 		"tailwind-scrollbar": "^4.0.2",
 		"tailwindcss": "^4.2.2",
-		"typescript": "5.9.3"
+		"typescript": "6.0.2"
 	},
 	"type": "module",
 	"overrides": {
