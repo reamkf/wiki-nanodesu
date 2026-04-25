@@ -1,6 +1,6 @@
 import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import HelpOutlineOutlinedIcon from '@mui/icons-material/HelpOutlineOutlined';
 
 interface AboutButtonProps {
 	onClick: () => void;
@@ -13,7 +13,7 @@ export function AboutButton({ onClick }: AboutButtonProps) {
 				onClick={onClick}
 				className="aspect-square"
 			>
-				<HelpOutlineIcon className="text-sky-500 text-3xl md:text-2xl" />
+				<HelpOutlineOutlinedIcon className="text-sky-500 text-3xl md:text-2xl" />
 			</IconButton>
 		</Tooltip>
 	);

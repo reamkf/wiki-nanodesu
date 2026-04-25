@@ -260,21 +260,23 @@ export function TableOfContents({
 									{/* 検索フィールド */}
 									<Box className="mb-4">
 										<TextField
-											inputRef={searchInputRef}
+											slotProps={{
+												htmlInput: { ref: searchInputRef },
+												input: {
+													startAdornment: (
+														<InputAdornment position="start">
+															<SearchIcon />
+														</InputAdornment>
+													),
+													className: "rounded-lg",
+												},
+											}}
 											fullWidth
 											placeholder="目次を検索..."
 											size="small"
 											value={searchKeyword}
 											onChange={handleSearchChange}
 											onKeyDown={handleSearchKeyDown}
-											InputProps={{
-												startAdornment: (
-													<InputAdornment position="start">
-														<SearchIcon />
-													</InputAdornment>
-												),
-												className: "rounded-lg",
-											}}
 										/>
 									</Box>
 
