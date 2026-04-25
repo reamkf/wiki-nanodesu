@@ -65,14 +65,17 @@ export function TableOfContents({
 		};
 	}, []);
 
-	// ページ表示時にURLハッシュに基づいてスクロール
+	// ページ表示時にURLハッシュに基づき、折りたたみを開く（onItemClisk）とスクロール
 	useEffect(() => {
 		if (window.location.hash) {
 			const id = window.location.hash.substring(1);
 			const decodedId = decodeURIComponent(id);
+			if (onItemClisk) {
+				onItemClisk(decodedId);
+			}
 			scrollToSection(decodedId);
 		}
-	}, [scrollToSection]);
+	}, [scrollToSection, onItemClisk]);
 
 	// ダイアログを開く
 	const handleOpenDialog = useCallback(() => {

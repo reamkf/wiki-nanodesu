@@ -281,7 +281,6 @@ export default async function AbnormalStatusPage() {
 			</p>
 
 			<ClientTabs
-				statusTypes={abnormalStatusCategories.map(cat => cat.id)} // カテゴリIDのリストを渡す
 				statusTypeData={statusTypeDataForClient}
 				abnormalStatusCategories={abnormalStatusCategories}
 			/>

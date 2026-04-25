@@ -25,17 +25,13 @@ import { AttributeCell, ActivationRateCell, CommonPowerCell } from "@/components
 const ABNORMAL_STATUS_EFFECT_TYPES = Object.values(AbnormalStatusSkillEffectType);
 
 export default function ClientTabs({
-	statusTypes,
 	statusTypeData,
 	abnormalStatusCategories
 }: {
-	statusTypes: string[],
 	statusTypeData: Record<string, AbnormalStatusWithFriend[]>,
 	abnormalStatusCategories: TreeItemData[]
 }) {
-	const [selectedStatusType, setSelectedStatusType] = useState<string | null>(
-		() => statusTypes.length > 0 ? statusTypes[0] : null
-	);
+	const [selectedStatusType, setSelectedStatusType] = useState<string | null>(null);
 
 	const customFilterFn = useMemo(() => createCustomFilterFn<AbnormalStatusWithFriend>(getSearchableTextForFriendOrPhoto), []);
 
@@ -256,10 +252,12 @@ export default function ClientTabs({
 		return null;
 	}, [columns, filterStatusDataByCategoryAndSubcategory]);
 
+	// 目次・URLハッシュでジャンプした際、リーフの折りたたみを展開する（friend-skills と同様に、データが存在するカテゴリIDをそのまま採用）
 	const handleSelectCategory = useCallback((id: string) => {
-		const statusType = id.includes('-') ? id.split('-')[0] : id;
-		setSelectedStatusType(statusType);
-	}, []);
+		if (statusTypeData[id]?.length) {
+			setSelectedStatusType(id);
+		}
+	}, [statusTypeData]);
 
 	return (
 		<CategoryLayout
