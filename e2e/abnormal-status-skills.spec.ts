@@ -1,5 +1,11 @@
 import { test, expect } from "@playwright/test";
 
+/**
+ * 第三階層リーフのid（buildSubCategories 由来。CSV上でくらくら+フレンズ+付与が存在すること）
+ * @see createCategoryId in app/abnormal-status-skills/page.tsx
+ */
+const ABNORMAL_TOC_LEAF_ID = "くらくら-friends-give";
+
 test.describe("状態異常スキル一覧ページ", () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto("./abnormal-status-skills");
@@ -60,5 +66,35 @@ test.describe("状態異常スキル一覧ページ", () => {
 				table.locator("th", { hasText: header })
 			).toBeVisible();
 		}
+	});
+});
+
+test.describe("状態異常スキル一覧: 目次とURLハッシュ", () => {
+	test("URLハッシュがリーフIDのとき、折りたたみが開きテーブルが表示される", async ({
+		page,
+	}) => {
+		await page.goto(
+			`./abnormal-status-skills#${encodeURIComponent(ABNORMAL_TOC_LEAF_ID)}`
+		);
+		const table = page.locator("table").first();
+		await expect(async () => {
+			await expect(table).toBeVisible({ timeout: 2000 });
+		}).toPass({ timeout: 15000 });
+	});
+
+	test("目次で子カテゴリを選ぶと折りたたみが開きテーブルが表示される", async ({
+		page,
+	}) => {
+		// 検索「かばう」で1カテゴリ付近に絞り、先頭の「付与」リーフ（かばう系）を押す
+		await page.goto("./abnormal-status-skills");
+		await page.getByRole("button", { name: "目次" }).first().click();
+		const dialogPanel = page.locator("[id^='headlessui-dialog-panel']");
+		await expect(dialogPanel.getByPlaceholder("目次を検索...")).toBeVisible();
+		await dialogPanel.getByPlaceholder("目次を検索...").fill("かばう");
+		await dialogPanel.getByText("付与", { exact: true }).first().click();
+		const table = page.locator("table").first();
+		await expect(async () => {
+			await expect(table).toBeVisible({ timeout: 2000 });
+		}).toPass({ timeout: 15000 });
 	});
 });

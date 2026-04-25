@@ -1,5 +1,8 @@
 import { test, expect } from "@playwright/test";
 
+/** ツリー上のリーフ名＝CSVの効果種別。目次UIで枝が一意に定まるものを使う */
+const FRIENDS_TOC_LEAF_ANCHOR = "Try!!与ダメージ増加";
+
 test.describe("スキル別フレンズ一覧ページ", () => {
 	test.beforeEach(async ({ page }) => {
 		await page.goto("./friends-skills");
@@ -69,5 +72,39 @@ test.describe("スキル別フレンズ一覧ページ", () => {
 			name: /状態異常スキル一覧/,
 		});
 		await expect(link.first()).toBeVisible();
+	});
+});
+
+test.describe("スキル別フレンズ一覧: 目次とURLハッシュ", () => {
+	test("URLハッシュがリーフIDのとき、折りたたみが開きテーブルが表示される", async ({
+		page,
+	}) => {
+		await page.goto(
+			`./friends-skills#${encodeURIComponent(FRIENDS_TOC_LEAF_ANCHOR)}`
+		);
+		const table = page.locator("table").first();
+		await expect(async () => {
+			await expect(table).toBeVisible({ timeout: 2000 });
+		}).toPass({ timeout: 15000 });
+	});
+
+	test("目次のリーフを選ぶと折りたたみが開きテーブルが表示される", async ({
+		page,
+	}) => {
+		await page.goto("./friends-skills");
+		await page.getByRole("button", { name: "目次" }).first().click();
+		const dialogPanel = page.locator("[id^='headlessui-dialog-panel']");
+		await expect(dialogPanel.getByPlaceholder("目次を検索...")).toBeVisible();
+		await dialogPanel
+			.getByPlaceholder("目次を検索...")
+			.fill(FRIENDS_TOC_LEAF_ANCHOR);
+		// MUI ListItemButton は aria-label が付かないため、表記テキストで辿る
+		await dialogPanel
+			.getByText(FRIENDS_TOC_LEAF_ANCHOR, { exact: true })
+			.click();
+		const table = page.locator("table").first();
+		await expect(async () => {
+			await expect(table).toBeVisible({ timeout: 2000 });
+		}).toPass({ timeout: 15000 });
 	});
 });
