@@ -45,6 +45,10 @@ export function generateMetadata({
 		description,
 		icons: {
 			icon: 'https://reamkf.github.io/wiki-nanodesu/no_blue.png',
+			apple: [
+				{ url: 'https://reamkf.github.io/wiki-nanodesu/apple-touch-icon.png' },
+				{ url: 'https://reamkf.github.io/wiki-nanodesu/apple-touch-icon-120x120.png', sizes: '120x120' },
+			],
 		},
 		// ========== OGP ==========
 		openGraph: {
