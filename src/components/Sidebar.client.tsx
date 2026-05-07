@@ -41,7 +41,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 			z-30 md:z-auto
 
 			w-[18rem]
-			h-[calc(100vh-100px)] md:h-[calc(100vh-30px)]
+			h-[calc(100dvh-100px)] md:h-[calc(100dvh-30px)]
 			shrink-0
 			overflow-y-auto
 			scrollbar-thin
