@@ -1,6 +1,6 @@
 import { PhotoDataRow } from "@/types/photo";
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
-import { getWikiNanodaPageUrl } from '@/utils/seesaawiki/encoding';
+import { getWikiNanodaPageUrl } from '@/utils/wikiNanodaUrl';
 import { memo } from "react";
 
 interface PhotoNameLinkProps {

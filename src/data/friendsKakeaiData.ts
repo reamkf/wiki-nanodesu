@@ -1,6 +1,6 @@
 import { FriendNode, FriendLink, GraphData } from '@/types/friends-kakeai-graph';
 import { getFriendsDataMap } from '@/data/friendsData';
-import { getWikiNanodaPageUrl } from '@/utils/seesaawiki/encoding';
+import { getWikiNanodaPageUrl } from '@/utils/wikiNanodaUrl';
 import { readCsv } from '../utils/readCsv';
 
 // --- 定数定義 ---

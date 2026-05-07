@@ -2,7 +2,7 @@ import { SidebarClient } from './Sidebar.client';
 import { getFriendsData } from '@/data/friendsData';
 import { FriendsDataRow } from '@/types/friends';
 import { getPhotoData } from '@/data/photoData';
-import { getWikiNanodaPageUrl } from '@/utils/seesaawiki/encoding';
+import { getWikiNanodaPageUrl } from '@/utils/wikiNanodaUrl';
 import { getCurrentSeasonCount } from '@/utils/dojoSeason';
 import { toHiragana } from '@/utils/kanjiToHiragana';
 
