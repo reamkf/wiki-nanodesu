@@ -34,8 +34,12 @@ test.describe("フレンズステータスランキングページ", () => {
 
 	test("フィルターチェックボックスが表示される", async ({ page }) => {
 		// ステータスタイプの選択肢が存在する（ラベルは☆6/プレフィックスなし）
-		await expect(page.getByText("Lv90/野生4")).toBeVisible();
-		await expect(page.getByText("Lv99/野生4")).toBeVisible();
+		await expect(
+			page.getByRole("checkbox", { name: "Lv90/野生4" })
+		).toBeVisible();
+		await expect(
+			page.getByRole("checkbox", { name: "Lv99/野生4" })
+		).toBeVisible();
 	});
 
 	test("チェックボックスの切り替えでテーブルが更新される", async ({
@@ -45,7 +49,7 @@ test.describe("フレンズステータスランキングページ", () => {
 		await expect(table).toBeVisible();
 
 		// チェックボックスを操作して別のステータスタイプに切り替え
-		const checkbox = page.getByText("Lv200/野生4").first();
+		const checkbox = page.getByRole("checkbox", { name: "Lv200/野生4" });
 		await checkbox.click();
 
 		// テーブルの内容が変化するはず
@@ -140,7 +144,7 @@ test.describe("フレンズステータスランキングページ", () => {
 		await expect(table).toBeVisible();
 
 		// Lv200/野生4チェックボックスをクリックして切り替える
-		const lv200Checkbox = page.getByText("Lv200/野生4").first();
+		const lv200Checkbox = page.getByRole("checkbox", { name: "Lv200/野生4" });
 		await lv200Checkbox.click();
 		await page.waitForTimeout(500);
 
@@ -193,7 +197,7 @@ test.describe("フレンズステータスランキングページ", () => {
 		await expect(table).toBeVisible();
 
 		// Lv200/野生4チェックボックスをクリック
-		const lv200Checkbox = page.getByText("Lv200/野生4").first();
+		const lv200Checkbox = page.getByRole("checkbox", { name: "Lv200/野生4" });
 		await lv200Checkbox.click();
 		await page.waitForTimeout(500);
 
@@ -202,7 +206,7 @@ test.describe("フレンズステータスランキングページ", () => {
 		expect(rowCountAfterFirst).toBeGreaterThan(0);
 
 		// さらにLv99/野生4チェックボックスをクリック
-		const lv99Checkbox = page.getByText("Lv99/野生4").first();
+		const lv99Checkbox = page.getByRole("checkbox", { name: "Lv99/野生4" });
 		await lv99Checkbox.click();
 		await page.waitForTimeout(500);
 
