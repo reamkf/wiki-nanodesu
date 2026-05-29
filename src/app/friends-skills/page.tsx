@@ -148,7 +148,7 @@ export const metadata = generateMetadata({
 // --- ページコンポーネント ---
 
 export default async function FriendsSkillsPage() {
-	const [skillsData, effectTypes] = await Promise.all([
+	const [skillsData] = await Promise.all([
 		getSkillsWithFriendsData(),
 		getEffectTypes(),
 	]);
@@ -194,7 +194,6 @@ export default async function FriendsSkillsPage() {
 			</p>
 
 			<ClientTabs
-				effectTypes={effectTypes}
 				effectTypeData={effectTypeData}
 				skillCategories={skillCategories}
 			/>

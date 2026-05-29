@@ -174,7 +174,7 @@ export const metadata = generateMetadata({
 });
 
 export default async function AbnormalStatusPage() {
-	const [allStatusData, statusTypes] = await Promise.all([
+	const [allStatusData] = await Promise.all([
 		getAbnormalStatusWithFriendsAndPhotos(),
 		getAbnormalStatusTypes(),
 	]);

@@ -27,11 +27,9 @@ const FriendCell = ({ data }: { data: SkillWithFriend }) => {
 };
 
 export default function ClientTabs({
-	effectTypes,
 	effectTypeData,
 	skillCategories
 }: {
-	effectTypes: string[],
 	effectTypeData: Record<string, SkillWithFriend[]>,
 	skillCategories: TreeItemData[]
 }) {

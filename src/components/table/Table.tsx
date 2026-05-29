@@ -205,17 +205,6 @@ export function Table<TData, TValue>({
 		}
 	};
 
-	// localStorageに状態を保存するヘルパー関数
-	const storeState = <T,>(key: string, value: T) => {
-		if (typeof window === 'undefined') return;
-
-		try {
-			localStorage.setItem(`${storageKeyPrefix}.${key}`, JSON.stringify(value));
-		} catch (e) {
-			console.info(`Error storing state for ${key}:`, e);
-		}
-	};
-
 	// 状態管理: 初期ソートがあれば優先して適用するのです
 	const [sorting, setSorting] = useState<SortingState>(
 		() => initialSorting ?? initialState?.sorting ?? []
@@ -386,6 +375,7 @@ export function Table<TData, TValue>({
 												<input
 													className="w-full p-2 text-sm border rounded-sm font-normal bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500"
 													type="text"
+													aria-label={`${header.column.id}列を検索`}
 													value={(header.column.getFilterValue() as string) ?? ""}
 													onChange={(e) => {
 														const newValue = e.target.value;

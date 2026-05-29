@@ -139,7 +139,7 @@ const detectKakeaiGroups = (nodes: FriendNode[], links: FriendLink[]): void => {
 	detectCycles(nodes, graph);
 
 	// 3. 星形グラフパターンを検出（中心ノード1つが他の全ノードと接続）
-	// detectStarGraphs(nodes, graph);
+	// _detectStarGraphs(nodes, graph);
 
 	// 4. 残りの未割り当てのノードに対して、リンクごとに異なるグループを割り当て
 	assignGroupsToRemainingNodes(nodes, links);
@@ -472,7 +472,7 @@ const isCompleteGraph = (nodeIds: string[], graph: Map<string, Set<string>>): bo
  * @param nodes フレンズノードの配列
  * @param graph 隣接リスト形式のグラフ
  */
-const detectStarGraphs = (nodes: FriendNode[], graph: Map<string, Set<string>>): void => {
+const _detectStarGraphs = (nodes: FriendNode[], graph: Map<string, Set<string>>): void => {
 	let groupId = 20000; // 他のグループとIDが被らないように大きな値から開始
 
 	// 隣接ノード数が多いノードから処理（星形の中心ノードになりやすい）

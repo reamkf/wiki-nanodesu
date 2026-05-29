@@ -61,6 +61,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 				<div className="mb-4 relative">
 					<input
 						type="text"
+						aria-label="ページを検索"
 						placeholder="ページを検索..."
 						value={searchQuery}
 						onChange={(e) => setSearchQuery(e.target.value)}
