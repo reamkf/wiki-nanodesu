@@ -43,7 +43,16 @@ const SKILL_CATEGORIES_STRUCTURE = [
 		name: "デバフ",
 		id: "debuff",
 		children: [
-			{ name: "与ダメージ減少" },
+			{
+				name: "与ダメージ減少",
+				id: "debuff-damage-decrease",
+				children: [
+					{ name: "与ダメージ減少" },
+					{ name: "Beat!!!与ダメージ減少" },
+					// { name: "Action!与ダメージ減少" },
+					// { name: "Try!!与ダメージ減少" },
+				]
+			},
 			{
 				name: "被ダメージ増加",
 				id: "debuff-damage-increase",
