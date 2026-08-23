@@ -3,7 +3,6 @@
 import React, { useMemo, useCallback, useState } from "react";
 import { SkillWithFriend } from "@/types/friendsSkills";
 import { TreeItemData } from "@/components/common/TreeList";
-import { ColumnDef } from "@tanstack/react-table";
 import { isNumber } from "@/utils/common";
 import { sortAttribute } from "@/utils/friends/friends";
 import { createCustomFilterFn } from "@/utils/tableFilters";
@@ -14,7 +13,7 @@ import {
 	TextCell,
 	getSearchableTextForFriendOrPhoto
 } from "@/components/table/GenericDataTable";
-import { Table } from "@/components/table/Table";
+import { Table, WikiTableColumnDef } from "@/components/table/Table";
 import { getActivationRatePriority, getPowerPriority, getTargetPriority, getActivationCountPriority } from "@/utils/sortPriorities";
 import { CommonPowerCell, AttributeCell, ActivationRateCell } from "@/components/table/cells";
 
@@ -38,7 +37,7 @@ export default function ClientTabs({
 	const customFilterFn = useMemo(() => createCustomFilterFn<SkillWithFriend>(getSearchableTextForFriendOrPhoto), []);
 
 	// テーブルのカラム定義
-	const columns = useMemo<ColumnDef<SkillWithFriend>[]>(() => [
+	const columns = useMemo<WikiTableColumnDef<SkillWithFriend>[]>(() => [
 		{
 			accessorKey: 'friendsId',
 			header: 'フレンズ',
@@ -54,7 +53,7 @@ export default function ClientTabs({
 			header: '属性',
 			cell: ({ row }) => <AttributeCell data={row.original} />,
 			filterFn: customFilterFn,
-			sortingFn: (rowA, rowB, columnId) => {
+			sortFn: (rowA, rowB, columnId) => {
 				const attributeA = rowA.getValue(columnId) as FriendsAttribute;
 				const attributeB = rowB.getValue(columnId) as FriendsAttribute;
 				return sortAttribute(attributeA, attributeB);
@@ -92,7 +91,7 @@ export default function ClientTabs({
 			header: '対象',
 			cell: ({ row }) => <TextCell text={row.original.target} />,
 			filterFn: customFilterFn,
-			sortingFn: (rowA, rowB, columnId) => {
+			sortFn: (rowA, rowB, columnId) => {
 				const targetA = rowA.getValue(columnId) as string;
 				const targetB = rowB.getValue(columnId) as string;
 				return getTargetPriority(targetA) - getTargetPriority(targetB);
@@ -143,7 +142,7 @@ export default function ClientTabs({
 			header: '発動回数',
 			cell: ({ row }) => <TextCell text={row.original.activationCount} />,
 			filterFn: customFilterFn,
-			sortingFn: (rowA, rowB, columnId) => {
+			sortFn: (rowA, rowB, columnId) => {
 				const countA = rowA.getValue(columnId) as string | number;
 				const countB = rowB.getValue(columnId) as string | number;
 				return getActivationCountPriority(countA) - getActivationCountPriority(countB);

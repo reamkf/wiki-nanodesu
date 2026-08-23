@@ -2,9 +2,8 @@
 
 import React, { useMemo, useCallback, useState, useEffect, useSyncExternalStore } from "react";
 import { PhotoDataRow, PhotoDamageDataRow, PhotoAttribute } from "@/types/photo";
-import { ColumnDef } from "@tanstack/react-table";
 import { createCustomFilterFn } from "@/utils/tableFilters";
-import { Table } from "@/components/table/Table";
+import { Table, WikiTableColumnDef } from "@/components/table/Table";
 import { FriendOrPhotoDisplay, WithFriendOrPhoto, getSearchableTextForFriendOrPhoto } from "@/components/table/GenericDataTable";
 import { parseSeesaaWikiText } from "@/utils/seesaawiki/parser";
 import { FilterCheckboxGroup, CheckboxOption } from "@/components/table/FilterCheckboxGroup";
@@ -239,7 +238,7 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 
 	const customFilterFn = useMemo(() => createCustomFilterFn(getSearchableText), [getSearchableText]);
 
-	const columns = useMemo<ColumnDef<DamageDataWithPhoto>[]>(() => [
+	const columns = useMemo<WikiTableColumnDef<DamageDataWithPhoto>[]>(() => [
 		{
 			accessorKey: 'name',
 			header: 'フォト名',

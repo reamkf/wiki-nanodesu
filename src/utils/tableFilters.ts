@@ -1,8 +1,8 @@
-import { FilterFn, Row } from "@tanstack/react-table";
+import { FilterFn, Row, RowData } from "@tanstack/react-table";
 import { normalizeQuery } from "@/utils/queryNormalizer";
 import { QueryParser } from "@/utils/queryParser";
 
-type CustomFilterFnRowType = Record<string, unknown> | object;
+type CustomFilterFnRowType = RowData;
 
 // クエリパーサーのキャッシュ用インターフェース
 interface QueryParserCache {
@@ -17,8 +17,8 @@ const queryParserCache: QueryParserCache = {
 // カスタムフィルター関数
 export const createCustomFilterFn = <T extends CustomFilterFnRowType>(
 	getSearchableText: (row: T, columnId: string) => string
-): FilterFn<T> => {
-	return (row: Row<T>, columnId: string, filterValue: string) => {
+): FilterFn<any, T> => {
+	return (row: Row<any, T>, columnId: string, filterValue: string) => {
 		// 空のフィルター値の場合は全ての行を表示
 		if (!filterValue || filterValue === '') return true;
 		const normalizedFilterValue = normalizeQuery(filterValue);
@@ -54,7 +54,7 @@ export const createCustomFilterFn = <T extends CustomFilterFnRowType>(
 };
 
 // デフォルトのカスタムフィルター関数
-export const defaultCustomFilterFn = createCustomFilterFn<Record<string, unknown>>((row, columnId) => {
+export const defaultCustomFilterFn = createCustomFilterFn<any>((row, columnId) => {
 	const value = row[columnId];
 	return value != null ? String(value) : '';
 });

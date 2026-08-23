@@ -2,19 +2,25 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
-	flexRender,
-	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	useReactTable,
+	columnFilteringFeature,
 	ColumnDef,
 	ColumnFiltersState,
+	columnSizingFeature,
+	columnVisibilityFeature,
+	createFilteredRowModel,
+	createPaginatedRowModel,
+	createSortedRowModel,
+	flexRender,
 	PaginationState,
+	rowPaginationFeature,
 	Row,
+	RowData,
+	rowSortingFeature,
+	sortFn_alphanumeric,
 	SortingState,
-	Table as ReactTable,
-	FilterFnOption,
+	tableFeatures as createTableFeatures,
+	ReactTable,
+	useTable,
 } from "@tanstack/react-table";
 import CancelIcon from "@mui/icons-material/Cancel";
 import Select from "@mui/material/Select";
@@ -25,6 +31,27 @@ import LastPage from "@mui/icons-material/LastPage";
 import NavigateNext from "@mui/icons-material/NavigateNext";
 import NavigateBefore from "@mui/icons-material/NavigateBefore";
 import { defaultCustomFilterFn } from "@/utils/tableFilters";
+
+const features = createTableFeatures({
+	columnFilteringFeature,
+	columnSizingFeature,
+	columnVisibilityFeature,
+	rowSortingFeature,
+	rowPaginationFeature,
+	filteredRowModel: createFilteredRowModel(),
+	sortFns: {
+		alphanumeric: sortFn_alphanumeric,
+	},
+	sortedRowModel: createSortedRowModel(),
+	paginatedRowModel: createPaginatedRowModel(),
+});
+
+export type WikiTableFeatures = typeof features;
+export type WikiTableColumnDef<TData extends RowData> = ColumnDef<
+	WikiTableFeatures,
+	TData,
+	unknown
+>;
 
 // ソート用の矢印SVGコンポーネント
 interface SortIndicatorArrowProps {
@@ -67,9 +94,9 @@ function PaginationButton({ onClick, disabled, icon }: PaginationButtonProps) {
 	);
 }
 
-interface SortableTableProps<TData, TValue> {
+interface SortableTableProps<TData extends RowData> {
 	data: TData[];
-	columns: ColumnDef<TData, TValue>[];
+	columns: WikiTableColumnDef<TData>[];
 	tableId: string;
 	initialState?: {
 		sorting?: SortingState;
@@ -77,13 +104,15 @@ interface SortableTableProps<TData, TValue> {
 		pagination?: PaginationState;
 	};
 	initialSorting?: SortingState;
-	rowComponent?: React.FC<{ row: Row<TData> }>;
+	rowComponent?: React.FC<{ row: Row<WikiTableFeatures, TData> }>;
 	rowMinHeight?: string;
 }
 
-interface PaginationControlsProps<TData> { table: ReactTable<TData>; }
+interface PaginationControlsProps<TData extends RowData> {
+	table: ReactTable<WikiTableFeatures, TData>;
+}
 
-function PaginationControls<TData>({
+function PaginationControls<TData extends RowData>({
 	table,
 }: PaginationControlsProps<TData>) {
 	if (table.getRowCount() <= MIN_PAGE_SIZE) {
@@ -99,7 +128,7 @@ function PaginationControls<TData>({
 						1ページあたりの表示件数:
 					</span>
 					<Select
-						value={table.getState().pagination.pageSize}
+						value={table.state.pagination.pageSize}
 						onChange={(e) => table.setPageSize(Number(e.target.value))}
 						size="small"
 						className="min-w-[80px]"
@@ -126,7 +155,7 @@ function PaginationControls<TData>({
 							icon={<NavigateBefore />}
 						/>
 						<span className="text-sm text-gray-700 mx-2">
-							{table.getState().pagination.pageIndex + 1} /{" "}
+							{table.state.pagination.pageIndex + 1} /{" "}
 							{table.getPageCount()}
 						</span>
 						<PaginationButton
@@ -154,7 +183,7 @@ export interface ColumnMeta {
 }
 
 // デフォルトの行レンダラコンポーネント
-function DefaultRowComponent<TData>({ row, minHeight }: { row: Row<TData>; minHeight?: string }) {
+function DefaultRowComponent<TData extends RowData>({ row, minHeight }: { row: Row<WikiTableFeatures, TData>; minHeight?: string }) {
 	return (
 		<tr key={row.id} className="hover:bg-gray-50">
 			{row.getVisibleCells().map(cell => {
@@ -177,7 +206,7 @@ function DefaultRowComponent<TData>({ row, minHeight }: { row: Row<TData>; minHe
 	);
 }
 
-export function Table<TData, TValue>({
+export function Table<TData extends RowData>({
 	data,
 	columns,
 	tableId,
@@ -185,7 +214,7 @@ export function Table<TData, TValue>({
 	initialSorting,
 	rowComponent,
 	rowMinHeight,
-}: SortableTableProps<TData, TValue>) {
+}: SortableTableProps<TData>) {
 	// rowComponent が指定されていない場合はデフォルトを使用するのです
 	const RowComponent = rowComponent ?? DefaultRowComponent;
 
@@ -232,53 +261,30 @@ export function Table<TData, TValue>({
 	useEffect(() => {
 		storeStateCallback('pagination', pagination);
 	}, [pagination, storeStateCallback]);
-
-	// eslint-disable-next-line react-hooks/incompatible-library
-	const table = useReactTable({
-		data,
-		columns,
-		state: {
-			sorting,
-			columnFilters,
-			pagination,
-		},
-		onSortingChange: setSorting,
-		onColumnFiltersChange: setColumnFilters,
-		onPaginationChange: setPagination,
-		getCoreRowModel: getCoreRowModel(),
-		getSortedRowModel: getSortedRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		enableSorting: true,
-		enableFilters: true,
-		enableColumnFilters: true,
-		manualSorting: false,
-		manualFiltering: false,
-		filterFns: {
-			customFilter: defaultCustomFilterFn,
-		},
-		sortingFns: {
-			stable: (rowA, rowB, columnId) => {
-				const a = rowA.getValue(columnId) as number;
-				const b = rowB.getValue(columnId) as number;
-				const diff = a - b;
-				return diff === 0
-					? ("originalIndex" in rowA.original
-							? (rowA.original as { originalIndex: number }).originalIndex
-							: 0) -
-							("originalIndex" in rowB.original
-								? (rowB.original as { originalIndex: number }).originalIndex
-								: 0)
-					: diff;
+		const table = useTable({
+			features,
+			data,
+			columns,
+			state: {
+				sorting,
+				columnFilters,
+				pagination,
 			},
-		},
-		defaultColumn: {
+			onSortingChange: setSorting,
+			onColumnFiltersChange: setColumnFilters,
+			onPaginationChange: setPagination,
+			enableSorting: true,
+			enableFilters: true,
+			enableColumnFilters: true,
+			manualSorting: false,
+			manualFiltering: false,
+			defaultColumn: {
 			minSize: 100,
 			size: 150,
 			maxSize: 400,
-			filterFn: 'customFilter' as FilterFnOption<TData>, // デフォルトのフィルター関数としてcustomFilterを使用
-		},
-	});
+				filterFn: defaultCustomFilterFn,
+			},
+		});
 
 	return (
 		<div>

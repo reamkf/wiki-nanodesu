@@ -9,22 +9,28 @@ import {
 	Row,
 	Cell,
 	flexRender,
-	ColumnDef,
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect, useSyncExternalStore } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
 import { sortAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
-import { Table } from "@/components/table/Table";
+import {
+	Table,
+	ColumnMeta,
+	WikiTableColumnDef,
+	WikiTableFeatures,
+} from "@/components/table/Table";
 import {
 	FilterCheckboxGroup,
 	CheckboxOption,
 } from "../../components/table/FilterCheckboxGroup";
-import { ColumnMeta } from "@/components/table/Table";
 import { STATUS_TYPES, getSearchableText, sortAndFilterFriendsList } from "@/utils/friends/friendsStatusHelpers";
 import { createCustomFilterFn } from "@/utils/tableFilters";
 
-const columnHelper = createColumnHelper<FriendsStatusListItemWithDisplayValue>();
+const columnHelper = createColumnHelper<
+	WikiTableFeatures,
+	FriendsStatusListItemWithDisplayValue
+>();
 
 const statusTypeBackgroundColor: {
 	[key: string]: {
@@ -164,7 +170,7 @@ const customFilterFn = createCustomFilterFn<FriendsStatusListItemWithDisplayValu
 const TableRow = React.memo(function TableRow({
 	row,
 }: {
-	row: Row<FriendsStatusListItemWithDisplayValue>;
+	row: Row<WikiTableFeatures, FriendsStatusListItemWithDisplayValue>;
 }) {
 	const statusType = row.original.statusType;
 	const bgColorClass =
@@ -174,7 +180,7 @@ const TableRow = React.memo(function TableRow({
 		<tr className={bgColorClass}>
 			{row
 				.getVisibleCells()
-				.map((cell: Cell<FriendsStatusListItemWithDisplayValue, unknown>) => (
+				.map((cell: Cell<WikiTableFeatures, FriendsStatusListItemWithDisplayValue, unknown>) => (
 					<td
 						key={cell.id}
 						className="border-[1px] border-gray-300 px-4 py-2"
@@ -385,7 +391,7 @@ export default function FriendsStatusTable({
 					<FriendsAttributeIconAndName attribute={info.getValue() as FriendsAttribute} />
 				),
 				filterFn: customFilterFn,
-				sortingFn: (rowA, rowB, columnId) => {
+				sortFn: (rowA, rowB, columnId) => {
 					const attributeA = rowA.getValue(columnId) as FriendsAttribute;
 					const attributeB = rowB.getValue(columnId) as FriendsAttribute;
 					return sortAttribute(attributeA, attributeB);
@@ -509,7 +515,7 @@ export default function FriendsStatusTable({
 				},
 			}),
 		];
-		return cols as ColumnDef<FriendsStatusListItemWithDisplayValue, unknown>[];
+		return cols as WikiTableColumnDef<FriendsStatusListItemWithDisplayValue>[];
 	}, [showCostumeBonus]);
 
 	if (!isMounted) return null;

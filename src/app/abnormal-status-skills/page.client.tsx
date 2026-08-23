@@ -7,7 +7,6 @@ import {
 } from "@/types/abnormalStatus";
 import { getPowerPriority, getActivationRatePriority, getTargetPriority, getActivationCountPriority } from "@/utils/sortPriorities";
 import { TreeItemData } from "@/components/common/TreeList";
-import { ColumnDef } from "@tanstack/react-table";
 import { isNumber } from "@/utils/common";
 import { createCustomFilterFn } from "@/utils/tableFilters";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
@@ -19,7 +18,7 @@ import {
 import { sortAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
 import { PhotoAttribute } from "@/types/photo";
-import { Table } from "@/components/table/Table";
+import { Table, WikiTableColumnDef } from "@/components/table/Table";
 import { AttributeCell, ActivationRateCell, CommonPowerCell } from "@/components/table/cells";
 
 const ABNORMAL_STATUS_EFFECT_TYPES = Object.values(AbnormalStatusSkillEffectType);
@@ -36,7 +35,7 @@ export default function ClientTabs({
 	const customFilterFn = useMemo(() => createCustomFilterFn<AbnormalStatusWithFriend>(getSearchableTextForFriendOrPhoto), []);
 
 	// テーブルのカラム定義
-	const columns = useMemo<ColumnDef<AbnormalStatusWithFriend>[]>(() => [
+	const columns = useMemo<WikiTableColumnDef<AbnormalStatusWithFriend>[]>(() => [
 		{
 			accessorKey: 'friendsIdOrPhotoName',
 			header: 'フレンズ/フォト',
@@ -58,7 +57,7 @@ export default function ClientTabs({
 			header: '属性',
 			cell: ({ row }) => <AttributeCell data={row.original} />,
 			filterFn: customFilterFn,
-			sortingFn: (rowA, rowB, columnId) => {
+			sortFn: (rowA, rowB, columnId) => {
 				const attributeA = rowA.getValue(columnId) as FriendsAttribute | PhotoAttribute;
 				const attributeB = rowB.getValue(columnId) as FriendsAttribute | PhotoAttribute;
 
@@ -88,7 +87,7 @@ export default function ClientTabs({
 			header: '威力',
 			cell: ({ row }) => <CommonPowerCell data={row.original} />,
 			// accessorFnで数値または優先度を返すようにしたので、デフォルトの数値ソートで良いはず
-			// sortingFn は不要（デフォルトのソートを利用）
+			// sortFn は不要（デフォルトのソートを利用）
 			filterFn: customFilterFn,
 			meta: {
 				width: '100px',
@@ -100,7 +99,7 @@ export default function ClientTabs({
 			header: '対象',
 			cell: ({ row }) => <TextCell text={row.original.target} />,
 			filterFn: customFilterFn,
-			sortingFn: (rowA, rowB, columnId) => {
+			sortFn: (rowA, rowB, columnId) => {
 				const targetA = rowA.getValue(columnId) as string;
 				const targetB = rowB.getValue(columnId) as string;
 				return getTargetPriority(targetA) - getTargetPriority(targetB);
@@ -150,7 +149,7 @@ export default function ClientTabs({
 			header: '発動回数',
 			cell: ({ row }) => <TextCell text={row.original.activationCount} />,
 			filterFn: customFilterFn,
-			sortingFn: (rowA, rowB, columnId) => {
+			sortFn: (rowA, rowB, columnId) => {
 				const countA = rowA.getValue(columnId) as string | number;
 				const countB = rowB.getValue(columnId) as string | number;
 				return getActivationCountPriority(countA) - getActivationCountPriority(countB);

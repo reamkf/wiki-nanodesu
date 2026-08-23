@@ -34,6 +34,7 @@ describe('calculateFriendsStatus', () => {
 			secondName: '',
 			isHc: false,
 			attribute: FriendsAttribute.friendry,
+			subAttribute: FriendsAttribute.friendry,
 			implementDate: '',
 			implementType: '',
 			implementTypeDetail: '',
@@ -44,6 +45,7 @@ describe('calculateFriendsStatus', () => {
 			has12poke: false,
 			numOfClothes: 0,
 			cv: '',
+			miracleRequiredMp: null,
 			wildPhotoAttribute: PhotoAttribute.none,
 			wildPhotoTrait: '',
 			wildPhotoTraitChanged: '',
@@ -54,6 +56,7 @@ describe('calculateFriendsStatus', () => {
 				beatFlags: null,
 				actionFlags: null,
 				tryFlags: null,
+				specialFlags: null,
 				flagDamageUp: {
 					beat: null,
 					action: null,
