@@ -145,6 +145,10 @@ export function calculateFriendsStatus(
 			return nullStatus;
 		}
 
+		if (!Object.hasOwn(megumiRaiseStatus, base.megumiPattern)) {
+			return nullStatus;
+		}
+
 		const megumiRaise = megumiRaiseStatus[base.megumiPattern];
 		return {
 			hp: statusLv99.hp + megumiRaise.hp * (lv - 99),

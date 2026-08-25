@@ -137,6 +137,20 @@ describe('calculateFriendsStatus', () => {
 			expect(isStatusNull(status)).toBe(true)
 		});
 
+		it('めぐみ上昇値が存在しない場合はnullを返す', () => {
+			const friendsData = createTestFriendsData(1, '存在しない型' as MegumiPattern, {
+				lv99: {
+					hp: 1000,
+					atk: 1000,
+					def: 1000,
+					estimated: false
+				}
+			});
+
+			const status = calculateFriendsStatus(friendsData, 100, 1, 0);
+			expect(isStatusNull(status)).toBe(true)
+		});
+
 		it('めぐみパターンが不明な場合はnullを返す', () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.unknown, {
 				lv99: {
