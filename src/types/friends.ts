@@ -32,6 +32,7 @@ export const friendsAttributeIconUrl = {
 }
 
 export enum MegumiPattern {
+	atk70 = 'こうげき+70型',
 	atk65 = 'こうげき+65型',
 	atk60 = 'こうげき+60型',
 	atk50 = 'こうげき+50型',
@@ -44,6 +45,7 @@ export enum MegumiPattern {
 }
 
 export const megumiRaiseStatus = {
+	[MegumiPattern.atk70]:    {hp: 10, atk: 70, def: 20},
 	[MegumiPattern.atk65]:    {hp: 10, atk: 65, def: 10},
 	[MegumiPattern.atk60]:    {hp:  5, atk: 60, def: 25},
 	[MegumiPattern.atk50]:    {hp: 25, atk: 50, def: 10},
