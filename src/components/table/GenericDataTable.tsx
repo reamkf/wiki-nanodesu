@@ -106,7 +106,7 @@ export const getSearchableTextForFriendOrPhoto = (
 			}
 		default:
 			return (
-				(row as unknown as Record<string, unknown>)[columnId]?.toString() ?? ""
+				Object.entries(row).find(([key]) => key === columnId)?.[1]?.toString() ?? ""
 			);
 	}
 };

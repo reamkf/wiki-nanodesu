@@ -15,13 +15,25 @@ import {
 	TextCell,
 	getSearchableTextForFriendOrPhoto
 } from "@/components/table/GenericDataTable";
-import { sortAttribute } from "@/utils/friends/friends";
+import { isAttribute, sortAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
 import { PhotoAttribute } from "@/types/photo";
 import { Table, WikiTableColumnDef } from "@/components/table/Table";
 import { AttributeCell, ActivationRateCell, CommonPowerCell } from "@/components/table/cells";
 
 const ABNORMAL_STATUS_EFFECT_TYPES = Object.values(AbnormalStatusSkillEffectType);
+
+function getAttribute(value: unknown): FriendsAttribute | PhotoAttribute {
+	return isAttribute(value) ? value : FriendsAttribute.none;
+}
+
+function getStringValue(value: unknown): string {
+	return typeof value === "string" ? value : "";
+}
+
+function getStringOrNumberValue(value: unknown): string | number {
+	return typeof value === "string" || typeof value === "number" ? value : "";
+}
 
 export default function ClientTabs({
 	statusTypeData,
@@ -58,8 +70,8 @@ export default function ClientTabs({
 			cell: ({ row }) => <AttributeCell data={row.original} />,
 			filterFn: customFilterFn,
 			sortFn: (rowA, rowB, columnId) => {
-				const attributeA = rowA.getValue(columnId) as FriendsAttribute | PhotoAttribute;
-				const attributeB = rowB.getValue(columnId) as FriendsAttribute | PhotoAttribute;
+				const attributeA = getAttribute(rowA.getValue(columnId));
+				const attributeB = getAttribute(rowB.getValue(columnId));
 
 				return sortAttribute(attributeA, attributeB);
 			},
@@ -100,8 +112,8 @@ export default function ClientTabs({
 			cell: ({ row }) => <TextCell text={row.original.target} />,
 			filterFn: customFilterFn,
 			sortFn: (rowA, rowB, columnId) => {
-				const targetA = rowA.getValue(columnId) as string;
-				const targetB = rowB.getValue(columnId) as string;
+				const targetA = getStringValue(rowA.getValue(columnId));
+				const targetB = getStringValue(rowB.getValue(columnId));
 				return getTargetPriority(targetA) - getTargetPriority(targetB);
 			},
 			meta: {
@@ -150,8 +162,8 @@ export default function ClientTabs({
 			cell: ({ row }) => <TextCell text={row.original.activationCount} />,
 			filterFn: customFilterFn,
 			sortFn: (rowA, rowB, columnId) => {
-				const countA = rowA.getValue(columnId) as string | number;
-				const countB = rowB.getValue(columnId) as string | number;
+				const countA = getStringOrNumberValue(rowA.getValue(columnId));
+				const countB = getStringOrNumberValue(rowB.getValue(columnId));
 				return getActivationCountPriority(countA) - getActivationCountPriority(countB);
 			},
 			meta: {
@@ -176,15 +188,17 @@ export default function ClientTabs({
 		if (isPhoto !== isPhotoCategory) return false;
 
 		// 効果タイプと効果タイプIDの対応マップ
-		const effectTypeMap: Record<string, AbnormalStatusSkillEffectType> = {
+		const effectTypeMap = {
 			'give': AbnormalStatusSkillEffectType.give,
 			'incleaseResist': AbnormalStatusSkillEffectType.incleaseResist,
 			'decreaseResist': AbnormalStatusSkillEffectType.decreaseResist,
 			'remove': AbnormalStatusSkillEffectType.remove
-		};
+		} satisfies Record<string, AbnormalStatusSkillEffectType>;
 
 		// 効果タイプの一致を確認
-		return effectTypeMap[effectTypeId] === effectType;
+		return Object.entries(effectTypeMap).some(
+			([id, value]) => id === effectTypeId && value === effectType
+		);
 	}, []);
 
 	// 状態異常とサブカテゴリでデータをフィルタリングする関数

@@ -16,6 +16,10 @@ interface CategorySectionProps {
 }
 
 /** 個別のカテゴリーセクションを再帰的にレンダリングするコンポーネント */
+function nextCategoryLevel(level: 1 | 2 | 3): 1 | 2 | 3 {
+	return level === 1 ? 2 : 3;
+}
+
 function CategorySection({
 	category,
 	level,
@@ -37,7 +41,7 @@ function CategorySection({
 						<CategorySection
 							key={child.id}
 							category={child}
-							level={Math.min(level + 1, 3) as 1 | 2 | 3}
+							level={nextCategoryLevel(level)}
 							renderContent={renderContent}
 							selectedCategory={selectedCategory}
 							emptyMessage={emptyMessage}

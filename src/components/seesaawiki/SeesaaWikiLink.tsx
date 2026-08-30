@@ -10,9 +10,9 @@ interface SeesaaWikiLinkProps extends LinkProps {
 
 export function SeesaaWikiLink(props: SeesaaWikiLinkProps) {
 	const { children, ...restProps } = props;
-	const href = props.href as string;
+	const href = typeof props.href === 'string' ? props.href : null;
 
-	if(!href.startsWith('https://')) {
+	if (href !== null && !href.startsWith('https://')) {
 		restProps.href = getWikiNanodaPageUrl(href);
 	}
 

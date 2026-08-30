@@ -4,12 +4,12 @@
 import { scan } from "react-scan";
 import { JSX, useEffect } from "react";
 
-export function ReactScan(): JSX.Element {
+export function ReactScan(): JSX.Element | null {
 	useEffect(() => {
 		scan({
 			enabled: false,
 		});
 	}, []);
 
-	return null as unknown as JSX.Element;
+	return null;
 }

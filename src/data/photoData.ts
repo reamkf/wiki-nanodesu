@@ -3,6 +3,7 @@ import { BasicStatus } from "@/types/friendsOrPhoto";
 import { getFriendsData } from "@/data/friendsData";
 import { readCsv } from '../utils/readCsv';
 import { parseNumericValue } from '@/utils/common';
+import { isPhotoAttribute } from '@/utils/friends/friends';
 
 /**
  * ベースステータスをパースする
@@ -65,7 +66,7 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 			implementType: friend.implementType,
 			implementDate: friend.implementDate,
 			rarity: 3,
-			attribute: friend.wildPhotoAttribute as PhotoAttribute || PhotoAttribute.none,
+			attribute: friend.wildPhotoAttribute || PhotoAttribute.none,
 			illustratorName: '',
 			iconUrl: '',
 			iconUrlChanged: '',
@@ -77,14 +78,14 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 				statusMax: parseBasicStatus(null, null, null, true),
 			},
 			isWildPhoto: true,
-		} as PhotoDataRow);
+		});
 	}
 
 	return readCsv<RawPhotoCSV, PhotoDataRow>(
 		'フォトデータ.csv',
 		{
 			transformHeader: (header: string) => {
-				return RAW_PHOTO_CSV_HEADERS.includes(header as typeof RAW_PHOTO_CSV_HEADERS[number]) ? header : '';
+				return RAW_PHOTO_CSV_HEADERS.some((knownHeader) => knownHeader === header) ? header : '';
 			}
 		},
 		async (data: RawPhotoCSV[]) => {
@@ -92,7 +93,7 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 				return {
 					name: row.フォト名 || '',
 					rarity: row.レア度 || 0,
-					attribute: (row.属性 as PhotoAttribute) || PhotoAttribute.none,
+					attribute: isPhotoAttribute(row.属性) ? row.属性 : PhotoAttribute.none,
 					implementType: row.入手 || '',
 					implementDate: row.実装日 || '',
 					illustratorName: row.イラストレーター名 || '',

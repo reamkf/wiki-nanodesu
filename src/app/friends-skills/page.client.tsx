@@ -4,7 +4,7 @@ import React, { useMemo, useCallback, useState } from "react";
 import { SkillWithFriend } from "@/types/friendsSkills";
 import { TreeItemData } from "@/components/common/TreeList";
 import { isNumber } from "@/utils/common";
-import { sortAttribute } from "@/utils/friends/friends";
+import { isFriendsAttribute, sortAttribute } from "@/utils/friends/friends";
 import { createCustomFilterFn } from "@/utils/tableFilters";
 import { CategoryLayout } from "@/components/section/CategoryLayout";
 import { FriendsAttribute } from "@/types/friends";
@@ -16,6 +16,18 @@ import {
 import { Table, WikiTableColumnDef } from "@/components/table/Table";
 import { getActivationRatePriority, getPowerPriority, getTargetPriority, getActivationCountPriority } from "@/utils/sortPriorities";
 import { CommonPowerCell, AttributeCell, ActivationRateCell } from "@/components/table/cells";
+
+function getFriendsAttribute(value: unknown): FriendsAttribute {
+	return isFriendsAttribute(value) ? value : FriendsAttribute.none;
+}
+
+function getStringValue(value: unknown): string {
+	return typeof value === "string" ? value : "";
+}
+
+function getStringOrNumberValue(value: unknown): string | number {
+	return typeof value === "string" || typeof value === "number" ? value : "";
+}
 
 // フレンズセル
 const FriendCell = ({ data }: { data: SkillWithFriend }) => {
@@ -54,8 +66,8 @@ export default function ClientTabs({
 			cell: ({ row }) => <AttributeCell data={row.original} />,
 			filterFn: customFilterFn,
 			sortFn: (rowA, rowB, columnId) => {
-				const attributeA = rowA.getValue(columnId) as FriendsAttribute;
-				const attributeB = rowB.getValue(columnId) as FriendsAttribute;
+				const attributeA = getFriendsAttribute(rowA.getValue(columnId));
+				const attributeB = getFriendsAttribute(rowB.getValue(columnId));
 				return sortAttribute(attributeA, attributeB);
 			},
 			meta: {
@@ -92,8 +104,8 @@ export default function ClientTabs({
 			cell: ({ row }) => <TextCell text={row.original.target} />,
 			filterFn: customFilterFn,
 			sortFn: (rowA, rowB, columnId) => {
-				const targetA = rowA.getValue(columnId) as string;
-				const targetB = rowB.getValue(columnId) as string;
+				const targetA = getStringValue(rowA.getValue(columnId));
+				const targetB = getStringValue(rowB.getValue(columnId));
 				return getTargetPriority(targetA) - getTargetPriority(targetB);
 			},
 			meta: {
@@ -143,8 +155,8 @@ export default function ClientTabs({
 			cell: ({ row }) => <TextCell text={row.original.activationCount} />,
 			filterFn: customFilterFn,
 			sortFn: (rowA, rowB, columnId) => {
-				const countA = rowA.getValue(columnId) as string | number;
-				const countB = rowB.getValue(columnId) as string | number;
+				const countA = getStringOrNumberValue(rowA.getValue(columnId));
+				const countB = getStringOrNumberValue(rowB.getValue(columnId));
 				return getActivationCountPriority(countA) - getActivationCountPriority(countB);
 			},
 			meta: {

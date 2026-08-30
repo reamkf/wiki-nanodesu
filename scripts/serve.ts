@@ -23,7 +23,7 @@ if (!fs.existsSync(outDir)) {
 /** Content-Type を拡張子から判定する */
 function getContentType(filePath: string): string {
 	const ext = path.extname(filePath).toLowerCase();
-	const mimeTypes: Record<string, string> = {
+	const mimeTypes = {
 		".html": "text/html; charset=utf-8",
 		".css": "text/css; charset=utf-8",
 		".js": "application/javascript; charset=utf-8",
@@ -40,8 +40,8 @@ function getContentType(filePath: string): string {
 		".txt": "text/plain; charset=utf-8",
 		".xml": "application/xml; charset=utf-8",
 		".webmanifest": "application/manifest+json; charset=utf-8",
-	};
-	return mimeTypes[ext] ?? "application/octet-stream";
+	} satisfies Record<string, string>;
+	return Object.entries(mimeTypes).find(([key]) => key === ext)?.[1] ?? "application/octet-stream";
 }
 
 /**

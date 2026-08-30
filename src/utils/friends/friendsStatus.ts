@@ -25,14 +25,14 @@ export function getLv99FromLv90(lv90: BasicStatus): BasicStatus {
 			hp: null,
 			atk: null,
 			def: null,
-		} as BasicStatus;
+		};
 	}
 	return {
 		hp: Math.ceil(lv90.hp * lv99Correction),
 		atk: Math.ceil(lv90.atk * lv99Correction),
 		def: Math.ceil(lv90.def * lv99Correction),
 		estimated: true
-	} as BasicStatus;
+	};
 }
 
 function calculateFriendsStatusRaw(
@@ -253,11 +253,16 @@ function calculateCostumeBonus(numCostumes: number, has12poke: boolean): BasicSt
 	};
 }
 
+type StatusWithCostume = {
+	value: number | null;
+	bonus: number;
+};
+
 // 衣装補正込みのステータスを計算
 function calculateStatusWithCostume(
 	baseValue: number | null,
 	costumeBonus: number
-): { value: number | null; bonus: number } {
+): StatusWithCostume {
 	if (baseValue === null) {
 		return { value: null, bonus: costumeBonus };
 	}

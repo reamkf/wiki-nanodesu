@@ -13,11 +13,12 @@ import GoogleSheetsLink from "@/components/GoogleSheetsLink";
 import { sortAttribute } from "@/utils/friends/friends";
 
 // 効果タイプの値からIDを取得するマッピング
-const EFFECT_TYPE_VALUE_TO_ID = Object.fromEntries(
-	Object.entries(AbnormalStatusSkillEffectType).map(
-		([key, value]) => [value, key]
-	)
-) as Record<AbnormalStatusSkillEffectType, keyof typeof AbnormalStatusSkillEffectType>;
+const EFFECT_TYPE_VALUE_TO_ID = {
+	[AbnormalStatusSkillEffectType.give]: 'give',
+	[AbnormalStatusSkillEffectType.incleaseResist]: 'incleaseResist',
+	[AbnormalStatusSkillEffectType.decreaseResist]: 'decreaseResist',
+	[AbnormalStatusSkillEffectType.remove]: 'remove',
+} satisfies Record<AbnormalStatusSkillEffectType, keyof typeof AbnormalStatusSkillEffectType>;
 
 /**
  * 指定された属性に基づいて状態異常データをソートする関数
@@ -163,7 +164,7 @@ function buildSubCategories(
 
 			return {
 				id: categoryId,
-				name: effectType as string
+				name: String(effectType)
 			};
 		})
 		.filter((item): item is TreeItemData => item !== null);

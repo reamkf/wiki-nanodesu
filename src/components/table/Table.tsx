@@ -182,12 +182,28 @@ export interface ColumnMeta {
 	width?: string;
 }
 
+function isAlignType(value: unknown): value is AlignType {
+	return value === "left" || value === "center" || value === "right";
+}
+
+export function getColumnMeta(meta: unknown): Partial<ColumnMeta> {
+	if (typeof meta !== "object" || meta === null) return {};
+
+	const align = "align" in meta && isAlignType(meta.align) ? meta.align : undefined;
+	const width = "width" in meta && typeof meta.width === "string" ? meta.width : undefined;
+	return { align, width };
+}
+
+function getFilterText(value: unknown): string {
+	return typeof value === "string" ? value : "";
+}
+
 // デフォルトの行レンダラコンポーネント
 function DefaultRowComponent<TData extends RowData>({ row, minHeight }: { row: Row<WikiTableFeatures, TData>; minHeight?: string }) {
 	return (
 		<tr key={row.id} className="hover:bg-gray-50">
 			{row.getVisibleCells().map(cell => {
-				const meta = cell.column.columnDef.meta as ColumnMeta & { align?: string };
+				const meta = getColumnMeta(cell.column.columnDef.meta);
 				return (
 					<td
 						key={cell.id}
@@ -294,9 +310,7 @@ export function Table<TData extends RowData>({
 			<table className="border-collapse min-w-fit max-w-[1920px] [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
 				<colgroup>
 					{table.getHeaderGroups()[0].headers.map((header) => {
-						const meta = header.column.columnDef.meta as ColumnMeta & {
-							width?: string;
-						};
+						const meta = getColumnMeta(header.column.columnDef.meta);
 						return (
 							<col
 								key={header.id}
@@ -313,9 +327,7 @@ export function Table<TData extends RowData>({
 						<React.Fragment key={headerGroup.id}>
 							<tr className="bg-gray-100">
 								{headerGroup.headers.map((header) => {
-									const meta = header.column.columnDef.meta as ColumnMeta & {
-										width?: string;
-									};
+									const meta = getColumnMeta(header.column.columnDef.meta);
 									return (
 										<th
 											key={header.id}
@@ -382,14 +394,14 @@ export function Table<TData extends RowData>({
 													className="w-full p-2 text-sm border rounded-sm font-normal bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500"
 													type="text"
 													aria-label={`${header.column.id}列を検索`}
-													value={(header.column.getFilterValue() as string) ?? ""}
+													value={getFilterText(header.column.getFilterValue())}
 													onChange={(e) => {
 														const newValue = e.target.value;
 														header.column.setFilterValue(newValue);
 													}}
 													placeholder="検索..."
 												/>
-												{(header.column.getFilterValue() as string | undefined) && (
+												{getFilterText(header.column.getFilterValue()) && (
 													<button
 														onClick={() => {
 															header.column.setFilterValue("");

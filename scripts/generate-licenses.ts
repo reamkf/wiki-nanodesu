@@ -29,7 +29,7 @@ interface LicenseCheckerModule {
 }
 
 async function collectLicenses(): Promise<Record<string, LicenseInfo>> {
-	const checker = require('license-checker-rseidelsohn') as LicenseCheckerModule;
+	const checker: LicenseCheckerModule = require('license-checker-rseidelsohn');
 	return await new Promise<Record<string, LicenseInfo>>((resolve, reject) => {
 		checker.init(
 			{

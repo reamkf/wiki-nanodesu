@@ -14,6 +14,18 @@ const AttributeOrder = {
 	[PhotoAttribute.none]: 8,
 }
 
+export function isFriendsAttribute(value: unknown): value is FriendsAttribute {
+	return Object.values(FriendsAttribute).some((attribute) => attribute === value);
+}
+
+export function isPhotoAttribute(value: unknown): value is PhotoAttribute {
+	return Object.values(PhotoAttribute).some((attribute) => attribute === value);
+}
+
+export function isAttribute(value: unknown): value is FriendsAttribute | PhotoAttribute {
+	return isFriendsAttribute(value) || isPhotoAttribute(value);
+}
+
 export function sortAttribute(attributeA: FriendsAttribute | PhotoAttribute, attributeB: FriendsAttribute | PhotoAttribute): number {
 	return AttributeOrder[attributeB] - AttributeOrder[attributeA];
 }

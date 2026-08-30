@@ -323,7 +323,7 @@ async function processSheet(apiKey: string, config: SheetConfig): Promise<void> 
 		fs.writeFileSync(config.filePath, csvData, 'utf8');
 
 	} catch (error) {
-		logError(`   ❌ シート「${config.sheetName}」の処理でエラーが発生しました:`, error as unknown);
+		logError(`   ❌ シート「${config.sheetName}」の処理でエラーが発生しました:`, error);
 		throw error;
 	}
 }
@@ -350,7 +350,7 @@ async function main(): Promise<void> {
 				await processSheet(apiKey, config);
 				successCount++;
 			} catch (error) {
-				logError(`シート「${config.sheetName}」の処理に失敗しました:`, error as unknown);
+				logError(`シート「${config.sheetName}」の処理に失敗しました:`, error);
 				errorCount++;
 			}
 		}
@@ -381,12 +381,12 @@ async function main(): Promise<void> {
 				}
 
 			} catch (error) {
-				logError('❌ gitのコミットに失敗しました:', error as unknown);
+				logError('❌ gitのコミットに失敗しました:', error);
 				process.exit(1);
 			}
 		}
 	} catch (error) {
-		logError('❌ 処理中にエラーが発生しました:', error as unknown);
+		logError('❌ 処理中にエラーが発生しました:', error);
 		process.exit(1);
 	}
 }

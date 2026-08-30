@@ -169,7 +169,7 @@ export default async function FriendsSkillsPage() {
 	}
 
 	// カテゴリ構造を処理して、id補完とデフォルト展開フラグを追加
-	const skillCategories = processCategoryStructure(SKILL_CATEGORIES_STRUCTURE as InputTreeItemData[]) || [];
+	const skillCategories = processCategoryStructure(SKILL_CATEGORIES_STRUCTURE) || [];
 
 	return (
 		<div className="min-h-screen">

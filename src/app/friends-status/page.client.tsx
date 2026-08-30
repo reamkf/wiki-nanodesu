@@ -12,11 +12,11 @@ import {
 } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect, useSyncExternalStore } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
-import { sortAttribute } from "@/utils/friends/friends";
+import { isFriendsAttribute, sortAttribute } from "@/utils/friends/friends";
 import { FriendsAttribute } from "@/types/friends";
 import {
 	Table,
-	ColumnMeta,
+	getColumnMeta,
 	WikiTableColumnDef,
 	WikiTableFeatures,
 } from "@/components/table/Table";
@@ -32,17 +32,21 @@ const columnHelper = createColumnHelper<
 	FriendsStatusListItemWithDisplayValue
 >();
 
-const statusTypeBackgroundColor: {
-	[key: string]: {
-		row: string;
-		checkbox: {
-			unchecked: string;
-			checked: string;
-			hover: string;
-			color: string;
-		};
+function getFriendsAttribute(value: unknown): FriendsAttribute {
+	return isFriendsAttribute(value) ? value : FriendsAttribute.none;
+}
+
+type StatusTypeBackgroundColor = {
+	row: string;
+	checkbox: {
+		unchecked: string;
+		checked: string;
+		hover: string;
+		color: string;
 	};
-} = {
+};
+
+const statusTypeBackgroundColor = {
 	"☆6/Lv90/野生4": {
 		row: "bg-green-100 hover:bg-green-50",
 		checkbox: {
@@ -97,7 +101,11 @@ const statusTypeBackgroundColor: {
 			color: "#dc2626",
 		},
 	},
-};
+} satisfies Record<string, StatusTypeBackgroundColor>;
+
+function getStatusTypeBackgroundColor(statusType: string): StatusTypeBackgroundColor | undefined {
+	return Object.entries(statusTypeBackgroundColor).find(([key]) => key === statusType)?.[1];
+}
 
 function StatusTypeLabel({
 	statusType,
@@ -174,7 +182,7 @@ const TableRow = React.memo(function TableRow({
 }) {
 	const statusType = row.original.statusType;
 	const bgColorClass =
-		statusTypeBackgroundColor[statusType]?.row || "hover:bg-gray-50";
+		getStatusTypeBackgroundColor(statusType)?.row || "hover:bg-gray-50";
 
 	return (
 		<tr className={bgColorClass}>
@@ -186,7 +194,7 @@ const TableRow = React.memo(function TableRow({
 						className="border-[1px] border-gray-300 px-4 py-2"
 						style={{
 							textAlign:
-								(cell.column.columnDef.meta as ColumnMeta)?.align || "left",
+								getColumnMeta(cell.column.columnDef.meta).align || "left",
 						}}
 					>
 						{flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -388,12 +396,12 @@ export default function FriendsStatusTable({
 				id: "attribute",
 				header: "属性",
 				cell: (info) => (
-					<FriendsAttributeIconAndName attribute={info.getValue() as FriendsAttribute} />
+					<FriendsAttributeIconAndName attribute={getFriendsAttribute(info.getValue())} />
 				),
 				filterFn: customFilterFn,
 				sortFn: (rowA, rowB, columnId) => {
-					const attributeA = rowA.getValue(columnId) as FriendsAttribute;
-					const attributeB = rowB.getValue(columnId) as FriendsAttribute;
+					const attributeA = getFriendsAttribute(rowA.getValue(columnId));
+					const attributeB = getFriendsAttribute(rowB.getValue(columnId));
 					return sortAttribute(attributeA, attributeB);
 				},
 				meta: {
@@ -515,6 +523,7 @@ export default function FriendsStatusTable({
 				},
 			}),
 		];
+		// SAFETY: columnHelperが生成する列定義はTableコンポーネントの列型として扱える。
 		return cols as WikiTableColumnDef<FriendsStatusListItemWithDisplayValue>[];
 	}, [showCostumeBonus]);
 

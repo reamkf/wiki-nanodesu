@@ -14,20 +14,20 @@ export async function getPhotoDamageData(): Promise<PhotoDamageDataRow[]> {
 		'フォト火力データ.csv',
 		{
 			transformHeader: (header: string) => {
-				return RAW_PHOTO_DAMAGE_CSV_HEADERS.includes(header as typeof RAW_PHOTO_DAMAGE_CSV_HEADERS[number]) ? header : '';
+				return RAW_PHOTO_DAMAGE_CSV_HEADERS.some((knownHeader) => knownHeader === header) ? header : '';
 			}
 		},
 		async (data: RawPhotoDamageCSV[]) => {
-			const parsedData = data.map((row) => {
+			const parsedData: PhotoDamageDataRow[] = data.map((row) => {
 				return {
 					photoId: row.フォトID || '',
-					changeState: (row['変化前・後'] as '変化前' | '変化後') || '変化前',
+					changeState: row['変化前・後'] === '変化後' ? '変化後' : '変化前',
 					condition: row.条件 === '-' ? '' : (row.条件 || ''),
 					damageMultiplier: parseNumericValue(row.与ダメ増加) || 1.0,
 				};
 			});
 			photoDamageDataCache = parsedData;
-			return photoDamageDataCache;
+			return parsedData;
 		}
 	);
 }

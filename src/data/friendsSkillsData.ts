@@ -42,7 +42,7 @@ async function getSkillsData(): Promise<SkillEffect[]> {
 		'スキル別フレンズ一覧.csv',
 		{
 			transformHeader: (header: string, index?: number) => {
-				if (RAW_SKILL_CSV_HEADERS.includes(header as typeof RAW_SKILL_CSV_HEADERS[number])) {
+				if (RAW_SKILL_CSV_HEADERS.some((knownHeader) => knownHeader === header)) {
 					return header;
 				}
 				console.warn(`Unknown header at index ${index}: ${header}`);
@@ -57,6 +57,7 @@ async function getSkillsData(): Promise<SkillEffect[]> {
 				const skillType = String(row['わざ種別'] || '');
 				if (!effectType || effectType.trim() === '' || (!friendsId && !skillType)) continue;
 
+				// SAFETY: CSVの効果種別とわざ種別はSkillEffectの定義に従うデータとして扱う。
 				validData.push({
 					effectType,
 					friendsId,

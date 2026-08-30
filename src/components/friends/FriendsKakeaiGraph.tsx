@@ -16,14 +16,16 @@ const GROUP_COLORS = [
 	'#bbccff', '#ffccbb', '#ccffbb', '#bbffcc', '#ccbbff', '#ffbbcc'
 ];
 
+type RoundedRect = {
+	minX: number;
+	minY: number;
+	maxX: number;
+	maxY: number;
+	padding: number;
+};
+
 // グループの角丸長方形の点を生成する関数
-const generateRoundedRectPoints = (nodes: FriendNode[]): {
-	minX: number,
-	minY: number,
-	maxX: number,
-	maxY: number,
-	padding: number
-} => {
+const generateRoundedRectPoints = (nodes: FriendNode[]): RoundedRect => {
 	// グループ内のノードの座標から最小/最大値を計算
 	let minX = Infinity;
 	let minY = Infinity;
@@ -363,7 +365,7 @@ const FriendsGraph: React.FC<FriendsGraphProps> = ({ data, onSelectFriend }) => 
 					const foundNode = nodeMap.get(nodeRef);
 					return Math.round(foundNode?.[prop] || 0);
 				}
-				return Math.round((nodeRef as FriendNode)[prop] || 0);
+				return Math.round(nodeRef[prop] || 0);
 			};
 
 			link

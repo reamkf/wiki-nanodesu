@@ -26,7 +26,7 @@ export function getSearchableText(
 			return row.friendsDataRow.attribute;
 		default:
 			return (
-				row.displayValues[columnId as keyof typeof row.displayValues] ?? ""
+				Object.entries(row.displayValues).find(([key]) => key === columnId)?.[1] ?? ""
 			);
 	}
 }

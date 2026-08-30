@@ -1,6 +1,7 @@
 import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV } from "@/types/friends";
 import { BasicStatus } from "@/types/friendsOrPhoto";
 import { calculateFriendsStatus, getLv99FromLv90, isStatusNull } from "@/utils/friends/friendsStatus";
+import { isFriendsAttribute, isPhotoAttribute } from "@/utils/friends/friends";
 import { PhotoAttribute } from "@/types/photo";
 import { readCsv } from '../utils/readCsv';
 import { parseNumericValue } from '@/utils/common';
@@ -199,8 +200,8 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 					name: row.フレンズ名 || '',
 					secondName: row.属性違い二つ名 || '',
 					isHc: convertToBoolean(row.HC),
-					attribute: (row.属性 as FriendsAttribute) || FriendsAttribute.none,
-					subAttribute: (row.サブ属性 as FriendsAttribute) || FriendsAttribute.none,
+					attribute: isFriendsAttribute(row.属性) ? row.属性 : FriendsAttribute.none,
+					subAttribute: isFriendsAttribute(row.サブ属性) ? row.サブ属性 : FriendsAttribute.none,
 					implementDate: row.実装日 || '',
 					implementType: row.実装種別 || '',
 					implementTypeDetail: row.実装種別詳細 || '',
@@ -213,7 +214,7 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 					cv: row.CV || '',
 					status: parseFriendsStatus(row),
 					miracleRequiredMp: parseNumericValue(row.けものミラクル必要MP, false),
-					wildPhotoAttribute: (row.動物フォト属性 as PhotoAttribute) || PhotoAttribute.none,
+					wildPhotoAttribute: isPhotoAttribute(row.動物フォト属性) ? row.動物フォト属性 : PhotoAttribute.none,
 					wildPhotoTrait: row.動物フォトとくせい効果変化前 || '',
 					wildPhotoTraitChanged: row.動物フォトとくせい効果変化後 || '',
 				};

@@ -1,7 +1,7 @@
 import { FriendsOrPhotoSkillType } from '@/types/abnormalStatus'; // 必要に応じて型をインポート
 
 // 威力のソート優先度マップ
-const POWER_PRIORITY_MAP: Record<string, number> = {
+const POWER_PRIORITY_MAP = {
 	'完全耐性': 1000,
 	'大幅に': 500,
 	'-': 95,
@@ -13,7 +13,7 @@ const POWER_PRIORITY_MAP: Record<string, number> = {
 	'少し': 11,
 	'少しだけ': 10,
 	'ほんの少し': 9,
-};
+} satisfies Record<string, number>;
 
 // 威力の優先度を取得する関数
 export function getPowerPriority(power: string): number {
@@ -29,12 +29,10 @@ export function getPowerPriority(power: string): number {
 		}
 	}
 
-	const possiblePowers = Object.keys(POWER_PRIORITY_MAP);
-	for(const possiblePower of possiblePowers){
-		if(power.includes(possiblePower)){
-			return POWER_PRIORITY_MAP[possiblePower];
-		}
-	}
+	const matchedPower = Object.entries(POWER_PRIORITY_MAP).find(([possiblePower]) =>
+		power.includes(possiblePower)
+	);
+	if (matchedPower !== undefined) return matchedPower[1];
 
 	const parsed = parseFloat(power);
 	if(!isNaN(parsed)){
@@ -46,12 +44,12 @@ export function getPowerPriority(power: string): number {
 
 // 発動率のソート優先度マップ
 // 内部でのみ使用するマップ
-const ACTIVATION_RATE_PRIORITY_MAP: Record<string, number> = {
+const ACTIVATION_RATE_PRIORITY_MAP = {
 	'-': 100,
 	'高確率': 90,
 	'中確率': 50,
 	'低確率': 30
-};
+} satisfies Record<string, number>;
 
 // 発動率の優先度を取得する関数
 export function getActivationRatePriority(activationRate: string): number {
@@ -66,7 +64,10 @@ export function getActivationRatePriority(activationRate: string): number {
 
 	const match = /(高|中|低)確率|(^-)|(-$)/.exec(activationRate);
 	if(match){
-		return ACTIVATION_RATE_PRIORITY_MAP[match[0]] || 0;
+		const matchedRate = Object.entries(ACTIVATION_RATE_PRIORITY_MAP).find(
+			([label]) => label === match[0]
+		);
+		return matchedRate?.[1] || 0;
 	}
 
 	return 0;

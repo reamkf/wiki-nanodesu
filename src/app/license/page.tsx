@@ -22,6 +22,19 @@ interface LicenseEntry {
 	licenseText?: string;
 }
 
+function isLicenseInfo(value: unknown): value is LicenseInfo {
+	if (typeof value !== "object" || value === null || !("licenses" in value)) return false;
+	const licenses = value.licenses;
+	return (
+		typeof licenses === "string" ||
+		(Array.isArray(licenses) && licenses.every((license) => typeof license === "string"))
+	);
+}
+
+function isLicenseRecord(value: unknown): value is Record<string, LicenseInfo> {
+	return typeof value === "object" && value !== null && Object.values(value).every(isLicenseInfo);
+}
+
 async function readLicenses(): Promise<LicenseEntry[]> {
 	const filePath = path.join(process.cwd(), 'public', 'third-party-licenses.json');
 	let rawJson = '{}';
@@ -30,12 +43,13 @@ async function readLicenses(): Promise<LicenseEntry[]> {
 	} catch {
 		return [];
 	}
-	let parsed: Record<string, LicenseInfo> = {};
+	let parsed: unknown;
 	try {
-		parsed = JSON.parse(rawJson) as Record<string, LicenseInfo>;
+		parsed = JSON.parse(rawJson);
 	} catch {
 		return [];
 	}
+	if (!isLicenseRecord(parsed)) return [];
 	return Object.entries(parsed)
 		.map(([pkg, info]) => ({
 			name: pkg,

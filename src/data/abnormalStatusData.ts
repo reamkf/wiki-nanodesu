@@ -43,7 +43,7 @@ async function getAbnormalStatusData(): Promise<AbnormalStatusEffect[]> {
 		'状態異常スキル一覧.csv',
 		{
 			transformHeader: (header: string, index?: number) => {
-				if (RAW_ABNORMAL_STATUS_CSV_HEADERS.includes(header as typeof RAW_ABNORMAL_STATUS_CSV_HEADERS[number])) {
+				if (RAW_ABNORMAL_STATUS_CSV_HEADERS.some((knownHeader) => knownHeader === header)) {
 					return header;
 				}
 				console.warn(`Unknown header at index ${index}: ${header}`);
@@ -58,6 +58,7 @@ async function getAbnormalStatusData(): Promise<AbnormalStatusEffect[]> {
 				const skillType = String(row['わざ種別'] || '');
 				if (!friendsIdOrPhotoName || friendsIdOrPhotoName.trim() === '' || !abnormalStatus || abnormalStatus.trim() === '') continue;
 
+				// SAFETY: CSVの効果種別はAbnormalStatusEffectの定義に従うデータとして扱う。
 				validData.push({
 					friendsIdOrPhotoName,
 					skillType,

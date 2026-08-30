@@ -138,6 +138,7 @@ describe('calculateFriendsStatus', () => {
 		});
 
 		it('めぐみ上昇値が存在しない場合はnullを返す', () => {
+			// SAFETY: 無効な文字列を意図的にめぐみパターンへ渡す異常系テストである。
 			const friendsData = createTestFriendsData(1, '存在しない型' as MegumiPattern, {
 				lv99: {
 					hp: 1000,

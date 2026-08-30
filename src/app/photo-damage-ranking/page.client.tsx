@@ -312,7 +312,8 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 	const handleAttributeChange = (attribute: string) => {
 		setSelectedAttributes(prev => {
 			const newSet = new Set(prev);
-			const photoAttr = attribute as PhotoAttribute;
+			const photoAttr = Object.values(PhotoAttribute).find((candidate) => candidate === attribute);
+			if (photoAttr === undefined) return prev;
 			if (newSet.has(photoAttr)) {
 				newSet.delete(photoAttr);
 			} else {
