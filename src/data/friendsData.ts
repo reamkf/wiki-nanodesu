@@ -214,6 +214,8 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 					cv: row.CV || '',
 					status: parseFriendsStatus(row),
 					miracleRequiredMp: parseNumericValue(row.けものミラクル必要MP, false),
+					nanairoSkillName: row.なないろとくせい技名 || '',
+					nanairoSkillEffect: row.なないろとくせい効果 || '',
 					wildPhotoAttribute: isPhotoAttribute(row.動物フォト属性) ? row.動物フォト属性 : PhotoAttribute.none,
 					wildPhotoTrait: row.動物フォトとくせい効果変化前 || '',
 					wildPhotoTraitChanged: row.動物フォトとくせい効果変化後 || '',

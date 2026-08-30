@@ -118,6 +118,8 @@ export interface FriendsDataRow {
 	cv: string;
 	status: FriendsStatus;
 	miracleRequiredMp: number | null;
+	nanairoSkillName: string;
+	nanairoSkillEffect: string;
 	wildPhotoAttribute: PhotoAttribute;
 	wildPhotoTrait: string;
 	wildPhotoTraitChanged: string;

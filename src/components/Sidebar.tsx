@@ -58,6 +58,10 @@ export async function Sidebar() {
 			href: '/photo-damage-ranking',
 			text: 'フォト火力ランキング',
 		},
+		{
+			href: '/nanairo-skills',
+			text: 'なないろとくせい一覧',
+		},
 	];
 
 	const sideBarPagesNanoda = [
@@ -94,8 +98,7 @@ export async function Sidebar() {
 		'アクティブ（黄緑）属性フレンズ',
 		'マイペース（水）属性フレンズ',
 		'フレンズオーダー一覧表',
-		'なないろとくせい一覧',
-		'フレンズ上方修正一覧',
+			'フレンズ上方修正一覧',
 		'フレンズ掛け合い一覧',
 		'フレンズCV一覧',
 		'フレンズセリフ集',

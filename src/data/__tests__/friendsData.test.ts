@@ -62,6 +62,11 @@ describe('getFriendsData', () => {
 				expect(sampleFriendsData?.miracleRequiredMp).toBe(120);
 			});
 
+			it('なないろとくせいが正しい', () => {
+				expect(sampleFriendsData?.nanairoSkillName).toBe('快刀乱麻');
+				expect(sampleFriendsData?.nanairoSkillEffect).toContain('バトル開始時に自身のMPが20増加する');
+			});
+
 			describe('フラッグ', () => {
 				it('Beatフラッグが2である', () => {
 					expect(sampleFriendsData?.status.beatFlags).toBe(2);

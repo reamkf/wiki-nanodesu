@@ -46,6 +46,8 @@ describe('calculateFriendsStatus', () => {
 			numOfClothes: 0,
 			cv: '',
 			miracleRequiredMp: null,
+			nanairoSkillName: '',
+			nanairoSkillEffect: '',
 			wildPhotoAttribute: PhotoAttribute.none,
 			wildPhotoTrait: '',
 			wildPhotoTraitChanged: '',
