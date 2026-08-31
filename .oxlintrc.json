@@ -5,7 +5,8 @@
 		"correctness": "error"
 	},
 	"rules": {
-		"oxc/only-used-in-recursion": "off"
+		"oxc/only-used-in-recursion": "off",
+		"react/no-deriving-state-in-effects": "error"
 	},
 	"env": {
 		"browser": true,
