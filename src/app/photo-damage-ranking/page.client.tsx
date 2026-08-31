@@ -4,7 +4,11 @@ import React, { useMemo, useCallback, useState, useEffect, useSyncExternalStore 
 import { PhotoDataRow, PhotoDamageDataRow, PhotoAttribute } from "@/types/photo";
 import { createCustomFilterFn } from "@/utils/tableFilters";
 import { Table, WikiTableColumnDef } from "@/components/table/Table";
-import { FriendOrPhotoDisplay, WithFriendOrPhoto, getSearchableTextForFriendOrPhoto } from "@/components/table/GenericDataTable";
+import {
+	FriendOrPhotoDisplay,
+	WithFriendOrPhoto,
+	getSearchableTextForFriendOrPhoto,
+} from "@/components/table/GenericDataTable";
 import { parseSeesaaWikiText } from "@/utils/seesaawiki/parser";
 import { FilterCheckboxGroup, CheckboxOption } from "@/components/table/FilterCheckboxGroup";
 import { PhotoAttributeIcon } from "@/components/photo/PhotoAttributeIconAndName";
@@ -22,69 +26,75 @@ interface ClientPageProps {
 	photoDataRecord: Record<string, PhotoDataRow>;
 }
 
-function PowerCell({ data, calculationKey }: { data: DamageDataWithPhoto, calculationKey: string }) {
+function PowerCell({
+	data,
+	calculationKey,
+}: {
+	data: DamageDataWithPhoto;
+	calculationKey: string;
+}) {
 	const power = data.calculatedPower[calculationKey];
 	if (!power) return <span className="text-gray-400">-</span>;
 
 	return (
 		<div className="text-center">
-			{power.toLocaleString(undefined, { minimumFractionDigits: 4, maximumFractionDigits: 4 })}
+			{power.toLocaleString(undefined, {
+				minimumFractionDigits: 4,
+				maximumFractionDigits: 4,
+			})}
 		</div>
 	);
-};
+}
 
 function TraitCell({ data }: { data: DamageDataWithPhoto }) {
 	if (!data.photoData) {
 		return <div className="text-sm text-gray-400">-</div>;
 	}
 
-	const traitText = data.changeState === '変化後' ? data.photoData.traitChanged : (data.photoData.trait || '-');
+	const traitText =
+		data.changeState === "変化後" ? data.photoData.traitChanged : data.photoData.trait || "-";
 
-	if (traitText === '-') {
+	if (traitText === "-") {
 		return <div className="text-sm">-</div>;
 	}
 
-	return (
-		<div className="text-sm">
-			{parseSeesaaWikiText(traitText)}
-		</div>
-	);
-};
+	return <div className="text-sm">{parseSeesaaWikiText(traitText)}</div>;
+}
 
 function ConditionCell({ data }: { data: DamageDataWithPhoto }) {
 	if (!data.condition) {
 		return <div className="text-sm text-gray-400">-</div>;
 	}
 
-	return (
-		<div className="text-sm">
-			{parseSeesaaWikiText(data.condition)}
-		</div>
-	);
-};
+	return <div className="text-sm">{parseSeesaaWikiText(data.condition)}</div>;
+}
 
-const ATTRIBUTE_OPTIONS: CheckboxOption[] = [PhotoAttribute.footprint, PhotoAttribute.blue]
-	.map(attr => ({
+const ATTRIBUTE_OPTIONS: CheckboxOption[] = [PhotoAttribute.footprint, PhotoAttribute.blue].map(
+	(attr) => ({
 		id: attr,
 		label: <PhotoAttributeIcon attribute={attr} showText={false} />,
-		styles: attr === PhotoAttribute.footprint ? {
-			backgroundColor: {
-				unchecked: "#fef3c7",
-				checked: "#fde68a",
-				hover: "#fcd34d",
-			},
-			textColor: "#FF3C60",
-		} : {
-			backgroundColor: {
-				unchecked: "#EAEBFF",
-				checked: "#D6D8FF",
-				hover: "#ADB1FF",
-			},
-			textColor: "#613FFF",
-		},
-	}));
+		styles:
+			attr === PhotoAttribute.footprint
+				? {
+						backgroundColor: {
+							unchecked: "#fef3c7",
+							checked: "#fde68a",
+							hover: "#fcd34d",
+						},
+						textColor: "#FF3C60",
+					}
+				: {
+						backgroundColor: {
+							unchecked: "#EAEBFF",
+							checked: "#D6D8FF",
+							hover: "#ADB1FF",
+						},
+						textColor: "#613FFF",
+					},
+	}),
+);
 
-const RARITY_OPTIONS: CheckboxOption[] = [4, 3, 2].map(rarity => ({
+const RARITY_OPTIONS: CheckboxOption[] = [4, 3, 2].map((rarity) => ({
 	id: rarity.toString(),
 	label: `☆${rarity}`,
 	styles: {
@@ -99,8 +109,8 @@ const RARITY_OPTIONS: CheckboxOption[] = [4, 3, 2].map(rarity => ({
 
 const CHANGE_STATE_OPTIONS: CheckboxOption[] = [
 	{
-		id: '変化前',
-		label: '変化前',
+		id: "変化前",
+		label: "変化前",
 		styles: {
 			backgroundColor: {
 				unchecked: "#f3f4f6",
@@ -111,8 +121,8 @@ const CHANGE_STATE_OPTIONS: CheckboxOption[] = [
 		},
 	},
 	{
-		id: '変化後',
-		label: '変化後',
+		id: "変化後",
+		label: "変化後",
 		styles: {
 			backgroundColor: {
 				unchecked: "#fce7f3",
@@ -121,7 +131,7 @@ const CHANGE_STATE_OPTIONS: CheckboxOption[] = [
 			},
 			textColor: "#ec4899",
 		},
-	}
+	},
 ];
 
 export default function ClientPage({ photoDamageData, photoDataRecord }: ClientPageProps) {
@@ -133,14 +143,19 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 		return 20000;
 	});
 	const isMounted = useSyncExternalStore(
-		(cb) => { cb(); return () => {}; },
+		(cb) => {
+			cb();
+			return () => {};
+		},
 		() => true,
 		() => false,
 	);
 
 	const [selectedAttributes, setSelectedAttributes] = useState<Set<PhotoAttribute>>(() => {
 		if (typeof window !== "undefined") {
-			const saved = localStorage.getItem("wiki-nanodesu.photo-damage-ranking.selectedAttributes");
+			const saved = localStorage.getItem(
+				"wiki-nanodesu.photo-damage-ranking.selectedAttributes",
+			);
 			return saved ? new Set(JSON.parse(saved)) : new Set(Object.values(PhotoAttribute));
 		}
 		return new Set(Object.values(PhotoAttribute));
@@ -148,7 +163,9 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 
 	const [selectedRarities, setSelectedRarities] = useState<Set<number>>(() => {
 		if (typeof window !== "undefined") {
-			const saved = localStorage.getItem("wiki-nanodesu.photo-damage-ranking.selectedRarities");
+			const saved = localStorage.getItem(
+				"wiki-nanodesu.photo-damage-ranking.selectedRarities",
+			);
 			return saved ? new Set(JSON.parse(saved)) : new Set([1, 2, 3, 4]);
 		}
 		return new Set([1, 2, 3, 4]);
@@ -156,48 +173,70 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 
 	const [selectedChangeStates, setSelectedChangeStates] = useState<Set<string>>(() => {
 		if (typeof window !== "undefined") {
-			const saved = localStorage.getItem("wiki-nanodesu.photo-damage-ranking.selectedChangeStates");
-			return saved ? new Set(JSON.parse(saved)) : new Set(['変化前', '変化後']);
+			const saved = localStorage.getItem(
+				"wiki-nanodesu.photo-damage-ranking.selectedChangeStates",
+			);
+			return saved ? new Set(JSON.parse(saved)) : new Set(["変化前", "変化後"]);
 		}
-		return new Set(['変化前', '変化後']);
+		return new Set(["変化前", "変化後"]);
 	});
 
 	useEffect(() => {
 		if (typeof window !== "undefined") {
-			localStorage.setItem("wiki-nanodesu.photo-damage-ranking.baseAttack", baseAttack.toString());
-			localStorage.setItem("wiki-nanodesu.photo-damage-ranking.selectedAttributes", JSON.stringify(Array.from(selectedAttributes)));
-			localStorage.setItem("wiki-nanodesu.photo-damage-ranking.selectedRarities", JSON.stringify(Array.from(selectedRarities)));
-			localStorage.setItem("wiki-nanodesu.photo-damage-ranking.selectedChangeStates", JSON.stringify(Array.from(selectedChangeStates)));
+			localStorage.setItem(
+				"wiki-nanodesu.photo-damage-ranking.baseAttack",
+				baseAttack.toString(),
+			);
+			localStorage.setItem(
+				"wiki-nanodesu.photo-damage-ranking.selectedAttributes",
+				JSON.stringify(Array.from(selectedAttributes)),
+			);
+			localStorage.setItem(
+				"wiki-nanodesu.photo-damage-ranking.selectedRarities",
+				JSON.stringify(Array.from(selectedRarities)),
+			);
+			localStorage.setItem(
+				"wiki-nanodesu.photo-damage-ranking.selectedChangeStates",
+				JSON.stringify(Array.from(selectedChangeStates)),
+			);
 		}
 	}, [baseAttack, selectedAttributes, selectedRarities, selectedChangeStates]);
 
 	const damageDataWithPhoto = useMemo(() => {
 		return photoDamageData
-			.map(damage => {
-				const relatedPhoto = photoDataRecord[damage.photoId] || photoDataRecord[damage.photoId + '(フォト)'];
+			.map((damage) => {
+				const relatedPhoto =
+					photoDataRecord[damage.photoId] || photoDataRecord[damage.photoId + "(フォト)"];
 
 				const calculatePower = (attackValue: number, pocketLv: number) => {
 					if (!relatedPhoto) return 0;
 
-					const status = damage.changeState === '変化前' ? relatedPhoto.status.statusMedium : relatedPhoto.status.statusMax;
+					const status =
+						damage.changeState === "変化前"
+							? relatedPhoto.status.statusMedium
+							: relatedPhoto.status.statusMax;
 					const photoAttack = status?.atk || NaN;
-					const adjustedPhotoAttack = Math.ceil(photoAttack * (1 + (pocketLv - 1) * 0.25));
-					return (baseAttack + adjustedPhotoAttack) * damage.damageMultiplier / baseAttack;
+					const adjustedPhotoAttack = Math.ceil(
+						photoAttack * (1 + (pocketLv - 1) * 0.25),
+					);
+					return (
+						((baseAttack + adjustedPhotoAttack) * damage.damageMultiplier) / baseAttack
+					);
 				};
 
 				const calculatedPower: Record<string, number> = {};
-				['Lv1', 'Lv2', 'Lv3'].forEach(level => {
-					const pocketLv = parseInt(level.replace('Lv', ''));
+				["Lv1", "Lv2", "Lv3"].forEach((level) => {
+					const pocketLv = parseInt(level.replace("Lv", ""));
 					calculatedPower[level] = calculatePower(baseAttack, pocketLv);
 				});
 
 				return {
 					...damage,
 					photoData: relatedPhoto,
-					calculatedPower
+					calculatedPower,
 				};
 			})
-			.filter(damage => damage.photoData !== undefined);
+			.filter((damage) => damage.photoData !== undefined);
 	}, [photoDataRecord, photoDamageData, baseAttack]);
 
 	const filteredData = useMemo(() => {
@@ -205,114 +244,156 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 			return damageDataWithPhoto;
 		}
 
-		return damageDataWithPhoto.filter(item => {
+		return damageDataWithPhoto.filter((item) => {
 			if (!item.photoData) return false;
 
-			return selectedAttributes.has(item.photoData.attribute) &&
+			return (
+				selectedAttributes.has(item.photoData.attribute) &&
 				selectedRarities.has(item.photoData.rarity) &&
-				selectedChangeStates.has(item.changeState);
+				selectedChangeStates.has(item.changeState)
+			);
 		});
-	}, [damageDataWithPhoto, selectedAttributes, selectedRarities, selectedChangeStates, isMounted]);
+	}, [
+		damageDataWithPhoto,
+		selectedAttributes,
+		selectedRarities,
+		selectedChangeStates,
+		isMounted,
+	]);
 
 	const getSearchableText = useCallback((row: DamageDataWithPhoto, columnId: string): string => {
-		if (!row.photoData) return '';
+		if (!row.photoData) return "";
 
 		const photoAsWithFriendOrPhoto: WithFriendOrPhoto = {
 			isPhoto: true,
 			photoDataRow: row.photoData,
-			skillType: row.photoData.traitChanged && row.photoData.traitChanged !== row.photoData.trait ? 'とくせい(変化後)' : 'とくせい(変化前)'
+			skillType:
+				row.photoData.traitChanged && row.photoData.traitChanged !== row.photoData.trait
+					? "とくせい(変化後)"
+					: "とくせい(変化前)",
 		};
 
 		switch (columnId) {
-			case 'name':
-			case 'attribute':
+			case "name":
+			case "attribute":
 				return getSearchableTextForFriendOrPhoto(photoAsWithFriendOrPhoto, columnId);
-			case 'trait':
-				return row.changeState === '変化後' ? row.photoData.traitChanged : row.photoData.trait;
-			case 'condition':
-				return row.condition || '';
+			case "trait":
+				return row.changeState === "変化後"
+					? row.photoData.traitChanged
+					: row.photoData.trait;
+			case "condition":
+				return row.condition || "";
 			default:
-				return '';
+				return "";
 		}
 	}, []);
 
-	const customFilterFn = useMemo(() => createCustomFilterFn(getSearchableText), [getSearchableText]);
+	const customFilterFn = useMemo(
+		() => createCustomFilterFn(getSearchableText),
+		[getSearchableText],
+	);
 
-	const columns = useMemo<WikiTableColumnDef<DamageDataWithPhoto>[]>(() => [
-		{
-			accessorKey: 'name',
-			header: 'フォト名',
-			cell: ({ row }) => {
-				if (!row.original.photoData) {
-					return <div className="text-sm text-gray-400">データなし</div>;
-				}
+	const columns = useMemo<WikiTableColumnDef<DamageDataWithPhoto>[]>(
+		() => [
+			{
+				accessorKey: "name",
+				header: "フォト名",
+				cell: ({ row }) => {
+					if (!row.original.photoData) {
+						return <div className="text-sm text-gray-400">データなし</div>;
+					}
 
-				const photoAsWithFriendOrPhoto: WithFriendOrPhoto = {
-					isPhoto: true,
-					photoDataRow: row.original.photoData,
-					skillType: row.original.changeState === '変化後' ? 'とくせい(変化後)' : 'とくせい(変化前)'
-				};
-				return <FriendOrPhotoDisplay data={photoAsWithFriendOrPhoto} />;
+					const photoAsWithFriendOrPhoto: WithFriendOrPhoto = {
+						isPhoto: true,
+						photoDataRow: row.original.photoData,
+						skillType:
+							row.original.changeState === "変化後"
+								? "とくせい(変化後)"
+								: "とくせい(変化前)",
+					};
+					return <FriendOrPhotoDisplay data={photoAsWithFriendOrPhoto} />;
+				},
+				filterFn: customFilterFn,
+				meta: {
+					width: "250px",
+				},
 			},
-			filterFn: customFilterFn,
-			meta: {
-				width: '250px'
-			}
-		},
-		{
-			accessorKey: 'trait',
-			header: 'とくせい',
-			cell: ({ row }) => <TraitCell data={row.original} />,
-			filterFn: customFilterFn,
-			meta: {
-				width: '400px'
-			}
-		},
-		{
-			accessorKey: 'condition',
-			header: '条件',
-			cell: ({ row }) => <ConditionCell data={row.original} />,
-			filterFn: customFilterFn,
-			meta: {
-				width: '200px'
-			}
-		},
-		{
-			accessorFn: (row) => row.calculatedPower['Lv1'],
-			id: 'power_lv1',
-			header: () => <div className="text-center">火力指標<br />(フォトポケLv1)</div>,
-			cell: ({ row }) => <PowerCell data={row.original} calculationKey="Lv1" />,
-			meta: {
-				width: '150px',
-				align: 'center' as const,
-			}
-		},
-		{
-			accessorFn: (row) => row.calculatedPower['Lv2'],
-			id: 'power_lv2',
-			header: () => <div className="text-center">火力指標<br />(フォトポケLv2)</div>,
-			cell: ({ row }) => <PowerCell data={row.original} calculationKey="Lv2" />,
-			meta: {
-				width: '150px',
-				align: 'center' as const,
-			}
-		},
-		{
-			accessorFn: (row) => row.calculatedPower['Lv3'],
-			id: 'power_lv3',
-			header: () => <div className="text-center">火力指標<br />(フォトポケLv3)</div>,
-			cell: ({ row }) => <PowerCell data={row.original} calculationKey="Lv3" />,
-			meta: {
-				width: '150px',
-				align: 'center' as const,
-			}
-		},
-	], [customFilterFn]);
+			{
+				accessorKey: "trait",
+				header: "とくせい",
+				cell: ({ row }) => <TraitCell data={row.original} />,
+				filterFn: customFilterFn,
+				meta: {
+					width: "400px",
+				},
+			},
+			{
+				accessorKey: "condition",
+				header: "条件",
+				cell: ({ row }) => <ConditionCell data={row.original} />,
+				filterFn: customFilterFn,
+				meta: {
+					width: "200px",
+				},
+			},
+			{
+				accessorFn: (row) => row.calculatedPower["Lv1"],
+				id: "power_lv1",
+				header: () => (
+					<div className="text-center">
+						火力指標
+						<br />
+						(フォトポケLv1)
+					</div>
+				),
+				cell: ({ row }) => <PowerCell data={row.original} calculationKey="Lv1" />,
+				meta: {
+					width: "150px",
+					align: "center" as const,
+				},
+			},
+			{
+				accessorFn: (row) => row.calculatedPower["Lv2"],
+				id: "power_lv2",
+				header: () => (
+					<div className="text-center">
+						火力指標
+						<br />
+						(フォトポケLv2)
+					</div>
+				),
+				cell: ({ row }) => <PowerCell data={row.original} calculationKey="Lv2" />,
+				meta: {
+					width: "150px",
+					align: "center" as const,
+				},
+			},
+			{
+				accessorFn: (row) => row.calculatedPower["Lv3"],
+				id: "power_lv3",
+				header: () => (
+					<div className="text-center">
+						火力指標
+						<br />
+						(フォトポケLv3)
+					</div>
+				),
+				cell: ({ row }) => <PowerCell data={row.original} calculationKey="Lv3" />,
+				meta: {
+					width: "150px",
+					align: "center" as const,
+				},
+			},
+		],
+		[customFilterFn],
+	);
 
 	const handleAttributeChange = (attribute: string) => {
-		setSelectedAttributes(prev => {
+		setSelectedAttributes((prev) => {
 			const newSet = new Set(prev);
-			const photoAttr = Object.values(PhotoAttribute).find((candidate) => candidate === attribute);
+			const photoAttr = Object.values(PhotoAttribute).find(
+				(candidate) => candidate === attribute,
+			);
 			if (photoAttr === undefined) return prev;
 			if (newSet.has(photoAttr)) {
 				newSet.delete(photoAttr);
@@ -324,7 +405,7 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 	};
 
 	const handleRarityChange = (rarity: string) => {
-		setSelectedRarities(prev => {
+		setSelectedRarities((prev) => {
 			const newSet = new Set(prev);
 			const rarityNum = parseInt(rarity);
 			if (newSet.has(rarityNum)) {
@@ -337,7 +418,7 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 	};
 
 	const handleChangeStateChange = (changeState: string) => {
-		setSelectedChangeStates(prev => {
+		setSelectedChangeStates((prev) => {
 			const newSet = new Set(prev);
 			if (newSet.has(changeState)) {
 				newSet.delete(changeState);
@@ -355,16 +436,20 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 			<div className="p-1 space-y-4 max-w-240">
 				<div className="rounded-lg p-4 border border-gray-200 bg-gray-50">
 					<div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
-
-					<div className="space-y-2">
+						<div className="space-y-2">
 							<h3 className="text-sm font-medium text-gray-700">こうげき値設定</h3>
 							<FormControl variant="outlined" size="small" className="w-32">
 								<Select
 									value={baseAttack}
 									onChange={(e) => setBaseAttack(Number(e.target.value))}
 								>
-									{[10000, 12500, 15000, 17500, 20000, 22500, 25000, 27500, 30000].map(value => (
-										<MenuItem key={value} value={value}>{value.toLocaleString()}</MenuItem>
+									{[
+										10000, 12500, 15000, 17500, 20000, 22500, 25000, 27500,
+										30000,
+									].map((value) => (
+										<MenuItem key={value} value={value}>
+											{value.toLocaleString()}
+										</MenuItem>
 									))}
 								</Select>
 							</FormControl>
@@ -403,7 +488,7 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 					data={filteredData}
 					columns={columns}
 					tableId="photo-damage-ranking"
-					initialSorting={[{ id: 'power_lv2', desc: true }]}
+					initialSorting={[{ id: "power_lv2", desc: true }]}
 					rowMinHeight="80px"
 				/>
 			</div>

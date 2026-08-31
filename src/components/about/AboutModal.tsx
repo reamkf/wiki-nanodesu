@@ -44,13 +44,14 @@ export function AboutModal({ isOpen, onClose }: AboutModalProps) {
 								</DialogTitle>
 								<div className="mt-2">
 									<p className="text-base mb-2">
-										<SeesaaWikiLink href="https://seesaawiki.jp/kemono_friends3_5ch/" >
+										<SeesaaWikiLink href="https://seesaawiki.jp/kemono_friends3_5ch/">
 											アプリ版けものフレンズ３Wikiなのだ！
 										</SeesaaWikiLink>
 										を補助するサイトなのです。
 									</p>
 									<p className="text-sm text-gray-500 mb-2">
-										文字数上限などの都合で、Seesaa Wiki上での運用が難しいページをこちらで運用しているのです。
+										文字数上限などの都合で、Seesaa
+										Wiki上での運用が難しいページをこちらで運用しているのです。
 									</p>
 									<p className="text-sm text-gray-500">
 										誤字・誤植の報告や情報提供は

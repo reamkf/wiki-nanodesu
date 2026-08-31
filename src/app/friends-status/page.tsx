@@ -9,7 +9,7 @@ export const metadata = generateMetadata({
 });
 
 // デフォルトのソートをサーバー側で実行
-async function getSortedStatusList(){
+async function getSortedStatusList() {
 	const allData = await getFriendsStatusList();
 
 	const defaultStatusTypesSet = new Set(STATUS_TYPES);
@@ -24,7 +24,7 @@ async function getSortedStatusList(){
 		hideNullStatus,
 		sortBy,
 		sortDesc,
-		showCostumeBonus
+		showCostumeBonus,
 	);
 
 	return sortedData;
@@ -39,7 +39,10 @@ export default async function FriendsStatus() {
 
 			<p className="mb-4">
 				<span className="flex items-center gap-2">
-					<span className="italic text-gray-600 bg-red-200 inline-block px-1">斜体・赤背景</span>は推測値です。
+					<span className="italic text-gray-600 bg-red-200 inline-block px-1">
+						斜体・赤背景
+					</span>
+					は推測値です。
 				</span>
 			</p>
 

@@ -14,9 +14,7 @@ const projectRoot = path.resolve(import.meta.dirname, "..");
 const outDir = path.join(projectRoot, "out");
 
 if (!fs.existsSync(outDir)) {
-	console.error(
-		"out/ ディレクトリが見つかりません。先に `bun run build` を実行してください。"
-	);
+	console.error("out/ ディレクトリが見つかりません。先に `bun run build` を実行してください。");
 	process.exit(1);
 }
 
@@ -41,7 +39,9 @@ function getContentType(filePath: string): string {
 		".xml": "application/xml; charset=utf-8",
 		".webmanifest": "application/manifest+json; charset=utf-8",
 	} satisfies Record<string, string>;
-	return Object.entries(mimeTypes).find(([key]) => key === ext)?.[1] ?? "application/octet-stream";
+	return (
+		Object.entries(mimeTypes).find(([key]) => key === ext)?.[1] ?? "application/octet-stream"
+	);
 }
 
 /**

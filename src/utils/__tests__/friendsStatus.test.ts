@@ -1,14 +1,14 @@
-import { describe, expect, it } from 'bun:test';
-import { calculateFriendsStatus, getLv99FromLv90 } from '../friends/friendsStatus';
-import { FriendsAttribute, FriendsDataRow, MegumiPattern } from '@/types/friends';
-import { BasicStatus } from '@/types/friendsOrPhoto';
-import { PhotoAttribute } from '@/types/photo';
+import { describe, expect, it } from "bun:test";
+import { calculateFriendsStatus, getLv99FromLv90 } from "../friends/friendsStatus";
+import { FriendsAttribute, FriendsDataRow, MegumiPattern } from "@/types/friends";
+import { BasicStatus } from "@/types/friendsOrPhoto";
+import { PhotoAttribute } from "@/types/photo";
 
-describe('calculateFriendsStatus', () => {
+describe("calculateFriendsStatus", () => {
 	const nullStatus: BasicStatus = {
 		hp: null,
 		atk: null,
-		def: null
+		def: null,
 	};
 
 	const isStatusNull = (status: BasicStatus): boolean => {
@@ -20,37 +20,36 @@ describe('calculateFriendsStatus', () => {
 		rarity: number = 1,
 		megumiPattern: MegumiPattern = MegumiPattern.balanced,
 		statusBase: {
-			lv1?: BasicStatus,
-			lv90?: BasicStatus,
-			lv99?: BasicStatus,
-			yasei4?: BasicStatus,
-			yasei5?: BasicStatus,
-		} = {}
+			lv1?: BasicStatus;
+			lv90?: BasicStatus;
+			lv99?: BasicStatus;
+			yasei4?: BasicStatus;
+			yasei5?: BasicStatus;
+		} = {},
 	): FriendsDataRow => {
-
 		return {
-			id: 'test',
-			name: 'テストフレンズ',
-			secondName: '',
+			id: "test",
+			name: "テストフレンズ",
+			secondName: "",
 			isHc: false,
 			attribute: FriendsAttribute.friendry,
 			subAttribute: FriendsAttribute.friendry,
-			implementDate: '',
-			implementType: '',
-			implementTypeDetail: '',
+			implementDate: "",
+			implementType: "",
+			implementTypeDetail: "",
 			listIndex: 0,
-			iconUrl: '',
+			iconUrl: "",
 			rarity,
 			hasYasei5: false,
 			has12poke: false,
 			numOfClothes: 0,
-			cv: '',
+			cv: "",
 			miracleRequiredMp: null,
-			nanairoSkillName: '',
-			nanairoSkillEffect: '',
+			nanairoSkillName: "",
+			nanairoSkillEffect: "",
 			wildPhotoAttribute: PhotoAttribute.none,
-			wildPhotoTrait: '',
-			wildPhotoTraitChanged: '',
+			wildPhotoTrait: "",
+			wildPhotoTraitChanged: "",
 			status: {
 				avoid: null,
 				avoidYasei5: null,
@@ -62,12 +61,12 @@ describe('calculateFriendsStatus', () => {
 				flagDamageUp: {
 					beat: null,
 					action: null,
-					try: null
+					try: null,
 				},
 				flagDamageUpYasei5: {
 					beat: null,
 					action: null,
-					try: null
+					try: null,
 				},
 				statusInitial: nullStatus,
 				status90: nullStatus,
@@ -84,22 +83,22 @@ describe('calculateFriendsStatus', () => {
 					lv99: statusBase.lv99 || nullStatus,
 					yasei4: statusBase.yasei4 || nullStatus,
 					yasei5: statusBase.yasei5 || nullStatus,
-					megumiPattern
-				}
-			}
+					megumiPattern,
+				},
+			},
 		};
 	};
 
 	// Lv100以上のステータス計算
-	describe('Lv100以上のステータス計算', () => {
-		it('Lv100以上のステータスを計算できる（☆1）', () => {
+	describe("Lv100以上のステータス計算", () => {
+		it("Lv100以上のステータスを計算できる（☆1）", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv99: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 100, 1, 0);
@@ -107,18 +106,18 @@ describe('calculateFriendsStatus', () => {
 				hp: 1020,
 				atk: 1035,
 				def: 1035,
-				estimated: true
+				estimated: true,
 			});
 		});
 
-		it('Lv100以上のステータスを計算できる（☆6）', () => {
+		it("Lv100以上のステータスを計算できる（☆6）", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.atk65, {
 				lv99: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 100, 6, 0);
@@ -126,57 +125,57 @@ describe('calculateFriendsStatus', () => {
 				hp: 1110,
 				atk: 1165,
 				def: 1110,
-				estimated: true
+				estimated: true,
 			});
 		});
 
-		it('Lv99ステータスが不明な場合はnullを返す', () => {
+		it("Lv99ステータスが不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
-				lv99: nullStatus
+				lv99: nullStatus,
 			});
 
 			const status = calculateFriendsStatus(friendsData, 100, 4, 0);
-			expect(isStatusNull(status)).toBe(true)
+			expect(isStatusNull(status)).toBe(true);
 		});
 
-		it('めぐみ上昇値が存在しない場合はnullを返す', () => {
+		it("めぐみ上昇値が存在しない場合はnullを返す", () => {
 			// SAFETY: 無効な文字列を意図的にめぐみパターンへ渡す異常系テストである。
-			const friendsData = createTestFriendsData(1, '存在しない型' as MegumiPattern, {
+			const friendsData = createTestFriendsData(1, "存在しない型" as MegumiPattern, {
 				lv99: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 100, 1, 0);
-			expect(isStatusNull(status)).toBe(true)
+			expect(isStatusNull(status)).toBe(true);
 		});
 
-		it('めぐみパターンが不明な場合はnullを返す', () => {
+		it("めぐみパターンが不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.unknown, {
 				lv99: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 100, 1, 0);
-			expect(isStatusNull(status)).toBe(true)
+			expect(isStatusNull(status)).toBe(true);
 		});
 	});
 
 	// 初期ステータス
-	describe('初期ステータス', () => {
-		it('初期ステータスを返す（☆1）', () => {
+	describe("初期ステータス", () => {
+		it("初期ステータスを返す（☆1）", () => {
 			const initialStatus = {
 				hp: 1000,
 				atk: 1000,
 				def: 1000,
-				estimated: false
+				estimated: false,
 			};
 			const friendsData = createTestFriendsData(1);
 			friendsData.status.statusInitial = initialStatus;
@@ -187,12 +186,12 @@ describe('calculateFriendsStatus', () => {
 			expect(status).toEqual(initialStatus);
 		});
 
-		it('初期ステータスを返す（☆2）', () => {
+		it("初期ステータスを返す（☆2）", () => {
 			const initialStatus = {
 				hp: 1000,
 				atk: 1000,
 				def: 1000,
-				estimated: false
+				estimated: false,
 			};
 			const friendsData = createTestFriendsData(1);
 			friendsData.status.statusInitial = initialStatus;
@@ -203,12 +202,12 @@ describe('calculateFriendsStatus', () => {
 			expect(status).toEqual(initialStatus);
 		});
 
-		it('初期ステータスを返す（☆3）', () => {
+		it("初期ステータスを返す（☆3）", () => {
 			const initialStatus = {
 				hp: 1000,
 				atk: 1000,
 				def: 1000,
-				estimated: false
+				estimated: false,
 			};
 			const friendsData = createTestFriendsData(1);
 			friendsData.status.statusInitial = initialStatus;
@@ -219,12 +218,12 @@ describe('calculateFriendsStatus', () => {
 			expect(status).toEqual(initialStatus);
 		});
 
-		it('初期ステータスを返す（☆4）', () => {
+		it("初期ステータスを返す（☆4）", () => {
 			const initialStatus = {
 				hp: 1000,
 				atk: 1000,
 				def: 1000,
-				estimated: false
+				estimated: false,
 			};
 			const friendsData = createTestFriendsData(1);
 			friendsData.status.statusInitial = initialStatus;
@@ -237,13 +236,13 @@ describe('calculateFriendsStatus', () => {
 	});
 
 	// Lv90のステータス計算
-	describe('Lv90のステータス計算', () => {
-		it('野生解放4のLv90ステータスを返す（計算なし）', () => {
+	describe("Lv90のステータス計算", () => {
+		it("野生解放4のLv90ステータスを返す（計算なし）", () => {
 			const status90 = {
 				hp: 1000,
 				atk: 1000,
 				def: 1000,
-				estimated: false
+				estimated: false,
 			};
 			const friendsData = createTestFriendsData(1);
 			friendsData.status.status90 = status90;
@@ -252,12 +251,12 @@ describe('calculateFriendsStatus', () => {
 			expect(status).toEqual(status90);
 		});
 
-		it('野生解放5のLv90ステータスを返す（計算なし）', () => {
+		it("野生解放5のLv90ステータスを返す（計算なし）", () => {
 			const status90Yasei5 = {
 				hp: 1000,
 				atk: 1000,
 				def: 1000,
-				estimated: false
+				estimated: false,
 			};
 			const friendsData = createTestFriendsData(1);
 			friendsData.status.status90Yasei5 = status90Yasei5;
@@ -266,14 +265,14 @@ describe('calculateFriendsStatus', () => {
 			expect(status).toEqual(status90Yasei5);
 		});
 
-		it('野生解放なしのLv90ステータスを計算する', () => {
+		it("野生解放なしのLv90ステータスを計算する", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv90: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 90, 1, 0);
@@ -281,32 +280,32 @@ describe('calculateFriendsStatus', () => {
 				hp: 1000,
 				atk: 1000,
 				def: 1000,
-				estimated: true
+				estimated: true,
 			});
 		});
 
-		it('Lv90基礎値が不明な場合はnullを返す', () => {
+		it("Lv90基礎値が不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv90: nullStatus,
 				yasei4: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 90, 1, 0);
 			expect(isStatusNull(status)).toBe(true);
 		});
 
-		it('野生解放4基礎値が不明な場合はnullを返す', () => {
+		it("野生解放4基礎値が不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv90: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
+					estimated: false,
 				},
 				yasei4: nullStatus,
 			});
@@ -315,13 +314,13 @@ describe('calculateFriendsStatus', () => {
 			expect(isStatusNull(status)).toBe(true);
 		});
 
-		it('野生解放5基礎値が不明な場合はnullを返す', () => {
+		it("野生解放5基礎値が不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv90: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
+					estimated: false,
 				},
 				yasei5: nullStatus,
 			});
@@ -332,13 +331,13 @@ describe('calculateFriendsStatus', () => {
 	});
 
 	// Lv99のステータス計算
-	describe('Lv99のステータス計算', () => {
-		it('野生解放4のLv99ステータスを返す（計算なし）', () => {
+	describe("Lv99のステータス計算", () => {
+		it("野生解放4のLv99ステータスを返す（計算なし）", () => {
 			const status99 = {
 				hp: 1000,
 				atk: 1000,
 				def: 1000,
-				estimated: false
+				estimated: false,
 			};
 			const friendsData = createTestFriendsData(1);
 			friendsData.status.status99 = status99;
@@ -347,12 +346,12 @@ describe('calculateFriendsStatus', () => {
 			expect(status).toEqual(status99);
 		});
 
-		it('野生解放5のLv99ステータスを返す（計算なし）', () => {
+		it("野生解放5のLv99ステータスを返す（計算なし）", () => {
 			const status99Yasei5 = {
 				hp: 1000,
 				atk: 1000,
 				def: 1000,
-				estimated: false
+				estimated: false,
 			};
 			const friendsData = createTestFriendsData(1);
 			friendsData.status.status99Yasei5 = status99Yasei5;
@@ -361,14 +360,14 @@ describe('calculateFriendsStatus', () => {
 			expect(status).toEqual(status99Yasei5);
 		});
 
-		it('野生解放なしのLv99ステータスを計算する', () => {
+		it("野生解放なしのLv99ステータスを計算する", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv99: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 99, 3, 0);
@@ -376,32 +375,32 @@ describe('calculateFriendsStatus', () => {
 				hp: 1040,
 				atk: 1040,
 				def: 1040,
-				estimated: true
+				estimated: true,
 			});
 		});
 
-		it('Lv99基礎値が不明な場合はnullを返す', () => {
+		it("Lv99基礎値が不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv99: nullStatus,
 				yasei4: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 99, 1, 0);
 			expect(isStatusNull(status)).toBe(true);
 		});
 
-		it('野生解放4基礎値が不明な場合はnullを返す', () => {
+		it("野生解放4基礎値が不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv99: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
+					estimated: false,
 				},
 				yasei4: nullStatus,
 			});
@@ -410,13 +409,13 @@ describe('calculateFriendsStatus', () => {
 			expect(isStatusNull(status)).toBe(true);
 		});
 
-		it('野生解放5基礎値が不明な場合はnullを返す', () => {
+		it("野生解放5基礎値が不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv99: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
+					estimated: false,
 				},
 				yasei5: nullStatus,
 			});
@@ -427,15 +426,15 @@ describe('calculateFriendsStatus', () => {
 	});
 
 	// Lv1のステータス計算
-	describe('Lv1のステータス計算', () => {
-		it('Lv1のステータスを計算する', () => {
+	describe("Lv1のステータス計算", () => {
+		it("Lv1のステータスを計算する", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv1: {
 					hp: 10,
 					atk: 20,
 					def: 30,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 1, 1, 0);
@@ -443,18 +442,18 @@ describe('calculateFriendsStatus', () => {
 				hp: 10,
 				atk: 20,
 				def: 30,
-				estimated: true
+				estimated: true,
 			});
 		});
 
-		it('Lv1の☆4ステータスを計算する', () => {
+		it("Lv1の☆4ステータスを計算する", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv1: {
 					hp: 10,
 					atk: 20,
 					def: 30,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 1, 4, 0);
@@ -462,11 +461,11 @@ describe('calculateFriendsStatus', () => {
 				hp: 11,
 				atk: 22,
 				def: 32,
-				estimated: true
+				estimated: true,
 			});
 		});
 
-		it('Lv1基礎値が不明な場合はnullを返す', () => {
+		it("Lv1基礎値が不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv1: nullStatus,
 			});
@@ -477,21 +476,21 @@ describe('calculateFriendsStatus', () => {
 	});
 
 	// Lv2-89のステータス計算
-	describe('Lv2-89のステータス計算', () => {
-		it('Lv2-89のステータスを計算する', () => {
+	describe("Lv2-89のステータス計算", () => {
+		it("Lv2-89のステータスを計算する", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv1: {
 					hp: 100,
 					atk: 100,
 					def: 100,
-					estimated: false
+					estimated: false,
 				},
 				lv90: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 45, 1, 0);
@@ -499,24 +498,24 @@ describe('calculateFriendsStatus', () => {
 				hp: 544,
 				atk: 544,
 				def: 544,
-				estimated: true
+				estimated: true,
 			});
 		});
 
-		it('けも級補正を適用する', () => {
+		it("けも級補正を適用する", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv1: {
 					hp: 100,
 					atk: 100,
 					def: 100,
-					estimated: false
+					estimated: false,
 				},
 				lv90: {
 					hp: 1000,
 					atk: 1000,
 					def: 1000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 45, 3, 0);
@@ -524,30 +523,30 @@ describe('calculateFriendsStatus', () => {
 				hp: 566,
 				atk: 566,
 				def: 566,
-				estimated: true
+				estimated: true,
 			});
 		});
 
-		it('野生解放4のLv2-89の☆6ステータスを計算する', () => {
+		it("野生解放4のLv2-89の☆6ステータスを計算する", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv1: {
 					hp: 100,
 					atk: 200,
 					def: 300,
-					estimated: false
+					estimated: false,
 				},
 				lv90: {
 					hp: 1000,
 					atk: 2000,
 					def: 30000,
-					estimated: false
+					estimated: false,
 				},
 				yasei4: {
 					hp: 300,
 					atk: 3000,
 					def: 12345,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 45, 6, 4);
@@ -555,32 +554,32 @@ describe('calculateFriendsStatus', () => {
 				hp: 929,
 				atk: 4498,
 				def: 30061,
-				estimated: true
+				estimated: true,
 			});
 		});
 
-		it('Lv1基礎値が不明な場合はnullを返す', () => {
+		it("Lv1基礎値が不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv1: nullStatus,
 				lv90: {
 					hp: 1000,
 					atk: 2000,
 					def: 3000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 45, 6, 4);
 			expect(isStatusNull(status)).toBe(true);
 		});
 
-		it('Lv90基礎値が不明な場合はnullを返す', () => {
+		it("Lv90基礎値が不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv1: {
 					hp: 100,
 					atk: 100,
 					def: 100,
-					estimated: false
+					estimated: false,
 				},
 				lv90: nullStatus,
 			});
@@ -590,21 +589,21 @@ describe('calculateFriendsStatus', () => {
 		});
 	});
 
-	describe('Lv91-98のステータス計算', () => {
-		it('Lv91-98のステータスを計算する', () => {
+	describe("Lv91-98のステータス計算", () => {
+		it("Lv91-98のステータスを計算する", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv90: {
 					hp: 1000,
 					atk: 2000,
 					def: 3000,
-					estimated: false
+					estimated: false,
 				},
 				lv99: {
 					hp: 40000,
 					atk: 50000,
 					def: 60000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 95, 1, 0);
@@ -612,24 +611,24 @@ describe('calculateFriendsStatus', () => {
 				hp: 22666,
 				atk: 28666,
 				def: 34666,
-				estimated: true
+				estimated: true,
 			});
 		});
 
-		it('けも級補正を適用する', () => {
+		it("けも級補正を適用する", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv90: {
 					hp: 1000,
 					atk: 2000,
 					def: 3000,
-					estimated: false
+					estimated: false,
 				},
 				lv99: {
 					hp: 40000,
 					atk: 50000,
 					def: 60000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 95, 3, 0);
@@ -637,30 +636,30 @@ describe('calculateFriendsStatus', () => {
 				hp: 23573,
 				atk: 29813,
 				def: 36053,
-				estimated: true
+				estimated: true,
 			});
 		});
 
-		it('野生解放4のLv2-89の☆6ステータスを計算する', () => {
+		it("野生解放4のLv2-89の☆6ステータスを計算する", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv90: {
 					hp: 100,
 					atk: 200,
 					def: 300,
-					estimated: false
+					estimated: false,
 				},
 				lv99: {
 					hp: 1000,
 					atk: 2000,
 					def: 30000,
-					estimated: false
+					estimated: false,
 				},
 				yasei4: {
 					hp: 300,
 					atk: 4620,
 					def: 12345,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 95, 6, 4);
@@ -668,32 +667,32 @@ describe('calculateFriendsStatus', () => {
 				hp: 991,
 				atk: 6403,
 				def: 32060,
-				estimated: true
+				estimated: true,
 			});
 		});
 
-		it('Lv90基礎値が不明な場合はnullを返す', () => {
+		it("Lv90基礎値が不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv90: nullStatus,
 				lv99: {
 					hp: 40000,
 					atk: 50000,
 					def: 60000,
-					estimated: false
-				}
+					estimated: false,
+				},
 			});
 
 			const status = calculateFriendsStatus(friendsData, 95, 6, 4);
 			expect(isStatusNull(status)).toBe(true);
 		});
 
-		it('Lv99基礎値が不明な場合はnullを返す', () => {
+		it("Lv99基礎値が不明な場合はnullを返す", () => {
 			const friendsData = createTestFriendsData(1, MegumiPattern.balanced, {
 				lv90: {
 					hp: 100,
 					atk: 200,
 					def: 300,
-					estimated: false
+					estimated: false,
 				},
 				lv99: nullStatus,
 			});
@@ -703,13 +702,13 @@ describe('calculateFriendsStatus', () => {
 		});
 	});
 
-	describe('Lv99からLv90への変換', () => {
-		it('Lv99からLv90への変換を計算する', () => {
+	describe("Lv99からLv90への変換", () => {
+		it("Lv99からLv90への変換を計算する", () => {
 			const lv99 = {
 				hp: 1000,
 				atk: 2000,
 				def: 3000,
-				estimated: false
+				estimated: false,
 			};
 
 			const lv90 = getLv99FromLv90(lv99);
@@ -717,7 +716,7 @@ describe('calculateFriendsStatus', () => {
 				hp: 1094,
 				atk: 2188,
 				def: 3281,
-				estimated: true
+				estimated: true,
 			});
 		});
 	});

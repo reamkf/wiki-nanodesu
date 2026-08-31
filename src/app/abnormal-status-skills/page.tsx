@@ -1,23 +1,28 @@
 import { generateMetadata } from "../metadata";
-import { getAbnormalStatusWithFriendsAndPhotos, getAbnormalStatusTypes } from "@/data/abnormalStatusData";
+import {
+	getAbnormalStatusWithFriendsAndPhotos,
+	getAbnormalStatusTypes,
+} from "@/data/abnormalStatusData";
 import ClientTabs from "./page.client";
 import { TreeItemData } from "@/components/common/TreeList";
-import { PageTitle } from '@/components/PageTitle';
+import { PageTitle } from "@/components/PageTitle";
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
+import { AbnormalStatusWithFriend, AbnormalStatusSkillEffectType } from "@/types/abnormalStatus";
 import {
-	AbnormalStatusWithFriend,
-	AbnormalStatusSkillEffectType,
-} from "@/types/abnormalStatus";
-import { getPowerPriority, getActivationRatePriority, getSkillTypePriority, getTargetPriority } from "@/utils/sortPriorities";
+	getPowerPriority,
+	getActivationRatePriority,
+	getSkillTypePriority,
+	getTargetPriority,
+} from "@/utils/sortPriorities";
 import GoogleSheetsLink from "@/components/GoogleSheetsLink";
 import { sortAttribute } from "@/utils/friends/friends";
 
 // 効果タイプの値からIDを取得するマッピング
 const EFFECT_TYPE_VALUE_TO_ID = {
-	[AbnormalStatusSkillEffectType.give]: 'give',
-	[AbnormalStatusSkillEffectType.incleaseResist]: 'incleaseResist',
-	[AbnormalStatusSkillEffectType.decreaseResist]: 'decreaseResist',
-	[AbnormalStatusSkillEffectType.remove]: 'remove',
+	[AbnormalStatusSkillEffectType.give]: "give",
+	[AbnormalStatusSkillEffectType.incleaseResist]: "incleaseResist",
+	[AbnormalStatusSkillEffectType.decreaseResist]: "decreaseResist",
+	[AbnormalStatusSkillEffectType.remove]: "remove",
 } satisfies Record<AbnormalStatusSkillEffectType, keyof typeof AbnormalStatusSkillEffectType>;
 
 /**
@@ -96,7 +101,8 @@ function sortResistanceSkills(data: AbnormalStatusWithFriend[]): AbnormalStatusW
 		// 4. わざ種別でソート (降順)
 		const skillTypePriorityA = getSkillTypePriority(a.skillType);
 		const skillTypePriorityB = getSkillTypePriority(b.skillType);
-		if (skillTypePriorityA !== skillTypePriorityB) return skillTypePriorityB - skillTypePriorityA;
+		if (skillTypePriorityA !== skillTypePriorityB)
+			return skillTypePriorityB - skillTypePriorityA;
 
 		return 0; // 上記以外は順序を変えない
 	});
@@ -109,8 +115,11 @@ function sortResistanceSkills(data: AbnormalStatusWithFriend[]): AbnormalStatusW
  * @param effectTypeId 効果タイプID
  * @returns カテゴリID文字列
  */
-const createCategoryId = (statusType: string, entityType: 'friends' | 'photo', effectTypeId: string) =>
-	`${statusType}-${entityType}-${effectTypeId}`;
+const createCategoryId = (
+	statusType: string,
+	entityType: "friends" | "photo",
+	effectTypeId: string,
+) => `${statusType}-${entityType}-${effectTypeId}`;
 
 /**
  * 特定の効果タイプに基づいてデータをソートする関数
@@ -118,13 +127,16 @@ const createCategoryId = (statusType: string, entityType: 'friends' | 'photo', e
  * @param effectType 効果タイプ
  * @returns ソートされたデータ配列
  */
-function sortDataByEffectType(data: AbnormalStatusWithFriend[], effectType: AbnormalStatusSkillEffectType): AbnormalStatusWithFriend[] {
+function sortDataByEffectType(
+	data: AbnormalStatusWithFriend[],
+	effectType: AbnormalStatusSkillEffectType,
+): AbnormalStatusWithFriend[] {
 	const effectTypeId = EFFECT_TYPE_VALUE_TO_ID[effectType];
 	switch (effectTypeId) {
-		case 'incleaseResist':
-		case 'decreaseResist':
+		case "incleaseResist":
+		case "decreaseResist":
 			return sortResistanceSkills(data);
-		case 'give':
+		case "give":
 			return sortGiveSkills(data);
 		default:
 			// その他のカテゴリーには属性のみでソート
@@ -143,15 +155,15 @@ function sortDataByEffectType(data: AbnormalStatusWithFriend[], effectType: Abno
 function buildSubCategories(
 	statusType: string,
 	entityData: AbnormalStatusWithFriend[],
-	entityType: 'friends' | 'photo',
-	statusTypeData: Record<string, AbnormalStatusWithFriend[]>
+	entityType: "friends" | "photo",
+	statusTypeData: Record<string, AbnormalStatusWithFriend[]>,
 ): TreeItemData[] {
 	const effectTypes = Object.values(AbnormalStatusSkillEffectType);
 
 	return effectTypes
-		.map(effectType => {
+		.map((effectType) => {
 			// 効果タイプでフィルタリング
-			const filteredData = entityData.filter(item => item.effectType === effectType);
+			const filteredData = entityData.filter((item) => item.effectType === effectType);
 			if (filteredData.length === 0) return null;
 
 			// データをソート
@@ -164,7 +176,7 @@ function buildSubCategories(
 
 			return {
 				id: categoryId,
-				name: String(effectType)
+				name: String(effectType),
 			};
 		})
 		.filter((item): item is TreeItemData => item !== null);
@@ -188,12 +200,30 @@ export default async function AbnormalStatusPage() {
 
 	// 状態異常のリスト（ハードコードされているが、必要なら動的に取得しても良い）
 	const abnormalStatusList = [
-		"くらくら", "どく", "すやすや", "くたくた", "ひやひや", "ズキンズキン",
-		"からげんき", "ぼんやりうっかり", "しょんぼりきぶん", "びりびり",
-		"ちぐはぐリズム", "ロストフラッグ", "ばてばてヒリヒリ", "あせあせ",
-		"全ての状態異常に関連した能力", "ルンルンきぶん", "はねかえし",
-		"はねかえしむし", "毎ターンMP減少", "かばう", "ためこみ上手",
-		"コチョコチョマスター", "いかく", "かくれみ"
+		"くらくら",
+		"どく",
+		"すやすや",
+		"くたくた",
+		"ひやひや",
+		"ズキンズキン",
+		"からげんき",
+		"ぼんやりうっかり",
+		"しょんぼりきぶん",
+		"びりびり",
+		"ちぐはぐリズム",
+		"ロストフラッグ",
+		"ばてばてヒリヒリ",
+		"あせあせ",
+		"全ての状態異常に関連した能力",
+		"ルンルンきぶん",
+		"はねかえし",
+		"はねかえしむし",
+		"毎ターンMP減少",
+		"かばう",
+		"ためこみ上手",
+		"コチョコチョマスター",
+		"いかく",
+		"かくれみ",
 	];
 
 	// クライアントに渡すデータ（状態異常タイプごとのデータ）
@@ -201,7 +231,7 @@ export default async function AbnormalStatusPage() {
 	// ツリー表示用のカテゴリデータ
 	const abnormalStatusCategories: TreeItemData[] = [];
 
-	abnormalStatusList.forEach(statusType => {
+	abnormalStatusList.forEach((statusType) => {
 		const currentStatusData = groupedDataByType[statusType] || [];
 		if (currentStatusData.length === 0) {
 			return; // データがない場合はスキップ
@@ -211,13 +241,23 @@ export default async function AbnormalStatusPage() {
 		statusTypeDataForClient[statusType] = sortByAttribute(currentStatusData);
 
 		// フレンズとフォトのデータを分離
-		const friendsData = currentStatusData.filter(item => !item.isPhoto);
-		const photoData = currentStatusData.filter(item => item.isPhoto);
+		const friendsData = currentStatusData.filter((item) => !item.isPhoto);
+		const photoData = currentStatusData.filter((item) => item.isPhoto);
 
 		// フレンズの子カテゴリを構築（ここで statusTypeDataForClient が更新される）
-		const friendsChildren = buildSubCategories(statusType, friendsData, 'friends', statusTypeDataForClient);
+		const friendsChildren = buildSubCategories(
+			statusType,
+			friendsData,
+			"friends",
+			statusTypeDataForClient,
+		);
 		// フォトの子カテゴリを構築（ここで statusTypeDataForClient が更新される）
-		const photoChildren = buildSubCategories(statusType, photoData, 'photo', statusTypeDataForClient);
+		const photoChildren = buildSubCategories(
+			statusType,
+			photoData,
+			"photo",
+			statusTypeDataForClient,
+		);
 
 		const categoryChildren: TreeItemData[] = [];
 		if (friendsChildren.length > 0) {
@@ -225,7 +265,7 @@ export default async function AbnormalStatusPage() {
 				name: "フレンズ",
 				id: `${statusType}-friends`, // より明確なID
 				children: friendsChildren,
-				isExpandedByDefault: true // デフォルトで展開
+				isExpandedByDefault: true, // デフォルトで展開
 			});
 		}
 		if (photoChildren.length > 0) {
@@ -233,7 +273,7 @@ export default async function AbnormalStatusPage() {
 				name: "フォト",
 				id: `${statusType}-photo`, // より明確なID
 				children: photoChildren,
-				isExpandedByDefault: true // デフォルトで展開
+				isExpandedByDefault: true, // デフォルトで展開
 			});
 		}
 
@@ -243,7 +283,7 @@ export default async function AbnormalStatusPage() {
 				name: statusType,
 				id: statusType,
 				children: categoryChildren,
-				isExpandedByDefault: false // メインカテゴリはデフォルトで閉じている
+				isExpandedByDefault: false, // メインカテゴリはデフォルトで閉じている
 			});
 		}
 	});
@@ -253,12 +293,11 @@ export default async function AbnormalStatusPage() {
 			<PageTitle title="状態異常スキル一覧" />
 
 			<p className="p-1">
-				フレンズとフォトの状態異常付与や耐性増加スキルの一覧です。<br />
+				フレンズとフォトの状態異常付与や耐性増加スキルの一覧です。
+				<br />
 				<span className="font-bold">
 					状態異常の内容の説明は
-					<SeesaaWikiLink
-						href="https://seesaawiki.jp/kemono_friends3_5ch/d/%BE%F5%C2%D6%B0%DB%BE%EF"
-					>
+					<SeesaaWikiLink href="https://seesaawiki.jp/kemono_friends3_5ch/d/%BE%F5%C2%D6%B0%DB%BE%EF">
 						こちら
 					</SeesaaWikiLink>
 					を参照してください。
@@ -266,16 +305,13 @@ export default async function AbnormalStatusPage() {
 			</p>
 			<p className="p-1">
 				このページのデータは下記のスプレッドシートで管理しています。
-				データの修正はスプレッドシート上で行ってください。<br />
-				<GoogleSheetsLink
-					link="https://docs.google.com/spreadsheets/d/1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk/edit?gid=1025979990#gid=1025979990"
-				/>
+				データの修正はスプレッドシート上で行ってください。
+				<br />
+				<GoogleSheetsLink link="https://docs.google.com/spreadsheets/d/1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk/edit?gid=1025979990#gid=1025979990" />
 			</p>
 			<p className="p-1">
 				誤字・誤植の報告は
-				<SeesaaWikiLink
-					href="https://seesaawiki.jp/kemono_friends3_5ch/d/%BE%F5%C2%D6%B0%DB%BE%EF"
-				>
+				<SeesaaWikiLink href="https://seesaawiki.jp/kemono_friends3_5ch/d/%BE%F5%C2%D6%B0%DB%BE%EF">
 					こちら
 				</SeesaaWikiLink>
 				のコメント欄へお願いします。

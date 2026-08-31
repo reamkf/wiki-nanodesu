@@ -8,54 +8,54 @@ export enum FriendsAttribute {
 	active = "アクティブ",
 	lovely = "ラブリー",
 	mypace = "マイペース",
-	none = "none"
+	none = "none",
 }
 
 export const friendsAttributeColor = {
-	[FriendsAttribute.funny]: 'red',
-	[FriendsAttribute.relax]: '#0075c8',
-	[FriendsAttribute.friendry]: '#009e25',
-	[FriendsAttribute.lovely]: '#ffb3b3',
-	[FriendsAttribute.mypace]: '#88abda',
-	[FriendsAttribute.active]: '#a6cf00',
-	[FriendsAttribute.none]: '#000000',
-}
+	[FriendsAttribute.funny]: "red",
+	[FriendsAttribute.relax]: "#0075c8",
+	[FriendsAttribute.friendry]: "#009e25",
+	[FriendsAttribute.lovely]: "#ffb3b3",
+	[FriendsAttribute.mypace]: "#88abda",
+	[FriendsAttribute.active]: "#a6cf00",
+	[FriendsAttribute.none]: "#000000",
+};
 
 export const friendsAttributeIconUrl = {
-	[FriendsAttribute.funny]: '/wiki-nanodesu/attribute-icons/friends/funny.png',
-	[FriendsAttribute.relax]: '/wiki-nanodesu/attribute-icons/friends/relax.png',
-	[FriendsAttribute.friendry]: '/wiki-nanodesu/attribute-icons/friends/friendly.png',
-	[FriendsAttribute.lovely]: '/wiki-nanodesu/attribute-icons/friends/lovely.png',
-	[FriendsAttribute.mypace]: '/wiki-nanodesu/attribute-icons/friends/mypace.png',
-	[FriendsAttribute.active]: '/wiki-nanodesu/attribute-icons/friends/active.png',
-	[FriendsAttribute.none]: '/wiki-nanodesu/attribute-icons/friends/none.png',
-}
+	[FriendsAttribute.funny]: "/wiki-nanodesu/attribute-icons/friends/funny.png",
+	[FriendsAttribute.relax]: "/wiki-nanodesu/attribute-icons/friends/relax.png",
+	[FriendsAttribute.friendry]: "/wiki-nanodesu/attribute-icons/friends/friendly.png",
+	[FriendsAttribute.lovely]: "/wiki-nanodesu/attribute-icons/friends/lovely.png",
+	[FriendsAttribute.mypace]: "/wiki-nanodesu/attribute-icons/friends/mypace.png",
+	[FriendsAttribute.active]: "/wiki-nanodesu/attribute-icons/friends/active.png",
+	[FriendsAttribute.none]: "/wiki-nanodesu/attribute-icons/friends/none.png",
+};
 
 export enum MegumiPattern {
-	atk70 = 'こうげき+70型',
-	atk65 = 'こうげき+65型',
-	atk60 = 'こうげき+60型',
-	atk50 = 'こうげき+50型',
-	atk40 = 'こうげき+40型',
-	hp50 = 'たいりょく+50型',
-	def50 = 'まもり+50型',
-	balanced = 'バランス型',
-	atkDef = 'こうげき・まもり増加型',
-	unknown = ''
+	atk70 = "こうげき+70型",
+	atk65 = "こうげき+65型",
+	atk60 = "こうげき+60型",
+	atk50 = "こうげき+50型",
+	atk40 = "こうげき+40型",
+	hp50 = "たいりょく+50型",
+	def50 = "まもり+50型",
+	balanced = "バランス型",
+	atkDef = "こうげき・まもり増加型",
+	unknown = "",
 }
 
 export const megumiRaiseStatus = {
-	[MegumiPattern.atk70]:    {hp: 10, atk: 70, def: 20},
-	[MegumiPattern.atk65]:    {hp: 10, atk: 65, def: 10},
-	[MegumiPattern.atk60]:    {hp:  5, atk: 60, def: 25},
-	[MegumiPattern.atk50]:    {hp: 25, atk: 50, def: 10},
-	[MegumiPattern.atk40]:    {hp: 35, atk: 40, def: 10},
-	[MegumiPattern.hp50]:     {hp: 50, atk: 10, def: 25},
-	[MegumiPattern.def50]:    {hp: 25, atk: 10, def: 50},
-	[MegumiPattern.atkDef]:   {hp:  0, atk: 45, def: 45},
-	[MegumiPattern.balanced]: {hp: 20, atk: 35, def: 35},
-	[MegumiPattern.unknown]:  {hp:  0, atk:  0, def:  0},
-}
+	[MegumiPattern.atk70]: { hp: 10, atk: 70, def: 20 },
+	[MegumiPattern.atk65]: { hp: 10, atk: 65, def: 10 },
+	[MegumiPattern.atk60]: { hp: 5, atk: 60, def: 25 },
+	[MegumiPattern.atk50]: { hp: 25, atk: 50, def: 10 },
+	[MegumiPattern.atk40]: { hp: 35, atk: 40, def: 10 },
+	[MegumiPattern.hp50]: { hp: 50, atk: 10, def: 25 },
+	[MegumiPattern.def50]: { hp: 25, atk: 10, def: 50 },
+	[MegumiPattern.atkDef]: { hp: 0, atk: 45, def: 45 },
+	[MegumiPattern.balanced]: { hp: 20, atk: 35, def: 35 },
+	[MegumiPattern.unknown]: { hp: 0, atk: 0, def: 0 },
+};
 
 export interface FriendsFlagDamageUp {
 	beat: number | null;
@@ -131,7 +131,14 @@ export interface FriendsStatusListItem {
 	rank: number;
 	yasei: 4 | 5;
 	status: BasicStatus;
-	statusType: '初期ステータス' | '☆6/Lv90/野生4' | '☆6/Lv99/野生4' | '☆6/Lv200/野生4' | '☆6/Lv90/野生5' | '☆6/Lv99/野生5' | '☆6/Lv200/野生5';
+	statusType:
+		| "初期ステータス"
+		| "☆6/Lv90/野生4"
+		| "☆6/Lv99/野生4"
+		| "☆6/Lv200/野生4"
+		| "☆6/Lv90/野生5"
+		| "☆6/Lv99/野生5"
+		| "☆6/Lv200/野生5";
 }
 
 export interface RawFriendsCSV {
@@ -149,7 +156,7 @@ export interface RawFriendsCSV {
 	アイコンURL: string;
 	初期けも級: number;
 	野生大解放: boolean;
-	'12ポケ': boolean;
+	"12ポケ": boolean;
 	特別衣装数: number;
 	CV: string;
 	かいひ: number;
@@ -165,47 +172,47 @@ export interface RawFriendsCSV {
 	Beat補正野生5: number;
 	Action補正野生5: number;
 	Try補正野生5: number;
-	'Lv最大けもステ': number;
-	'Lv最大たいりょく': number;
-	'Lv最大こうげき': number;
-	'Lv最大まもり': number;
-	'Lv90けもステ': number;
-	'Lv90たいりょく': number;
-	'Lv90こうげき': number;
-	'Lv90まもり': number;
-	'Lv99けもステ': number;
-	'Lv99たいりょく': number;
-	'Lv99こうげき': number;
-	'Lv99まもり': number;
-	'Lv90野生5けもステ': number;
-	'Lv90野生5たいりょく': number;
-	'Lv90野生5こうげき': number;
-	'Lv90野生5まもり': number;
-	'Lv99野生5けもステ': number;
-	'Lv99野生5たいりょく': number;
-	'Lv99野生5こうげき': number;
-	'Lv99野生5まもり': number;
-	'☆1Lv1たいりょく': number;
-	'☆1Lv1こうげき': number;
-	'☆1Lv1まもり': number;
-	'☆1Lv90たいりょく': number,
-	'☆1Lv90こうげき': number,
-	'☆1Lv90まもり': number,
-	'☆1Lv99たいりょく': number,
-	'☆1Lv99こうげき': number,
-	'☆1Lv99まもり': number,
-	'☆1野生解放1-4合計たいりょく': number,
-	'☆1野生解放1-4合計こうげき': number,
-	'☆1野生解放1-4合計まもり': number,
-	'☆1野生解放1-5合計たいりょく': number,
-	'☆1野生解放1-5合計こうげき': number,
-	'☆1野生解放1-5合計まもり': number,
-	'Lv100+上昇パターン': MegumiPattern;
+	Lv最大けもステ: number;
+	Lv最大たいりょく: number;
+	Lv最大こうげき: number;
+	Lv最大まもり: number;
+	Lv90けもステ: number;
+	Lv90たいりょく: number;
+	Lv90こうげき: number;
+	Lv90まもり: number;
+	Lv99けもステ: number;
+	Lv99たいりょく: number;
+	Lv99こうげき: number;
+	Lv99まもり: number;
+	Lv90野生5けもステ: number;
+	Lv90野生5たいりょく: number;
+	Lv90野生5こうげき: number;
+	Lv90野生5まもり: number;
+	Lv99野生5けもステ: number;
+	Lv99野生5たいりょく: number;
+	Lv99野生5こうげき: number;
+	Lv99野生5まもり: number;
+	"☆1Lv1たいりょく": number;
+	"☆1Lv1こうげき": number;
+	"☆1Lv1まもり": number;
+	"☆1Lv90たいりょく": number;
+	"☆1Lv90こうげき": number;
+	"☆1Lv90まもり": number;
+	"☆1Lv99たいりょく": number;
+	"☆1Lv99こうげき": number;
+	"☆1Lv99まもり": number;
+	"☆1野生解放1-4合計たいりょく": number;
+	"☆1野生解放1-4合計こうげき": number;
+	"☆1野生解放1-4合計まもり": number;
+	"☆1野生解放1-5合計たいりょく": number;
+	"☆1野生解放1-5合計こうげき": number;
+	"☆1野生解放1-5合計まもり": number;
+	"Lv100+上昇パターン": MegumiPattern;
 	けものミラクル技名: string;
 	けものミラクル効果Lv1: string;
 	けものミラクル効果Lv5: string;
 	けものミラクル必要MP: number;
-	'けものミラクル＋': string;
+	"けものミラクル＋": string;
 	とくいわざ技名: string;
 	とくいわざ効果: string;
 	たいきスキル技名: string;

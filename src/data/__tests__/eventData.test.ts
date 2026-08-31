@@ -12,7 +12,8 @@ describe("getEventData", () => {
 		const firstEvent = (await getEventData())[0];
 		expect(firstEvent).toEqual({
 			name: "全国区のアイドルへの第一歩！ですわ！",
-			bannerImageUrl: "https://image02.seesaawiki.jp/k/h/kemono_friends3_5ch/8c2703602d0e33c3.PNG",
+			bannerImageUrl:
+				"https://image02.seesaawiki.jp/k/h/kemono_friends3_5ch/8c2703602d0e33c3.PNG",
 			wikiPage: "",
 			startDate: "2026/08/20",
 			endDate: "2026/09/03 14:00:00",
@@ -26,7 +27,10 @@ describe("getEventData", () => {
 describe("getEventDisplayData", () => {
 	it("フレンズとフォトを表示用データへ解決できる", async () => {
 		const firstEvent = (await getEventDisplayData())[0];
-		expect(firstEvent.friends.map((friend) => friend.name)).toEqual(["東北イタコ", "東北きりたん"]);
+		expect(firstEvent.friends.map((friend) => friend.name)).toEqual([
+			"東北イタコ",
+			"東北きりたん",
+		]);
 		expect(firstEvent.photos.map((photo) => photo.name)).toEqual([
 			"ペラリとお悩み解決！",
 			"ぎゅぎゅっとおいしい",

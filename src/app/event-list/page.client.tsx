@@ -63,7 +63,9 @@ function EventCell({ event }: { event: EventDisplayData }) {
 	);
 
 	if (!event.wikiPage) {
-		return <div className="flex w-[300px] flex-col items-center gap-1 text-center">{content}</div>;
+		return (
+			<div className="flex w-[300px] flex-col items-center gap-1 text-center">{content}</div>
+		);
 	}
 
 	return (
@@ -190,7 +192,7 @@ export default function EventTable({ data }: { data: EventDisplayData[] }) {
 				meta: { width: "125px", align: "center" as const },
 			})),
 		],
-		[]
+		[],
 	);
 
 	return (

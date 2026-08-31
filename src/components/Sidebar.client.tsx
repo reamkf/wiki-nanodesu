@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React, { useState, useRef } from 'react';
-import { SeesaaWikiLink } from '@/components/seesaawiki/SeesaaWikiLink';
-import Image from 'next/image';
-import { useSidebar } from '@/contexts/SidebarContext';
-import { SidebarLinkItem } from './Sidebar';
-import CancelIcon from '@mui/icons-material/Cancel';
-import { includesNormalizeQuery } from '@/utils/queryNormalizer';
-import { NanodesuLink } from '@/components/common/NanodesuLink';
-import { OwlIcon } from '@/components/OwlIcon';
+import React, { useState, useRef } from "react";
+import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
+import Image from "next/image";
+import { useSidebar } from "@/contexts/SidebarContext";
+import { SidebarLinkItem } from "./Sidebar";
+import CancelIcon from "@mui/icons-material/Cancel";
+import { includesNormalizeQuery } from "@/utils/queryNormalizer";
+import { NanodesuLink } from "@/components/common/NanodesuLink";
+import { OwlIcon } from "@/components/OwlIcon";
 interface SidebarClientProps {
 	sideBarLinksNanodesu: SidebarLinkItem[];
 	sideBarLinksNanoda: SidebarLinkItem[];
@@ -16,9 +16,14 @@ interface SidebarClientProps {
 	photoLinks: SidebarLinkItem[];
 }
 
-export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friendsLinks, photoLinks }: SidebarClientProps) {
+export function SidebarClient({
+	sideBarLinksNanodesu,
+	sideBarLinksNanoda,
+	friendsLinks,
+	photoLinks,
+}: SidebarClientProps) {
 	const { isOpen, close } = useSidebar();
-	const [searchQuery, setSearchQuery] = useState('');
+	const [searchQuery, setSearchQuery] = useState("");
 	const searchInputRef = useRef<HTMLInputElement>(null);
 
 	const matchesSearch = (link: SidebarLinkItem) =>
@@ -31,7 +36,8 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 	const filteredPhotoLinks = photoLinks.filter(matchesSearch);
 
 	return (
-		<aside className={`
+		<aside
+			className={`
 			fixed md:sticky
 
 			p-1 md:p-4
@@ -52,10 +58,11 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 			bg-[#f1f9fff4] md:bg-sky-50
 
 			transform transition-transform duration-200 ease-in-out
-			${isOpen ? 'translate-x-0' : '-translate-x-[110%] md:translate-x-0'}
+			${isOpen ? "translate-x-0" : "-translate-x-[110%] md:translate-x-0"}
 
 			rounded-lg
-		`}>
+		`}
+		>
 			<nav className="space-y-1 p-4 md:p-0">
 				{/* 検索窓 */}
 				<div className="mb-4 relative">
@@ -72,7 +79,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 					{searchQuery && (
 						<button
 							onClick={() => {
-								setSearchQuery('');
+								setSearchQuery("");
 								searchInputRef.current?.focus();
 							}}
 							className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
@@ -97,7 +104,8 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 						className="font-bold text-sky-700 p-2 pl-0 grow leading-tight"
 						onClick={close}
 					>
-						アプリ版けものフレンズ３wikiなのです<OwlIcon />
+						アプリ版けものフレンズ３wikiなのです
+						<OwlIcon />
 					</NanodesuLink>
 				</div>
 
@@ -153,9 +161,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 				{searchQuery && filteredFriendsLinks.length > 0 && (
 					<div className="mt-4">
 						<div className="flex items-center border-b-2 border-green-700 mb-2 font-bold text-green-700 grow mt-2">
-							<div className="">
-								フレンズ一覧
-							</div>
+							<div className="">フレンズ一覧</div>
 						</div>
 						<ul className="list-disc pl-6">
 							{filteredFriendsLinks.map((link) => (
@@ -177,9 +183,7 @@ export function SidebarClient({ sideBarLinksNanodesu, sideBarLinksNanoda, friend
 				{searchQuery && filteredPhotoLinks.length > 0 && (
 					<div className="mt-4">
 						<div className="flex items-center border-b-2 border-green-700 mb-2 font-bold text-green-700 grow mt-2">
-							<div className="">
-								フォト一覧
-							</div>
+							<div className="">フォト一覧</div>
 						</div>
 						<ul className="list-disc pl-6">
 							{filteredPhotoLinks.map((link) => (

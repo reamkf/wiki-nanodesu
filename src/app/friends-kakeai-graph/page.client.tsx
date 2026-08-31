@@ -1,14 +1,16 @@
-'use client';
+"use client";
 
-import React, { useRef } from 'react';
-import dynamic from 'next/dynamic';
+import React, { useRef } from "react";
+import dynamic from "next/dynamic";
 
-const FriendsGraph = dynamic(() => import('@/components/friends/FriendsKakeaiGraph'), { ssr: false });
-import { GraphData } from '@/types/friends-kakeai-graph';
-import Box from '@mui/material/Box';
-import Alert from '@mui/material/Alert';
-import { PageTitle } from '@/components/PageTitle';
-import { SeesaaWikiLink } from '@/components/seesaawiki/SeesaaWikiLink';
+const FriendsGraph = dynamic(() => import("@/components/friends/FriendsKakeaiGraph"), {
+	ssr: false,
+});
+import { GraphData } from "@/types/friends-kakeai-graph";
+import Box from "@mui/material/Box";
+import Alert from "@mui/material/Alert";
+import { PageTitle } from "@/components/PageTitle";
+import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 
 interface FriendsKakeaiGraphPageProps {
 	initialData: GraphData;
@@ -24,11 +26,11 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 	// 特定のフレンズを選択したときの処理
 	const handleSelectFriend = (friendId: string) => {
 		// 選択されたフレンズのノードを見つける
-		const selectedNode = graphData.nodes.find(node => node.id === friendId);
+		const selectedNode = graphData.nodes.find((node) => node.id === friendId);
 
 		// linkUrlが存在する場合、新しいタブで開く
 		if (selectedNode?.linkUrl) {
-			window.open(selectedNode.linkUrl, '_blank');
+			window.open(selectedNode.linkUrl, "_blank");
 		}
 	};
 
@@ -38,7 +40,10 @@ const FriendsKakeaiGraphPage: React.FC<FriendsKakeaiGraphPageProps> = ({ initial
 
 			<Box className="mb-2">
 				掛け合い一覧表は
-				<SeesaaWikiLink href="https://seesaawiki.jp/kemono_friends3_5ch/d/%A5%D5%A5%EC%A5%F3%A5%BA%B3%DD%A4%B1%B9%E7%A4%A4%B0%EC%CD%F7" className="text-sky-700">
+				<SeesaaWikiLink
+					href="https://seesaawiki.jp/kemono_friends3_5ch/d/%A5%D5%A5%EC%A5%F3%A5%BA%B3%DD%A4%B1%B9%E7%A4%A4%B0%EC%CD%F7"
+					className="text-sky-700"
+				>
 					こちら
 				</SeesaaWikiLink>
 			</Box>

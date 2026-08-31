@@ -1,9 +1,9 @@
 import React from "react";
 
 export function parseSeesaaWikiNewLine(text: string): React.ReactElement {
-	text = text.replace(/(~~)(~~~)*/g, '~~~$2');
-	text = text.replace(/~~~/g, '\n');
-	const parts = text.split('\n');
+	text = text.replace(/(~~)(~~~)*/g, "~~~$2");
+	text = text.replace(/~~~/g, "\n");
+	const parts = text.split("\n");
 
 	// 重複する行に対応するため、出現回数を追跡してユニークキーを生成する
 	const keyCounts = new Map<string, number>();
@@ -16,18 +16,18 @@ export function parseSeesaaWikiNewLine(text: string): React.ReactElement {
 	return (
 		<>
 			{/* テキスト分割結果を安定したキーでレンダリングする */}
-			{partsWithKeys.map(({ part, key }, idx) =>
+			{partsWithKeys.map(({ part, key }, idx) => (
 				<span key={key}>
 					{part}
 					{idx < partsWithKeys.length - 1 && <br />}
 				</span>
-			)}
+			))}
 		</>
 	);
 }
 
 function parseSeesaaWikiColor(text: string): string {
-	return text.replace(/&color\(.*?\){(.*?)}/g, '$1');
+	return text.replace(/&color\(.*?\){(.*?)}/g, "$1");
 }
 
 export function parseSeesaaWikiText(text: string): React.ReactElement {

@@ -1,6 +1,6 @@
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { createRequire } from 'node:module';
+import fs from "node:fs/promises";
+import path from "node:path";
+import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
 
@@ -24,12 +24,12 @@ interface LicenseCheckerOptions {
 interface LicenseCheckerModule {
 	init: (
 		options: LicenseCheckerOptions,
-		cb: (err: Error | null, json: Record<string, LicenseInfo>) => void
+		cb: (err: Error | null, json: Record<string, LicenseInfo>) => void,
 	) => void;
 }
 
 async function collectLicenses(): Promise<Record<string, LicenseInfo>> {
-	const checker: LicenseCheckerModule = require('license-checker-rseidelsohn');
+	const checker: LicenseCheckerModule = require("license-checker-rseidelsohn");
 	return await new Promise<Record<string, LicenseInfo>>((resolve, reject) => {
 		checker.init(
 			{
@@ -43,12 +43,14 @@ async function collectLicenses(): Promise<Record<string, LicenseInfo>> {
 					return;
 				}
 				resolve(json);
-			}
+			},
 		);
 	});
 }
 
-async function enrichWithTexts(data: Record<string, LicenseInfo>): Promise<Record<string, LicenseInfo>> {
+async function enrichWithTexts(
+	data: Record<string, LicenseInfo>,
+): Promise<Record<string, LicenseInfo>> {
 	const entries = Object.entries(data);
 	for (const [, info] of entries) {
 		if (!info) continue;
@@ -57,7 +59,7 @@ async function enrichWithTexts(data: Record<string, LicenseInfo>): Promise<Recor
 				const filePath = path.isAbsolute(info.licenseFile)
 					? info.licenseFile
 					: path.join(process.cwd(), info.licenseFile);
-				const text = await fs.readFile(filePath, 'utf8');
+				const text = await fs.readFile(filePath, "utf8");
 				info.licenseText = text;
 			} catch {
 				// 読み取り不可の場合はスキップ
@@ -70,10 +72,10 @@ async function enrichWithTexts(data: Record<string, LicenseInfo>): Promise<Recor
 async function main(): Promise<void> {
 	const data = await collectLicenses();
 	const enriched = await enrichWithTexts(data);
-	const outPath = path.join(process.cwd(), 'public', 'third-party-licenses.json');
+	const outPath = path.join(process.cwd(), "public", "third-party-licenses.json");
 	await fs.mkdir(path.dirname(outPath), { recursive: true });
-	await fs.writeFile(outPath, JSON.stringify(enriched, null, 2), 'utf8');
-	console.log('Wrote', outPath);
+	await fs.writeFile(outPath, JSON.stringify(enriched, null, 2), "utf8");
+	console.log("Wrote", outPath);
 }
 
 main().catch(() => {

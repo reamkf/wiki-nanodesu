@@ -6,16 +6,12 @@ test.describe("Aboutモーダル", () => {
 	});
 
 	test("Aboutボタンが表示される", async ({ page }) => {
-		const aboutButton = page.locator(
-			'header button:not([aria-label="メニュー"])'
-		);
+		const aboutButton = page.locator('header button:not([aria-label="メニュー"])');
 		await expect(aboutButton).toBeVisible();
 	});
 
 	test("Aboutボタンをクリックするとモーダルが開く", async ({ page }) => {
-		const aboutButton = page.locator(
-			'header button:not([aria-label="メニュー"])'
-		);
+		const aboutButton = page.locator('header button:not([aria-label="メニュー"])');
 		await aboutButton.click();
 
 		const heading = page.getByRole("heading", {
@@ -25,22 +21,16 @@ test.describe("Aboutモーダル", () => {
 	});
 
 	test("モーダルに説明テキストが表示される", async ({ page }) => {
-		const aboutButton = page.locator(
-			'header button:not([aria-label="メニュー"])'
-		);
+		const aboutButton = page.locator('header button:not([aria-label="メニュー"])');
 		await aboutButton.click();
 
 		// ダイアログパネル内の説明テキストを確認
 		const dialogPanel = page.locator("[id^='headlessui-dialog-panel']");
-		await expect(
-			dialogPanel.getByText("を補助するサイトなのです。")
-		).toBeVisible();
+		await expect(dialogPanel.getByText("を補助するサイトなのです。")).toBeVisible();
 	});
 
 	test("モーダルにSeesaaWikiへのリンクがある", async ({ page }) => {
-		const aboutButton = page.locator(
-			'header button:not([aria-label="メニュー"])'
-		);
+		const aboutButton = page.locator('header button:not([aria-label="メニュー"])');
 		await aboutButton.click();
 
 		const link = page.getByRole("link", {
@@ -51,9 +41,7 @@ test.describe("Aboutモーダル", () => {
 	});
 
 	test("閉じるボタンでモーダルを閉じられる", async ({ page }) => {
-		const aboutButton = page.locator(
-			'header button:not([aria-label="メニュー"])'
-		);
+		const aboutButton = page.locator('header button:not([aria-label="メニュー"])');
 		await aboutButton.click();
 
 		const closeButton = page.getByRole("button", { name: "閉じる" });

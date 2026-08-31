@@ -61,7 +61,7 @@ export default function NanairoTable({
 }) {
 	const customFilterFn = useMemo(
 		() => createCustomFilterFn<FriendsDataRow>(getSearchableText),
-		[]
+		[],
 	);
 
 	const columns = useMemo<WikiTableColumnDef<FriendsDataRow>[]>(() => {
@@ -100,7 +100,7 @@ export default function NanairoTable({
 				sortFn: (rowA, rowB, columnId) =>
 					sortAttribute(
 						getFriendsAttribute(rowA.getValue(columnId)),
-						getFriendsAttribute(rowB.getValue(columnId))
+						getFriendsAttribute(rowB.getValue(columnId)),
 					),
 				meta: {
 					width: "80px",
@@ -142,7 +142,7 @@ export default function NanairoTable({
 				meta: {
 					width: "100px",
 				},
-			}
+			},
 		);
 
 		return baseColumns;

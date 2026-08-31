@@ -1,6 +1,7 @@
 # Suggested Commands
 
 ## Development Commands
+
 ```bash
 # Install dependencies
 bun install
@@ -26,6 +27,7 @@ bun precommit
 ```
 
 ## Google Apps Script Integration
+
 ```bash
 # Login to Google Apps Script
 bun run clasp:login
@@ -33,12 +35,14 @@ bun run clasp:login
 # Push code to GAS
 bun run gas:push
 
-# Pull code from GAS  
+# Pull code from GAS
 bun run gas:pull
 ```
 
 ## Windows System Commands
+
 Since this is a Windows environment, use these commands:
+
 - `dir` instead of `ls` for listing directories
 - `type` instead of `cat` for reading file contents
 - `cd` for changing directories
@@ -47,7 +51,9 @@ Since this is a Windows environment, use these commands:
 - `rmdir` for removing directories
 
 ## Git Commands
+
 Standard git commands work on Windows:
+
 - `git status`
 - `git add .`
 - `git commit -m "message"`

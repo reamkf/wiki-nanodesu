@@ -40,9 +40,7 @@ test.describe("目次ダイアログ", () => {
 
 		// 検索結果としてツリーリスト内に項目が表示される
 		const dialogPanel = page.locator("[id^='headlessui-dialog-panel']");
-		await expect(
-			dialogPanel.getByRole("button", { name: "バフ", exact: true })
-		).toBeVisible();
+		await expect(dialogPanel.getByRole("button", { name: "バフ", exact: true })).toBeVisible();
 	});
 
 	test("目次ダイアログを閉じることができる", async ({ page }) => {
@@ -59,9 +57,7 @@ test.describe("目次ダイアログ", () => {
 		await expect(searchField).toBeHidden();
 	});
 
-	test("キーボードショートカットで目次ダイアログが開く", async ({
-		page,
-	}) => {
+	test("キーボードショートカットで目次ダイアログが開く", async ({ page }) => {
 		// Ctrl+Shift+O で目次ダイアログを開く
 		await page.keyboard.press("Control+Shift+O");
 

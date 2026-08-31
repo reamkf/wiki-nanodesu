@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from 'react';
-import Box from '@mui/material/Box';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { includesNormalizeQuery } from '@/utils/queryNormalizer';
+import React, { useState, useCallback, useMemo } from "react";
+import Box from "@mui/material/Box";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemText from "@mui/material/ListItemText";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 
 export interface TreeItemData {
 	id: string;
@@ -45,8 +45,7 @@ const TreeItemRow = React.memo(function TreeItemRow({
 	}
 
 	// 項目が検索キーワードに直接一致するかどうか
-	const isDirectMatch = searchKeyword &&
-		includesNormalizeQuery(item.name, searchKeyword);
+	const isDirectMatch = searchKeyword && includesNormalizeQuery(item.name, searchKeyword);
 
 	return (
 		<React.Fragment>
@@ -57,7 +56,7 @@ const TreeItemRow = React.memo(function TreeItemRow({
 					pr-8
 					hover:bg-sky-100
 					rounded flex items-center
-					${isDirectMatch ? 'bg-sky-50' : ''}
+					${isDirectMatch ? "bg-sky-50" : ""}
 				`}
 				style={{ paddingLeft: `${level * 1.5}rem` }}
 			>
@@ -68,16 +67,17 @@ const TreeItemRow = React.memo(function TreeItemRow({
 						onClick={(e) => onToggleExpand(item.id, e)}
 						className="mr-1 cursor-pointer"
 					>
-						{isExpanded ? <ExpandMoreIcon fontSize="small" /> : <ChevronRightIcon fontSize="small" />}
+						{isExpanded ? (
+							<ExpandMoreIcon fontSize="small" />
+						) : (
+							<ChevronRightIcon fontSize="small" />
+						)}
 					</Box>
 				)}
 
 				{/* 箇条書きの点を表示 (子要素がない場合のみ) */}
 				{!hasChildren && (
-					<Box
-						component="span"
-						className="mr-2"
-					>
+					<Box component="span" className="mr-2">
 						•
 					</Box>
 				)}
@@ -87,10 +87,10 @@ const TreeItemRow = React.memo(function TreeItemRow({
 					slotProps={{
 						primary: {
 							className: `
-								${level === 0 ? 'text-[0.9rem] font-bold' : 'text-[0.85rem]'}
-								${isDirectMatch ? 'font-medium' : ''}
-							`
-						}
+								${level === 0 ? "text-[0.9rem] font-bold" : "text-[0.85rem]"}
+								${isDirectMatch ? "font-medium" : ""}
+							`,
+						},
 					}}
 					className="my-0"
 				/>
@@ -99,7 +99,7 @@ const TreeItemRow = React.memo(function TreeItemRow({
 			{/* 子要素があり、展開されている場合は子要素をレンダリング */}
 			{hasChildren && isExpanded && (
 				<Box>
-					{(item.children || []).map(child => (
+					{(item.children || []).map((child) => (
 						<TreeItemRow
 							key={child.id}
 							item={child}
@@ -128,7 +128,7 @@ function containsSearchKeyword(item: TreeItemData, keyword: string): boolean {
 
 	// 子要素を検索
 	if (item.children && item.children.length > 0) {
-		return item.children.some(child => containsSearchKeyword(child, keyword));
+		return item.children.some((child) => containsSearchKeyword(child, keyword));
 	}
 
 	return false;
@@ -159,11 +159,12 @@ export function TreeList({
 
 		// 各アイテムについて再帰的に初期状態を設定する関数
 		const initializeExpandedState = (treeItems: TreeItemData[]) => {
-			treeItems.forEach(item => {
+			treeItems.forEach((item) => {
 				// itemのdefaultExpandedか、それがなければdefaultAllExpandedを使用
-				initialState[item.id] = item.isExpandedByDefault !== undefined
-					? item.isExpandedByDefault
-					: isExpandedAllByDefault;
+				initialState[item.id] =
+					item.isExpandedByDefault !== undefined
+						? item.isExpandedByDefault
+						: isExpandedAllByDefault;
 
 				// 子要素がある場合は再帰的に処理
 				if (item.children && item.children.length > 0) {
@@ -177,16 +178,19 @@ export function TreeList({
 	});
 
 	// 項目がクリックされたときの処理
-	const handleItemClick = useCallback((id: string) => {
-		onItemClick?.(id);
-	}, [onItemClick]);
+	const handleItemClick = useCallback(
+		(id: string) => {
+			onItemClick?.(id);
+		},
+		[onItemClick],
+	);
 
 	// 展開/折りたたみトグル処理
 	const handleToggleExpand = useCallback((id: string, e: React.MouseEvent) => {
 		e.stopPropagation(); // 親要素へのクリックイベント伝播を防止
-		setExpandedState(prev => ({
+		setExpandedState((prev) => ({
 			...prev,
-			[id]: !prev[id]
+			[id]: !prev[id],
 		}));
 	}, []);
 
@@ -197,13 +201,16 @@ export function TreeList({
 		const idsToExpand = new Set<string>();
 
 		const walk = (treeItems: TreeItemData[]) => {
-			treeItems.forEach(item => {
+			treeItems.forEach((item) => {
 				if (containsSearchKeyword(item, searchKeyword)) {
 					idsToExpand.add(item.id);
 
-					if (includesNormalizeQuery(item.name, searchKeyword) &&
-						item.children && item.children.length > 0) {
-						item.children.forEach(child => {
+					if (
+						includesNormalizeQuery(item.name, searchKeyword) &&
+						item.children &&
+						item.children.length > 0
+					) {
+						item.children.forEach((child) => {
 							idsToExpand.add(child.id);
 						});
 					}
@@ -224,7 +231,9 @@ export function TreeList({
 		if (searchExpandedIds.size === 0) return expandedState;
 
 		const merged = { ...expandedState };
-		searchExpandedIds.forEach(id => { merged[id] = true; });
+		searchExpandedIds.forEach((id) => {
+			merged[id] = true;
+		});
 		return merged;
 	}, [expandedState, searchExpandedIds]);
 
@@ -236,7 +245,7 @@ export function TreeList({
 
 		// 再帰的に検索キーワードに一致する項目のIDを収集する関数
 		const collectMatchingIds = (treeItems: TreeItemData[], parentIds: string[] = []) => {
-			treeItems.forEach(item => {
+			treeItems.forEach((item) => {
 				const currentPath = [...parentIds, item.id];
 				const itemMatches = includesNormalizeQuery(item.name, searchKeyword);
 
@@ -245,12 +254,12 @@ export function TreeList({
 					// 自身を追加
 					matchIds.add(item.id);
 					// 親も全て追加
-					parentIds.forEach(pid => matchIds.add(pid));
+					parentIds.forEach((pid) => matchIds.add(pid));
 
 					// 子孫も全て追加（一致した項目の子孫は全て表示する）
 					const addAllDescendants = (children: TreeItemData[] | undefined) => {
 						if (!children) return;
-						children.forEach(child => {
+						children.forEach((child) => {
 							matchIds.add(child.id);
 							if (child.children) {
 								addAllDescendants(child.children);
@@ -266,15 +275,15 @@ export function TreeList({
 				// 子要素がある場合は再帰的に処理
 				if (item.children && item.children.length > 0) {
 					// 子の中に一致するものがあるか確認
-					const hasMatchingChild = item.children.some(
-						child => containsSearchKeyword(child, searchKeyword)
+					const hasMatchingChild = item.children.some((child) =>
+						containsSearchKeyword(child, searchKeyword),
 					);
 
 					// 子の中に一致するものがある場合、自身のIDも追加
 					if (hasMatchingChild && !itemMatches) {
 						matchIds.add(item.id);
 						// 親も全て追加
-						parentIds.forEach(pid => matchIds.add(pid));
+						parentIds.forEach((pid) => matchIds.add(pid));
 					}
 
 					// 子要素を再帰的に処理
@@ -291,7 +300,7 @@ export function TreeList({
 	return (
 		<Box className={`pb-1 w-full ${className}`}>
 			<div className="pt-0">
-				{items.map(item => (
+				{items.map((item) => (
 					<TreeItemRow
 						key={item.id}
 						item={item}

@@ -7,24 +7,16 @@ test.describe("ライセンスページ", () => {
 
 	test("免責事項セクションが表示される", async ({ page }) => {
 		await expect(page.locator("#heading-disclaimer")).toBeAttached();
-		await expect(
-			page.getByRole("heading", { name: "免責事項" })
-		).toBeVisible();
+		await expect(page.getByRole("heading", { name: "免責事項" })).toBeVisible();
 	});
 
-	test("ゲーム内画像についてのセクションが表示される", async ({
-		page,
-	}) => {
+	test("ゲーム内画像についてのセクションが表示される", async ({ page }) => {
 		await expect(page.locator("#heading-license-image")).toBeAttached();
 	});
 
-	test("オープンソースライセンスセクションが表示される", async ({
-		page,
-	}) => {
+	test("オープンソースライセンスセクションが表示される", async ({ page }) => {
 		await expect(page.locator("#heading-open-source-licenses")).toBeAttached();
-		await expect(
-			page.getByText("オープンソースライセンス")
-		).toBeVisible();
+		await expect(page.getByText("オープンソースライセンス")).toBeVisible();
 	});
 
 	test("ライセンス一覧が表示される", async ({ page }) => {

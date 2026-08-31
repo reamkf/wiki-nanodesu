@@ -1,7 +1,7 @@
-import { FriendNode, FriendLink, GraphData } from '@/types/friends-kakeai-graph';
-import { getFriendsDataMap } from '@/data/friendsData';
-import { getWikiNanodaPageUrl } from '@/utils/wikiNanodaUrl';
-import { readCsv } from '../utils/readCsv';
+import { FriendNode, FriendLink, GraphData } from "@/types/friends-kakeai-graph";
+import { getFriendsDataMap } from "@/data/friendsData";
+import { getWikiNanodaPageUrl } from "@/utils/wikiNanodaUrl";
+import { readCsv } from "../utils/readCsv";
 
 // --- 定数定義 ---
 const CYCLE_DETECTION_MIN_SIZE = 3;
@@ -33,20 +33,22 @@ export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 	try {
 		const [kakeaiData, friendsDataMap] = await Promise.all([
 			readCsv<Record<string, string>, Record<string, string>>(
-				'フレンズ掛け合い一覧.csv',
+				"フレンズ掛け合い一覧.csv",
 				{},
-				async (data) => data
+				async (data) => data,
 			),
-			getFriendsDataMap()
+			getFriendsDataMap(),
 		]);
 
 		// 掛け合い先のノード数
-		const kakeaiTargetNum = Object.keys(kakeaiData[0] || {}).filter(key => key.startsWith('掛け合い先')).length;
+		const kakeaiTargetNum = Object.keys(kakeaiData[0] || {}).filter((key) =>
+			key.startsWith("掛け合い先"),
+		).length;
 
 		// 1. 全ての関連フレンズIDを収集
 		const allFriendIds = new Set<string>();
-		kakeaiData.forEach(kakeai => {
-			const sourceId = kakeai['掛け合い元'];
+		kakeaiData.forEach((kakeai) => {
+			const sourceId = kakeai["掛け合い元"];
 			if (sourceId) allFriendIds.add(sourceId);
 			for (let i = 1; i <= kakeaiTargetNum; i++) {
 				const targetId = kakeai[`掛け合い先${i}`];
@@ -56,12 +58,12 @@ export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 
 		// 2. IDセットからNode Mapを一括作成
 		const nodes = new Map<string, FriendNode>();
-		allFriendIds.forEach(id => {
+		allFriendIds.forEach((id) => {
 			const friend = friendsDataMap.get(id);
 			nodes.set(id, {
 				id: id,
 				name: friend?.name || id,
-				iconUrl: friend?.iconUrl || '',
+				iconUrl: friend?.iconUrl || "",
 				linkUrl: getWikiNanodaPageUrl(id),
 				groups: [], // 空のグループ配列で初期化
 			});
@@ -69,8 +71,8 @@ export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 
 		// 3. kakeaiDataを再度ループしてLinkを作成
 		const links: FriendLink[] = [];
-		kakeaiData.forEach(kakeai => {
-			const sourceId = kakeai['掛け合い元'];
+		kakeaiData.forEach((kakeai) => {
+			const sourceId = kakeai["掛け合い元"];
 			// sourceIdがnodesに存在することを確認（allFriendIdsから作成しているので基本的には存在するはず）
 			if (!sourceId || !nodes.has(sourceId)) return;
 
@@ -82,14 +84,14 @@ export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 				links.push({
 					source: sourceId,
 					target: targetId,
-					value: 1
+					value: 1,
 				});
 			}
 		});
 
 		// 掛け合い関係を持つフレンズのIDを抽出
 		const friendsWithLinks = new Set<string>();
-		links.forEach(link => {
+		links.forEach((link) => {
 			friendsWithLinks.add(link.source.toString());
 			friendsWithLinks.add(link.target.toString());
 		});
@@ -108,14 +110,14 @@ export const getFriendsKakeaiData = async (): Promise<GraphData> => {
 
 		return {
 			nodes: nodesArray,
-			links
+			links,
 		};
 	} catch (error) {
-		console.error('データ処理エラー:', error);
+		console.error("データ処理エラー:", error);
 		// エラー時は空のデータを返す
 		return {
 			nodes: [],
-			links: []
+			links: [],
 		};
 	}
 };
@@ -154,10 +156,13 @@ const detectKakeaiGroups = (nodes: FriendNode[], links: FriendLink[]): void => {
  * @param links フレンズ間のリンク配列
  * @returns ノードIDをキー、隣接ノードの配列を値とするMap
  */
-const createAdjacencyGraph = (nodes: FriendNode[], links: FriendLink[]): Map<string, Set<string>> => {
+const createAdjacencyGraph = (
+	nodes: FriendNode[],
+	links: FriendLink[],
+): Map<string, Set<string>> => {
 	const graph = new Map<string, Set<string>>();
-	nodes.forEach(node => graph.set(node.id, new Set<string>()));
-	links.forEach(link => {
+	nodes.forEach((node) => graph.set(node.id, new Set<string>()));
+	links.forEach((link) => {
 		const sourceId = link.source.toString();
 		const targetId = link.target.toString();
 		graph.get(sourceId)!.add(targetId);
@@ -181,7 +186,7 @@ const detectCycles = (nodes: FriendNode[], graph: Map<string, Set<string>>): voi
 	const cycles = findMinimalCycles(graph);
 
 	// 検出された循環ごとに新しいグループを作成
-	cycles.forEach(cycle => {
+	cycles.forEach((cycle) => {
 		// 3〜7ノードの循環のみ考慮（大きすぎるグループは除外）
 		if (cycle.size >= CYCLE_DETECTION_MIN_SIZE && cycle.size <= CYCLE_DETECTION_MAX_SIZE) {
 			groupId++;
@@ -204,7 +209,17 @@ const findMinimalCycles = (graph: Map<string, Set<string>>): Set<string>[] => {
 		// if (globalVisited.has(startNode)) continue; // globalVisited が未更新のため無効
 
 		// 深さ7までの循環を検出
-		findCyclesOfLength(startNode, startNode, [], new Set<string>(), 0, CYCLE_DETECTION_MAX_DEPTH, graph, cycles, globalVisited);
+		findCyclesOfLength(
+			startNode,
+			startNode,
+			[],
+			new Set<string>(),
+			0,
+			CYCLE_DETECTION_MAX_DEPTH,
+			graph,
+			cycles,
+			globalVisited,
+		);
 	}
 
 	return cycles;
@@ -231,7 +246,7 @@ const findCyclesOfLength = (
 	maxDepth: number,
 	graph: Map<string, Set<string>>,
 	cycles: Set<string>[],
-	globalVisited: Set<string>
+	globalVisited: Set<string>,
 ): void => {
 	// 現在のパスにノードを追加
 	currentPath.push(currentNode);
@@ -263,7 +278,17 @@ const findCyclesOfLength = (
 			continue;
 		}
 
-		findCyclesOfLength(startNode, neighbor, currentPath, visitedInPath, depth + 1, maxDepth, graph, cycles, globalVisited);
+		findCyclesOfLength(
+			startNode,
+			neighbor,
+			currentPath,
+			visitedInPath,
+			depth + 1,
+			maxDepth,
+			graph,
+			cycles,
+			globalVisited,
+		);
 	}
 
 	// バックトラック
@@ -314,14 +339,21 @@ const processCycleDetection = (currentPath: string[], cycles: Set<string>[]): vo
  */
 const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, Set<string>>): void => {
 	let groupId = COMPLETE_GRAPH_GROUP_ID_START;
-	const sortedNodeIds = getSortedNodeIdsByNeighborCount(nodes, graph, SORTED_NODE_IDS_DEFAULT_LIMIT);
+	const sortedNodeIds = getSortedNodeIdsByNeighborCount(
+		nodes,
+		graph,
+		SORTED_NODE_IDS_DEFAULT_LIMIT,
+	);
 	const sortedNodeIdIndexMap = new Map(sortedNodeIds.map((id, idx) => [id, idx]));
 	const detectedCompleteGraphs: Set<string>[] = [];
 	const topNodes = sortedNodeIds.slice(0, COMPLETE_GRAPH_TOP_NODES_FOR_MAXIMAL_SEARCH);
 	for (const startNodeId of topNodes) {
 		let alreadyInLargeGraph = false;
 		for (const existingGraph of detectedCompleteGraphs) {
-			if (existingGraph.size >= COMPLETE_GRAPH_MIN_SIZE_FOR_DETECTION + 1 && existingGraph.has(startNodeId)) {
+			if (
+				existingGraph.size >= COMPLETE_GRAPH_MIN_SIZE_FOR_DETECTION + 1 &&
+				existingGraph.has(startNodeId)
+			) {
 				alreadyInLargeGraph = true;
 				break;
 			}
@@ -332,13 +364,20 @@ const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, Set<string
 		let neighborsArr = Array.from(neighborSet);
 		if (neighborsArr.length > COMPLETE_GRAPH_MAXIMAL_SEARCH_NEIGHBOR_LIMIT) {
 			neighborsArr = neighborsArr
-				.filter(n => (sortedNodeIdIndexMap.get(n) ?? Infinity) < COMPLETE_GRAPH_MAXIMAL_SEARCH_NEIGHBOR_FILTER_INDEX)
+				.filter(
+					(n) =>
+						(sortedNodeIdIndexMap.get(n) ?? Infinity) <
+						COMPLETE_GRAPH_MAXIMAL_SEARCH_NEIGHBOR_FILTER_INDEX,
+				)
 				.slice(0, COMPLETE_GRAPH_MAXIMAL_SEARCH_NEIGHBOR_LIMIT);
 		}
 
 		if (neighborsArr.length >= COMPLETE_GRAPH_MIN_SIZE_FOR_DETECTION - 1) {
 			const potentialGraphNodes = new Set<string>([startNodeId, ...neighborsArr]);
-			const maxCompleteGraph = findMaximalCompleteGraph(Array.from(potentialGraphNodes), graph);
+			const maxCompleteGraph = findMaximalCompleteGraph(
+				Array.from(potentialGraphNodes),
+				graph,
+			);
 			if (maxCompleteGraph.size >= COMPLETE_GRAPH_MIN_SIZE_FOR_DETECTION) {
 				detectedCompleteGraphs.push(maxCompleteGraph);
 			}
@@ -353,10 +392,17 @@ const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, Set<string
 		}
 	}
 
-	for (let size = COMPLETE_GRAPH_MAX_SIZE_FOR_COMBINATION_METHOD; size >= COMPLETE_GRAPH_MIN_SIZE_FOR_DETECTION; size--) {
-		const maxCombLimit = size === 6 ? COMBINATION_METHOD_SIZE_6_MAX_COMBINATIONS : COMBINATION_METHOD_DEFAULT_MAX_COMBINATIONS;
+	for (
+		let size = COMPLETE_GRAPH_MAX_SIZE_FOR_COMBINATION_METHOD;
+		size >= COMPLETE_GRAPH_MIN_SIZE_FOR_DETECTION;
+		size--
+	) {
+		const maxCombLimit =
+			size === 6
+				? COMBINATION_METHOD_SIZE_6_MAX_COMBINATIONS
+				: COMBINATION_METHOD_DEFAULT_MAX_COMBINATIONS;
 		const combinations = generateCombinations(sortedNodeIds, size, maxCombLimit);
-		combinations.forEach(combination => {
+		combinations.forEach((combination) => {
 			const currentCombinationSet = new Set(combination);
 			let isSubsetOfExistingLargeGraph = false;
 			for (const existingLargeGraph of sortedGraphs) {
@@ -380,19 +426,22 @@ const detectCompleteGraphs = (nodes: FriendNode[], graph: Map<string, Set<string
  * @param graph 隣接リスト形式のグラフ
  * @returns 最大の完全グラフを構成するノードIDのセット
  */
-const findMaximalCompleteGraph = (nodeIds: string[], graph: Map<string, Set<string>>): Set<string> => {
+const findMaximalCompleteGraph = (
+	nodeIds: string[],
+	graph: Map<string, Set<string>>,
+): Set<string> => {
 	// 結果として返す完全グラフのノードセット
 	const result = new Set<string>();
 
 	// 各ノードの隣接ノードをキャッシュ
 	const neighborsCache = new Map<string, Set<string>>();
-	nodeIds.forEach(id => {
+	nodeIds.forEach((id) => {
 		neighborsCache.set(id, graph.get(id) || new Set<string>());
 	});
 
 	// ノードをソート（隣接ノード数が多い順）
-	const sortedNodes = [...nodeIds].sort((a, b) =>
-		(neighborsCache.get(b)?.size || 0) - (neighborsCache.get(a)?.size || 0)
+	const sortedNodes = [...nodeIds].sort(
+		(a, b) => (neighborsCache.get(b)?.size || 0) - (neighborsCache.get(a)?.size || 0),
 	);
 
 	// 最初のノードを追加
@@ -432,14 +481,14 @@ const findMaximalCompleteGraph = (nodeIds: string[], graph: Map<string, Set<stri
 const getSortedNodeIdsByNeighborCount = (
 	nodes: FriendNode[],
 	graph: Map<string, Set<string>>,
-	limit: number
+	limit: number,
 ): string[] => {
-	const nodeIdsWithNeighborCount = nodes.map(node => ({
+	const nodeIdsWithNeighborCount = nodes.map((node) => ({
 		id: node.id,
-		neighborCount: graph.get(node.id)?.size || 0
+		neighborCount: graph.get(node.id)?.size || 0,
 	}));
 	nodeIdsWithNeighborCount.sort((a, b) => b.neighborCount - a.neighborCount);
-	return nodeIdsWithNeighborCount.slice(0, limit).map(n => n.id);
+	return nodeIdsWithNeighborCount.slice(0, limit).map((n) => n.id);
 };
 
 /**
@@ -449,7 +498,7 @@ const getSortedNodeIdsByNeighborCount = (
  * @returns 完全グラフであればtrue
  */
 const isCompleteGraph = (nodeIds: string[], graph: Map<string, Set<string>>): boolean => {
-	const requiredEdgeCount = nodeIds.length * (nodeIds.length - 1) / 2;
+	const requiredEdgeCount = (nodeIds.length * (nodeIds.length - 1)) / 2;
 	let actualEdgeCount = 0;
 	for (let i = 0; i < nodeIds.length; i++) {
 		const neighbors = graph.get(nodeIds[i]) || new Set<string>();
@@ -476,15 +525,15 @@ const _detectStarGraphs = (nodes: FriendNode[], graph: Map<string, Set<string>>)
 	let groupId = 20000; // 他のグループとIDが被らないように大きな値から開始
 
 	// 隣接ノード数が多いノードから処理（星形の中心ノードになりやすい）
-	const sortedNodes = [...nodes].sort((a, b) =>
-		(graph.get(b.id)?.size || 0) - (graph.get(a.id)?.size || 0)
+	const sortedNodes = [...nodes].sort(
+		(a, b) => (graph.get(b.id)?.size || 0) - (graph.get(a.id)?.size || 0),
 	);
 
 	// 処理対象のノードを制限（上位50ノードのみ）
 	const limitedNodes = sortedNodes.slice(0, 50);
 
 	// 各ノードについて、星形の中心になり得るか確認
-	limitedNodes.forEach(centerNode => {
+	limitedNodes.forEach((centerNode) => {
 		const neighbors = graph.get(centerNode.id) || new Set<string>();
 
 		// 周辺ノードが4つ以上ある場合のみ処理（5ノード以上の星形）
@@ -511,7 +560,11 @@ const _detectStarGraphs = (nodes: FriendNode[], graph: Map<string, Set<string>>)
  * @param graph 隣接リスト形式のグラフ
  * @returns 星形グラフの条件を満たせばtrue
  */
-const checkStarShape = (centerId: string, peripheryIds: string[], graph: Map<string, Set<string>>): boolean => {
+const checkStarShape = (
+	centerId: string,
+	peripheryIds: string[],
+	graph: Map<string, Set<string>>,
+): boolean => {
 	// 周辺ノード同士が直接接続していないことを確認
 	for (let i = 0; i < peripheryIds.length; i++) {
 		const neighbors = graph.get(peripheryIds[i]) || new Set<string>();
@@ -579,7 +632,7 @@ const assignGroupsToRemainingNodes = (nodes: FriendNode[], links: FriendLink[]):
 			if (!targetNode.group) targetNode.group = groupId;
 		}
 	}
-	nodes.forEach(node => {
+	nodes.forEach((node) => {
 		if (node.groups.length === 0) {
 			groupId++;
 			node.groups.push(groupId);
@@ -598,7 +651,7 @@ const assignGroupsToRemainingNodes = (nodes: FriendNode[], links: FriendLink[]):
  * @returns ノードIDからFriendNodeへのMap
  */
 const createNodeMap = (nodes: FriendNode[]): Map<string, FriendNode> =>
-	new Map(nodes.map(n => [n.id, n]));
+	new Map(nodes.map((n) => [n.id, n]));
 
 /**
  * ノード配列からグループIDをキー、ノードIDのセットを値とするMapを作成する
@@ -607,8 +660,8 @@ const createNodeMap = (nodes: FriendNode[]): Map<string, FriendNode> =>
  */
 const buildGroupNodeSets = (nodes: FriendNode[]): Map<number, Set<string>> => {
 	const groupNodeSets = new Map<number, Set<string>>();
-	nodes.forEach(node => {
-		node.groups.forEach(groupId => {
+	nodes.forEach((node) => {
+		node.groups.forEach((groupId) => {
 			if (!groupNodeSets.has(groupId)) {
 				groupNodeSets.set(groupId, new Set<string>());
 			}
@@ -675,9 +728,9 @@ const removeSubsetGroups = (nodes: FriendNode[]): void => {
 
 	// 削除対象のグループをノードから削除
 	if (groupsToRemove.size > 0) {
-		nodes.forEach(node => {
+		nodes.forEach((node) => {
 			// 各ノードのgroupsからgroupsToRemoveに含まれるグループIDを削除
-			node.groups = node.groups.filter(groupId => !groupsToRemove.has(groupId));
+			node.groups = node.groups.filter((groupId) => !groupsToRemove.has(groupId));
 
 			// プライマリグループが削除された場合は新しいプライマリグループを設定
 			if (node.group && groupsToRemove.has(node.group)) {
@@ -772,8 +825,14 @@ const mergeHighlyConnectedGroups = (nodes: FriendNode[], graph: Map<string, Set<
 
 			// 共通ノードが多い場合、または高密度に接続されている場合はマージ対象
 			if (
-				(commonRatio >= MERGE_GROUP_COMMON_RATIO_THRESHOLD && intersection.size >= MERGE_GROUP_MIN_COMMON_NODES_FOR_RATIO_MERGE) || // 50%以上が共通、かつ2ノード以上
-				areGroupsDenselyConnected(nodesA, nodesB, graph, MERGE_GROUP_DENSE_CONNECTION_THRESHOLD) // 75%以上の接続密度
+				(commonRatio >= MERGE_GROUP_COMMON_RATIO_THRESHOLD &&
+					intersection.size >= MERGE_GROUP_MIN_COMMON_NODES_FOR_RATIO_MERGE) || // 50%以上が共通、かつ2ノード以上
+				areGroupsDenselyConnected(
+					nodesA,
+					nodesB,
+					graph,
+					MERGE_GROUP_DENSE_CONNECTION_THRESHOLD,
+				) // 75%以上の接続密度
 			) {
 				groupsToMerge.push([groupA, groupB]);
 			}
@@ -783,7 +842,7 @@ const mergeHighlyConnectedGroups = (nodes: FriendNode[], graph: Map<string, Set<
 	// グループをマージする
 	if (groupsToMerge.length > 0) {
 		const groupParent = new Map<number, number>();
-		groupIds.forEach(id => groupParent.set(id, id));
+		groupIds.forEach((id) => groupParent.set(id, id));
 
 		groupsToMerge.forEach(([groupA, groupB]) => {
 			const rootA = findGroupRoot(groupA, groupParent);
@@ -800,11 +859,11 @@ const mergeHighlyConnectedGroups = (nodes: FriendNode[], graph: Map<string, Set<
 		});
 
 		// 各ノードのグループを更新
-		nodes.forEach(node => {
+		nodes.forEach((node) => {
 			if (node.groups.length > 0) {
 				// グループIDをルートIDに置き換え
 				const uniqueRootGroups = new Set<number>();
-				node.groups.forEach(groupId => {
+				node.groups.forEach((groupId) => {
 					const rootGroup = findGroupRoot(groupId, groupParent);
 					uniqueRootGroups.add(rootGroup);
 				});
@@ -847,7 +906,7 @@ const areGroupsDenselyConnected = (
 	groupA: Set<string>,
 	groupB: Set<string>,
 	graph: Map<string, Set<string>>,
-	threshold: number
+	threshold: number,
 ): boolean => {
 	// 異なるグループ間の可能な接続の総数
 	const totalPossibleConnections = groupA.size * groupB.size;

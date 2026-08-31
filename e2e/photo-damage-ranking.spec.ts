@@ -6,9 +6,7 @@ test.describe("フォト火力ランキングページ", () => {
 	});
 
 	test("ページタイトルが表示される", async ({ page }) => {
-		await expect(
-			page.locator("h2", { hasText: "フォト火力ランキング" })
-		).toBeVisible();
+		await expect(page.locator("h2", { hasText: "フォト火力ランキング" })).toBeVisible();
 	});
 
 	test("事前知識セクションが表示される", async ({ page }) => {
@@ -24,12 +22,8 @@ test.describe("フォト火力ランキングページ", () => {
 		await expect(table).toBeVisible();
 
 		// ヘッダーカラム
-		await expect(
-			table.locator("th", { hasText: "フォト名" })
-		).toBeVisible();
-		await expect(
-			table.locator("th", { hasText: "とくせい" })
-		).toBeVisible();
+		await expect(table.locator("th", { hasText: "フォト名" })).toBeVisible();
+		await expect(table.locator("th", { hasText: "とくせい" })).toBeVisible();
 	});
 
 	test("テーブルにデータが存在する", async ({ page }) => {

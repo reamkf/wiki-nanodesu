@@ -31,7 +31,7 @@ export default async function NanairoSkillsPage() {
 	const unimplementedFriends = friendsData.filter(
 		(friend) =>
 			!hasNanairoSkill(friend) &&
-			(friend.rarity === 4 || friend.implementType === "ゲスト専用")
+			(friend.rarity === 4 || friend.implementType === "ゲスト専用"),
 	);
 
 	return (
@@ -40,16 +40,8 @@ export default async function NanairoSkillsPage() {
 			<TableOfContents contents={TABLE_OF_CONTENTS} />
 
 			<section className="mb-8">
-				<Heading
-					title="なないろとくせい一覧"
-					id="nanairo-implemented"
-					level={1}
-				/>
-				<NanairoTable
-					data={implementedFriends}
-					tableId="nanairo-skills"
-					showEffect
-				/>
+				<Heading title="なないろとくせい一覧" id="nanairo-implemented" level={1} />
+				<NanairoTable data={implementedFriends} tableId="nanairo-skills" showEffect />
 			</section>
 
 			<section>

@@ -25,11 +25,7 @@ interface FilterCheckboxGroupProps {
 	onChange: (id: string) => void;
 }
 
-export function FilterCheckboxGroup({
-	options,
-	selectedIds,
-	onChange,
-}: FilterCheckboxGroupProps) {
+export function FilterCheckboxGroup({ options, selectedIds, onChange }: FilterCheckboxGroupProps) {
 	return (
 		<FormGroup>
 			<Grid container spacing={1.3}>
@@ -57,7 +53,7 @@ export function FilterCheckboxGroup({
 										color: option.styles.textColor,
 										"&.Mui-checked": {
 											color: option.styles.textColor,
-										}
+										},
 									}}
 								/>
 							}

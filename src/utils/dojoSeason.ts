@@ -1,17 +1,15 @@
-const BASE_DATE = new Date('2020-08-01T00:00:00Z');  // UTC
+const BASE_DATE = new Date("2020-08-01T00:00:00Z"); // UTC
 const BASE_COUNT = 2;
 
 function getJSTDate(date: Date) {
 	// UTCの時刻に9時間を加算してJSTに変換（ミリ秒単位で計算）
-	const jstTime = date.getTime() + (9 * 60 * 60 * 1000);
+	const jstTime = date.getTime() + 9 * 60 * 60 * 1000;
 	const jstDate = new Date(jstTime);
 
 	// 日本時間の年月日を取得して、新しいDateオブジェクトを作成
-	return new Date(Date.UTC(
-		jstDate.getUTCFullYear(),
-		jstDate.getUTCMonth(),
-		jstDate.getUTCDate()
-	));
+	return new Date(
+		Date.UTC(jstDate.getUTCFullYear(), jstDate.getUTCMonth(), jstDate.getUTCDate()),
+	);
 }
 
 export function calculateSeasonCount(dateTimeJST: Date) {

@@ -1,5 +1,5 @@
 // フレンズ掛け合いグラフの型定義
-import { SimulationNodeDatum } from 'd3';
+import { SimulationNodeDatum } from "d3";
 
 // フレンズノードの型定義
 export interface FriendNode extends SimulationNodeDatum {

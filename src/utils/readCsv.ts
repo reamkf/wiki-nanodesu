@@ -1,6 +1,6 @@
-import { readFileSync } from 'fs';
-import { join } from 'path';
-import Papa, { ParseConfig, ParseResult } from 'papaparse';
+import { readFileSync } from "fs";
+import { join } from "path";
+import Papa, { ParseConfig, ParseResult } from "papaparse";
 
 /**
  * CSVファイルを読み込み、パースして結果を返す汎用関数
@@ -11,11 +11,14 @@ import Papa, { ParseConfig, ParseResult } from 'papaparse';
  */
 export function readCsv<TRaw extends Record<string, unknown>, TResult>(
 	fileName: string,
-	parseOptions: Omit<ParseConfig<TRaw>, 'complete' | 'header' | 'dynamicTyping' | 'skipEmptyLines'>,
-	onComplete: (data: TRaw[]) => Promise<TResult[]> | TResult[]
+	parseOptions: Omit<
+		ParseConfig<TRaw>,
+		"complete" | "header" | "dynamicTyping" | "skipEmptyLines"
+	>,
+	onComplete: (data: TRaw[]) => Promise<TResult[]> | TResult[],
 ): Promise<TResult[]> {
-	const csvPath = join(process.cwd(), 'csv', fileName);
-	const csvFile = readFileSync(csvPath, 'utf-8');
+	const csvPath = join(process.cwd(), "csv", fileName);
+	const csvFile = readFileSync(csvPath, "utf-8");
 
 	return new Promise<TResult[]>((resolve, reject) => {
 		Papa.parse<TRaw>(csvFile, {
@@ -26,7 +29,7 @@ export function readCsv<TRaw extends Record<string, unknown>, TResult>(
 			complete: async (results: ParseResult<TRaw>) => {
 				if (results.errors.length > 0) {
 					console.error(`Error parsing CSV file ${fileName}:`, results.errors);
-					return reject(new Error(results.errors[0].message || 'Unknown parsing error'));
+					return reject(new Error(results.errors[0].message || "Unknown parsing error"));
 				}
 				try {
 					const processedData = await onComplete(results.data);

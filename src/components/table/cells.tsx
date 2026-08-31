@@ -1,16 +1,16 @@
-import { FriendsAttributeIconAndName } from '@/components/friends/FriendsAttributeIconAndName';
-import { PhotoAttributeIcon } from '@/components/photo/PhotoAttributeIconAndName';
-import { FriendsDataRow } from '@/types/friends';
-import { PhotoDataRow } from '@/types/photo';
-import { formatText } from './GenericDataTable';
-import { isNumber, toPercent } from '@/utils/common';
-import { parseNumericValue } from '@/utils/common';
+import { FriendsAttributeIconAndName } from "@/components/friends/FriendsAttributeIconAndName";
+import { PhotoAttributeIcon } from "@/components/photo/PhotoAttributeIconAndName";
+import { FriendsDataRow } from "@/types/friends";
+import { PhotoDataRow } from "@/types/photo";
+import { formatText } from "./GenericDataTable";
+import { isNumber, toPercent } from "@/utils/common";
+import { parseNumericValue } from "@/utils/common";
 
 // AttributeCell 用データ型
 interface DataWithAttribute {
 	isPhoto?: boolean;
-	friendsDataRow?: Partial<Pick<FriendsDataRow, 'attribute'>> | null;
-	photoDataRow?: Partial<Pick<PhotoDataRow, 'attribute'>> | null;
+	friendsDataRow?: Partial<Pick<FriendsDataRow, "attribute">> | null;
+	photoDataRow?: Partial<Pick<PhotoDataRow, "attribute">> | null;
 }
 
 // ActivationRateCell 用データ型
@@ -46,7 +46,7 @@ export const ActivationRateCell = ({ data }: { data: DataWithActivationRate }) =
 	const activationRateStr = String(activationRate);
 
 	// %表記の場合はそのまま表示
-	if (activationRateStr.includes('%')) {
+	if (activationRateStr.includes("%")) {
 		return formatText(activationRateStr);
 	}
 
@@ -67,7 +67,7 @@ export const CommonPowerCell = ({ data }: { data: DataWithPower }) => {
 	const powerStr = String(power);
 
 	// %表記の場合はそのまま表示
-	if (powerStr.includes('%')) {
+	if (powerStr.includes("%")) {
 		return formatText(powerStr);
 	}
 

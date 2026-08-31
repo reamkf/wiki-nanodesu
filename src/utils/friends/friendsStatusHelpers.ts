@@ -14,7 +14,7 @@ export const STATUS_TYPES = [
  */
 export function getSearchableText(
 	row: FriendsStatusListItemWithDisplayValue,
-	columnId: string
+	columnId: string,
 ): string {
 	switch (columnId) {
 		case "name":
@@ -25,9 +25,7 @@ export function getSearchableText(
 		case "attribute":
 			return row.friendsDataRow.attribute;
 		default:
-			return (
-				Object.entries(row.displayValues).find(([key]) => key === columnId)?.[1] ?? ""
-			);
+			return Object.entries(row.displayValues).find(([key]) => key === columnId)?.[1] ?? "";
 	}
 }
 
@@ -40,14 +38,12 @@ export function sortAndFilterFriendsList(
 	hideNullStatus: boolean,
 	sortBy: string = "kemosute",
 	sortDesc: boolean = true,
-	showCostumeBonus: boolean = false
+	showCostumeBonus: boolean = false,
 ): FriendsStatusListItemWithDisplayValue[] {
 	const filtered = data.filter((item) => {
 		if (
 			hideNullStatus &&
-			[item.status.hp, item.status.atk, item.status.def].some(
-				(status) => status === null
-			)
+			[item.status.hp, item.status.atk, item.status.def].some((status) => status === null)
 		) {
 			return false;
 		}
@@ -77,7 +73,7 @@ export function sortAndFilterFriendsList(
 			return 0;
 		} else {
 			// 文字列の場合はここでは単純比較
-			if (typeof a.sortValues.name === 'string' && typeof b.sortValues.name === 'string') {
+			if (typeof a.sortValues.name === "string" && typeof b.sortValues.name === "string") {
 				return sortDesc
 					? b.sortValues.name.localeCompare(a.sortValues.name)
 					: a.sortValues.name.localeCompare(b.sortValues.name);

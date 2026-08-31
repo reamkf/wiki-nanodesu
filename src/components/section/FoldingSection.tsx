@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useRef } from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Collapse from '@mui/material/Collapse';
-import AddBoxOutlinedIcon from '@mui/icons-material/AddBoxOutlined';
-import IndeterminateCheckBoxOutlinedIcon from '@mui/icons-material/IndeterminateCheckBoxOutlined';
+import React, { useState, useRef } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Collapse from "@mui/material/Collapse";
+import AddBoxOutlinedIcon from "@mui/icons-material/AddBoxOutlined";
+import IndeterminateCheckBoxOutlinedIcon from "@mui/icons-material/IndeterminateCheckBoxOutlined";
 
 const NOOP = () => {};
 
@@ -14,8 +14,8 @@ interface FoldingSectionProps {
 	onToggle?: () => void;
 	className?: string;
 	children?: React.ReactNode;
-	toggleButtonLabel?: string | React.ReactNode | null,
-	closeButtonLabel?: string | React.ReactNode | null,
+	toggleButtonLabel?: string | React.ReactNode | null;
+	closeButtonLabel?: string | React.ReactNode | null;
 }
 
 function ToggleButton({
@@ -29,7 +29,7 @@ function ToggleButton({
 	isOpened: boolean;
 	onToggle: () => void;
 }) {
-	const iconClassName = 'text-xl min-w-0 p-0 m-0';
+	const iconClassName = "text-xl min-w-0 p-0 m-0";
 
 	return (
 		<Button
@@ -38,12 +38,13 @@ function ToggleButton({
 			size="small"
 			className="text-gray-500 hover:bg-gray-100 m-0 p-0 my-1 min-w-0"
 		>
-			{useIcon && (
-				isOpened ?
-					<IndeterminateCheckBoxOutlinedIcon className={iconClassName} /> :
+			{useIcon &&
+				(isOpened ? (
+					<IndeterminateCheckBoxOutlinedIcon className={iconClassName} />
+				) : (
 					<AddBoxOutlinedIcon className={iconClassName} />
-			)}
-			{labelText && <span className='ml-1 text-black translate-y-[1px]'>{labelText}</span>}
+				))}
+			{labelText && <span className="ml-1 text-black translate-y-[1px]">{labelText}</span>}
 		</Button>
 	);
 }
@@ -59,7 +60,7 @@ export function FoldingSection({
 	className,
 	children,
 	toggleButtonLabel = null,
-	closeButtonLabel = '[閉じる]',
+	closeButtonLabel = "[閉じる]",
 }: FoldingSectionProps) {
 	const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -74,7 +75,7 @@ export function FoldingSection({
 
 	// 開く際に追跡状態を更新
 	const handleToggle = () => {
-		setIsOpened(prev => !prev);
+		setIsOpened((prev) => !prev);
 
 		// クローズ時、セクションの上部までスクロール
 		if (isOpened && sectionRef.current) {
@@ -84,8 +85,8 @@ export function FoldingSection({
 			// 要素が画面上部外にある場合のみスクロール
 			if (rect && rect.top < 0) {
 				sectionRef.current?.scrollIntoView({
-					behavior: 'smooth',
-					block: 'start'
+					behavior: "smooth",
+					block: "start",
 				});
 			}
 		}
@@ -98,7 +99,12 @@ export function FoldingSection({
 	return (
 		<Box className={className} ref={sectionRef}>
 			{/* 上部トグルボタン+ラベル */}
-			<ToggleButton useIcon={true} labelText={toggleButtonLabel} isOpened={isOpened} onToggle={handleToggle}/>
+			<ToggleButton
+				useIcon={true}
+				labelText={toggleButtonLabel}
+				isOpened={isOpened}
+				onToggle={handleToggle}
+			/>
 
 			{/* コンテンツ部分 */}
 			<Collapse
@@ -111,7 +117,14 @@ export function FoldingSection({
 			</Collapse>
 
 			{/* 下部閉じるボタン(セクションが開いている場合のみ表示) */}
-			{isOpened && <ToggleButton useIcon={false} labelText={closeButtonLabel} isOpened={isOpened} onToggle={handleToggle} />}
+			{isOpened && (
+				<ToggleButton
+					useIcon={false}
+					labelText={closeButtonLabel}
+					isOpened={isOpened}
+					onToggle={handleToggle}
+				/>
+			)}
 		</Box>
 	);
 }

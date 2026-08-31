@@ -14,7 +14,8 @@ export default function Home() {
 					を補助するサイトなのです。
 				</p>
 				<p>
-					文字数上限などの都合で、Seesaa Wiki上での運用が難しいページをこちらで運用しているのです。
+					文字数上限などの都合で、Seesaa
+					Wiki上での運用が難しいページをこちらで運用しているのです。
 				</p>
 
 				<SeesaaWikiImage
@@ -35,5 +36,5 @@ export default function Home() {
 				</p>
 			</div>
 		</>
-	)
+	);
 }

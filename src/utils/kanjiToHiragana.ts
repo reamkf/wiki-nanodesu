@@ -3,8 +3,8 @@
  * Kuroshiro を使用して形態素解析により正確な読みを取得する
  */
 
-import Kuroshiro from 'kuroshiro';
-import KuromojiAnalyzer from 'kuroshiro-analyzer-kuromoji';
+import Kuroshiro from "kuroshiro";
+import KuromojiAnalyzer from "kuroshiro-analyzer-kuromoji";
 
 let kuroshiroInstance: Kuroshiro | null = null;
 let initPromise: Promise<void> | null = null;
@@ -33,14 +33,14 @@ async function initKuroshiro(): Promise<Kuroshiro> {
  * @returns ひらがなに変換されたテキスト（変換に失敗した場合は元のテキストを返す）
  */
 export async function toHiragana(text: string): Promise<string> {
-	if (!text || typeof text !== 'string') {
+	if (!text || typeof text !== "string") {
 		return text;
 	}
 	try {
 		const kuroshiro = await initKuroshiro();
 		const result = await kuroshiro.convert(text, {
-			to: 'hiragana',
-			mode: 'normal',
+			to: "hiragana",
+			mode: "normal",
 		});
 		return result;
 	} catch {

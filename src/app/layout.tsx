@@ -1,25 +1,21 @@
-import { generateMetadata } from './metadata'
-import { Viewport } from 'next'
-import { Header } from '@/components/Header'
-import { Footer } from '@/components/Footer'
-import { Sidebar } from '@/components/Sidebar'
-import { SidebarProvider } from '@/contexts/SidebarContext'
-import { ReactScan } from '@/utils/reactScan'
-import './globals.css'
+import { generateMetadata } from "./metadata";
+import { Viewport } from "next";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+import { Sidebar } from "@/components/Sidebar";
+import { SidebarProvider } from "@/contexts/SidebarContext";
+import { ReactScan } from "@/utils/reactScan";
+import "./globals.css";
 
 export const metadata = generateMetadata({});
 
 export const viewport: Viewport = {
-	width: 'device-width',
+	width: "device-width",
 	initialScale: 1,
-	maximumScale: 1
-}
+	maximumScale: 1,
+};
 
-export default function RootLayout({
-	children,
-}: {
-	children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
 	return (
 		<html lang="ja">
 			<ReactScan />
@@ -40,5 +36,5 @@ export default function RootLayout({
 				</SidebarProvider>
 			</body>
 		</html>
-	)
+	);
 }

@@ -1,4 +1,9 @@
-import { SkillEffect, RawSkillCSV, RAW_SKILL_CSV_HEADERS, SkillWithFriend } from "@/types/friendsSkills";
+import {
+	SkillEffect,
+	RawSkillCSV,
+	RAW_SKILL_CSV_HEADERS,
+	SkillWithFriend,
+} from "@/types/friendsSkills";
 import { getFriendsDataMap } from "@/data/friendsData";
 import { readCsv } from "../utils/readCsv";
 
@@ -7,22 +12,30 @@ let skillsDataCache: SkillEffect[] | null = null;
 let skillsWithFriendsCache: SkillWithFriend[] | null = null;
 let effectTypesCache: string[] | null = null;
 
-function formatNoteWithRequiredMp(note: string, skillType: string, effectType: string, requiredMp: number | null): string {
-	const shouldAddRequiredMp = skillType === 'けものミラクル' || effectType === 'MP増加' || effectType === '毎ターンMP増加';
+function formatNoteWithRequiredMp(
+	note: string,
+	skillType: string,
+	effectType: string,
+	requiredMp: number | null,
+): string {
+	const shouldAddRequiredMp =
+		skillType === "けものミラクル" ||
+		effectType === "MP増加" ||
+		effectType === "毎ターンMP増加";
 	if (!shouldAddRequiredMp) {
 		return note;
 	}
 
-	const mpText = requiredMp !== null ? String(requiredMp) : '';
+	const mpText = requiredMp !== null ? String(requiredMp) : "";
 	const header = `必要MP${mpText}`;
 
 	const filteredParts = note
-		.split('~~')
-		.map(part => part.trim())
-		.filter(part => part !== '' && !/^必要MP\s*[0-9]+$/.test(part));
+		.split("~~")
+		.map((part) => part.trim())
+		.filter((part) => part !== "" && !/^必要MP\s*[0-9]+$/.test(part));
 
-	const body = filteredParts.join('~~');
-	if (body === '') {
+	const body = filteredParts.join("~~");
+	if (body === "") {
 		return `${header}\n`;
 	}
 
@@ -39,42 +52,42 @@ async function getSkillsData(): Promise<SkillEffect[]> {
 	}
 
 	return readCsv<RawSkillCSV, SkillEffect>(
-		'スキル別フレンズ一覧.csv',
+		"スキル別フレンズ一覧.csv",
 		{
 			transformHeader: (header: string, index?: number) => {
 				if (RAW_SKILL_CSV_HEADERS.some((knownHeader) => knownHeader === header)) {
 					return header;
 				}
 				console.warn(`Unknown header at index ${index}: ${header}`);
-				return `__ignored_${index !== undefined ? index : 'unknown'}`;
-			}
+				return `__ignored_${index !== undefined ? index : "unknown"}`;
+			},
 		},
 		async (data: RawSkillCSV[]) => {
 			const validData: SkillEffect[] = [];
 			for (const row of data) {
-				const effectType = String(row['効果種別'] || '');
-				const friendsId = String(row['フレンズID'] || '');
-				const skillType = String(row['わざ種別'] || '');
-				if (!effectType || effectType.trim() === '' || (!friendsId && !skillType)) continue;
+				const effectType = String(row["効果種別"] || "");
+				const friendsId = String(row["フレンズID"] || "");
+				const skillType = String(row["わざ種別"] || "");
+				if (!effectType || effectType.trim() === "" || (!friendsId && !skillType)) continue;
 
 				// SAFETY: CSVの効果種別とわざ種別はSkillEffectの定義に従うデータとして扱う。
 				validData.push({
 					effectType,
 					friendsId,
 					skillType,
-					power: String(row['威力'] || ''),
-					target: String(row['対象'] || ''),
-					condition: String(row['条件'] || ''),
-					effectTurn: String(row['効果ターン'] || ''),
-					activationRate: String(row['発動率'] || ''),
-					activationCount: String(row['発動回数'] || ''),
-					note: String(row['備考'] || '')
+					power: String(row["威力"] || ""),
+					target: String(row["対象"] || ""),
+					condition: String(row["条件"] || ""),
+					effectTurn: String(row["効果ターン"] || ""),
+					activationRate: String(row["発動率"] || ""),
+					activationCount: String(row["発動回数"] || ""),
+					note: String(row["備考"] || ""),
 				} as SkillEffect);
 			}
 
 			skillsDataCache = validData;
 			return validData;
-		}
+		},
 	);
 }
 
@@ -90,24 +103,29 @@ export async function getSkillsWithFriendsData(): Promise<SkillWithFriend[]> {
 	try {
 		const [skillsData, friendsDataMap] = await Promise.all([
 			getSkillsData(),
-			getFriendsDataMap()
+			getFriendsDataMap(),
 		]);
 
 		// スキルデータとフレンズデータを結合
-		const enrichedData = skillsData.map(skill => {
-			const friendsDataRow = friendsDataMap.get(skill.friendsId);
-			if (!friendsDataRow) {
-				return { ...skill, friendsDataRow };
-			}
+		const enrichedData = skillsData
+			.map((skill) => {
+				const friendsDataRow = friendsDataMap.get(skill.friendsId);
+				if (!friendsDataRow) {
+					return { ...skill, friendsDataRow };
+				}
 
-			return {
-				...skill,
-				note: formatNoteWithRequiredMp(skill.note, skill.skillType, skill.effectType, friendsDataRow.miracleRequiredMp),
-				friendsDataRow
-			};
-		}).filter((item): item is SkillWithFriend =>
-			item.friendsDataRow !== undefined
-		);
+				return {
+					...skill,
+					note: formatNoteWithRequiredMp(
+						skill.note,
+						skill.skillType,
+						skill.effectType,
+						friendsDataRow.miracleRequiredMp,
+					),
+					friendsDataRow,
+				};
+			})
+			.filter((item): item is SkillWithFriend => item.friendsDataRow !== undefined);
 
 		// friendsDataRow.listIndexの降順でソート
 		const sortedData = [...enrichedData].sort((a, b) => {
@@ -139,8 +157,8 @@ export async function getEffectTypes(): Promise<string[]> {
 		const skillsData = await getSkillsData();
 		const effectTypes = new Set<string>();
 
-		skillsData.forEach(skill => {
-			if (skill.effectType && skill.effectType.trim() !== '') {
+		skillsData.forEach((skill) => {
+			if (skill.effectType && skill.effectType.trim() !== "") {
 				effectTypes.add(skill.effectType);
 			}
 		});

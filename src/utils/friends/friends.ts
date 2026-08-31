@@ -12,7 +12,7 @@ const AttributeOrder = {
 	[PhotoAttribute.footprint]: 6,
 	[PhotoAttribute.blue]: 7,
 	[PhotoAttribute.none]: 8,
-}
+};
 
 export function isFriendsAttribute(value: unknown): value is FriendsAttribute {
 	return Object.values(FriendsAttribute).some((attribute) => attribute === value);
@@ -26,6 +26,9 @@ export function isAttribute(value: unknown): value is FriendsAttribute | PhotoAt
 	return isFriendsAttribute(value) || isPhotoAttribute(value);
 }
 
-export function sortAttribute(attributeA: FriendsAttribute | PhotoAttribute, attributeB: FriendsAttribute | PhotoAttribute): number {
+export function sortAttribute(
+	attributeA: FriendsAttribute | PhotoAttribute,
+	attributeB: FriendsAttribute | PhotoAttribute,
+): number {
 	return AttributeOrder[attributeB] - AttributeOrder[attributeA];
 }

@@ -3,13 +3,7 @@
 import { FriendsStatusListItemWithDisplayValue } from "@/utils/friends/friendsStatus";
 import FriendsIcon from "../../components/friends/FriendsIcon";
 import { FriendsNameLink } from "../../components/friends/FriendsNameLink";
-import {
-	createColumnHelper,
-	SortingState,
-	Row,
-	Cell,
-	flexRender,
-} from "@tanstack/react-table";
+import { createColumnHelper, SortingState, Row, Cell, flexRender } from "@tanstack/react-table";
 import React, { useMemo, useState, useEffect, useSyncExternalStore } from "react";
 import { FriendsAttributeIconAndName } from "../../components/friends/FriendsAttributeIconAndName";
 import { isFriendsAttribute, sortAttribute } from "@/utils/friends/friends";
@@ -20,17 +14,15 @@ import {
 	WikiTableColumnDef,
 	WikiTableFeatures,
 } from "@/components/table/Table";
+import { FilterCheckboxGroup, CheckboxOption } from "../../components/table/FilterCheckboxGroup";
 import {
-	FilterCheckboxGroup,
-	CheckboxOption,
-} from "../../components/table/FilterCheckboxGroup";
-import { STATUS_TYPES, getSearchableText, sortAndFilterFriendsList } from "@/utils/friends/friendsStatusHelpers";
+	STATUS_TYPES,
+	getSearchableText,
+	sortAndFilterFriendsList,
+} from "@/utils/friends/friendsStatusHelpers";
 import { createCustomFilterFn } from "@/utils/tableFilters";
 
-const columnHelper = createColumnHelper<
-	WikiTableFeatures,
-	FriendsStatusListItemWithDisplayValue
->();
+const columnHelper = createColumnHelper<WikiTableFeatures, FriendsStatusListItemWithDisplayValue>();
 
 function getFriendsAttribute(value: unknown): FriendsAttribute {
 	return isFriendsAttribute(value) ? value : FriendsAttribute.none;
@@ -112,12 +104,12 @@ function StatusTypeLabel({
 	showRank = true,
 	showLv = true,
 	showYasei = true,
-} : {
+}: {
 	statusType: string;
 	showRank?: boolean;
 	showLv?: boolean;
 	showYasei?: boolean;
-}){
+}) {
 	const [rank, lv, yasei] = statusType.split("/");
 	const isYasei5 = statusType.includes("野生5");
 
@@ -125,18 +117,17 @@ function StatusTypeLabel({
 		<>
 			{showRank && rank + "/"}
 			{showLv && lv + "/"}
-			{showYasei && (
-				isYasei5 ? (
+			{showYasei &&
+				(isYasei5 ? (
 					<span className="font-bold bg-yellow-200 text-red-600 px-1 rounded-sm">
 						{yasei}
 					</span>
 				) : (
 					`${yasei}`
-				)
-			)}
+				))}
 		</>
 	);
-};
+}
 
 function StatusCell({
 	value,
@@ -148,7 +139,7 @@ function StatusCell({
 	isEstimated: boolean;
 	showCostumeBonus: boolean;
 	costumeBonus?: number;
-}){
+}) {
 	return (
 		<>
 			<div
@@ -169,10 +160,11 @@ function StatusCell({
 			)}
 		</>
 	);
-};
+}
 
 // カスタム検索関数
-const customFilterFn = createCustomFilterFn<FriendsStatusListItemWithDisplayValue>(getSearchableText);
+const customFilterFn =
+	createCustomFilterFn<FriendsStatusListItemWithDisplayValue>(getSearchableText);
 
 // メモ化された行コンポーネント
 const TableRow = React.memo(function TableRow({
@@ -181,43 +173,48 @@ const TableRow = React.memo(function TableRow({
 	row: Row<WikiTableFeatures, FriendsStatusListItemWithDisplayValue>;
 }) {
 	const statusType = row.original.statusType;
-	const bgColorClass =
-		getStatusTypeBackgroundColor(statusType)?.row || "hover:bg-gray-50";
+	const bgColorClass = getStatusTypeBackgroundColor(statusType)?.row || "hover:bg-gray-50";
 
 	return (
 		<tr className={bgColorClass}>
 			{row
 				.getVisibleCells()
-				.map((cell: Cell<WikiTableFeatures, FriendsStatusListItemWithDisplayValue, unknown>) => (
-					<td
-						key={cell.id}
-						className="border-[1px] border-gray-300 px-4 py-2"
-						style={{
-							textAlign:
-								getColumnMeta(cell.column.columnDef.meta).align || "left",
-						}}
-					>
-						{flexRender(cell.column.columnDef.cell, cell.getContext())}
-					</td>
-				))}
+				.map(
+					(
+						cell: Cell<
+							WikiTableFeatures,
+							FriendsStatusListItemWithDisplayValue,
+							unknown
+						>,
+					) => (
+						<td
+							key={cell.id}
+							className="border-[1px] border-gray-300 px-4 py-2"
+							style={{
+								textAlign:
+									getColumnMeta(cell.column.columnDef.meta).align || "left",
+							}}
+						>
+							{flexRender(cell.column.columnDef.cell, cell.getContext())}
+						</td>
+					),
+				)}
 		</tr>
 	);
 });
 
-const STATUS_TYPE_OPTIONS: CheckboxOption[] = STATUS_TYPES.map(
-	(statusType) => ({
-		id: statusType,
-		label: <StatusTypeLabel statusType={statusType} showRank={false} />,
-		styles: {
-			backgroundColor: {
-				unchecked: statusTypeBackgroundColor[statusType].checkbox.unchecked,
-				checked: statusTypeBackgroundColor[statusType].checkbox.checked,
-				hover: statusTypeBackgroundColor[statusType].checkbox.hover,
-			},
-			textColor: statusTypeBackgroundColor[statusType].checkbox.color,
+const STATUS_TYPE_OPTIONS: CheckboxOption[] = STATUS_TYPES.map((statusType) => ({
+	id: statusType,
+	label: <StatusTypeLabel statusType={statusType} showRank={false} />,
+	styles: {
+		backgroundColor: {
+			unchecked: statusTypeBackgroundColor[statusType].checkbox.unchecked,
+			checked: statusTypeBackgroundColor[statusType].checkbox.checked,
+			hover: statusTypeBackgroundColor[statusType].checkbox.hover,
 		},
-	})
-);
+		textColor: statusTypeBackgroundColor[statusType].checkbox.color,
+	},
+}));
 
 const OTHER_OPTIONS: CheckboxOption[] = [
 	{
@@ -254,24 +251,25 @@ export default function FriendsStatusTable({
 	defaultStatusTypes?: string[];
 }) {
 	const isMounted = useSyncExternalStore(
-		(cb) => { cb(); return () => {}; },
+		(cb) => {
+			cb();
+			return () => {};
+		},
 		() => true,
 		() => false,
 	);
-	const defaultStatusTypesSet = useMemo(() =>
-		new Set(defaultStatusTypes || STATUS_TYPES),
-		[defaultStatusTypes]
+	const defaultStatusTypesSet = useMemo(
+		() => new Set(defaultStatusTypes || STATUS_TYPES),
+		[defaultStatusTypes],
 	);
 
-	const [selectedStatusTypes, setSelectedStatusTypes] = useState<Set<string>>(
-		() => {
-			if (typeof window !== "undefined") {
-				const saved = localStorage.getItem("wiki-nanodesu.friends-status.selectedStatusTypes");
-				return saved ? new Set(JSON.parse(saved)) : defaultStatusTypesSet;
-			}
-			return defaultStatusTypesSet;
+	const [selectedStatusTypes, setSelectedStatusTypes] = useState<Set<string>>(() => {
+		if (typeof window !== "undefined") {
+			const saved = localStorage.getItem("wiki-nanodesu.friends-status.selectedStatusTypes");
+			return saved ? new Set(JSON.parse(saved)) : defaultStatusTypesSet;
 		}
-	);
+		return defaultStatusTypesSet;
+	});
 
 	const [hideNullStatus, setHideNullStatus] = useState(() => {
 		if (typeof window !== "undefined") {
@@ -290,19 +288,22 @@ export default function FriendsStatusTable({
 	});
 
 	// ソート状態
-	const [sorting, setSorting] = useState<SortingState>([{id: 'kemosute', desc: true}]);
+	const [sorting, setSorting] = useState<SortingState>([{ id: "kemosute", desc: true }]);
 
 	// 設定の永続化
 	useEffect(() => {
 		if (typeof window !== "undefined") {
-			localStorage.setItem("wiki-nanodesu.friends-status.hideNullStatus", JSON.stringify(hideNullStatus));
+			localStorage.setItem(
+				"wiki-nanodesu.friends-status.hideNullStatus",
+				JSON.stringify(hideNullStatus),
+			);
 			localStorage.setItem(
 				"wiki-nanodesu.friends-status.selectedStatusTypes",
-				JSON.stringify(Array.from(selectedStatusTypes))
+				JSON.stringify(Array.from(selectedStatusTypes)),
 			);
 			localStorage.setItem(
 				"wiki-nanodesu.friends-status.showCostumeBonus",
-				JSON.stringify(showCostumeBonus)
+				JSON.stringify(showCostumeBonus),
 			);
 		}
 	}, [hideNullStatus, selectedStatusTypes, showCostumeBonus]);
@@ -320,7 +321,7 @@ export default function FriendsStatusTable({
 			hideNullStatus,
 			sorting[0]?.id || "kemosute",
 			sorting[0]?.desc ?? true,
-			showCostumeBonus
+			showCostumeBonus,
 		);
 	}, [
 		friendsStatusList,
@@ -360,10 +361,7 @@ export default function FriendsStatusTable({
 				header: "アイコン",
 				cell: (info) => (
 					<div className="flex justify-center">
-						<FriendsIcon
-							friendsData={info.getValue().friendsDataRow}
-							size={55}
-						/>
+						<FriendsIcon friendsData={info.getValue().friendsDataRow} size={55} />
 					</div>
 				),
 				enableSorting: false,
@@ -381,7 +379,7 @@ export default function FriendsStatusTable({
 						<div>
 							<FriendsNameLink friend={info.row.original.friendsDataRow} />
 							<div className="text-xs text-gray-700">
-								<StatusTypeLabel statusType={info.row.original.statusType}/>
+								<StatusTypeLabel statusType={info.row.original.statusType} />
 							</div>
 						</div>
 					);
@@ -411,16 +409,13 @@ export default function FriendsStatusTable({
 			}),
 			columnHelper.accessor(
 				(row) =>
-					showCostumeBonus
-						? row.sortValues.kemosuteWithCostume
-						: row.sortValues.kemosute,
+					showCostumeBonus ? row.sortValues.kemosuteWithCostume : row.sortValues.kemosute,
 				{
 					id: "kemosute",
 					header: "けもステ",
 					cell: (info) => {
 						const baseValue = info.row.original.sortValues.kemosute;
-						const withCostume =
-							info.row.original.sortValues.kemosuteWithCostume;
+						const withCostume = info.row.original.sortValues.kemosuteWithCostume;
 						return (
 							<StatusCell
 								value={showCostumeBonus ? withCostume : baseValue}
@@ -435,11 +430,10 @@ export default function FriendsStatusTable({
 						align: "right" as const,
 						width: "100px",
 					},
-				}
+				},
 			),
 			columnHelper.accessor(
-				(row) =>
-					showCostumeBonus ? row.sortValues.hpWithCostume : row.sortValues.hp,
+				(row) => (showCostumeBonus ? row.sortValues.hpWithCostume : row.sortValues.hp),
 				{
 					id: "hp",
 					header: "たいりょく",
@@ -460,11 +454,10 @@ export default function FriendsStatusTable({
 						align: "right" as const,
 						width: "100px",
 					},
-				}
+				},
 			),
 			columnHelper.accessor(
-				(row) =>
-					showCostumeBonus ? row.sortValues.atkWithCostume : row.sortValues.atk,
+				(row) => (showCostumeBonus ? row.sortValues.atkWithCostume : row.sortValues.atk),
 				{
 					id: "atk",
 					header: "こうげき",
@@ -485,11 +478,10 @@ export default function FriendsStatusTable({
 						align: "right" as const,
 						width: "100px",
 					},
-				}
+				},
 			),
 			columnHelper.accessor(
-				(row) =>
-					showCostumeBonus ? row.sortValues.defWithCostume : row.sortValues.def,
+				(row) => (showCostumeBonus ? row.sortValues.defWithCostume : row.sortValues.def),
 				{
 					id: "def",
 					header: "まもり",
@@ -510,7 +502,7 @@ export default function FriendsStatusTable({
 						align: "right" as const,
 						width: "100px",
 					},
-				}
+				},
 			),
 			columnHelper.accessor((row) => row.sortValues.avoid, {
 				id: "avoid",

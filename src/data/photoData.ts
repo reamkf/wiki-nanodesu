@@ -1,9 +1,15 @@
-import { PhotoDataRow, PhotoAttribute, PhotoStatus, RawPhotoCSV, RAW_PHOTO_CSV_HEADERS } from "@/types/photo";
+import {
+	PhotoDataRow,
+	PhotoAttribute,
+	PhotoStatus,
+	RawPhotoCSV,
+	RAW_PHOTO_CSV_HEADERS,
+} from "@/types/photo";
 import { BasicStatus } from "@/types/friendsOrPhoto";
 import { getFriendsData } from "@/data/friendsData";
-import { readCsv } from '../utils/readCsv';
-import { parseNumericValue } from '@/utils/common';
-import { isPhotoAttribute } from '@/utils/friends/friends';
+import { readCsv } from "../utils/readCsv";
+import { parseNumericValue } from "@/utils/common";
+import { isPhotoAttribute } from "@/utils/friends/friends";
 
 /**
  * ベースステータスをパースする
@@ -11,41 +17,41 @@ import { isPhotoAttribute } from '@/utils/friends/friends';
  * @param atk こうげき
  * @param def まもり
  */
-function parseBasicStatus (
+function parseBasicStatus(
 	hp: number | null,
 	atk: number | null,
 	def: number | null,
-	estimated: boolean = true
+	estimated: boolean = true,
 ): BasicStatus {
 	return {
 		kemosute: null,
 		hp: parseNumericValue(hp),
 		def: parseNumericValue(def),
 		atk: parseNumericValue(atk),
-		estimated: estimated
+		estimated: estimated,
 	};
 }
 
 function parsePhotoStatus(data: RawPhotoCSV): PhotoStatus {
 	return {
 		status1: parseBasicStatus(
-			parseNumericValue(data['Lv.1たいりょく']),
-			parseNumericValue(data['Lv.1こうげき']),
-			parseNumericValue(data['Lv.1まもり']),
-			false
+			parseNumericValue(data["Lv.1たいりょく"]),
+			parseNumericValue(data["Lv.1こうげき"]),
+			parseNumericValue(data["Lv.1まもり"]),
+			false,
 		),
 		statusMedium: parseBasicStatus(
-			parseNumericValue(data['変化前たいりょく']),
-			parseNumericValue(data['変化前こうげき']),
-			parseNumericValue(data['変化前まもり']),
-			false
+			parseNumericValue(data["変化前たいりょく"]),
+			parseNumericValue(data["変化前こうげき"]),
+			parseNumericValue(data["変化前まもり"]),
+			false,
 		),
 		statusMax: parseBasicStatus(
-			parseNumericValue(data['変化後たいりょく']),
-			parseNumericValue(data['変化後こうげき']),
-			parseNumericValue(data['変化後まもり']),
-			false
-		)
+			parseNumericValue(data["変化後たいりょく"]),
+			parseNumericValue(data["変化後こうげき"]),
+			parseNumericValue(data["変化後まもり"]),
+			false,
+		),
 	};
 }
 
@@ -62,16 +68,19 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 	for (const friend of friendsData) {
 		if (friend.isHc) continue;
 		wildPhotoData.push({
-			name: (friend.secondName !== '' ? `【${friend.secondName}】` : '') + friend.name + '(フォト)',
+			name:
+				(friend.secondName !== "" ? `【${friend.secondName}】` : "") +
+				friend.name +
+				"(フォト)",
 			implementType: friend.implementType,
 			implementDate: friend.implementDate,
 			rarity: 3,
 			attribute: friend.wildPhotoAttribute || PhotoAttribute.none,
-			illustratorName: '',
-			iconUrl: '',
-			iconUrlChanged: '',
-			trait: friend.wildPhotoTrait || '',
-			traitChanged: friend.wildPhotoTraitChanged || '',
+			illustratorName: "",
+			iconUrl: "",
+			iconUrlChanged: "",
+			trait: friend.wildPhotoTrait || "",
+			traitChanged: friend.wildPhotoTraitChanged || "",
 			status: {
 				status1: parseBasicStatus(null, null, null, true),
 				statusMedium: parseBasicStatus(null, null, null, true),
@@ -82,32 +91,34 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 	}
 
 	return readCsv<RawPhotoCSV, PhotoDataRow>(
-		'フォトデータ.csv',
+		"フォトデータ.csv",
 		{
 			transformHeader: (header: string) => {
-				return RAW_PHOTO_CSV_HEADERS.some((knownHeader) => knownHeader === header) ? header : '';
-			}
+				return RAW_PHOTO_CSV_HEADERS.some((knownHeader) => knownHeader === header)
+					? header
+					: "";
+			},
 		},
 		async (data: RawPhotoCSV[]) => {
 			const parsedData = data.map((row) => {
 				return {
-					name: row.フォト名 || '',
+					name: row.フォト名 || "",
 					rarity: row.レア度 || 0,
 					attribute: isPhotoAttribute(row.属性) ? row.属性 : PhotoAttribute.none,
-					implementType: row.入手 || '',
-					implementDate: row.実装日 || '',
-					illustratorName: row.イラストレーター名 || '',
-					iconUrl: row.変化前アイコンURL || '',
-					iconUrlChanged: row.変化後アイコンURL || '',
-					trait: row['とくせい(変化前)'] || '',
-					traitChanged: row['とくせい(変化後)'] || '',
+					implementType: row.入手 || "",
+					implementDate: row.実装日 || "",
+					illustratorName: row.イラストレーター名 || "",
+					iconUrl: row.変化前アイコンURL || "",
+					iconUrlChanged: row.変化後アイコンURL || "",
+					trait: row["とくせい(変化前)"] || "",
+					traitChanged: row["とくせい(変化後)"] || "",
 					status: parsePhotoStatus(row),
 					isWildPhoto: false,
 				};
 			});
 			photoDataCache = [...parsedData, ...wildPhotoData];
 			return photoDataCache;
-		}
+		},
 	);
 }
 
@@ -120,6 +131,6 @@ export async function getPhotoDataMap(): Promise<Map<string, PhotoDataRow>> {
 		return photoDataMapCache;
 	}
 	const photoData = await getPhotoData();
-	photoDataMapCache = new Map(photoData.map(p => [p.name, p]));
+	photoDataMapCache = new Map(photoData.map((p) => [p.name, p]));
 	return photoDataMapCache;
 }

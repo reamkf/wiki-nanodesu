@@ -2,7 +2,7 @@
 const zenkakuToHankakuMap: Map<string, string> = new Map();
 const initZenkakuToHankakuMap = (): void => {
 	for (let i = 0; i < 95; i++) {
-		const zenkaku = String.fromCharCode(0xFF01 + i);
+		const zenkaku = String.fromCharCode(0xff01 + i);
 		const hankaku = String.fromCharCode(0x21 + i);
 		zenkakuToHankakuMap.set(zenkaku, hankaku);
 	}
@@ -12,7 +12,7 @@ const initZenkakuToHankakuMap = (): void => {
 const katakanaToHiraganaMap: Map<string, string> = new Map();
 const initKatakanaToHiraganaMap = (): void => {
 	for (let i = 0; i < 86; i++) {
-		const katakana = String.fromCharCode(0x30A1 + i);
+		const katakana = String.fromCharCode(0x30a1 + i);
 		const hiragana = String.fromCharCode(0x3041 + i);
 		katakanaToHiraganaMap.set(katakana, hiragana);
 	}
@@ -53,7 +53,7 @@ export function normalizeQuery(text: string): string {
 		result[i] = char;
 	}
 
-	return result.join('').toLowerCase();
+	return result.join("").toLowerCase();
 }
 
 export function includesNormalizeQuery(text: string, query: string): boolean {

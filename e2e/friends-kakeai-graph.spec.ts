@@ -6,9 +6,7 @@ test.describe("フレンズ掛け合いグラフページ", () => {
 	});
 
 	test("ページタイトルが表示される", async ({ page }) => {
-		await expect(
-			page.locator("h2", { hasText: "フレンズ掛け合いグラフ" })
-		).toBeVisible();
+		await expect(page.locator("h2", { hasText: "フレンズ掛け合いグラフ" })).toBeVisible();
 	});
 
 	test("グラフ領域が表示される", async ({ page }) => {
@@ -61,7 +59,7 @@ test.describe("フレンズ掛け合いグラフページ", () => {
 		await expect(hullsGroup).toBeAttached({ timeout: 10000 });
 
 		const initialTransform = await hullsGroup.evaluate(
-			(el) => el.parentElement?.getAttribute("transform") || ""
+			(el) => el.parentElement?.getAttribute("transform") || "",
 		);
 
 		// マウスホイールでズーム操作
@@ -73,7 +71,7 @@ test.describe("フレンズ掛け合いグラフページ", () => {
 		await page.waitForTimeout(500);
 
 		const newTransform = await hullsGroup.evaluate(
-			(el) => el.parentElement?.getAttribute("transform") || ""
+			(el) => el.parentElement?.getAttribute("transform") || "",
 		);
 
 		// transformが変化したか、少なくともSVGが表示されていることを確認

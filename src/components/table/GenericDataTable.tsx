@@ -17,7 +17,7 @@ export interface WithFriendOrPhoto {
 	photoDataRow?: PhotoDataRow;
 	friendsId?: string;
 	friendsIdOrPhotoName?: string;
-	skillType: FriendsOrPhotoSkillType
+	skillType: FriendsOrPhotoSkillType;
 }
 
 // ユーティリティ関数
@@ -46,28 +46,23 @@ const IconImage = ({ src, alt }: { src?: string; alt?: string }) => {
 export const FriendOrPhotoDisplay = ({ data }: { data: WithFriendOrPhoto }) => {
 	if (data.isPhoto && data.photoDataRow) {
 		// フォトの場合
-		const isChanged = data.skillType?.includes('(変化後)') ? true : data.skillType?.includes('(変化前)') ? false : undefined;
+		const isChanged = data.skillType?.includes("(変化後)")
+			? true
+			: data.skillType?.includes("(変化前)")
+				? false
+				: undefined;
 
 		return (
 			<div className="text-sm flex items-center space-x-2">
-				<PhotoIcon
-					photoData={data.photoDataRow}
-					size={45}
-				/>
-				<PhotoNameLink
-					photo={data.photoDataRow}
-					isChanged={isChanged}
-				/>
+				<PhotoIcon photoData={data.photoDataRow} size={45} />
+				<PhotoNameLink photo={data.photoDataRow} isChanged={isChanged} />
 			</div>
 		);
 	} else if (!data.isPhoto && data.friendsDataRow) {
 		// フレンズの場合
 		return (
 			<div className="text-sm flex items-center space-x-2">
-				<IconImage
-					src={data.friendsDataRow.iconUrl}
-					alt={data.friendsDataRow.name}
-				/>
+				<IconImage src={data.friendsDataRow.iconUrl} alt={data.friendsDataRow.name} />
 				<FriendsNameLink friend={data.friendsDataRow} />
 			</div>
 		);
@@ -86,27 +81,29 @@ export const TextCell = ({ text }: { text: string | undefined | null }) => {
 // 共通の検索可能テキスト取得関数
 export const getSearchableTextForFriendOrPhoto = (
 	row: WithFriendOrPhoto,
-	columnId: string
+	columnId: string,
 ): string => {
 	switch (columnId) {
 		case "name":
 		case "icon":
 			if (row.isPhoto) {
-				return row.photoDataRow?.name || '';
+				return row.photoDataRow?.name || "";
 			} else {
 				return row.friendsDataRow?.secondName
 					? `${row.friendsDataRow.secondName} ${row.friendsDataRow.name}`
-					: row.friendsDataRow?.name || '';
+					: row.friendsDataRow?.name || "";
 			}
 		case "attribute":
 			if (row.isPhoto) {
-				return row.photoDataRow?.attribute || '';
+				return row.photoDataRow?.attribute || "";
 			} else {
-				return row.friendsDataRow?.attribute || '';
+				return row.friendsDataRow?.attribute || "";
 			}
 		default:
 			return (
-				Object.entries(row).find(([key]) => key === columnId)?.[1]?.toString() ?? ""
+				Object.entries(row)
+					.find(([key]) => key === columnId)?.[1]
+					?.toString() ?? ""
 			);
 	}
 };

@@ -6,9 +6,7 @@ test.describe("フレンズステータスランキングページ", () => {
 	});
 
 	test("ページタイトルが表示される", async ({ page }) => {
-		await expect(
-			page.locator("h2", { hasText: "フレンズステータスランキング" })
-		).toBeVisible();
+		await expect(page.locator("h2", { hasText: "フレンズステータスランキング" })).toBeVisible();
 	});
 
 	test("テーブルが表示される", async ({ page }) => {
@@ -18,9 +16,7 @@ test.describe("フレンズステータスランキングページ", () => {
 		// ヘッダーが表示されている
 		const headers = ["フレンズ名", "属性", "たいりょく", "こうげき", "まもり"];
 		for (const header of headers) {
-			await expect(
-				table.locator("th", { hasText: header })
-			).toBeVisible();
+			await expect(table.locator("th", { hasText: header })).toBeVisible();
 		}
 	});
 
@@ -34,17 +30,11 @@ test.describe("フレンズステータスランキングページ", () => {
 
 	test("フィルターチェックボックスが表示される", async ({ page }) => {
 		// ステータスタイプの選択肢が存在する（ラベルは☆6/プレフィックスなし）
-		await expect(
-			page.getByRole("checkbox", { name: "Lv90/野生4" })
-		).toBeVisible();
-		await expect(
-			page.getByRole("checkbox", { name: "Lv99/野生4" })
-		).toBeVisible();
+		await expect(page.getByRole("checkbox", { name: "Lv90/野生4" })).toBeVisible();
+		await expect(page.getByRole("checkbox", { name: "Lv99/野生4" })).toBeVisible();
 	});
 
-	test("チェックボックスの切り替えでテーブルが更新される", async ({
-		page,
-	}) => {
+	test("チェックボックスの切り替えでテーブルが更新される", async ({ page }) => {
 		const table = page.locator("table");
 		await expect(table).toBeVisible();
 
@@ -57,9 +47,7 @@ test.describe("フレンズステータスランキングページ", () => {
 		await expect(page.locator("table")).toBeVisible();
 	});
 
-	test("テーブルの列ヘッダーをクリックするとソートされる", async ({
-		page,
-	}) => {
+	test("テーブルの列ヘッダーをクリックするとソートされる", async ({ page }) => {
 		const table = page.locator("table");
 		await expect(table).toBeVisible();
 
@@ -90,9 +78,7 @@ test.describe("フレンズステータスランキングページ", () => {
 		expect(filteredRowCount).toBeGreaterThan(0);
 	});
 
-	test("ページサイズを変更するとテーブルの行数が変化する", async ({
-		page,
-	}) => {
+	test("ページサイズを変更するとテーブルの行数が変化する", async ({ page }) => {
 		const table = page.locator("table");
 		await expect(table).toBeVisible();
 
@@ -100,9 +86,7 @@ test.describe("フレンズステータスランキングページ", () => {
 		const initialRowCount = await table.locator("tbody tr").count();
 
 		// MUI Selectコンポーネントをクリックして開く
-		const pageSizeSelect = page
-			.locator(".MuiSelect-select")
-			.first();
+		const pageSizeSelect = page.locator(".MuiSelect-select").first();
 		await pageSizeSelect.click();
 
 		// ドロップダウンメニューからオプションを選択
@@ -137,9 +121,7 @@ test.describe("フレンズステータスランキングページ", () => {
 		await expect(activeSortIndicator).toHaveCount(0);
 	});
 
-	test("チェックボックスの状態がリロード後に保持される", async ({
-		page,
-	}) => {
+	test("チェックボックスの状態がリロード後に保持される", async ({ page }) => {
 		const table = page.locator("table");
 		await expect(table).toBeVisible();
 
@@ -190,9 +172,7 @@ test.describe("フレンズステータスランキングページ", () => {
 		expect(rowCountAfterBothFilters).toBeLessThanOrEqual(rowCountAfterNameFilter);
 	});
 
-	test("複数のフィルターチェックボックスを組み合わせて切り替えられる", async ({
-		page,
-	}) => {
+	test("複数のフィルターチェックボックスを組み合わせて切り替えられる", async ({ page }) => {
 		const table = page.locator("table");
 		await expect(table).toBeVisible();
 
@@ -231,9 +211,7 @@ test.describe("フレンズステータスランキングページ", () => {
 		await expect(page.locator("table")).toBeVisible();
 	});
 
-	test("不明ステータスを除外するチェックボックスが動作する", async ({
-		page,
-	}) => {
+	test("不明ステータスを除外するチェックボックスが動作する", async ({ page }) => {
 		const table = page.locator("table");
 		await expect(table).toBeVisible();
 

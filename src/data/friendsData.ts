@@ -1,11 +1,20 @@
-import { FriendsDataRow, FriendsAttribute, MegumiPattern, FriendsStatus, RawFriendsCSV } from "@/types/friends";
+import {
+	FriendsDataRow,
+	FriendsAttribute,
+	MegumiPattern,
+	FriendsStatus,
+	RawFriendsCSV,
+} from "@/types/friends";
 import { BasicStatus } from "@/types/friendsOrPhoto";
-import { calculateFriendsStatus, getLv99FromLv90, isStatusNull } from "@/utils/friends/friendsStatus";
+import {
+	calculateFriendsStatus,
+	getLv99FromLv90,
+	isStatusNull,
+} from "@/utils/friends/friendsStatus";
 import { isFriendsAttribute, isPhotoAttribute } from "@/utils/friends/friends";
 import { PhotoAttribute } from "@/types/photo";
-import { readCsv } from '../utils/readCsv';
-import { parseNumericValue } from '@/utils/common';
-
+import { readCsv } from "../utils/readCsv";
+import { parseNumericValue } from "@/utils/common";
 
 /**
  * ベースステータスをパースする
@@ -14,35 +23,35 @@ import { parseNumericValue } from '@/utils/common';
  * @param atk こうげき
  * @param def まもり
  */
-function parseBasicStatus (
+function parseBasicStatus(
 	kemosute: number | null,
 	hp: number | null,
 	atk: number | null,
 	def: number | null,
-	estimated: boolean = true
+	estimated: boolean = true,
 ): BasicStatus {
 	return {
 		kemosute: parseNumericValue(kemosute),
 		hp: parseNumericValue(hp),
 		def: parseNumericValue(def),
 		atk: parseNumericValue(atk),
-		estimated: estimated
+		estimated: estimated,
 	};
 }
 
 function convertMegumiPattern(value: string | null): MegumiPattern {
-	if (typeof value === 'string') {
-		const pattern = Object.values(MegumiPattern).find(p => p === value);
+	if (typeof value === "string") {
+		const pattern = Object.values(MegumiPattern).find((p) => p === value);
 		return pattern || MegumiPattern.balanced;
 	}
 	return MegumiPattern.unknown;
-};
+}
 
 function parseFriendsStatus(data: RawFriendsCSV): FriendsStatus {
 	const nullStatus = {
 		hp: null,
 		atk: null,
-		def: null
+		def: null,
 	};
 
 	return {
@@ -50,62 +59,71 @@ function parseFriendsStatus(data: RawFriendsCSV): FriendsStatus {
 		avoidYasei5: parseNumericValue(data.かいひ野生5, true),
 		plasm: parseNumericValue(data.ぷらずむ),
 		beatFlags: parseNumericValue(data.Beatフラッグ),
-		actionFlags: (typeof data.Actionフラッグ === 'string' ? data.Actionフラッグ.split(',') : [data.Actionフラッグ || 0]).map(Number),
-		tryFlags: (typeof data.Tryフラッグ === 'string' ? data.Tryフラッグ.split(',') : [data.Tryフラッグ || 0]).map(Number),
-		specialFlags: typeof data.Specialフラッグ === 'string'
-			? data.Specialフラッグ.split(',').map(str => {
-				const match = /^A(\d+)T(\d+)$/.exec(str);
-				if (!match) {
-					return null;
-				}
-				const [, action, tryValue] = match;
-				return [Number(action), Number(tryValue)];
-			}).filter((flag): flag is [number, number] => flag !== null)
-			: null,
+		actionFlags: (typeof data.Actionフラッグ === "string"
+			? data.Actionフラッグ.split(",")
+			: [data.Actionフラッグ || 0]
+		).map(Number),
+		tryFlags: (typeof data.Tryフラッグ === "string"
+			? data.Tryフラッグ.split(",")
+			: [data.Tryフラッグ || 0]
+		).map(Number),
+		specialFlags:
+			typeof data.Specialフラッグ === "string"
+				? data.Specialフラッグ.split(",")
+						.map((str) => {
+							const match = /^A(\d+)T(\d+)$/.exec(str);
+							if (!match) {
+								return null;
+							}
+							const [, action, tryValue] = match;
+							return [Number(action), Number(tryValue)];
+						})
+						.filter((flag): flag is [number, number] => flag !== null)
+				: null,
 		flagDamageUp: {
 			beat: parseNumericValue(data.Beat補正, false),
 			action: parseNumericValue(data.Action補正, false),
-			try: parseNumericValue(data.Try補正, false)
+			try: parseNumericValue(data.Try補正, false),
 		},
 		flagDamageUpYasei5: {
 			beat: parseNumericValue(data.Beat補正野生5, false),
 			action: parseNumericValue(data.Action補正野生5, false),
-			try: parseNumericValue(data.Try補正野生5, false)
+			try: parseNumericValue(data.Try補正野生5, false),
 		},
 		statusInitial: parseBasicStatus(
-			parseNumericValue(data['Lv最大けもステ']),
-			parseNumericValue(data['Lv最大たいりょく']),
-			parseNumericValue(data['Lv最大こうげき']),
-			parseNumericValue(data['Lv最大まもり']),
-			false
+			parseNumericValue(data["Lv最大けもステ"]),
+			parseNumericValue(data["Lv最大たいりょく"]),
+			parseNumericValue(data["Lv最大こうげき"]),
+			parseNumericValue(data["Lv最大まもり"]),
+			false,
 		),
 		status90: parseBasicStatus(
-			data['Lv90けもステ'],
-			parseNumericValue(data['Lv90たいりょく']),
-			parseNumericValue(data['Lv90こうげき']),
-			parseNumericValue(data['Lv90まもり']),
-			false
+			data["Lv90けもステ"],
+			parseNumericValue(data["Lv90たいりょく"]),
+			parseNumericValue(data["Lv90こうげき"]),
+			parseNumericValue(data["Lv90まもり"]),
+			false,
 		),
 		status99: parseBasicStatus(
-			data['Lv99けもステ'],
-			parseNumericValue(data['Lv99たいりょく']),
-			parseNumericValue(data['Lv99こうげき']),
-			parseNumericValue(data['Lv99まもり']),
-			false
+			data["Lv99けもステ"],
+			parseNumericValue(data["Lv99たいりょく"]),
+			parseNumericValue(data["Lv99こうげき"]),
+			parseNumericValue(data["Lv99まもり"]),
+			false,
 		),
 		status90Yasei5: parseBasicStatus(
-			data['Lv90野生5けもステ'],
-			parseNumericValue(data['Lv90野生5たいりょく']),
-			parseNumericValue(data['Lv90野生5こうげき']),
-			parseNumericValue(data['Lv90野生5まもり']),
-			false
+			data["Lv90野生5けもステ"],
+			parseNumericValue(data["Lv90野生5たいりょく"]),
+			parseNumericValue(data["Lv90野生5こうげき"]),
+			parseNumericValue(data["Lv90野生5まもり"]),
+			false,
 		),
 		status99Yasei5: parseBasicStatus(
-			data['Lv99野生5けもステ'],
-			parseNumericValue(data['Lv99野生5たいりょく']),
-			parseNumericValue(data['Lv99野生5こうげき']),
-			parseNumericValue(data['Lv99野生5まもり']),
-			false
+			data["Lv99野生5けもステ"],
+			parseNumericValue(data["Lv99野生5たいりょく"]),
+			parseNumericValue(data["Lv99野生5こうげき"]),
+			parseNumericValue(data["Lv99野生5まもり"]),
+			false,
 		),
 		status150: nullStatus,
 		status150Yasei5: nullStatus,
@@ -114,42 +132,47 @@ function parseFriendsStatus(data: RawFriendsCSV): FriendsStatus {
 		statusBase: {
 			lv1: parseBasicStatus(
 				null,
-				parseNumericValue(data['☆1Lv1たいりょく']),
-				parseNumericValue(data['☆1Lv1こうげき']),
-				parseNumericValue(data['☆1Lv1まもり'])
+				parseNumericValue(data["☆1Lv1たいりょく"]),
+				parseNumericValue(data["☆1Lv1こうげき"]),
+				parseNumericValue(data["☆1Lv1まもり"]),
 			),
 			lv90: parseBasicStatus(
 				null,
-				parseNumericValue(data['☆1Lv90たいりょく']),
-				parseNumericValue(data['☆1Lv90こうげき']),
-				parseNumericValue(data['☆1Lv90まもり'])
+				parseNumericValue(data["☆1Lv90たいりょく"]),
+				parseNumericValue(data["☆1Lv90こうげき"]),
+				parseNumericValue(data["☆1Lv90まもり"]),
 			),
 			lv99: parseBasicStatus(
 				null,
-				parseNumericValue(data['☆1Lv99たいりょく']),
-				parseNumericValue(data['☆1Lv99こうげき']),
-				parseNumericValue(data['☆1Lv99まもり'])
+				parseNumericValue(data["☆1Lv99たいりょく"]),
+				parseNumericValue(data["☆1Lv99こうげき"]),
+				parseNumericValue(data["☆1Lv99まもり"]),
 			),
 			yasei4: parseBasicStatus(
 				null,
-				parseNumericValue(data['☆1野生解放1-4合計たいりょく']),
-				parseNumericValue(data['☆1野生解放1-4合計こうげき']),
-				parseNumericValue(data['☆1野生解放1-4合計まもり']),
+				parseNumericValue(data["☆1野生解放1-4合計たいりょく"]),
+				parseNumericValue(data["☆1野生解放1-4合計こうげき"]),
+				parseNumericValue(data["☆1野生解放1-4合計まもり"]),
 			),
 			yasei5: parseBasicStatus(
 				null,
-				parseNumericValue(data['☆1野生解放1-5合計たいりょく']),
-				parseNumericValue(data['☆1野生解放1-5合計こうげき']),
-				parseNumericValue(data['☆1野生解放1-5合計まもり'])
+				parseNumericValue(data["☆1野生解放1-5合計たいりょく"]),
+				parseNumericValue(data["☆1野生解放1-5合計こうげき"]),
+				parseNumericValue(data["☆1野生解放1-5合計まもり"]),
 			),
-			megumiPattern: convertMegumiPattern(data['Lv100+上昇パターン'])
-		}
+			megumiPattern: convertMegumiPattern(data["Lv100+上昇パターン"]),
+		},
 	};
 }
 
 function fillStatuses(friendsDataRow: FriendsDataRow): FriendsDataRow {
-	if(isStatusNull(friendsDataRow.status.statusBase.lv99) && !isStatusNull(friendsDataRow.status.statusBase.lv90)) {
-		friendsDataRow.status.statusBase.lv99 = getLv99FromLv90(friendsDataRow.status.statusBase.lv90);
+	if (
+		isStatusNull(friendsDataRow.status.statusBase.lv99) &&
+		!isStatusNull(friendsDataRow.status.statusBase.lv90)
+	) {
+		friendsDataRow.status.statusBase.lv99 = getLv99FromLv90(
+			friendsDataRow.status.statusBase.lv90,
+		);
 	}
 	const status90 = calculateFriendsStatus(friendsDataRow, 90, 6, 4);
 	const status99 = calculateFriendsStatus(friendsDataRow, 99, 6, 4);
@@ -171,8 +194,8 @@ function fillStatuses(friendsDataRow: FriendsDataRow): FriendsDataRow {
 			status90Yasei5,
 			status99Yasei5,
 			status150Yasei5,
-			status200Yasei5
-		}
+			status200Yasei5,
+		},
 	};
 }
 
@@ -185,46 +208,50 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 	}
 
 	return readCsv<RawFriendsCSV, FriendsDataRow>(
-		'フレンズデータ.csv',
+		"フレンズデータ.csv",
 		{},
 		async (data: RawFriendsCSV[]) => {
 			const convertToBoolean = (value: unknown): boolean => {
-				if (typeof value === 'string') return value !== '';
-				if (typeof value === 'boolean') return value;
+				if (typeof value === "string") return value !== "";
+				if (typeof value === "boolean") return value;
 				return false;
 			};
 
 			const filledData = data.map((row) => {
 				const parsed = {
-					id: row.ID || '',
-					name: row.フレンズ名 || '',
-					secondName: row.属性違い二つ名 || '',
+					id: row.ID || "",
+					name: row.フレンズ名 || "",
+					secondName: row.属性違い二つ名 || "",
 					isHc: convertToBoolean(row.HC),
 					attribute: isFriendsAttribute(row.属性) ? row.属性 : FriendsAttribute.none,
-					subAttribute: isFriendsAttribute(row.サブ属性) ? row.サブ属性 : FriendsAttribute.none,
-					implementDate: row.実装日 || '',
-					implementType: row.実装種別 || '',
-					implementTypeDetail: row.実装種別詳細 || '',
+					subAttribute: isFriendsAttribute(row.サブ属性)
+						? row.サブ属性
+						: FriendsAttribute.none,
+					implementDate: row.実装日 || "",
+					implementType: row.実装種別 || "",
+					implementTypeDetail: row.実装種別詳細 || "",
 					listIndex: row.一覧順 || 0,
-					iconUrl: row.アイコンURL || '',
+					iconUrl: row.アイコンURL || "",
 					rarity: row.初期けも級 || 0,
 					hasYasei5: convertToBoolean(row.野生大解放),
-					has12poke: convertToBoolean(row['12ポケ']),
+					has12poke: convertToBoolean(row["12ポケ"]),
 					numOfClothes: row.特別衣装数 || 0,
-					cv: row.CV || '',
+					cv: row.CV || "",
 					status: parseFriendsStatus(row),
 					miracleRequiredMp: parseNumericValue(row.けものミラクル必要MP, false),
-					nanairoSkillName: row.なないろとくせい技名 || '',
-					nanairoSkillEffect: row.なないろとくせい効果 || '',
-					wildPhotoAttribute: isPhotoAttribute(row.動物フォト属性) ? row.動物フォト属性 : PhotoAttribute.none,
-					wildPhotoTrait: row.動物フォトとくせい効果変化前 || '',
-					wildPhotoTraitChanged: row.動物フォトとくせい効果変化後 || '',
+					nanairoSkillName: row.なないろとくせい技名 || "",
+					nanairoSkillEffect: row.なないろとくせい効果 || "",
+					wildPhotoAttribute: isPhotoAttribute(row.動物フォト属性)
+						? row.動物フォト属性
+						: PhotoAttribute.none,
+					wildPhotoTrait: row.動物フォトとくせい効果変化前 || "",
+					wildPhotoTraitChanged: row.動物フォトとくせい効果変化後 || "",
 				};
 				return fillStatuses(parsed);
 			});
 			friendsDataCache = filledData;
 			return filledData;
-		}
+		},
 	);
 }
 
@@ -237,6 +264,6 @@ export async function getFriendsDataMap(): Promise<Map<string, FriendsDataRow>> 
 		return friendsDataMapCache;
 	}
 	const friendsData = await getFriendsData();
-	friendsDataMapCache = new Map(friendsData.map(f => [f.id, f]));
+	friendsDataMapCache = new Map(friendsData.map((f) => [f.id, f]));
 	return friendsDataMapCache;
 }

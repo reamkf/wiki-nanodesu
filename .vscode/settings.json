@@ -3,6 +3,6 @@
 		"**/node_modules": true,
 		".git": true,
 		".git/config": false,
-		"bun.lock": true,
-	},
+		"bun.lock": true
+	}
 }

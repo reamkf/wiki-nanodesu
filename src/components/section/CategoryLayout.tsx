@@ -25,17 +25,13 @@ function CategorySection({
 	level,
 	renderContent,
 	selectedCategory,
-	emptyMessage
+	emptyMessage,
 }: CategorySectionProps) {
 	// 子カテゴリーがある場合
 	if (category.children && category.children.length > 0) {
 		return (
 			<div id={`section-${category.id}`}>
-				<Heading
-					title={category.name}
-					id={category.id}
-					level={level}
-				/>
+				<Heading title={category.name} id={category.id} level={level} />
 				<div className="mt-2">
 					{category.children.map((child) => (
 						<CategorySection
@@ -58,17 +54,9 @@ function CategorySection({
 
 	return (
 		<div id={`section-${category.id}`}>
-			<Heading
-				title={category.name}
-				id={`${category.id}`}
-				level={level}
-			/>
-			<FoldingSection
-				isOpenByDefault={selectedCategory === category.id}
-			>
-				<div className="mt-2 overflow-x-auto">
-					{content || <div>{emptyMessage}</div>}
-				</div>
+			<Heading title={category.name} id={`${category.id}`} level={level} />
+			<FoldingSection isOpenByDefault={selectedCategory === category.id}>
+				<div className="mt-2 overflow-x-auto">{content || <div>{emptyMessage}</div>}</div>
 			</FoldingSection>
 		</div>
 	);
@@ -91,16 +79,13 @@ export function CategoryLayout({
 	renderContent,
 	onItemClisk,
 	selectedCategory,
-	emptyMessage = "データがありません"
+	emptyMessage = "データがありません",
 }: CategoryLayoutProps) {
 	return (
 		<>
 			<Box>
 				<div className="sticky top-0">
-					<TableOfContents
-						contents={categories}
-						onItemClisk={onItemClisk}
-					/>
+					<TableOfContents contents={categories} onItemClisk={onItemClisk} />
 				</div>
 			</Box>
 			<Box>

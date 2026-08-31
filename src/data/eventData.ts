@@ -12,12 +12,7 @@ const FRIEND_COLUMNS = [
 	"実装フレンズ4",
 ] as const;
 
-const PHOTO_COLUMNS = [
-	"実装フォト1",
-	"実装フォト2",
-	"実装フォト3",
-	"実装フォト4",
-] as const;
+const PHOTO_COLUMNS = ["実装フォト1", "実装フォト2", "実装フォト3", "実装フォト4"] as const;
 
 function getNames(row: RawEventCSV, columns: readonly string[]): string[] {
 	return columns
@@ -46,7 +41,7 @@ export async function getEventData(): Promise<EventDataRow[]> {
 	eventDataCache = await readCsv<RawEventCSV, EventDataRow>(
 		"イベントデータ.csv",
 		{},
-		parseEventRows
+		parseEventRows,
 	);
 	return eventDataCache;
 }

@@ -55,12 +55,12 @@ export type WikiTableColumnDef<TData extends RowData> = ColumnDef<
 
 // ソート用の矢印SVGコンポーネント
 interface SortIndicatorArrowProps {
-	direction: 'up' | 'down';
+	direction: "up" | "down";
 	active: boolean;
 }
 
 function SortIndicatorArrow({ direction, active }: SortIndicatorArrowProps) {
-	const isUp = direction === 'up';
+	const isUp = direction === "up";
 	return (
 		<svg
 			className={`w-3 h-3 ${active ? "text-blue-600" : "text-gray-400"} ${isUp ? "mb-[1px]" : ""}`}
@@ -84,11 +84,7 @@ interface PaginationButtonProps {
 
 function PaginationButton({ onClick, disabled, icon }: PaginationButtonProps) {
 	return (
-		<IconButton
-			size="small"
-			onClick={onClick}
-			disabled={disabled}
-		>
+		<IconButton size="small" onClick={onClick} disabled={disabled}>
 			{icon}
 		</IconButton>
 	);
@@ -112,9 +108,7 @@ interface PaginationControlsProps<TData extends RowData> {
 	table: ReactTable<WikiTableFeatures, TData>;
 }
 
-function PaginationControls<TData extends RowData>({
-	table,
-}: PaginationControlsProps<TData>) {
+function PaginationControls<TData extends RowData>({ table }: PaginationControlsProps<TData>) {
 	if (table.getRowCount() <= MIN_PAGE_SIZE) {
 		return null;
 	}
@@ -124,9 +118,7 @@ function PaginationControls<TData extends RowData>({
 			<div className="flex items-center px-1 py-2 gap-4 min-w-[720px] max-w-[1920px]">
 				{/* ページサイズ指定 */}
 				<div className="flex items-center gap-2">
-					<span className="text-sm text-gray-700">
-						1ページあたりの表示件数:
-					</span>
+					<span className="text-sm text-gray-700">1ページあたりの表示件数:</span>
 					<Select
 						value={table.state.pagination.pageSize}
 						onChange={(e) => table.setPageSize(Number(e.target.value))}
@@ -155,8 +147,7 @@ function PaginationControls<TData extends RowData>({
 							icon={<NavigateBefore />}
 						/>
 						<span className="text-sm text-gray-700 mx-2">
-							{table.state.pagination.pageIndex + 1} /{" "}
-							{table.getPageCount()}
+							{table.state.pagination.pageIndex + 1} / {table.getPageCount()}
 						</span>
 						<PaginationButton
 							onClick={() => table.nextPage()}
@@ -199,10 +190,16 @@ function getFilterText(value: unknown): string {
 }
 
 // デフォルトの行レンダラコンポーネント
-function DefaultRowComponent<TData extends RowData>({ row, minHeight }: { row: Row<WikiTableFeatures, TData>; minHeight?: string }) {
+function DefaultRowComponent<TData extends RowData>({
+	row,
+	minHeight,
+}: {
+	row: Row<WikiTableFeatures, TData>;
+	minHeight?: string;
+}) {
 	return (
 		<tr key={row.id} className="hover:bg-gray-50">
-			{row.getVisibleCells().map(cell => {
+			{row.getVisibleCells().map((cell) => {
 				const meta = getColumnMeta(cell.column.columnDef.meta);
 				return (
 					<td
@@ -210,8 +207,8 @@ function DefaultRowComponent<TData extends RowData>({ row, minHeight }: { row: R
 						className="p-2 border-b text-sm"
 						style={{
 							textAlign: meta?.align || "left",
-							height: minHeight || 'auto',
-							verticalAlign: 'middle'
+							height: minHeight || "auto",
+							verticalAlign: "middle",
 						}}
 					>
 						{flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -239,7 +236,7 @@ export function Table<TData extends RowData>({
 
 	// localStorageから状態を取得するヘルパー関数
 	const getStoredState = <T,>(key: string, defaultValue: T): T => {
-		if (typeof window === 'undefined') return defaultValue;
+		if (typeof window === "undefined") return defaultValue;
 
 		try {
 			const storedValue = localStorage.getItem(`${storageKeyPrefix}.${key}`);
@@ -252,55 +249,60 @@ export function Table<TData extends RowData>({
 
 	// 状態管理: 初期ソートがあれば優先して適用するのです
 	const [sorting, setSorting] = useState<SortingState>(
-		() => initialSorting ?? initialState?.sorting ?? []
+		() => initialSorting ?? initialState?.sorting ?? [],
 	);
 
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
-		() => initialState?.columnFilters || []
+		() => initialState?.columnFilters || [],
 	);
 
 	const [pagination, setPagination] = useState<PaginationState>(
-		() => initialState?.pagination || getStoredState('pagination', { pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE })
+		() =>
+			initialState?.pagination ||
+			getStoredState("pagination", { pageIndex: 0, pageSize: DEFAULT_PAGE_SIZE }),
 	);
 
-	const storeStateCallback = useCallback(<T,>(key: string, value: T) => {
-		if (typeof window === 'undefined') return;
+	const storeStateCallback = useCallback(
+		<T,>(key: string, value: T) => {
+			if (typeof window === "undefined") return;
 
-		try {
-			localStorage.setItem(`${storageKeyPrefix}.${key}`, JSON.stringify(value));
-		} catch (e) {
-			console.info(`Error storing state for ${key}:`, e);
-		}
-	}, [storageKeyPrefix]);
+			try {
+				localStorage.setItem(`${storageKeyPrefix}.${key}`, JSON.stringify(value));
+			} catch (e) {
+				console.info(`Error storing state for ${key}:`, e);
+			}
+		},
+		[storageKeyPrefix],
+	);
 
 	// ページネーション状態が変更されたときlocalStorageに保存
 	useEffect(() => {
-		storeStateCallback('pagination', pagination);
+		storeStateCallback("pagination", pagination);
 	}, [pagination, storeStateCallback]);
-		const table = useTable({
-			features,
-			data,
-			columns,
-			state: {
-				sorting,
-				columnFilters,
-				pagination,
-			},
-			onSortingChange: setSorting,
-			onColumnFiltersChange: setColumnFilters,
-			onPaginationChange: setPagination,
-			enableSorting: true,
-			enableFilters: true,
-			enableColumnFilters: true,
-			manualSorting: false,
-			manualFiltering: false,
-			defaultColumn: {
+	const table = useTable({
+		features,
+		data,
+		columns,
+		state: {
+			sorting,
+			columnFilters,
+			pagination,
+		},
+		onSortingChange: setSorting,
+		onColumnFiltersChange: setColumnFilters,
+		onPaginationChange: setPagination,
+		enableSorting: true,
+		enableFilters: true,
+		enableColumnFilters: true,
+		manualSorting: false,
+		manualFiltering: false,
+		defaultColumn: {
 			minSize: 100,
 			size: 150,
 			maxSize: 400,
-				filterFn: defaultCustomFilterFn,
-			},
-		});
+			filterFn: defaultCustomFilterFn,
+		},
+	});
 
 	return (
 		<div>
@@ -340,42 +342,54 @@ export function Table<TData extends RowData>({
 												width: meta?.width,
 												minWidth: meta?.width,
 											}}
-											onClick={header.column.getCanSort()
-												? (e) => {
-													e.preventDefault();
-													// 現在のソート状態を取得
-													const currentSortDirection = header.column.getIsSorted();
-													// 未ソート → 降順 → 昇順 → 未ソートの順番でトグル
-													if(currentSortDirection === 'asc'){
-														setSorting([]);
-													} else if(currentSortDirection === 'desc'){
-														setSorting([{id: header.id, desc: false}]);
-													} else {
-														setSorting([{id: header.id, desc: true}]);
-													}
-												}
-												: undefined
+											onClick={
+												header.column.getCanSort()
+													? (e) => {
+															e.preventDefault();
+															// 現在のソート状態を取得
+															const currentSortDirection =
+																header.column.getIsSorted();
+															// 未ソート → 降順 → 昇順 → 未ソートの順番でトグル
+															if (currentSortDirection === "asc") {
+																setSorting([]);
+															} else if (
+																currentSortDirection === "desc"
+															) {
+																setSorting([
+																	{ id: header.id, desc: false },
+																]);
+															} else {
+																setSorting([
+																	{ id: header.id, desc: true },
+																]);
+															}
+														}
+													: undefined
 											}
 										>
 											<div className="flex items-center justify-between gap-2">
 												<span className="font-semibold">
 													{flexRender(
 														header.column.columnDef.header,
-														header.getContext()
+														header.getContext(),
 													)}
 												</span>
 												{/* ソートインジケーター */}
 												{header.column.getCanSort() && (
-													<span
-														className="inline-flex flex-col text-gray-700 h-3"
-													>
+													<span className="inline-flex flex-col text-gray-700 h-3">
 														<SortIndicatorArrow
 															direction="up"
-															active={header.column.getIsSorted() === "asc"}
+															active={
+																header.column.getIsSorted() ===
+																"asc"
+															}
 														/>
 														<SortIndicatorArrow
 															direction="down"
-																active={header.column.getIsSorted() === "desc"}
+															active={
+																header.column.getIsSorted() ===
+																"desc"
+															}
 														/>
 													</span>
 												)}
@@ -394,7 +408,9 @@ export function Table<TData extends RowData>({
 													className="w-full p-2 text-sm border rounded-sm font-normal bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-500"
 													type="text"
 													aria-label={`${header.column.id}列を検索`}
-													value={getFilterText(header.column.getFilterValue())}
+													value={getFilterText(
+														header.column.getFilterValue(),
+													)}
 													onChange={(e) => {
 														const newValue = e.target.value;
 														header.column.setFilterValue(newValue);

@@ -5,9 +5,7 @@ test.describe("ナビゲーション", () => {
 		await page.goto("./");
 		const header = page.locator("header");
 		await expect(header).toBeVisible();
-		await expect(
-			page.getByRole("heading", { name: /けものフレンズ/ })
-		).toBeVisible();
+		await expect(page.getByRole("heading", { name: /けものフレンズ/ })).toBeVisible();
 	});
 
 	test("ヘッダーのアイコン画像が表示される", async ({ page }) => {
@@ -25,17 +23,13 @@ test.describe("ナビゲーション", () => {
 
 	test("フッターにライセンスリンクがある", async ({ page }) => {
 		await page.goto("./");
-		const licenseLink = page
-			.locator("footer")
-			.getByRole("link", { name: "License" });
+		const licenseLink = page.locator("footer").getByRole("link", { name: "License" });
 		await expect(licenseLink).toBeVisible();
 	});
 
 	test("フッターにGitHubリンクがある", async ({ page }) => {
 		await page.goto("./");
-		const githubLink = page
-			.locator("footer")
-			.locator('a[href*="github.com"]');
+		const githubLink = page.locator("footer").locator('a[href*="github.com"]');
 		await expect(githubLink).toBeVisible();
 	});
 });
@@ -85,9 +79,7 @@ test.describe("サイドバー", () => {
 		// 検索文字を入力
 		await searchInput.fill("ステータス");
 		// 一致するリンクが表示される
-		await expect(
-			sidebar.getByText("フレンズステータスランキング")
-		).toBeVisible();
+		await expect(sidebar.getByText("フレンズステータスランキング")).toBeVisible();
 
 		// クリアボタンで検索をリセット
 		const clearButton = sidebar.getByLabel("検索をクリア");
@@ -100,14 +92,10 @@ test.describe("サイドバー", () => {
 		await openSidebarIfMobile(page);
 		const sidebar = page.locator("aside");
 
-		await sidebar
-			.getByRole("link", { name: "フレンズステータスランキング" })
-			.click();
+		await sidebar.getByRole("link", { name: "フレンズステータスランキング" }).click();
 		await page.waitForURL("**/friends-status");
 
-		await expect(
-			page.locator("h2", { hasText: "フレンズステータスランキング" })
-		).toBeVisible();
+		await expect(page.locator("h2", { hasText: "フレンズステータスランキング" })).toBeVisible();
 	});
 
 	test("検索で一致しないリンクが非表示になる", async ({ page }) => {
@@ -119,9 +107,7 @@ test.describe("サイドバー", () => {
 		await searchInput.fill("ステータス");
 
 		// 一致するリンクは表示される
-		await expect(
-			sidebar.getByText("フレンズステータスランキング")
-		).toBeVisible();
+		await expect(sidebar.getByText("フレンズステータスランキング")).toBeVisible();
 
 		// 一致しないリンクは非表示になる
 		await expect(sidebar.getByText("スキル別フレンズ一覧")).toBeHidden();
@@ -136,16 +122,11 @@ test.describe("サイドバー", () => {
 		await searchInput.fill("サーバル");
 
 		// フレンズ一覧セクションヘッダーが表示される
-		const sectionHeader = sidebar.locator(
-			"div.border-b-2",
-			{ hasText: "フレンズ一覧" }
-		);
+		const sectionHeader = sidebar.locator("div.border-b-2", { hasText: "フレンズ一覧" });
 		await expect(sectionHeader).toBeVisible();
 	});
 
-	test("検索クリア後にフレンズ一覧セクションが非表示になる", async ({
-		page,
-	}) => {
+	test("検索クリア後にフレンズ一覧セクションが非表示になる", async ({ page }) => {
 		await page.goto("./");
 		await openSidebarIfMobile(page);
 		const sidebar = page.locator("aside");
@@ -153,10 +134,7 @@ test.describe("サイドバー", () => {
 
 		// フレンズ名を検索
 		await searchInput.fill("サーバル");
-		const sectionHeader = sidebar.locator(
-			"div.border-b-2",
-			{ hasText: "フレンズ一覧" }
-		);
+		const sectionHeader = sidebar.locator("div.border-b-2", { hasText: "フレンズ一覧" });
 		await expect(sectionHeader).toBeVisible();
 
 		// クリアボタンで検索をリセット
@@ -198,9 +176,7 @@ test.describe("サイドバー", () => {
 
 		// 「状態」の読み「じょうたい」で検索 → 「状態異常スキル一覧」がヒット
 		await searchInput.fill("じょうたい");
-		await expect(
-			sidebar.getByText("状態異常スキル一覧")
-		).toBeVisible();
+		await expect(sidebar.getByText("状態異常スキル一覧")).toBeVisible();
 
 		// 「切」の読み「せつ」で検索 → フレンズ一覧に「カマイタチ・切」がヒット
 		const clearButton = sidebar.getByLabel("検索をクリア");
@@ -210,24 +186,17 @@ test.describe("サイドバー", () => {
 			hasText: "フレンズ一覧",
 		});
 		await expect(sectionHeader).toBeVisible();
-		await expect(
-			sidebar.getByRole("link", { name: /カマイタチ・切/ })
-		).toBeVisible();
+		await expect(sidebar.getByRole("link", { name: /カマイタチ・切/ })).toBeVisible();
 	});
 });
 
 test.describe("サイドバー（モバイル）", () => {
-	test.skip(
-		({ page }) => {
-			const viewport = page.viewportSize();
-			return viewport !== null && viewport.width >= 768;
-		},
-		"デスクトップサイズではスキップ"
-	);
+	test.skip(({ page }) => {
+		const viewport = page.viewportSize();
+		return viewport !== null && viewport.width >= 768;
+	}, "デスクトップサイズではスキップ");
 
-	test("ハンバーガーメニューでサイドバーの開閉ができる", async ({
-		page,
-	}) => {
+	test("ハンバーガーメニューでサイドバーの開閉ができる", async ({ page }) => {
 		await page.goto("./");
 
 		// ハンバーガーメニューボタン
@@ -240,9 +209,7 @@ test.describe("サイドバー（モバイル）", () => {
 		await expect(sidebar).toBeVisible();
 
 		// サイドバー内のリンクをクリックするとサイドバーが閉じる
-		await sidebar
-			.getByRole("link", { name: "フレンズステータスランキング" })
-			.click();
+		await sidebar.getByRole("link", { name: "フレンズステータスランキング" }).click();
 		await page.waitForURL("**/friends-status");
 	});
 });

@@ -1,15 +1,15 @@
 import { beforeAll, describe, expect, it } from "bun:test";
 import { getSkillsWithFriendsData } from "@/data/friendsSkillsData";
 
-describe('getSkillsWithFriendsData', () => {
+describe("getSkillsWithFriendsData", () => {
 	let skillsData: Awaited<ReturnType<typeof getSkillsWithFriendsData>>;
 
 	beforeAll(async () => {
 		skillsData = await getSkillsWithFriendsData();
 	});
 
-	it('けものミラクルの備考先頭に必要MP{値}改行を付与する', () => {
-		const miracleSkill = skillsData.find(skill => skill.skillType === 'けものミラクル');
+	it("けものミラクルの備考先頭に必要MP{値}改行を付与する", () => {
+		const miracleSkill = skillsData.find((skill) => skill.skillType === "けものミラクル");
 		expect(miracleSkill).toBeDefined();
 		expect(miracleSkill?.friendsDataRow.miracleRequiredMp).not.toBeNull();
 
@@ -17,9 +17,11 @@ describe('getSkillsWithFriendsData', () => {
 		expect(miracleSkill?.note.startsWith(expectedHeader)).toBe(true);
 	});
 
-	it('MP増加系スキルの備考先頭に必要MP{値}改行を付与する', () => {
-		const mpIncreaseSkill = skillsData.find(skill =>
-			(skill.effectType === 'MP増加' || skill.effectType === '毎ターンMP増加') && skill.skillType !== 'けものミラクル'
+	it("MP増加系スキルの備考先頭に必要MP{値}改行を付与する", () => {
+		const mpIncreaseSkill = skillsData.find(
+			(skill) =>
+				(skill.effectType === "MP増加" || skill.effectType === "毎ターンMP増加") &&
+				skill.skillType !== "けものミラクル",
 		);
 
 		expect(mpIncreaseSkill).toBeDefined();
@@ -29,15 +31,16 @@ describe('getSkillsWithFriendsData', () => {
 		expect(mpIncreaseSkill?.note.startsWith(expectedHeader)).toBe(true);
 	});
 
-	it('対象外スキルの備考先頭には必要MPを付与しない', () => {
-		const nonTargetSkill = skillsData.find(skill =>
-			skill.skillType !== 'けものミラクル' &&
-			skill.effectType !== 'MP増加' &&
-			skill.effectType !== '毎ターンMP増加' &&
-			skill.note !== ''
+	it("対象外スキルの備考先頭には必要MPを付与しない", () => {
+		const nonTargetSkill = skillsData.find(
+			(skill) =>
+				skill.skillType !== "けものミラクル" &&
+				skill.effectType !== "MP増加" &&
+				skill.effectType !== "毎ターンMP増加" &&
+				skill.note !== "",
 		);
 
 		expect(nonTargetSkill).toBeDefined();
-		expect(nonTargetSkill?.note.startsWith('必要MP')).toBe(false);
+		expect(nonTargetSkill?.note.startsWith("必要MP")).toBe(false);
 	});
 });

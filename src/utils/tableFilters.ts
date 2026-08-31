@@ -11,16 +11,16 @@ interface QueryParserCache {
 
 // クエリパーサーのキャッシュ
 const queryParserCache: QueryParserCache = {
-	evaluatorCache: new Map<string, (text: string) => boolean>()
+	evaluatorCache: new Map<string, (text: string) => boolean>(),
 };
 
 // カスタムフィルター関数
 export const createCustomFilterFn = <T extends CustomFilterFnRowType>(
-	getSearchableText: (row: T, columnId: string) => string
+	getSearchableText: (row: T, columnId: string) => string,
 ): FilterFn<any, T> => {
 	return (row: Row<any, T>, columnId: string, filterValue: string) => {
 		// 空のフィルター値の場合は全ての行を表示
-		if (!filterValue || filterValue === '') return true;
+		if (!filterValue || filterValue === "") return true;
 		const normalizedFilterValue = normalizeQuery(filterValue);
 
 		// 行の値を取得
@@ -56,5 +56,5 @@ export const createCustomFilterFn = <T extends CustomFilterFnRowType>(
 // デフォルトのカスタムフィルター関数
 export const defaultCustomFilterFn = createCustomFilterFn<any>((row, columnId) => {
 	const value = row[columnId];
-	return value != null ? String(value) : '';
+	return value != null ? String(value) : "";
 });

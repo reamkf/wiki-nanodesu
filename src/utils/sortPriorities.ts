@@ -1,18 +1,18 @@
-import { FriendsOrPhotoSkillType } from '@/types/abnormalStatus'; // 必要に応じて型をインポート
+import { FriendsOrPhotoSkillType } from "@/types/abnormalStatus"; // 必要に応じて型をインポート
 
 // 威力のソート優先度マップ
 const POWER_PRIORITY_MAP = {
-	'完全耐性': 1000,
-	'大幅に': 500,
-	'-': 95,
-	'高': 90,
-	'大': 85,
-	'中': 49,
-	'低': 25,
-	'小': 20,
-	'少し': 11,
-	'少しだけ': 10,
-	'ほんの少し': 9,
+	完全耐性: 1000,
+	大幅に: 500,
+	"-": 95,
+	高: 90,
+	大: 85,
+	中: 49,
+	低: 25,
+	小: 20,
+	少し: 11,
+	少しだけ: 10,
+	ほんの少し: 9,
 } satisfies Record<string, number>;
 
 // 威力の優先度を取得する関数
@@ -20,22 +20,22 @@ export function getPowerPriority(power: string): number {
 	if (!power) return -1;
 
 	const match = /\((\d+(?:\.\d+)?)(%)?(超|未満)?\)/.exec(power);
-	if(match){
+	if (match) {
 		const powerNum = parseFloat(match[1]);
 		// const isPercent = match[2] === '%';
-		const adjust = match[3] === '超' ? 5 : match[3] === '未満' ? -5 : 0;
-		if(!isNaN(powerNum)){
+		const adjust = match[3] === "超" ? 5 : match[3] === "未満" ? -5 : 0;
+		if (!isNaN(powerNum)) {
 			return powerNum + adjust;
 		}
 	}
 
 	const matchedPower = Object.entries(POWER_PRIORITY_MAP).find(([possiblePower]) =>
-		power.includes(possiblePower)
+		power.includes(possiblePower),
 	);
 	if (matchedPower !== undefined) return matchedPower[1];
 
 	const parsed = parseFloat(power);
-	if(!isNaN(parsed)){
+	if (!isNaN(parsed)) {
 		return parsed;
 	}
 
@@ -45,10 +45,10 @@ export function getPowerPriority(power: string): number {
 // 発動率のソート優先度マップ
 // 内部でのみ使用するマップ
 const ACTIVATION_RATE_PRIORITY_MAP = {
-	'-': 100,
-	'高確率': 90,
-	'中確率': 50,
-	'低確率': 30
+	"-": 100,
+	高確率: 90,
+	中確率: 50,
+	低確率: 30,
 } satisfies Record<string, number>;
 
 // 発動率の優先度を取得する関数
@@ -63,9 +63,9 @@ export function getActivationRatePriority(activationRate: string): number {
 	}
 
 	const match = /(高|中|低)確率|(^-)|(-$)/.exec(activationRate);
-	if(match){
+	if (match) {
 		const matchedRate = Object.entries(ACTIVATION_RATE_PRIORITY_MAP).find(
-			([label]) => label === match[0]
+			([label]) => label === match[0],
 		);
 		return matchedRate?.[1] || 0;
 	}
@@ -77,13 +77,13 @@ export function getActivationRatePriority(activationRate: string): number {
 export function getActivationCountPriority(activationCount: string | number): number {
 	if (!activationCount) return -1;
 
-	if (typeof activationCount === 'string') {
-		if(activationCount === "-" || activationCount === "∞") return Infinity;
+	if (typeof activationCount === "string") {
+		if (activationCount === "-" || activationCount === "∞") return Infinity;
 		const parsed = parseInt(activationCount);
-		if(!isNaN(parsed)){
+		if (!isNaN(parsed)) {
 			return parsed;
 		}
-	} else if(typeof activationCount === 'number'){
+	} else if (typeof activationCount === "number") {
 		return activationCount;
 	}
 
@@ -95,11 +95,16 @@ export function getActivationCountPriority(activationCount: string | number): nu
 export function getSkillTypePriority(skillType: FriendsOrPhotoSkillType): number {
 	if (!skillType) return -1;
 
-	if (skillType === 'とくせい' || skillType === 'キセキとくせい' || skillType === 'なないろとくせい') return 3;
+	if (
+		skillType === "とくせい" ||
+		skillType === "キセキとくせい" ||
+		skillType === "なないろとくせい"
+	)
+		return 3;
 
-	if (skillType === 'とくせい(変化前・後)') return 3;
-	if (skillType === 'とくせい(変化後)') return 2;
-	if (skillType === 'とくせい(変化前)') return 1;
+	if (skillType === "とくせい(変化前・後)") return 3;
+	if (skillType === "とくせい(変化後)") return 2;
+	if (skillType === "とくせい(変化前)") return 1;
 
 	// 他のフレンズスキルタイプ（けものミラクル、とくいわざ、たいきスキル）は優先度0とする
 
@@ -110,8 +115,12 @@ export function getSkillTypePriority(skillType: FriendsOrPhotoSkillType): number
 export function getTargetPriority(target: string): number {
 	if (!target) return -1;
 
-	if ((target.includes('味方全体') && !target.includes('自身を除く')) || target.includes('相手全体')) return 3;
-	if (target.includes('味方全体')) return 2;
+	if (
+		(target.includes("味方全体") && !target.includes("自身を除く")) ||
+		target.includes("相手全体")
+	)
+		return 3;
+	if (target.includes("味方全体")) return 2;
 
 	return 0;
 }

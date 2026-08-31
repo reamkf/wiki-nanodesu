@@ -10,20 +10,20 @@
  *    例: bun run fetch-csv --commit
  */
 
-import * as fs from 'fs';
-import * as path from 'path';
-import * as dotenv from 'dotenv';
-import { execSync } from 'child_process';
+import * as fs from "fs";
+import * as path from "path";
+import * as dotenv from "dotenv";
+import { execSync } from "child_process";
 
 // 環境変数を読み込み
 dotenv.config();
 
 const ANSI = {
-	reset: '\x1b[0m',
-	green: '\x1b[32m',
-	red: '\x1b[31m',
-	yellow: '\x1b[33m',
-	dim: '\x1b[2m'
+	reset: "\x1b[0m",
+	green: "\x1b[32m",
+	red: "\x1b[31m",
+	yellow: "\x1b[33m",
+	dim: "\x1b[2m",
 } as const;
 
 function logInfo(message: string, ...args: unknown[]): void {
@@ -55,15 +55,15 @@ interface SheetConfig {
 }
 
 // スプレッドシートID（README.mdに記載のURL内のID）
-const SPREADSHEET_ID = '1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk';
+const SPREADSHEET_ID = "1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk";
 // リクエスト制御: クールタイムと再試行設定
-const COOLDOWN_MS = Number(process.env.SHEETS_COOLDOWN_MS ?? '1200');
-const MAX_RETRIES = Number(process.env.SHEETS_MAX_RETRIES ?? '5');
-const INITIAL_BACKOFF_MS = Number(process.env.SHEETS_INITIAL_BACKOFF_MS ?? '1000');
-const BACKOFF_MULTIPLIER = Number(process.env.SHEETS_BACKOFF_MULTIPLIER ?? '2');
+const COOLDOWN_MS = Number(process.env.SHEETS_COOLDOWN_MS ?? "1200");
+const MAX_RETRIES = Number(process.env.SHEETS_MAX_RETRIES ?? "5");
+const INITIAL_BACKOFF_MS = Number(process.env.SHEETS_INITIAL_BACKOFF_MS ?? "1000");
+const BACKOFF_MULTIPLIER = Number(process.env.SHEETS_BACKOFF_MULTIPLIER ?? "2");
 
 function sleep(ms: number): Promise<void> {
-	return new Promise(resolve => setTimeout(resolve, ms));
+	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 let lastRequestAt = 0;
@@ -88,7 +88,7 @@ async function fetchWithRetry(url: string): Promise<Response> {
 			const status = response.status;
 			if (status === 429 || status >= 500) {
 				let delayMs: number | undefined;
-				const retryAfter = response.headers.get('retry-after');
+				const retryAfter = response.headers.get("retry-after");
 				if (retryAfter) {
 					const seconds = Number(retryAfter);
 					if (!Number.isNaN(seconds)) {
@@ -101,79 +101,87 @@ async function fetchWithRetry(url: string): Promise<Response> {
 					delayMs = Math.max(COOLDOWN_MS, base + jitter);
 				}
 				if (attempt < MAX_RETRIES) {
-					logWarn(`   Google Sheets API 呼び出しに失敗しました(status=${status})。 ${delayMs}ms 後に再試行します。`);
+					logWarn(
+						`   Google Sheets API 呼び出しに失敗しました(status=${status})。 ${delayMs}ms 後に再試行します。`,
+					);
 					await sleep(delayMs);
 					continue;
 				}
 				const errorText = await response.text();
-				throw new Error(`Google Sheets API 呼び出しが再試行上限に達しました: ${status} ${response.statusText}\n詳細: ${errorText}`);
+				throw new Error(
+					`Google Sheets API 呼び出しが再試行上限に達しました: ${status} ${response.statusText}\n詳細: ${errorText}`,
+				);
 			}
 			const errorText = await response.text();
-			throw new Error(`Google Sheets API エラー: ${status} ${response.statusText}\n詳細: ${errorText}`);
+			throw new Error(
+				`Google Sheets API エラー: ${status} ${response.statusText}\n詳細: ${errorText}`,
+			);
 		} catch (err) {
 			if (attempt < MAX_RETRIES) {
 				const base = INITIAL_BACKOFF_MS * Math.pow(BACKOFF_MULTIPLIER, attempt);
 				const jitter = Math.floor(Math.random() * 250);
 				const delayMs = Math.max(COOLDOWN_MS, base + jitter);
-				logWarn(`   Google Sheets API 呼び出しに失敗しました(${err instanceof Error ? err.message : String(err)})。 ${delayMs}ms 後に再試行します。`);
+				logWarn(
+					`   Google Sheets API 呼び出しに失敗しました(${err instanceof Error ? err.message : String(err)})。 ${delayMs}ms 後に再試行します。`,
+				);
 				await sleep(delayMs);
 				continue;
 			}
 			throw err;
 		}
 	}
-	throw new Error('Google Sheets API 呼び出しに失敗しました。');
+	throw new Error("Google Sheets API 呼び出しに失敗しました。");
 }
 
 const sheetConfigs: SheetConfig[] = [
 	{
-		sheetName: 'フレンズデータ',
-		filePath: 'csv/フレンズデータ.csv',
+		sheetName: "フレンズデータ",
+		filePath: "csv/フレンズデータ.csv",
 		range: {
 			startColumn: 1,
-			endColumn: 103
-		}
+			endColumn: 103,
+		},
 	},
 	{
-		sheetName: 'フォトデータ',
-		filePath: 'csv/フォトデータ.csv'
+		sheetName: "フォトデータ",
+		filePath: "csv/フォトデータ.csv",
 	},
 	{
-		sheetName: '状態異常スキル一覧',
-		filePath: 'csv/状態異常スキル一覧.csv',
+		sheetName: "状態異常スキル一覧",
+		filePath: "csv/状態異常スキル一覧.csv",
 		range: {
 			startColumn: 1,
-			endColumn: 11
-		}
+			endColumn: 11,
+		},
 	},
 	{
-		sheetName: 'スキル別フレンズ一覧',
-		filePath: 'csv/スキル別フレンズ一覧.csv'
+		sheetName: "スキル別フレンズ一覧",
+		filePath: "csv/スキル別フレンズ一覧.csv",
 	},
 	{
-		sheetName: 'フレンズ掛け合い一覧',
-		filePath: 'csv/フレンズ掛け合い一覧.csv',
+		sheetName: "フレンズ掛け合い一覧",
+		filePath: "csv/フレンズ掛け合い一覧.csv",
 		range: {
 			startColumn: 4,
-			endColumn: 15
-		}
+			endColumn: 15,
+		},
 	},
 	{
-		sheetName: 'イベントデータ',
-		filePath: 'csv/イベントデータ.csv',
+		sheetName: "イベントデータ",
+		filePath: "csv/イベントデータ.csv",
 		range: {
 			startColumn: 1,
-			endColumn: 15
-		}
+			endColumn: 15,
+		},
 	},
 	{
-		sheetName: 'フォト火力データCSV用',
-		filePath: 'csv/フォト火力データ.csv',
+		sheetName: "フォト火力データCSV用",
+		filePath: "csv/フォト火力データ.csv",
 		range: {
 			startColumn: 1,
-			endColumn: 4
-		}
-	}
+			endColumn: 4,
+		},
+	},
 ];
 
 /**
@@ -183,7 +191,7 @@ function getApiKey(): string {
 	const apiKey = process.env.GOOGLE_API_KEY;
 
 	if (!apiKey) {
-		throw new Error('GOOGLE_API_KEYが設定されていません。.envファイルを確認してください。');
+		throw new Error("GOOGLE_API_KEYが設定されていません。.envファイルを確認してください。");
 	}
 
 	return apiKey;
@@ -201,7 +209,7 @@ function generateA1Notation(sheetName: string, config: SheetConfig): string {
 
 	// 列番号をアルファベットに変換（A=1, B=2, ...）
 	const columnToLetter = (col: number): string => {
-		let result = '';
+		let result = "";
 		while (col > 0) {
 			col--;
 			result = String.fromCharCode(65 + (col % 26)) + result;
@@ -211,7 +219,7 @@ function generateA1Notation(sheetName: string, config: SheetConfig): string {
 	};
 
 	const startColumnLetter = columnToLetter(startColumn);
-	const endColumnLetter = endColumn ? columnToLetter(endColumn) : '';
+	const endColumnLetter = endColumn ? columnToLetter(endColumn) : "";
 
 	if (endRow && endColumn) {
 		return `${sheetName}!${startColumnLetter}${startRow}:${endColumnLetter}${endRow}`;
@@ -229,13 +237,13 @@ function generateA1Notation(sheetName: string, config: SheetConfig): string {
  */
 function formatCellForCsv(cell: unknown): string {
 	if (cell === null || cell === undefined) {
-		return '';
+		return "";
 	}
 
 	const value = String(cell);
 
 	// カンマ、ダブルクォート、または改行を含む場合はエスケープ
-	if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+	if (value.includes(",") || value.includes('"') || value.includes("\n")) {
 		return `"${value.replace(/"/g, '""')}"`;
 	}
 
@@ -248,19 +256,19 @@ function formatCellForCsv(cell: unknown): string {
  */
 function arrayToCsv(data: unknown[][], expectedColumns?: number): string {
 	if (data.length === 0) {
-		return '';
+		return "";
 	}
 
 	// 最大列数を取得（expectedColumnsが指定されている場合はそれを使用）
-	const maxColumns = expectedColumns ?? Math.max(...data.map(row => row.length));
+	const maxColumns = expectedColumns ?? Math.max(...data.map((row) => row.length));
 
 	return data
-		.map(row => {
+		.map((row) => {
 			// 行の長さを最大列数に統一（足りない分は空文字で埋める）
-			const paddedRow = Array.from({ length: maxColumns }, (_, index) => row[index] ?? '');
-			return paddedRow.map(formatCellForCsv).join(',');
+			const paddedRow = Array.from({ length: maxColumns }, (_, index) => row[index] ?? "");
+			return paddedRow.map(formatCellForCsv).join(",");
 		})
-		.join('\n');
+		.join("\n");
 }
 
 /**
@@ -276,7 +284,9 @@ async function fetchSheetData(apiKey: string, config: SheetConfig): Promise<unkn
 
 		if (!response.ok) {
 			const errorText = await response.text();
-			throw new Error(`Google Sheets API エラー: ${response.status} ${response.statusText}\n詳細: ${errorText}`);
+			throw new Error(
+				`Google Sheets API エラー: ${response.status} ${response.statusText}\n詳細: ${errorText}`,
+			);
 		}
 
 		const data = await response.json();
@@ -287,10 +297,11 @@ async function fetchSheetData(apiKey: string, config: SheetConfig): Promise<unkn
 		}
 
 		return data.values;
-
 	} catch (error) {
 		if (error instanceof Error) {
-			throw new Error(`シート「${config.sheetName}」のデータ取得に失敗しました: ${error.message}`);
+			throw new Error(
+				`シート「${config.sheetName}」のデータ取得に失敗しました: ${error.message}`,
+			);
 		}
 		throw error;
 	}
@@ -300,7 +311,6 @@ async function fetchSheetData(apiKey: string, config: SheetConfig): Promise<unkn
  * シートからデータを取得してCSVとして保存
  */
 async function processSheet(apiKey: string, config: SheetConfig): Promise<void> {
-
 	try {
 		// シートからデータを取得
 		const values = await fetchSheetData(apiKey, config);
@@ -328,8 +338,7 @@ async function processSheet(apiKey: string, config: SheetConfig): Promise<void> 
 		}
 
 		// CSVファイルとして保存
-		fs.writeFileSync(config.filePath, csvData, 'utf8');
-
+		fs.writeFileSync(config.filePath, csvData, "utf8");
 	} catch (error) {
 		logError(`   ❌ シート「${config.sheetName}」の処理でエラーが発生しました:`, error);
 		throw error;
@@ -340,10 +349,10 @@ async function processSheet(apiKey: string, config: SheetConfig): Promise<void> 
  * メイン処理
  */
 async function main(): Promise<void> {
-	logInfo('🦉 Google Sheets からCSVファイルを取得中...');
+	logInfo("🦉 Google Sheets からCSVファイルを取得中...");
 
 	const args = process.argv.slice(2);
-	const shouldCommit = args.includes('--commit');
+	const shouldCommit = args.includes("--commit");
 
 	try {
 		// APIキーを取得
@@ -376,25 +385,24 @@ async function main(): Promise<void> {
 			try {
 				let diffExists = false;
 				try {
-					execSync('git diff --exit-code csv/*.csv').toString();
+					execSync("git diff --exit-code csv/*.csv").toString();
 				} catch {
 					diffExists = true;
 				}
 				if (diffExists) {
-					execSync('git add csv/*.csv');
+					execSync("git add csv/*.csv");
 					execSync('git commit -m "chore: update csv files"');
-					logSuccess('差分が見つかりました。コミットしました。');
+					logSuccess("差分が見つかりました。コミットしました。");
 				} else {
-					logInfo('差分はありませんでした。');
+					logInfo("差分はありませんでした。");
 				}
-
 			} catch (error) {
-				logError('❌ gitのコミットに失敗しました:', error);
+				logError("❌ gitのコミットに失敗しました:", error);
 				process.exit(1);
 			}
 		}
 	} catch (error) {
-		logError('❌ 処理中にエラーが発生しました:', error);
+		logError("❌ 処理中にエラーが発生しました:", error);
 		process.exit(1);
 	}
 }

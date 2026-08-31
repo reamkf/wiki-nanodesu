@@ -3,263 +3,271 @@ import { describe, it, expect, beforeAll } from "bun:test";
 import { FriendsAttribute, MegumiPattern } from "@/types/friends";
 import { PhotoAttribute } from "@/types/photo";
 
-describe('getFriendsData', () => {
+describe("getFriendsData", () => {
 	let friendsData: Awaited<ReturnType<typeof getFriendsData>>;
 
 	beforeAll(async () => {
 		friendsData = await getFriendsData();
 	});
 
-	it('フレンズデータが取得できる', async () => {
+	it("フレンズデータが取得できる", async () => {
 		await expect(friendsData).toBeDefined();
 	});
 
-	describe('カマイタチ・切のデータ', () => {
+	describe("カマイタチ・切のデータ", () => {
 		let sampleFriendsData: Awaited<ReturnType<typeof getFriendsData>>[number] | undefined;
 
 		beforeAll(() => {
-			sampleFriendsData = friendsData.find(friend => friend.id === 'カマイタチ・切');
+			sampleFriendsData = friendsData.find((friend) => friend.id === "カマイタチ・切");
 		});
 
-		describe('基本情報', () => {
-			it('idがカマイタチ・切である', () => {
-				expect(sampleFriendsData?.id).toBe('カマイタチ・切');
+		describe("基本情報", () => {
+			it("idがカマイタチ・切である", () => {
+				expect(sampleFriendsData?.id).toBe("カマイタチ・切");
 			});
 
-			it('フレンズ名がカマイタチ・切である', () => {
-				expect(sampleFriendsData?.name).toBe('カマイタチ・切');
+			it("フレンズ名がカマイタチ・切である", () => {
+				expect(sampleFriendsData?.name).toBe("カマイタチ・切");
 			});
 
-			it('属性違い二つ名がない', () => {
-				expect(sampleFriendsData?.secondName).toBe('');
+			it("属性違い二つ名がない", () => {
+				expect(sampleFriendsData?.secondName).toBe("");
 			});
 
-			it('HCでない', () => {
+			it("HCでない", () => {
 				expect(sampleFriendsData?.isHc).toBe(false);
 			});
 
-			it('属性がマイペースである', () => {
+			it("属性がマイペースである", () => {
 				expect(sampleFriendsData?.attribute).toBe(FriendsAttribute.mypace);
 			});
 
-			it('サブ属性がない', () => {
+			it("サブ属性がない", () => {
 				expect(sampleFriendsData?.subAttribute).toBe(FriendsAttribute.none);
 			});
 
-			it('初期けも級が4である', () => {
+			it("初期けも級が4である", () => {
 				expect(sampleFriendsData?.rarity).toBe(4);
 			});
 
-			it('野生大解放がtrueである', () => {
+			it("野生大解放がtrueである", () => {
 				expect(sampleFriendsData?.hasYasei5).toBe(true);
 			});
 
-			it('12ポケがfalseである', () => {
+			it("12ポケがfalseである", () => {
 				expect(sampleFriendsData?.has12poke).toBe(false);
 			});
 
-			it('けものミラクル必要MPが120である', () => {
+			it("けものミラクル必要MPが120である", () => {
 				expect(sampleFriendsData?.miracleRequiredMp).toBe(120);
 			});
 
-			it('なないろとくせいが正しい', () => {
-				expect(sampleFriendsData?.nanairoSkillName).toBe('快刀乱麻');
-				expect(sampleFriendsData?.nanairoSkillEffect).toContain('バトル開始時に自身のMPが20増加する');
+			it("なないろとくせいが正しい", () => {
+				expect(sampleFriendsData?.nanairoSkillName).toBe("快刀乱麻");
+				expect(sampleFriendsData?.nanairoSkillEffect).toContain(
+					"バトル開始時に自身のMPが20増加する",
+				);
 			});
 
-			describe('フラッグ', () => {
-				it('Beatフラッグが2である', () => {
+			describe("フラッグ", () => {
+				it("Beatフラッグが2である", () => {
 					expect(sampleFriendsData?.status.beatFlags).toBe(2);
 				});
 
-				it('Actionフラッグが[15, 15]である', () => {
+				it("Actionフラッグが[15, 15]である", () => {
 					expect(sampleFriendsData?.status.actionFlags).toEqual([15, 15]);
 				});
 
-				it('Tryフラッグが[20]である', () => {
+				it("Tryフラッグが[20]である", () => {
 					expect(sampleFriendsData?.status.tryFlags).toEqual([20]);
 				});
 
-				it('Specialフラッグがnullである', () => {
+				it("Specialフラッグがnullである", () => {
 					expect(sampleFriendsData?.status.specialFlags).toEqual(null);
 				});
 			});
 
-			describe('動物フォトデータ', () => {
-				it('属性が足跡である', () => {
+			describe("動物フォトデータ", () => {
+				it("属性が足跡である", () => {
 					expect(sampleFriendsData?.wildPhotoAttribute).toBe(PhotoAttribute.footprint);
 				});
 
-				it('とくせい効果変化前が正しい', () => {
-					expect(sampleFriendsData?.wildPhotoTrait).toBe('攻撃命中率が5%増加し~~状態異常にかかっていないとき、与ダメージが3%増加する');
+				it("とくせい効果変化前が正しい", () => {
+					expect(sampleFriendsData?.wildPhotoTrait).toBe(
+						"攻撃命中率が5%増加し~~状態異常にかかっていないとき、与ダメージが3%増加する",
+					);
 				});
 
-				it('とくせい効果変化後が正しい', () => {
-					expect(sampleFriendsData?.wildPhotoTraitChanged).toBe('攻撃命中率が{6%}増加し~~状態異常にかかっていないとき、与ダメージが{4%}増加する');
+				it("とくせい効果変化後が正しい", () => {
+					expect(sampleFriendsData?.wildPhotoTraitChanged).toBe(
+						"攻撃命中率が{6%}増加し~~状態異常にかかっていないとき、与ダメージが{4%}増加する",
+					);
 				});
 			});
 		});
 
-		describe('登録ステータス', () => {
-			it('かいひが1.0%である', () => {
+		describe("登録ステータス", () => {
+			it("かいひが1.0%である", () => {
 				expect(sampleFriendsData?.status.avoid).toBe(0.01);
 			});
 
-			if(sampleFriendsData?.hasYasei5) {
-				it('野生5のかいひが1.2%である', () => {
+			if (sampleFriendsData?.hasYasei5) {
+				it("野生5のかいひが1.2%である", () => {
 					expect(sampleFriendsData?.status.avoidYasei5).toBe(0.012);
 				});
 			}
 
-			it('初期ステータスが正しい', () => {
+			it("初期ステータスが正しい", () => {
 				expect(sampleFriendsData?.status.statusInitial).toEqual({
 					kemosute: 45535,
 					hp: 17307,
 					atk: 7999,
 					def: 3846,
-					estimated: false
+					estimated: false,
 				});
 			});
 
-			it('Lv90のステータスが正しい', () => {
+			it("Lv90のステータスが正しい", () => {
 				expect(sampleFriendsData?.status.status90).toEqual({
 					kemosute: 53049,
 					hp: 20162,
 					atk: 9319,
 					def: 4481,
-					estimated: false
+					estimated: false,
 				});
 			});
 
-			it('Lv99のステータスが正しい', () => {
+			it("Lv99のステータスが正しい", () => {
 				expect(sampleFriendsData?.status.status99).toEqual({
 					kemosute: 56067,
 					hp: 21310,
 					atk: 9849,
 					def: 4736,
-					estimated: false
+					estimated: false,
 				});
 			});
 
-			it('Lv99野生5のステータスが正しい', () => {
+			it("Lv99野生5のステータスが正しい", () => {
 				expect(sampleFriendsData?.status.status99Yasei5).toEqual({
 					kemosute: 61601,
 					hp: 23414,
 					atk: 10821,
 					def: 5203,
-					estimated: false
+					estimated: false,
 				});
 			});
 		});
 
-		describe('ステータス基礎値', () => {
-			it('Lv1基礎値が正しい', () => {
+		describe("ステータス基礎値", () => {
+			it("Lv1基礎値が正しい", () => {
 				expect(sampleFriendsData?.status.statusBase.lv1).toEqual({
 					kemosute: null,
 					hp: 2227,
 					atk: 1029,
 					def: 495,
-					estimated: true
+					estimated: true,
 				});
 			});
 
-			it('Lv90基礎値が正しい', () => {
+			it("Lv90基礎値が正しい", () => {
 				expect(sampleFriendsData?.status.statusBase.lv90).toEqual({
 					kemosute: null,
 					hp: 11132,
 					atk: 5143,
 					def: 2472,
-					estimated: true
+					estimated: true,
 				});
 			});
 
-			it('Lv99基礎値が正しい', () => {
+			it("Lv99基礎値が正しい", () => {
 				expect(sampleFriendsData?.status.statusBase.lv99).toEqual({
 					kemosute: null,
 					hp: 12175,
 					atk: 5625,
 					def: 2704,
-					estimated: true
+					estimated: true,
 				});
 			});
 
-			it('野生解放4基礎値が正しい', () => {
+			it("野生解放4基礎値が正しい", () => {
 				expect(sampleFriendsData?.status.statusBase.yasei4).toEqual({
 					kemosute: null,
 					hp: 7197,
 					atk: 3328,
 					def: 1601,
-					estimated: true
+					estimated: true,
 				});
 			});
 
-			it('野生解放5基礎値が正しい', () => {
+			it("野生解放5基礎値が正しい", () => {
 				expect(sampleFriendsData?.status.statusBase.yasei5).toEqual({
 					kemosute: null,
 					hp: 9110,
 					atk: 4212,
 					def: 2026,
-					estimated: true
+					estimated: true,
 				});
 			});
 
-			it('めぐみパターンが正しい', () => {
-				expect(sampleFriendsData?.status.statusBase.megumiPattern).toBe(MegumiPattern.atk50);
+			it("めぐみパターンが正しい", () => {
+				expect(sampleFriendsData?.status.statusBase.megumiPattern).toBe(
+					MegumiPattern.atk50,
+				);
 			});
 		});
 	});
 
-	describe('ドラゴンサーバルのデータ', () => {
+	describe("ドラゴンサーバルのデータ", () => {
 		let sampleFriendsData: Awaited<ReturnType<typeof getFriendsData>>[number] | undefined;
 
 		beforeAll(() => {
-			sampleFriendsData = friendsData.find(friend => friend.id === 'ドラゴンサーバル');
+			sampleFriendsData = friendsData.find((friend) => friend.id === "ドラゴンサーバル");
 		});
 
-		describe('基本情報', () => {
-			it('idがドラゴンサーバルである', () => {
-				expect(sampleFriendsData?.id).toBe('ドラゴンサーバル');
+		describe("基本情報", () => {
+			it("idがドラゴンサーバルである", () => {
+				expect(sampleFriendsData?.id).toBe("ドラゴンサーバル");
 			});
 
-			it('フレンズ名がドラゴンサーバルである', () => {
-				expect(sampleFriendsData?.name).toBe('ドラゴンサーバル');
+			it("フレンズ名がドラゴンサーバルである", () => {
+				expect(sampleFriendsData?.name).toBe("ドラゴンサーバル");
 			});
 
-			it('属性違い二つ名がない', () => {
-				expect(sampleFriendsData?.secondName).toBe('');
+			it("属性違い二つ名がない", () => {
+				expect(sampleFriendsData?.secondName).toBe("");
 			});
 
-			it('HCでない', () => {
+			it("HCでない", () => {
 				expect(sampleFriendsData?.isHc).toBe(false);
 			});
 
-			it('属性がファニーである', () => {
+			it("属性がファニーである", () => {
 				expect(sampleFriendsData?.attribute).toBe(FriendsAttribute.funny);
 			});
 
-			it('サブ属性がフレンドリーである', () => {
+			it("サブ属性がフレンドリーである", () => {
 				expect(sampleFriendsData?.subAttribute).toBe(FriendsAttribute.friendry);
 			});
 
-			it('けものミラクル必要MPが80である', () => {
+			it("けものミラクル必要MPが80である", () => {
 				expect(sampleFriendsData?.miracleRequiredMp).toBe(80);
 			});
 		});
 
-		describe('フラッグ', () => {
-			it('Beatフラッグが2である', () => {
+		describe("フラッグ", () => {
+			it("Beatフラッグが2である", () => {
 				expect(sampleFriendsData?.status.beatFlags).toBe(2);
 			});
 
-			it('Actionフラッグが[30]である', () => {
+			it("Actionフラッグが[30]である", () => {
 				expect(sampleFriendsData?.status.actionFlags).toEqual([30]);
 			});
 
-			it('Tryフラッグが[40]である', () => {
+			it("Tryフラッグが[40]である", () => {
 				expect(sampleFriendsData?.status.tryFlags).toEqual([40]);
 			});
 
-			it('Specialフラッグが[[20, 30]]である', () => {
+			it("Specialフラッグが[[20, 30]]である", () => {
 				expect(sampleFriendsData?.status.specialFlags).toEqual([[20, 30]]);
 			});
 		});

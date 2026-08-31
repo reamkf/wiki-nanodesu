@@ -1,5 +1,5 @@
 import Link, { LinkProps } from "next/link";
-import { getWikiNanodaPageUrl } from '@/utils/wikiNanodaUrl';
+import { getWikiNanodaPageUrl } from "@/utils/wikiNanodaUrl";
 import { ReactNode } from "react";
 
 // 子要素を受け入れるための型定義を追加
@@ -10,20 +10,20 @@ interface SeesaaWikiLinkProps extends LinkProps {
 
 export function SeesaaWikiLink(props: SeesaaWikiLinkProps) {
 	const { children, ...restProps } = props;
-	const href = typeof props.href === 'string' ? props.href : null;
+	const href = typeof props.href === "string" ? props.href : null;
 
-	if (href !== null && !href.startsWith('https://')) {
+	if (href !== null && !href.startsWith("https://")) {
 		restProps.href = getWikiNanodaPageUrl(href);
 	}
 
 	return (
 		<Link
-			className={'font-bold text-green-500' + ' ' + (props.className || '')}
+			className={"font-bold text-green-500" + " " + (props.className || "")}
 			target="_blank"
 			rel="noopener noreferrer"
 			{...restProps}
 		>
 			{children}
 		</Link>
-	)
+	);
 }

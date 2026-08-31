@@ -15,7 +15,7 @@ export default async function globalSetup() {
 	// out/ ディレクトリが存在するか確認
 	if (!fs.existsSync(outDir)) {
 		throw new Error(
-			"out/ ディレクトリが見つかりません。先に `bun run build` を実行してください。"
+			"out/ ディレクトリが見つかりません。先に `bun run build` を実行してください。",
 		);
 	}
 }
