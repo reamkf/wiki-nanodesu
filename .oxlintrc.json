@@ -1,18 +1,16 @@
 {
 	"$schema": "./node_modules/oxlint/configuration_schema.json",
-	"plugins": ["react", "nextjs", "jsx-a11y", "import", "typescript"],
+	"plugins": ["react", "nextjs", "jsx-a11y", "import", "typescript", "unicorn", "oxc"],
 	"categories": {
 		"correctness": "error"
+	},
+	"rules": {
+		"oxc/only-used-in-recursion": "off"
 	},
 	"env": {
 		"browser": true,
 		"node": true,
 		"es2024": true
 	},
-	"ignorePatterns": [
-		".next/**",
-		"out/**",
-		"build/**",
-		"next-env.d.ts"
-	]
+	"ignorePatterns": [".next/**", "out/**", "build/**", "next-env.d.ts"]
 }
