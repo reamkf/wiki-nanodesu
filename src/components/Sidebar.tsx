@@ -62,6 +62,10 @@ export async function Sidebar() {
 			href: '/nanairo-skills',
 			text: 'なないろとくせい一覧',
 		},
+		{
+			href: '/event-list',
+			text: 'イベント一覧',
+		},
 	];
 
 	const sideBarPagesNanoda = [
@@ -114,7 +118,6 @@ export async function Sidebar() {
 		'探検！迷宮ゾーン',
 		'なかよしボーナス',
 		'体力測定 ホッキョクグマ編',
-		'過去のイベント',
 		'イベント攻略',
 		'成長クエスト',
 		'フレンズストーリー',

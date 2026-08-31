@@ -159,6 +159,14 @@ const sheetConfigs: SheetConfig[] = [
 		}
 	},
 	{
+		sheetName: 'イベントデータ',
+		filePath: 'csv/イベントデータ.csv',
+		range: {
+			startColumn: 1,
+			endColumn: 15
+		}
+	},
+	{
 		sheetName: 'フォト火力データCSV用',
 		filePath: 'csv/フォト火力データ.csv',
 		range: {
