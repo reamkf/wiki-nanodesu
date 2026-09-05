@@ -42,7 +42,7 @@ export function SidebarClient({
 	friendsLinks,
 	photoLinks,
 }: SidebarClientProps) {
-	const { isOpen, close } = useSidebar();
+	const { isOpen, toggle, close } = useSidebar();
 	const [searchQuery, setSearchQuery] = useState("");
 	const searchInputRef = useRef<HTMLInputElement>(null);
 	const isSearching = searchQuery.length > 0;
@@ -130,6 +130,19 @@ export function SidebarClient({
 		},
 		[navigation, searchQuery],
 	);
+
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (!event.ctrlKey || event.key.toLowerCase() !== "k") return;
+
+			event.preventDefault();
+			if (!isOpen) toggle();
+			requestAnimationFrame(() => searchInputRef.current?.focus());
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [isOpen, toggle]);
 
 	const handleLinkKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLAnchorElement>) => {

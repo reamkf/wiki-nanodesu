@@ -69,6 +69,15 @@ test.describe("サイドバー", () => {
 		}
 	});
 
+	test("Ctrl+Kで検索窓にフォーカスできる", async ({ page }) => {
+		await page.goto("./");
+		const searchInput = page.locator("aside").getByPlaceholder("ページを検索...");
+
+		await page.keyboard.press("Control+K");
+
+		await expect(searchInput).toBeFocused();
+	});
+
 	test("サイドバーの検索機能が動作する", async ({ page }) => {
 		await page.goto("./");
 		await openSidebarIfMobile(page);
