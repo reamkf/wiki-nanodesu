@@ -65,7 +65,7 @@ function CategorySection({
 interface CategoryLayoutProps {
 	categories: TreeItemData[];
 	renderContent: (categoryId: string) => ReactNode;
-	onItemClisk: (id: string) => void;
+	onNavigate: (id: string) => void;
 	selectedCategory: string | null;
 	emptyMessage?: string;
 }
@@ -77,7 +77,7 @@ interface CategoryLayoutProps {
 export function CategoryLayout({
 	categories,
 	renderContent,
-	onItemClisk,
+	onNavigate,
 	selectedCategory,
 	emptyMessage = "データがありません",
 }: CategoryLayoutProps) {
@@ -85,7 +85,7 @@ export function CategoryLayout({
 		<>
 			<Box>
 				<div className="sticky top-0">
-					<TableOfContents contents={categories} onItemClisk={onItemClisk} />
+					<TableOfContents contents={categories} onNavigate={onNavigate} />
 				</div>
 			</Box>
 			<Box>

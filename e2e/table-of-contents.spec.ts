@@ -64,4 +64,17 @@ test.describe("目次ダイアログ", () => {
 		const heading = page.getByRole("heading", { name: "目次" });
 		await expect(heading).toBeVisible();
 	});
+
+	test("検索文字列なしの下矢印で選択が始まる", async ({ page }) => {
+		const tocButton = page.getByRole("button", { name: "目次" });
+		await tocButton.first().click();
+
+		const searchField = page.getByPlaceholder("目次を検索...");
+		const tree = page.getByRole("tree");
+		await expect(tree.getByRole("treeitem", { selected: true })).toHaveCount(0);
+
+		await searchField.press("ArrowDown");
+
+		await expect(tree.getByRole("treeitem", { selected: true })).toHaveCount(1);
+	});
 });

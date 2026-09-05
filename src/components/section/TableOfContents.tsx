@@ -9,24 +9,24 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
-import { TreeList, TreeItemData } from "../common/TreeList";
+import { TreeView } from "../common/tree/TreeView";
+import { getTreeItemDomId } from "../common/tree/treeModel";
+import { useTreeView } from "../common/tree/useTreeView";
+import { TreeItemData } from "../common/tree/types";
 
 interface TableOfContentsProps {
 	contents: TreeItemData[];
-	onItemClisk?: (id: string) => void;
+	onNavigate?: (id: string) => void;
 }
 
-/**
- * シンプルな箇条書き形式の目次コンポーネント
- */
-export function TableOfContents({ contents, onItemClisk }: TableOfContentsProps) {
+export function TableOfContents({ contents, onNavigate }: TableOfContentsProps) {
 	const [open, setOpen] = useState(false);
 	const [showButton, setShowButton] = useState(false);
 	const [searchKeyword, setSearchKeyword] = useState("");
 	const normalButtonRef = useRef<HTMLDivElement>(null);
 	const searchInputRef = useRef<HTMLInputElement>(null);
+	const tree = useTreeView({ items: contents, searchKeyword });
 
-	// 指定されたIDのセクションにスクロールする関数
 	const scrollToSection = useCallback((id: string) => {
 		const element = document.getElementById(`heading-${id}`);
 		if (element) {
@@ -38,161 +38,161 @@ export function TableOfContents({ contents, onItemClisk }: TableOfContentsProps)
 		}
 	}, []);
 
-	// 通常表示のボタンが画面外になったときだけボタンを表示する
 	useEffect(() => {
-		// IntersectionObserverの作成
 		const observer = new IntersectionObserver(
 			(entries) => {
-				// 監視対象要素の可視状態が変化したとき
 				const isVisible = entries[0]?.isIntersecting ?? false;
-				// 要素が画面外のときだけボタンを表示
 				setShowButton(!isVisible);
 			},
-			{ threshold: 0 }, // 少しでも見えなくなったら検出
+			{ threshold: 0 },
 		);
 
-		// 通常表示のボタン要素を監視対象に追加
-		if (normalButtonRef.current) {
-			observer.observe(normalButtonRef.current);
-		}
-
-		return () => {
-			// コンポーネントのアンマウント時に監視を解除
-			observer.disconnect();
-		};
+		if (normalButtonRef.current) observer.observe(normalButtonRef.current);
+		return () => observer.disconnect();
 	}, []);
 
-	// ページ表示時にURLハッシュに基づき、折りたたみを開く（onItemClisk）とスクロール
 	useEffect(() => {
-		if (window.location.hash) {
-			const id = window.location.hash.substring(1);
-			const decodedId = decodeURIComponent(id);
-			if (onItemClisk) {
-				onItemClisk(decodedId);
-			}
-			scrollToSection(decodedId);
-		}
-	}, [scrollToSection, onItemClisk]);
+		if (!window.location.hash) return;
 
-	// ダイアログを開く
+		try {
+			const decodedId = decodeURIComponent(window.location.hash.substring(1));
+			onNavigate?.(decodedId);
+			scrollToSection(decodedId);
+		} catch {
+			console.info("URLハッシュを読み込めませんでした");
+		}
+	}, [onNavigate, scrollToSection]);
+
 	const handleOpenDialog = useCallback(() => {
 		setOpen(true);
-		// ダイアログが開いた後に検索フィールドにフォーカス
-		// ダイアログのアニメーション（200ms）が完了してからフォーカス
-		setTimeout(() => {
-			if (searchInputRef.current) {
-				searchInputRef.current.focus();
-			}
-		}, 200);
+		setTimeout(() => searchInputRef.current?.focus(), 200);
 	}, []);
 
-	// キーボードショートカット（Ctrl+Shift+O）で目次ダイアログを開く
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
-			// Ctrl+Shift+O が押されたとき
-			if (event.ctrlKey && event.shiftKey && event.key === "O") {
-				event.preventDefault(); // デフォルトの動作を防止
+			if (event.ctrlKey && event.shiftKey && event.key.toUpperCase() === "O") {
+				event.preventDefault();
 				handleOpenDialog();
 			}
 		};
 
-		// キーボードイベントリスナーを追加
 		window.addEventListener("keydown", handleKeyDown);
-
-		// クリーンアップ関数
-		return () => {
-			window.removeEventListener("keydown", handleKeyDown);
-		};
+		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, [handleOpenDialog]);
 
-	// ダイアログを閉じる
 	const handleCloseDialog = useCallback(() => {
 		setOpen(false);
-		// ダイアログを閉じるときに検索キーワードをリセット
 		setSearchKeyword("");
-	}, []);
+		tree.setActiveId(null);
+	}, [tree]);
 
-	// 検索キーワードが変更されたときの処理
-	const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		setSearchKeyword(e.target.value);
-	}, []);
-
-	// 検索フィールドでEscキーが押されたときの処理
-	const handleSearchKeyDown = useCallback(
-		(e: React.KeyboardEvent<HTMLInputElement>) => {
-			if (e.key === "Escape") {
-				// 検索フィールドが空の場合はダイアログを閉じる
-				if (searchKeyword === "") {
-					handleCloseDialog();
-				} else {
-					// 検索フィールドが空でない場合は検索キーワードをリセット
-					setSearchKeyword("");
-					e.preventDefault(); // デフォルトのEscキーの動作を防止
-				}
-			}
-		},
-		[searchKeyword, handleCloseDialog],
-	);
-
-	// 目次項目がクリックされたとき
 	const handleItemClick = useCallback(
 		(id: string) => {
-			// まずダイアログを閉じる
 			setOpen(false);
-			// 検索キーワードをリセット
 			setSearchKeyword("");
-
-			// ダイアログの閉じるアニメーション（200ms）が完了してから処理を実行
+			tree.setActiveId(null);
 			setTimeout(() => {
-				// URLのハッシュを更新
 				window.history.pushState({}, "", `#${id}`);
-
-				// セクションにスクロール
 				scrollToSection(id);
-
-				// 親コンポーネントのonSelect関数があれば呼び出す
-				if (onItemClisk) {
-					onItemClisk(id);
-				}
+				onNavigate?.(id);
 			}, 200);
 		},
-		[onItemClisk, scrollToSection],
+		[onNavigate, scrollToSection, tree],
 	);
 
-	// 目次のコンテンツ部分
+	const handleSearchChange = useCallback(
+		(event: React.ChangeEvent<HTMLInputElement>) => {
+			const value = event.target.value;
+			setSearchKeyword(value);
+			if (!value.trim()) tree.setActiveId(null);
+		},
+		[tree],
+	);
+
+	const handleTreeKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLDivElement>) => {
+			const activeId = tree.handleKeyDown(event);
+			if (activeId) handleItemClick(activeId);
+		},
+		[handleItemClick, tree],
+	);
+
+	const handleSearchKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLInputElement>) => {
+			if (event.nativeEvent.isComposing) return;
+
+			switch (event.key) {
+				case "ArrowDown":
+					event.preventDefault();
+					tree.moveNext();
+					break;
+				case "ArrowUp":
+					event.preventDefault();
+					tree.movePrevious();
+					break;
+				case "Enter": {
+					const activeId = tree.activateActive();
+					if (activeId) {
+						event.preventDefault();
+						handleItemClick(activeId);
+					}
+					break;
+				}
+				case "Escape":
+					if (searchKeyword === "") handleCloseDialog();
+					else {
+						event.preventDefault();
+						setSearchKeyword("");
+						tree.setActiveId(null);
+					}
+					break;
+			}
+		},
+		[handleCloseDialog, handleItemClick, searchKeyword, tree],
+	);
+
 	const tocContent = useMemo(
 		() => (
 			<Box className="pb-1 w-full max-h-[80vh] overflow-y-auto">
-				<TreeList
-					items={contents}
-					onItemClick={handleItemClick}
-					searchKeyword={searchKeyword}
-				/>
+				{tree.visibleItems.length > 0 ? (
+					<TreeView
+						items={contents}
+						expandedIds={tree.expandedIds}
+						activeId={tree.activeId}
+						visibleItems={tree.visibleItems}
+						searchKeyword={searchKeyword}
+						onExpandedChange={tree.setExpandedIds}
+						onActiveChange={tree.setActiveId}
+						onActivate={handleItemClick}
+						onKeyDown={handleTreeKeyDown}
+					/>
+				) : (
+					<Box className="px-4 py-3 text-sm text-gray-500">該当する項目がありません</Box>
+				)}
 			</Box>
 		),
-		[contents, handleItemClick, searchKeyword],
+		[contents, handleItemClick, handleTreeKeyDown, searchKeyword, tree],
 	);
 
-	// 共通の目次ボタン
 	const tocButton = useMemo(
 		() => (
 			<Button
 				onClick={handleOpenDialog}
 				startIcon={<MenuIcon />}
 				className="
-				bg-sky-100
-				hover:bg-sky-200
-				rounded-lg
-				normal-case
-				px-4
-				py-2
-				flex
-				items-center
-				justify-center
-				text-sm
-				font-bold
-				text-sky-700
-			"
+					bg-sky-100
+					hover:bg-sky-200
+					rounded-lg
+					 normal-case
+					px-4
+					py-2
+					flex
+					items-center
+					justify-center
+					text-sm
+					font-bold
+					text-sky-700
+				"
 				disableRipple
 				disableElevation
 			>
@@ -204,7 +204,6 @@ export function TableOfContents({ contents, onItemClisk }: TableOfContentsProps)
 
 	return (
 		<>
-			{/* スクロール時の固定ボタン */}
 			<Transition
 				as={Fragment}
 				show={showButton}
@@ -218,12 +217,10 @@ export function TableOfContents({ contents, onItemClisk }: TableOfContentsProps)
 				<Box className="fixed top-4 right-4 z-50">{tocButton}</Box>
 			</Transition>
 
-			{/* 通常表示の目次ボタン */}
 			<Box className="my-2" ref={normalButtonRef}>
 				{tocButton}
 			</Box>
 
-			{/* AboutModal.tsxと同じ実装のダイアログ */}
 			<Transition appear show={open} as={Fragment}>
 				<Dialog as="div" className="relative z-50" onClose={handleCloseDialog}>
 					<TransitionChild
@@ -258,6 +255,8 @@ export function TableOfContents({ contents, onItemClisk }: TableOfContentsProps)
 											目次
 										</DialogTitle>
 										<button
+											type="button"
+											aria-label="目次を閉じる"
 											onClick={handleCloseDialog}
 											className="text-gray-500 hover:text-gray-700 focus:outline-none"
 										>
@@ -265,11 +264,20 @@ export function TableOfContents({ contents, onItemClisk }: TableOfContentsProps)
 										</button>
 									</div>
 
-									{/* 検索フィールド */}
 									<Box className="mb-4">
 										<TextField
 											slotProps={{
-												htmlInput: { ref: searchInputRef },
+												htmlInput: {
+													ref: searchInputRef,
+													role: "combobox",
+													"aria-label": "目次を検索",
+													"aria-controls": "toc-tree",
+													"aria-haspopup": "tree",
+													"aria-expanded": open,
+													"aria-activedescendant": tree.activeId
+														? getTreeItemDomId(tree.activeId)
+														: undefined,
+												},
 												input: {
 													startAdornment: (
 														<InputAdornment position="start">
