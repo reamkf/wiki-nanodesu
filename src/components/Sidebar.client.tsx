@@ -241,9 +241,14 @@ export function SidebarClient({
 						value={searchQuery}
 						onChange={handleSearchChange}
 						onKeyDown={handleSearchKeyDown}
-						className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-sky-500"
+						className="w-full px-3 py-2 pr-20 bg-white border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-sky-500"
 						ref={searchInputRef}
 					/>
+					{!searchQuery && (
+						<kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none rounded border border-gray-300 bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
+							Ctrl+K
+						</kbd>
+					)}
 					{/* クリアボタン */}
 					{searchQuery && (
 						<button

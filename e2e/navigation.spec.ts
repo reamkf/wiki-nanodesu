@@ -76,6 +76,7 @@ test.describe("サイドバー", () => {
 		await page.keyboard.press("Control+K");
 
 		await expect(searchInput).toBeFocused();
+		await expect(page.locator("aside").getByText("Ctrl+K")).toBeVisible();
 	});
 
 	test("サイドバーの検索機能が動作する", async ({ page }) => {
