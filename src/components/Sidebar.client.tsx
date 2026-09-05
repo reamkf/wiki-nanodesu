@@ -133,6 +133,12 @@ export function SidebarClient({
 
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "Escape") {
+				if (event.target === searchInputRef.current) return;
+				if (isOpen) close();
+				return;
+			}
+
 			if (!event.ctrlKey || event.key.toLowerCase() !== "k") return;
 
 			event.preventDefault();
@@ -142,7 +148,7 @@ export function SidebarClient({
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [isOpen, toggle]);
+	}, [close, isOpen, toggle]);
 
 	const handleLinkKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLAnchorElement>) => {

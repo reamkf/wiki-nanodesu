@@ -315,6 +315,34 @@ test.describe("サイドバー（モバイル）", () => {
 		return viewport !== null && viewport.width >= 768;
 	}, "デスクトップサイズではスキップ");
 
+	test("Escapeでサイドバーを閉じられる", async ({ page }) => {
+		await page.goto("./");
+
+		const menuButton = page.getByLabel("メニュー");
+		await menuButton.click();
+		const sidebar = page.locator("aside");
+		await expect(sidebar).toBeVisible();
+
+		await page.keyboard.press("Escape");
+
+		await expect(sidebar).toHaveClass(/-translate-x-\[110%\]/);
+	});
+
+	test("検索窓のEscapeでサイドバーを閉じない", async ({ page }) => {
+		await page.goto("./");
+
+		const menuButton = page.getByLabel("メニュー");
+		await menuButton.click();
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+		await searchInput.fill("ステータス");
+
+		await searchInput.press("Escape");
+
+		await expect(searchInput).toHaveValue("");
+		await expect(sidebar).not.toHaveClass(/-translate-x-\[110%\]/);
+	});
+
 	test("ハンバーガーメニューでサイドバーの開閉ができる", async ({ page }) => {
 		await page.goto("./");
 
