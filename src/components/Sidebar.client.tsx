@@ -1,6 +1,13 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	useSyncExternalStore,
+} from "react";
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 import Image from "next/image";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -36,6 +43,18 @@ function createNavigationItems(
 	}));
 }
 
+function isMacPlatform() {
+	return typeof navigator !== "undefined" && /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+}
+
+function subscribeToPlatform(_callback: () => void) {
+	return () => {};
+}
+
+function getServerIsMacPlatform() {
+	return false;
+}
+
 export function SidebarClient({
 	sideBarLinksNanodesu,
 	sideBarLinksNanoda,
@@ -44,6 +63,7 @@ export function SidebarClient({
 }: SidebarClientProps) {
 	const { isOpen, toggle, close } = useSidebar();
 	const [searchQuery, setSearchQuery] = useState("");
+	const isMac = useSyncExternalStore(subscribeToPlatform, isMacPlatform, getServerIsMacPlatform);
 	const searchInputRef = useRef<HTMLInputElement>(null);
 	const isSearching = searchQuery.length > 0;
 
@@ -139,7 +159,8 @@ export function SidebarClient({
 				return;
 			}
 
-			if (!event.ctrlKey || event.key.toLowerCase() !== "k") return;
+			const hasShortcutModifier = isMac ? event.metaKey : event.ctrlKey;
+			if (!hasShortcutModifier || event.key.toLowerCase() !== "k") return;
 
 			event.preventDefault();
 			if (!isOpen) toggle();
@@ -148,7 +169,7 @@ export function SidebarClient({
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [close, isOpen, toggle]);
+	}, [close, isMac, isOpen, toggle]);
 
 	const handleLinkKeyDown = useCallback(
 		(event: React.KeyboardEvent<HTMLAnchorElement>) => {
@@ -246,7 +267,7 @@ export function SidebarClient({
 					/>
 					{!searchQuery && (
 						<kbd className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none rounded border border-gray-300 bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
-							Ctrl+K
+							{isMac ? "Cmd+K" : "Ctrl+K"}
 						</kbd>
 					)}
 					{/* クリアボタン */}

@@ -79,6 +79,22 @@ test.describe("サイドバー", () => {
 		await expect(page.locator("aside").getByText("Ctrl+K")).toBeVisible();
 	});
 
+	test("MacではCmd+Kで検索窓にフォーカスできる", async ({ page }) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(navigator, "platform", { value: "MacIntel" });
+		});
+		await page.goto("./");
+		const searchInput = page.locator("aside").getByPlaceholder("ページを検索...");
+
+		await page.keyboard.press("Control+K");
+		await expect(searchInput).not.toBeFocused();
+
+		await page.keyboard.press("Meta+K");
+
+		await expect(searchInput).toBeFocused();
+		await expect(page.locator("aside").getByText("Cmd+K")).toBeVisible();
+	});
+
 	test("サイドバーの検索機能が動作する", async ({ page }) => {
 		await page.goto("./");
 		await openSidebarIfMobile(page);
