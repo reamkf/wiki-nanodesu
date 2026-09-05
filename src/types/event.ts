@@ -29,6 +29,7 @@ export interface EventDataRow {
 }
 
 export interface EventRelatedFriend {
+	id: string;
 	name: string;
 	secondName: string;
 	iconUrl: string;

@@ -15,10 +15,6 @@ import { createCustomFilterFn } from "@/utils/tableFilters";
 import { formatEventDate } from "@/utils/eventDate";
 import { getWikiNanodaPageUrl } from "@/utils/wikiNanodaUrl";
 
-function getFriendPageName(friend: EventRelatedFriend): string {
-	return friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name;
-}
-
 function isRelatedColumn(columnId: string): boolean {
 	return columnId.startsWith("friend") || columnId.startsWith("photo");
 }
@@ -81,19 +77,17 @@ function EventCell({ event }: { event: EventDisplayData }) {
 function FriendCell({ friend }: { friend: EventRelatedFriend }) {
 	return (
 		<SeesaaWikiLink
-			href={getWikiNanodaPageUrl(getFriendPageName(friend))}
+			href={getWikiNanodaPageUrl(friend.id)}
 			className="flex flex-col items-center text-center"
 		>
 			<SeesaaWikiImage
 				src={friend.iconUrl}
-				alt={getFriendPageName(friend)}
+				alt={friend.id}
 				width={55}
 				height={55}
 				className="h-[55px] w-[55px] object-contain"
 			/>
-			{friend.secondName && (
-				<span className="text-xs text-red-500">【{friend.secondName}】</span>
-			)}
+			{friend.secondName && <span className="text-xs text-red-500">{friend.secondName}</span>}
 			<span>{friend.name}</span>
 		</SeesaaWikiLink>
 	);
@@ -124,7 +118,7 @@ function getSearchableText(row: EventDisplayData, columnId: string): string {
 	if (columnId === "type") return row.type;
 	if (columnId.startsWith("friend")) {
 		const friend = row.friends[Number(columnId.slice("friend".length)) - 1];
-		return friend ? getFriendPageName(friend) : "";
+		return friend ? [friend.id, friend.name, friend.secondName].join(" ") : "";
 	}
 	if (columnId.startsWith("photo")) {
 		const photo = row.photos[Number(columnId.slice("photo".length)) - 1];

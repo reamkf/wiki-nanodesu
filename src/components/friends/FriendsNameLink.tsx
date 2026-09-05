@@ -8,13 +8,12 @@ interface FriendsNameLinkProps {
 }
 
 export const FriendsNameLink = memo(function FriendsNameLink({ friend }: FriendsNameLinkProps) {
-	const friendsName = friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name;
-	const pageUrl = getWikiNanodaPageUrl(friendsName);
+	const pageUrl = getWikiNanodaPageUrl(friend.id);
 	return (
 		<>
 			<SeesaaWikiLink href={pageUrl} className="text-md">
 				{friend.secondName && (
-					<div className="text-xs text-red-500 p-0 m-0">【{friend.secondName}】</div>
+					<div className="text-xs text-red-500 p-0 m-0">{friend.secondName}</div>
 				)}
 				{friend.name}
 			</SeesaaWikiLink>

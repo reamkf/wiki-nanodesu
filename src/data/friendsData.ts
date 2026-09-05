@@ -221,7 +221,7 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 				const parsed = {
 					id: row.ID || "",
 					name: row.フレンズ名 || "",
-					secondName: row.属性違い二つ名 || "",
+					secondName: row.二つ名 || "",
 					isHc: convertToBoolean(row.HC),
 					attribute: isFriendsAttribute(row.属性) ? row.属性 : FriendsAttribute.none,
 					subAttribute: isFriendsAttribute(row.サブ属性)

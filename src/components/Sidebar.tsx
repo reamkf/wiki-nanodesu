@@ -18,9 +18,7 @@ export async function Sidebar() {
 
 	const friendsPageNameList: string[] = friendsData
 		.sort((a, b) => a.name.localeCompare(b.name))
-		.map((friend: FriendsDataRow) =>
-			friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name,
-		);
+		.map((friend: FriendsDataRow) => friend.id);
 
 	const photoPageNameList: string[] = photoData
 		.filter((photo) => !photo.isWildPhoto)

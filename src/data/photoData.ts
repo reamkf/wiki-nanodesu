@@ -68,10 +68,7 @@ export async function getPhotoData(): Promise<PhotoDataRow[]> {
 	for (const friend of friendsData) {
 		if (friend.isHc) continue;
 		wildPhotoData.push({
-			name:
-				(friend.secondName !== "" ? `【${friend.secondName}】` : "") +
-				friend.name +
-				"(フォト)",
+			name: `${friend.id}(フォト)`,
 			implementType: friend.implementType,
 			implementDate: friend.implementDate,
 			rarity: 3,

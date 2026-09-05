@@ -14,6 +14,11 @@ describe("getFriendsData", () => {
 		await expect(friendsData).toBeDefined();
 	});
 
+	it("二つ名の表記を含むIDを読み込める", () => {
+		const friend = friendsData.find((friend) => friend.id === "《村落獅子》シーサー・ライト");
+		expect(friend?.secondName).toBe("《村落獅子》");
+	});
+
 	describe("カマイタチ・切のデータ", () => {
 		let sampleFriendsData: Awaited<ReturnType<typeof getFriendsData>>[number] | undefined;
 
@@ -30,7 +35,7 @@ describe("getFriendsData", () => {
 				expect(sampleFriendsData?.name).toBe("カマイタチ・切");
 			});
 
-			it("属性違い二つ名がない", () => {
+			it("二つ名がない", () => {
 				expect(sampleFriendsData?.secondName).toBe("");
 			});
 
@@ -233,7 +238,7 @@ describe("getFriendsData", () => {
 				expect(sampleFriendsData?.name).toBe("ドラゴンサーバル");
 			});
 
-			it("属性違い二つ名がない", () => {
+			it("二つ名がない", () => {
 				expect(sampleFriendsData?.secondName).toBe("");
 			});
 

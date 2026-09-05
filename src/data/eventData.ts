@@ -46,19 +46,8 @@ export async function getEventData(): Promise<EventDataRow[]> {
 	return eventDataCache;
 }
 
-function getFriendDisplayName(friend: FriendsDataRow): string {
-	return friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name;
-}
-
 function createFriendMap(friends: FriendsDataRow[]): Map<string, FriendsDataRow> {
-	const map = new Map<string, FriendsDataRow>();
-	for (const friend of friends) {
-		const names = [friend.id, friend.name, getFriendDisplayName(friend)];
-		for (const name of names) {
-			if (name) map.set(name, friend);
-		}
-	}
-	return map;
+	return new Map(friends.map((friend) => [friend.id, friend]));
 }
 
 function createPhotoMap(photos: PhotoDataRow[]): Map<string, PhotoDataRow> {
@@ -84,6 +73,7 @@ export async function getEventDisplayData(): Promise<EventDisplayData[]> {
 		friends: event.friendNames.map((name) => {
 			const friend = friendMap.get(name);
 			return {
+				id: friend?.id || name,
 				name: friend?.name || name,
 				secondName: friend?.secondName || "",
 				iconUrl: friend?.iconUrl || "",

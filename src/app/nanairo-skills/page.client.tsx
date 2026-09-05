@@ -18,16 +18,12 @@ function getRarityText(friend: FriendsDataRow): string {
 	return friend.rarity > 0 ? `☆${friend.rarity}` : "";
 }
 
-function getFriendDisplayName(friend: FriendsDataRow): string {
-	return friend.secondName ? `【${friend.secondName}】${friend.name}` : friend.name;
-}
-
 function getSearchableText(friend: FriendsDataRow, columnId: string): string {
 	switch (columnId) {
 		case "rarity":
 			return getRarityText(friend);
 		case "friends":
-			return getFriendDisplayName(friend);
+			return [friend.id, friend.name, friend.secondName].join(" ");
 		case "attribute":
 			return friend.attribute;
 		case "effect":

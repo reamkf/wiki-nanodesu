@@ -144,7 +144,7 @@ export interface FriendsStatusListItem {
 export interface RawFriendsCSV {
 	ID: string;
 	フレンズ名: string;
-	属性違い二つ名: string;
+	二つ名: string;
 	HC: boolean;
 	ページURL: string;
 	属性: string;

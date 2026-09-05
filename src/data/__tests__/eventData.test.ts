@@ -11,15 +11,15 @@ describe("getEventData", () => {
 	it("先頭イベントの列を変換できる", async () => {
 		const firstEvent = (await getEventData())[0];
 		expect(firstEvent).toEqual({
-			name: "全国区のアイドルへの第一歩！ですわ！",
+			name: "かがやけリクホク☆じょーとーの段！",
 			bannerImageUrl:
-				"https://image02.seesaawiki.jp/k/h/kemono_friends3_5ch/8c2703602d0e33c3.PNG",
+				"https://image02.seesaawiki.jp/k/h/kemono_friends3_5ch/5c9e7033d01c83ce.PNG",
 			wikiPage: "",
-			startDate: "2026/08/20",
-			endDate: "2026/09/03 14:00:00",
-			type: "シナリオ(コラボ)",
-			friendNames: ["東北イタコ", "東北きりたん"],
-			photoNames: ["ペラリとお悩み解決！", "ぎゅぎゅっとおいしい"],
+			startDate: "2026/09/03",
+			endDate: "2026/10/01 14:00:00",
+			type: "シナリオ(マップ)",
+			friendNames: ["《村落獅子》シーサー・ライト"],
+			photoNames: ["守り神の度胸試し"],
 		});
 	});
 });
@@ -27,14 +27,15 @@ describe("getEventData", () => {
 describe("getEventDisplayData", () => {
 	it("フレンズとフォトを表示用データへ解決できる", async () => {
 		const firstEvent = (await getEventDisplayData())[0];
-		expect(firstEvent.friends.map((friend) => friend.name)).toEqual([
-			"東北イタコ",
-			"東北きりたん",
+		expect(firstEvent.friends).toEqual([
+			{
+				id: "《村落獅子》シーサー・ライト",
+				name: "シーサー・ライト",
+				secondName: "《村落獅子》",
+				iconUrl: expect.any(String),
+			},
 		]);
-		expect(firstEvent.photos.map((photo) => photo.name)).toEqual([
-			"ペラリとお悩み解決！",
-			"ぎゅぎゅっとおいしい",
-		]);
+		expect(firstEvent.photos.map((photo) => photo.name)).toEqual(["守り神の度胸試し"]);
 	});
 });
 
