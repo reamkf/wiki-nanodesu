@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { TreeItemData } from "./types";
+import { useLinearNavigation } from "../navigation/useLinearNavigation";
 import { findParentId, getVisibleTreeItems } from "./treeModel";
 
 interface UseTreeViewOptions {
@@ -37,28 +38,22 @@ export function useTreeView({
 	const [expandedIds, setExpandedIds] = useState<ReadonlySet<string>>(() =>
 		getInitialExpandedIds(items, isExpandedAllByDefault),
 	);
-	const [requestedActiveId, setRequestedActiveId] = useState<string | null>(null);
 
 	const { visibleItems, filterResult } = useMemo(
 		() => getVisibleTreeItems({ items, expandedIds, searchKeyword }),
 		[items, expandedIds, searchKeyword],
 	);
-
-	const activeId = useMemo(() => {
-		if (!searchKeyword.trim() && requestedActiveId === null) return null;
-		return visibleItems.some((visibleItem) => visibleItem.id === requestedActiveId)
-			? requestedActiveId
-			: (visibleItems[0]?.id ?? null);
-	}, [requestedActiveId, searchKeyword, visibleItems]);
+	const itemIds = useMemo(() => visibleItems.map(({ id }) => id), [visibleItems]);
+	const { activeId, setActiveId, moveNext, movePrevious, moveFirst, moveLast, activateActive } =
+		useLinearNavigation({
+			itemIds,
+			autoSelectFirst: Boolean(searchKeyword.trim()),
+		});
 
 	const effectiveExpandedIds = useMemo(
 		() => new Set([...expandedIds, ...filterResult.requiredExpandedIds]),
 		[expandedIds, filterResult.requiredExpandedIds],
 	);
-
-	const setActiveId = useCallback((id: string | null) => {
-		setRequestedActiveId(id);
-	}, []);
 
 	const toggleExpanded = useCallback((id: string) => {
 		setExpandedIds((previous) => {
@@ -91,8 +86,8 @@ export function useTreeView({
 		}
 
 		const parentId = findParentId(items, activeId);
-		if (parentId) setRequestedActiveId(parentId);
-	}, [activeId, expandedIds, items, visibleItems]);
+		if (parentId) setActiveId(parentId);
+	}, [activeId, expandedIds, items, setActiveId, visibleItems]);
 
 	const moveToFirstChild = useCallback(() => {
 		if (!activeId) return;
@@ -105,38 +100,14 @@ export function useTreeView({
 		}
 
 		const firstChild = visibleItems.find((item) => item.parentId === activeId);
-		if (firstChild) setRequestedActiveId(firstChild.id);
-	}, [activeId, effectiveExpandedIds, visibleItems]);
+		if (firstChild) setActiveId(firstChild.id);
+	}, [activeId, effectiveExpandedIds, setActiveId, visibleItems]);
 
 	const moveToParent = useCallback(() => {
 		if (!activeId) return;
 		const parentId = findParentId(items, activeId);
-		if (parentId) setRequestedActiveId(parentId);
-	}, [activeId, items]);
-
-	const moveBy = useCallback(
-		(offset: number) => {
-			if (visibleItems.length === 0) return;
-			const currentIndex = visibleItems.findIndex((item) => item.id === activeId);
-			const nextIndex = Math.min(
-				Math.max(currentIndex === -1 ? 0 : currentIndex + offset, 0),
-				visibleItems.length - 1,
-			);
-			setRequestedActiveId(visibleItems[nextIndex]?.id ?? null);
-		},
-		[activeId, visibleItems],
-	);
-
-	const moveNext = useCallback(() => moveBy(1), [moveBy]);
-	const movePrevious = useCallback(() => moveBy(-1), [moveBy]);
-	const moveFirst = useCallback(
-		() => setRequestedActiveId(visibleItems[0]?.id ?? null),
-		[visibleItems],
-	);
-	const moveLast = useCallback(
-		() => setRequestedActiveId(visibleItems[visibleItems.length - 1]?.id ?? null),
-		[visibleItems],
-	);
+		if (parentId) setActiveId(parentId);
+	}, [activeId, items, setActiveId]);
 
 	const handleKeyDown = useCallback(
 		(event: KeyboardEvent<HTMLDivElement>) => {
@@ -187,8 +158,6 @@ export function useTreeView({
 			moveToFirstChild,
 		],
 	);
-
-	const activateActive = useCallback(() => activeId, [activeId]);
 
 	return {
 		expandedIds,

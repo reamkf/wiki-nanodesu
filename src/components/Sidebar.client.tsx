@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SeesaaWikiLink } from "@/components/seesaawiki/SeesaaWikiLink";
 import Image from "next/image";
 import { useSidebar } from "@/contexts/SidebarContext";
@@ -9,11 +9,31 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import { includesNormalizeQuery } from "@/utils/queryNormalizer";
 import { NanodesuLink } from "@/components/common/NanodesuLink";
 import { OwlIcon } from "@/components/OwlIcon";
+import { useLinearNavigation } from "@/components/common/navigation/useLinearNavigation";
+
 interface SidebarClientProps {
 	sideBarLinksNanodesu: SidebarLinkItem[];
 	sideBarLinksNanoda: SidebarLinkItem[];
 	friendsLinks: SidebarLinkItem[];
 	photoLinks: SidebarLinkItem[];
+}
+
+type SidebarNavigationKind = "nanodesu" | "nanoda" | "friend" | "photo";
+
+type SidebarNavigationItem = SidebarLinkItem & {
+	id: string;
+	kind: SidebarNavigationKind;
+};
+
+function createNavigationItems(
+	links: SidebarLinkItem[],
+	kind: SidebarNavigationKind,
+): SidebarNavigationItem[] {
+	return links.map((link, index) => ({
+		...link,
+		id: `sidebar-${kind}-${index}`,
+		kind,
+	}));
 }
 
 export function SidebarClient({
@@ -25,15 +45,144 @@ export function SidebarClient({
 	const { isOpen, close } = useSidebar();
 	const [searchQuery, setSearchQuery] = useState("");
 	const searchInputRef = useRef<HTMLInputElement>(null);
+	const isSearching = searchQuery.length > 0;
 
-	const matchesSearch = (link: SidebarLinkItem) =>
-		includesNormalizeQuery(link.text, searchQuery) ||
-		(link.textHiragana !== undefined && includesNormalizeQuery(link.textHiragana, searchQuery));
+	const matchesSearch = useCallback(
+		(link: SidebarLinkItem) =>
+			includesNormalizeQuery(link.text, searchQuery) ||
+			(link.textHiragana !== undefined &&
+				includesNormalizeQuery(link.textHiragana, searchQuery)),
+		[searchQuery],
+	);
 
-	const filteredLinksNanodesu = sideBarLinksNanodesu.filter(matchesSearch);
-	const filteredLinksNanoda = sideBarLinksNanoda.filter(matchesSearch);
-	const filteredFriendsLinks = friendsLinks.filter(matchesSearch);
-	const filteredPhotoLinks = photoLinks.filter(matchesSearch);
+	const navigationItems = useMemo(
+		() => [
+			...createNavigationItems(sideBarLinksNanodesu, "nanodesu"),
+			...createNavigationItems(sideBarLinksNanoda, "nanoda"),
+			...(isSearching ? createNavigationItems(friendsLinks, "friend") : []),
+			...(isSearching ? createNavigationItems(photoLinks, "photo") : []),
+		],
+		[isSearching, sideBarLinksNanodesu, sideBarLinksNanoda, friendsLinks, photoLinks],
+	);
+	const visibleNavigationItems = useMemo(
+		() => navigationItems.filter(matchesSearch),
+		[navigationItems, matchesSearch],
+	);
+	const visibleNanodesuLinks = visibleNavigationItems.filter(({ kind }) => kind === "nanodesu");
+	const visibleNanodaLinks = visibleNavigationItems.filter(({ kind }) => kind === "nanoda");
+	const visibleFriendsLinks = visibleNavigationItems.filter(({ kind }) => kind === "friend");
+	const visiblePhotoLinks = visibleNavigationItems.filter(({ kind }) => kind === "photo");
+	const navigation = useLinearNavigation({
+		itemIds: visibleNavigationItems.map(({ id }) => id),
+		autoSelectFirst: isSearching,
+	});
+
+	useEffect(() => {
+		if (!navigation.activeId) return;
+		const item = document.getElementById(navigation.activeId);
+		item?.scrollIntoView({ block: "nearest" });
+
+		if (document.activeElement?.closest("li[id^='sidebar-']")) {
+			item?.querySelector<HTMLAnchorElement>("a")?.focus();
+		}
+	}, [navigation.activeId]);
+
+	const handleSearchChange = useCallback(
+		(event: React.ChangeEvent<HTMLInputElement>) => {
+			const value = event.target.value;
+			setSearchQuery(value);
+			if (value === "") navigation.clearActive();
+		},
+		[navigation],
+	);
+
+	const handleSearchKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLInputElement>) => {
+			if (event.nativeEvent.isComposing) return;
+
+			switch (event.key) {
+				case "ArrowDown":
+					event.preventDefault();
+					navigation.moveNext();
+					break;
+				case "ArrowUp":
+					event.preventDefault();
+					navigation.movePrevious();
+					break;
+				case "Enter": {
+					const activeId = navigation.activateActive();
+					if (!activeId) break;
+					event.preventDefault();
+					document
+						.getElementById(activeId)
+						?.querySelector<HTMLAnchorElement>("a")
+						?.click();
+					break;
+				}
+				case "Escape":
+					if (searchQuery !== "") {
+						event.preventDefault();
+						setSearchQuery("");
+						navigation.clearActive();
+					}
+					break;
+			}
+		},
+		[navigation, searchQuery],
+	);
+
+	const handleLinkKeyDown = useCallback(
+		(event: React.KeyboardEvent<HTMLAnchorElement>) => {
+			if (event.nativeEvent.isComposing) return;
+
+			switch (event.key) {
+				case "ArrowDown":
+					event.preventDefault();
+					navigation.moveNext();
+					break;
+				case "ArrowUp":
+					event.preventDefault();
+					navigation.movePrevious();
+					break;
+				case "Home":
+					event.preventDefault();
+					navigation.moveFirst();
+					break;
+				case "End":
+					event.preventDefault();
+					navigation.moveLast();
+					break;
+				case "Escape":
+					event.preventDefault();
+					searchInputRef.current?.focus();
+					break;
+			}
+		},
+		[navigation],
+	);
+
+	const renderNavigationItem = (item: SidebarNavigationItem) => {
+		const className = `block hover:text-sky-500 rounded-sm hover:underline mb-1 leading-tight p-0.5 ${
+			navigation.activeId === item.id ? "bg-sky-100 ring-2 ring-inset ring-sky-500" : ""
+		}`;
+		const commonProps = {
+			href: item.href,
+			className,
+			onClick: close,
+			onFocus: () => navigation.setActiveId(item.id),
+			onKeyDown: handleLinkKeyDown,
+		};
+
+		return (
+			<li key={item.id} id={item.id}>
+				{item.kind === "nanodesu" ? (
+					<NanodesuLink {...commonProps}>{item.text}</NanodesuLink>
+				) : (
+					<SeesaaWikiLink {...commonProps}>{item.text}</SeesaaWikiLink>
+				)}
+			</li>
+		);
+	};
 
 	return (
 		<aside
@@ -71,7 +220,8 @@ export function SidebarClient({
 						aria-label="ページを検索"
 						placeholder="ページを検索..."
 						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
+						onChange={handleSearchChange}
+						onKeyDown={handleSearchKeyDown}
 						className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-sky-500"
 						ref={searchInputRef}
 					/>
@@ -80,6 +230,7 @@ export function SidebarClient({
 						<button
 							onClick={() => {
 								setSearchQuery("");
+								navigation.clearActive();
 								searchInputRef.current?.focus();
 							}}
 							className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
@@ -110,19 +261,7 @@ export function SidebarClient({
 				</div>
 
 				{/* なのですページリスト */}
-				<ul className="list-disc pl-6">
-					{filteredLinksNanodesu.map((link) => (
-						<li key={`nanodesu-${link.href}`}>
-							<NanodesuLink
-								href={link.href}
-								className="block hover:text-sky-500 rounded-sm hover:underline mb-1 leading-tight"
-								onClick={close}
-							>
-								{link.text}
-							</NanodesuLink>
-						</li>
-					))}
-				</ul>
+				<ul className="list-disc pl-6">{visibleNanodesuLinks.map(renderNavigationItem)}</ul>
 
 				{/* なのだページリスト */}
 				<div className="flex justify-center items-center bg-green-200 hover:bg-green-300 hover:underline rounded-lg mb-2 transition-colors duration-200">
@@ -143,60 +282,28 @@ export function SidebarClient({
 				</div>
 
 				{/* なのだページリスト */}
-				<ul className="list-disc pl-6">
-					{filteredLinksNanoda.map((link) => (
-						<li key={`nanoda-${link.href}`}>
-							<SeesaaWikiLink
-								href={link.href}
-								className="block hover:text-sky-500 rounded-sm hover:underline mb-1 leading-tight"
-								onClick={close}
-							>
-								{link.text}
-							</SeesaaWikiLink>
-						</li>
-					))}
-				</ul>
+				<ul className="list-disc pl-6">{visibleNanodaLinks.map(renderNavigationItem)}</ul>
 
 				{/* 検索時のみフレンズ名リストを表示 */}
-				{searchQuery && filteredFriendsLinks.length > 0 && (
+				{isSearching && visibleFriendsLinks.length > 0 && (
 					<div className="mt-4">
 						<div className="flex items-center border-b-2 border-green-700 mb-2 font-bold text-green-700 grow mt-2">
 							<div className="">フレンズ一覧</div>
 						</div>
 						<ul className="list-disc pl-6">
-							{filteredFriendsLinks.map((link) => (
-								<li key={`friend-${link.href}`}>
-									<SeesaaWikiLink
-										href={link.href}
-										className="block hover:text-sky-500 rounded-sm hover:underline mb-1 leading-tight"
-										onClick={close}
-									>
-										{link.text}
-									</SeesaaWikiLink>
-								</li>
-							))}
+							{visibleFriendsLinks.map(renderNavigationItem)}
 						</ul>
 					</div>
 				)}
 
 				{/* 検索時のみフォトリストを表示 */}
-				{searchQuery && filteredPhotoLinks.length > 0 && (
+				{isSearching && visiblePhotoLinks.length > 0 && (
 					<div className="mt-4">
 						<div className="flex items-center border-b-2 border-green-700 mb-2 font-bold text-green-700 grow mt-2">
 							<div className="">フォト一覧</div>
 						</div>
 						<ul className="list-disc pl-6">
-							{filteredPhotoLinks.map((link) => (
-								<li key={`photo-${link.href}`}>
-									<SeesaaWikiLink
-										href={link.href}
-										className="block hover:text-sky-500 rounded-sm hover:underline mb-1 leading-tight"
-										onClick={close}
-									>
-										{link.text}
-									</SeesaaWikiLink>
-								</li>
-							))}
+							{visiblePhotoLinks.map(renderNavigationItem)}
 						</ul>
 					</div>
 				)}

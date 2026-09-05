@@ -188,6 +188,116 @@ test.describe("サイドバー", () => {
 		await expect(sectionHeader).toBeVisible();
 		await expect(sidebar.getByRole("link", { name: /カマイタチ・切/ })).toBeVisible();
 	});
+
+	test("検索文字列なしでArrowDownを押すと最初のリンクがactiveになる", async ({ page }) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+		const firstLink = sidebar.locator('li[id^="sidebar-"]').first().getByRole("link");
+
+		await searchInput.press("ArrowDown");
+		await expect(firstLink).toHaveClass(/bg-sky-100/);
+	});
+
+	test("検索結果のactive項目をEnterで開ける", async ({ page }) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+
+		await searchInput.fill("ステータス");
+		await expect(sidebar.locator('li[id^="sidebar-"] a.bg-sky-100')).toHaveText(
+			"フレンズステータスランキング",
+		);
+		await searchInput.press("Enter");
+		await page.waitForURL("**/friends-status");
+	});
+
+	test("ArrowDownとArrowUpでactive項目を移動できる", async ({ page }) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+		const activeLink = sidebar.locator('li[id^="sidebar-"] a.bg-sky-100');
+
+		await searchInput.press("ArrowDown");
+		await expect(activeLink).toHaveText("状態異常スキル一覧");
+		await searchInput.press("ArrowDown");
+		await expect(activeLink).toHaveText("スキル別フレンズ一覧");
+		await searchInput.press("ArrowUp");
+		await expect(activeLink).toHaveText("状態異常スキル一覧");
+	});
+
+	test("検索結果が変わるとactive項目が先頭候補へ移動する", async ({ page }) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+		const activeLink = sidebar.locator('li[id^="sidebar-"] a.bg-sky-100');
+
+		await searchInput.fill("ステータス");
+		await expect(activeLink).toHaveText("フレンズステータスランキング");
+		await searchInput.fill("じょうたい");
+		await expect(activeLink).toHaveText("状態異常スキル一覧");
+	});
+
+	test("Escapeで検索文字列とactive状態をクリアできる", async ({ page }) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+		const activeLinks = sidebar.locator('li[id^="sidebar-"] a.bg-sky-100');
+
+		await searchInput.fill("ステータス");
+		await searchInput.press("Escape");
+		await expect(searchInput).toHaveValue("");
+		await expect(activeLinks).toHaveCount(0);
+	});
+
+	test("検索結果がない場合はactive項目を持たずEnterで遷移しない", async ({ page }) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+		const activeLinks = sidebar.locator('li[id^="sidebar-"] a.bg-sky-100');
+		const currentUrl = page.url();
+
+		await searchInput.fill("zzzzzzz");
+		await expect(activeLinks).toHaveCount(0);
+		await searchInput.press("Enter");
+		await expect(page).toHaveURL(currentUrl);
+	});
+
+	test("読み仮名検索の候補をリンク側のactive状態へ反映できる", async ({ page }) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+		const targetLink = sidebar.getByRole("link", { name: /カマイタチ・切/ });
+
+		await searchInput.fill("せつ");
+		await expect(targetLink).toBeVisible();
+		await targetLink.focus();
+		await expect(targetLink).toHaveClass(/bg-sky-100/);
+	});
+
+	test("リンク上のHomeとEndで先頭と末尾へ移動できる", async ({ page }) => {
+		await page.goto("./");
+		await openSidebarIfMobile(page);
+		const sidebar = page.locator("aside");
+		const searchInput = sidebar.getByPlaceholder("ページを検索...");
+		const links = sidebar.locator('li[id^="sidebar-"] a');
+		const activeLink = sidebar.locator('li[id^="sidebar-"] a.bg-sky-100');
+
+		await searchInput.press("ArrowDown");
+		const firstText = (await links.first().textContent()) ?? "";
+		const lastText = (await links.last().textContent()) ?? "";
+		await links.first().press("End");
+		await expect(activeLink).toHaveText(lastText);
+		await links.last().press("Home");
+		await expect(activeLink).toHaveText(firstText);
+	});
 });
 
 test.describe("サイドバー（モバイル）", () => {
