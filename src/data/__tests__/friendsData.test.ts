@@ -19,6 +19,13 @@ describe("getFriendsData", () => {
 		expect(friend?.secondName).toBe("《村落獅子》");
 	});
 
+	it("ページURLを読み込める", () => {
+		const friend = friendsData.find((friend) => friend.id === "セーバル(NPC)");
+		expect(friend?.wikiPageUrl).toBe(
+			"https://seesaawiki.jp/kemono_friends3_5ch/d/%A5%BB%A1%BC%A5%D0%A5%EB",
+		);
+	});
+
 	describe("カマイタチ・切のデータ", () => {
 		let sampleFriendsData: Awaited<ReturnType<typeof getFriendsData>>[number] | undefined;
 
@@ -218,6 +225,38 @@ describe("getFriendsData", () => {
 				expect(sampleFriendsData?.status.statusBase.megumiPattern).toBe(
 					MegumiPattern.atk50,
 				);
+			});
+		});
+	});
+
+	describe("個別ページ用スキルデータ", () => {
+		let sampleFriendsData: Awaited<ReturnType<typeof getFriendsData>>[number] | undefined;
+
+		beforeAll(() => {
+			sampleFriendsData = friendsData.find((friend) => friend.id === "ドール");
+		});
+
+		it("各スキルと個別ページ用テキストを読み込める", () => {
+			expect(sampleFriendsData).toMatchObject({
+				wikiPageUrl: "",
+				miracleName: "疾風のワイルドハント",
+				miracleEffectLv1: expect.stringContaining("390%"),
+				miracleEffectLv5: expect.stringContaining("546%"),
+				miraclePlus: "Beat!!!",
+				specialMoveName: "ロック・オン！",
+				specialMoveEffect: "相手単体に120%のダメージを与える",
+				waitSkillName: "ヤマイヌの才",
+				waitSkillEffect: "与ダメージが7%増加する（3ターン）",
+				waitSkillActivationRate: "50%",
+				waitSkillActivationCount: "∞",
+				traitName: "私は副隊長だから",
+				traitEffect: expect.stringContaining("たいりょくが30%以下"),
+				kisekitraitName: "みんなでいきましょう！",
+				kisekitraitEffect: "味方全体の与ダメージが15%増加する",
+				nanairoSkillName: "親愛なる私のおともだちへ",
+				nanairoSkillEffect: expect.stringContaining("毎ターン"),
+				introductionText: "",
+				zukanText: "",
 			});
 		});
 	});
