@@ -18,8 +18,8 @@ describe("getEventData", () => {
 			startDate: "2026/09/03",
 			endDate: "2026/10/01 14:00:00",
 			type: "シナリオ(マップ)",
-			friendNames: ["《村落獅子》シーサー・ライト"],
-			photoNames: ["守り神の度胸試し"],
+			friendNames: ["《村落獅子》シーサー・ライト", "《村落獅子》シーサー・レフティ"],
+			photoNames: ["守り神の度胸試し", "悪い奴はさよ～なら～！", "なないろのアーチへ！"],
 		});
 	});
 });
@@ -34,8 +34,18 @@ describe("getEventDisplayData", () => {
 				secondName: "《村落獅子》",
 				iconUrl: expect.any(String),
 			},
+			{
+				id: "《村落獅子》シーサー・レフティ",
+				name: "シーサー・レフティ",
+				secondName: "《村落獅子》",
+				iconUrl: expect.any(String),
+			},
 		]);
-		expect(firstEvent.photos.map((photo) => photo.name)).toEqual(["守り神の度胸試し"]);
+		expect(firstEvent.photos.map((photo) => photo.name)).toEqual([
+			"守り神の度胸試し",
+			"悪い奴はさよ～なら～！",
+			"なないろのアーチへ！",
+		]);
 	});
 });
 
