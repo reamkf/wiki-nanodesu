@@ -51,10 +51,18 @@ function getContentType(filePath: string): string {
  * - 拡張子なしの場合は .html を付与
  */
 function resolveFilePath(urlPath: string): string | null {
+	// パーセントエンコーディングを復元する(日本語パス対応)。不正な形式は404にする
+	let decodedPath: string;
+	try {
+		decodedPath = decodeURIComponent(urlPath);
+	} catch {
+		return null;
+	}
+
 	// basePath プレフィックスを除去
 	let relativePath: string;
-	if (urlPath === BASE_PATH || urlPath.startsWith(BASE_PATH + "/")) {
-		relativePath = urlPath.slice(BASE_PATH.length) || "/";
+	if (decodedPath === BASE_PATH || decodedPath.startsWith(BASE_PATH + "/")) {
+		relativePath = decodedPath.slice(BASE_PATH.length) || "/";
 	} else {
 		// basePath なしのリクエストは 404
 		return null;
