@@ -1,30 +1,40 @@
 import { parseSeesaaWikiText } from "@/utils/seesaawiki/parser";
+import { DetailCard, DetailSection } from "./DetailParts";
 
-function TextBlock({ title, text }: { title: string; text: string }) {
+function TextBlock({ title, id, text }: { title: string; id: string; text: string }) {
 	return (
-		<article className="rounded border border-gray-200 p-3">
-			<h3 className="mb-2 font-bold">{title}</h3>
-			<div className="whitespace-pre-wrap text-sm">
+		<DetailCard title={title} id={id}>
+			<div className="whitespace-pre-wrap text-sm text-gray-900">
 				{text ? parseSeesaaWikiText(text) : "-"}
 			</div>
-		</article>
+		</DetailCard>
 	);
 }
 
 export function FriendsTextSection({
 	introductionText,
 	zukanText,
+	showTitle = true,
 }: {
 	introductionText: string;
 	zukanText: string;
+	showTitle?: boolean;
 }) {
+	const body = (
+		<div className="grid gap-3 md:grid-cols-2">
+			<TextBlock title="自己紹介" id="text-introduction" text={introductionText} />
+			<TextBlock title="ずかん" id="text-zukan" text={zukanText} />
+		</div>
+	);
+
+	// 比較ページでは見出しなしのカード群だけを使う
+	if (!showTitle) {
+		return body;
+	}
+
 	return (
-		<section className="mb-6">
-			<h2 className="mb-3 border-b-2 border-sky-300 pb-1 text-lg font-bold">基本テキスト</h2>
-			<div className="grid gap-3 md:grid-cols-2">
-				<TextBlock title="自己紹介" text={introductionText} />
-				<TextBlock title="ずかん" text={zukanText} />
-			</div>
-		</section>
+		<DetailSection title="基本テキスト" id="text">
+			{body}
+		</DetailSection>
 	);
 }
