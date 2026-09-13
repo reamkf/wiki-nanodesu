@@ -76,6 +76,9 @@ test.describe("サイドバー", () => {
 		await page.goto("./");
 		const searchInput = page.locator("aside").getByPlaceholder("ページを検索...");
 
+		await expect(searchInput).toBeVisible();
+		await expect(page.locator("aside kbd")).toBeVisible();
+
 		await page.keyboard.press("Control+K");
 
 		await expect(searchInput).toBeFocused();
@@ -88,6 +91,9 @@ test.describe("サイドバー", () => {
 		});
 		await page.goto("./");
 		const searchInput = page.locator("aside").getByPlaceholder("ページを検索...");
+
+		await expect(searchInput).toBeVisible();
+		await expect(page.locator("aside kbd")).toBeVisible();
 
 		await page.keyboard.press("Control+K");
 		await expect(searchInput).not.toBeFocused();
@@ -104,6 +110,7 @@ test.describe("サイドバー", () => {
 		const sidebar = page.locator("aside");
 		const searchInput = sidebar.getByPlaceholder("ページを検索...");
 		await expect(searchInput).toBeVisible();
+		await expect(page.locator("aside kbd")).toBeVisible();
 
 		// 検索文字を入力
 		await searchInput.fill("ステータス");

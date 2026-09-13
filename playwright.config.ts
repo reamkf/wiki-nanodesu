@@ -1,10 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const isCI = !!process.env.CI;
+const port = isCI ? 3333 : 3000;
+
 /**
- * Next.js SSGでビルドされた静的ファイル（out/）をBun.serve()で配信してテストする設定
- *
- * basePath "/wiki-nanodesu" に対応するため、e2e/serve.ts のサーバーが
- * リクエストURLから /wiki-nanodesu プレフィックスを除去して out/ から配信する。
+ * ローカルではNext.jsの開発サーバーを、CIではビルド済みの静的ファイルを配信してテストする設定。
  */
 export default defineConfig({
 	testDir: "./e2e",
@@ -15,7 +15,7 @@ export default defineConfig({
 	reporter: "html",
 	timeout: 30000,
 	use: {
-		baseURL: "http://localhost:3333/wiki-nanodesu/",
+		baseURL: `http://localhost:${port}/wiki-nanodesu/`,
 		trace: "on-first-retry",
 	},
 	projects: [
@@ -29,10 +29,10 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: "bun run serve",
-		url: "http://localhost:3333/wiki-nanodesu",
-		reuseExistingServer: !process.env.CI,
+		command: isCI ? "bun run serve" : "bun run dev",
+		url: `http://localhost:${port}/wiki-nanodesu`,
+		reuseExistingServer: !isCI,
 		timeout: 30000,
 	},
-	globalSetup: "./e2e/global-setup.ts",
+	globalSetup: isCI ? "./e2e/global-setup.ts" : undefined,
 });
