@@ -356,34 +356,20 @@ export default function FriendsStatusTable({
 
 	const columns = useMemo(() => {
 		const cols = [
-			columnHelper.accessor((row) => row, {
-				id: "icon",
-				header: "アイコン",
-				cell: (info) => (
-					<div className="flex justify-center">
-						<FriendsIcon friendsData={info.getValue().friendsDataRow} size={55} />
-					</div>
-				),
-				enableSorting: false,
-				filterFn: customFilterFn,
-				meta: {
-					align: "center" as const,
-					width: "100px",
-				},
-			}),
 			columnHelper.accessor((row) => row.sortValues.name, {
 				id: "name",
-				header: "フレンズ名",
-				cell: (info) => {
-					return (
+				header: "フレンズ",
+				cell: (info) => (
+					<div className="flex items-center gap-2">
+						<FriendsIcon friendsData={info.row.original.friendsDataRow} size={55} />
 						<div>
 							<FriendsNameLink friend={info.row.original.friendsDataRow} />
 							<div className="text-xs text-gray-700">
 								<StatusTypeLabel statusType={info.row.original.statusType} />
 							</div>
 						</div>
-					);
-				},
+					</div>
+				),
 				filterFn: customFilterFn,
 				meta: {
 					align: "left" as const,
