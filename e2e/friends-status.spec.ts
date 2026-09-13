@@ -14,7 +14,7 @@ test.describe("フレンズステータスランキングページ", () => {
 		await expect(table).toBeVisible();
 
 		// ヘッダーが表示されている
-		const headers = ["フレンズ名", "属性", "たいりょく", "こうげき", "まもり"];
+		const headers = ["フレンズ", "属性", "たいりょく", "こうげき", "まもり"];
 		for (const header of headers) {
 			await expect(table.locator("th", { hasText: header })).toBeVisible();
 		}
@@ -67,8 +67,8 @@ test.describe("フレンズステータスランキングページ", () => {
 
 		// フレンズ名列の検索入力欄に入力
 		const filterInputs = table.locator('input[placeholder="検索..."]');
-		// 2番目の検索入力欄（フレンズ名列）
-		const nameFilter = filterInputs.nth(1);
+		// 1番目の検索入力欄（フレンズ列）
+		const nameFilter = filterInputs.first();
 		await nameFilter.fill("サーバル");
 
 		// フィルター適用後のデータ行数が少なくなる
@@ -153,8 +153,8 @@ test.describe("フレンズステータスランキングページ", () => {
 
 		const filterInputs = table.locator('input[placeholder="検索..."]');
 
-		// フレンズ名列（2番目）でフィルター
-		const nameFilter = filterInputs.nth(1);
+		// フレンズ列（1番目）でフィルター
+		const nameFilter = filterInputs.first();
 		await nameFilter.fill("サーバル");
 		await page.waitForTimeout(300);
 
@@ -162,8 +162,8 @@ test.describe("フレンズステータスランキングページ", () => {
 		expect(rowCountAfterNameFilter).toBeLessThan(initialRowCount);
 		expect(rowCountAfterNameFilter).toBeGreaterThan(0);
 
-		// 属性列（3番目）でさらにフィルター
-		const attrFilter = filterInputs.nth(2);
+		// 属性列（2番目）でさらにフィルター
+		const attrFilter = filterInputs.nth(1);
 		await attrFilter.fill("ファニー");
 		await page.waitForTimeout(300);
 

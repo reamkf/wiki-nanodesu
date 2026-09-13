@@ -70,6 +70,9 @@ test.describe("サイドバー", () => {
 	});
 
 	test("Ctrl+Kで検索窓にフォーカスできる", async ({ page }) => {
+		await page.addInitScript(() => {
+			Object.defineProperty(navigator, "platform", { value: "Linux armv8l" });
+		});
 		await page.goto("./");
 		const searchInput = page.locator("aside").getByPlaceholder("ページを検索...");
 
