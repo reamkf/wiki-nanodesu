@@ -348,7 +348,7 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 				),
 				cell: ({ row }) => <PowerCell data={row.original} calculationKey="Lv1" />,
 				meta: {
-					width: "150px",
+					width: "160px",
 					align: "center" as const,
 				},
 			},
@@ -364,7 +364,7 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 				),
 				cell: ({ row }) => <PowerCell data={row.original} calculationKey="Lv2" />,
 				meta: {
-					width: "150px",
+					width: "160px",
 					align: "center" as const,
 				},
 			},
@@ -380,7 +380,7 @@ export default function ClientPage({ photoDamageData, photoDataRecord }: ClientP
 				),
 				cell: ({ row }) => <PowerCell data={row.original} calculationKey="Lv3" />,
 				meta: {
-					width: "150px",
+					width: "160px",
 					align: "center" as const,
 				},
 			},

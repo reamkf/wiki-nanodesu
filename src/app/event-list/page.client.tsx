@@ -154,14 +154,14 @@ export default function EventTable({ data }: { data: EventDisplayData[] }) {
 				header: "終了",
 				cell: ({ row }) => formatEventDate(row.original.endDate),
 				filterFn: customFilterFn,
-				meta: { width: "150px", align: "center" },
+				meta: { width: "130px", align: "center" },
 			},
 			{
 				accessorFn: (row) => row.type,
 				id: "type",
 				header: "種別",
 				filterFn: customFilterFn,
-				meta: { width: "130px", align: "center" },
+				meta: { width: "110px", align: "center" },
 			},
 			...Array.from({ length: 4 }, (_, index) => ({
 				accessorFn: (row: EventDisplayData) => row.friends[index]?.name || "",
@@ -172,7 +172,7 @@ export default function EventTable({ data }: { data: EventDisplayData[] }) {
 					return friend ? <FriendCell friend={friend} /> : null;
 				},
 				filterFn: customFilterFn,
-				meta: { width: "125px", align: "center" as const },
+				meta: { width: "135px", align: "center" as const },
 			})),
 			...Array.from({ length: 4 }, (_, index) => ({
 				accessorFn: (row: EventDisplayData) => row.photos[index]?.name || "",
@@ -183,7 +183,7 @@ export default function EventTable({ data }: { data: EventDisplayData[] }) {
 					return photo ? <PhotoCell photo={photo} /> : null;
 				},
 				filterFn: customFilterFn,
-				meta: { width: "125px", align: "center" as const },
+				meta: { width: "135px", align: "center" as const },
 			})),
 		],
 		[],

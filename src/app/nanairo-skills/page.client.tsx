@@ -65,7 +65,7 @@ export default function NanairoTable({
 			{
 				accessorFn: (row) => row.rarity,
 				id: "rarity",
-				header: "初期けも級",
+				header: "☆",
 				cell: ({ row }) => <span>{getRarityText(row.original)}</span>,
 				filterFn: customFilterFn,
 				meta: {

@@ -377,7 +377,7 @@ export function Table<TData extends RowData>({
 									return (
 										<th
 											key={header.id}
-											className="px-4 py-3 whitespace-nowrap"
+											className="px-2 py-2"
 											style={{
 												textAlign: meta?.align || "left",
 												cursor: header.column.getCanSort()
@@ -410,7 +410,7 @@ export function Table<TData extends RowData>({
 													: undefined
 											}
 										>
-											<div className="flex items-center justify-between gap-2">
+											<div className="flex items-center justify-between gap-0.5">
 												<span className="font-semibold">
 													{flexRender(
 														header.column.columnDef.header,
