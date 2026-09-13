@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import {
 	columnFilteringFeature,
 	ColumnDef,
@@ -11,6 +11,7 @@ import {
 	createPaginatedRowModel,
 	createSortedRowModel,
 	flexRender,
+	globalFilteringFeature,
 	PaginationState,
 	rowPaginationFeature,
 	Row,
@@ -23,6 +24,7 @@ import {
 	useTable,
 } from "@tanstack/react-table";
 import CancelIcon from "@mui/icons-material/Cancel";
+import SearchIcon from "@mui/icons-material/Search";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import IconButton from "@mui/material/IconButton";
@@ -30,12 +32,13 @@ import FirstPage from "@mui/icons-material/FirstPage";
 import LastPage from "@mui/icons-material/LastPage";
 import NavigateNext from "@mui/icons-material/NavigateNext";
 import NavigateBefore from "@mui/icons-material/NavigateBefore";
-import { defaultCustomFilterFn } from "@/utils/tableFilters";
+import { defaultCustomFilterFn, createGlobalFilterFn } from "@/utils/tableFilters";
 
 const features = createTableFeatures({
 	columnFilteringFeature,
 	columnSizingFeature,
 	columnVisibilityFeature,
+	globalFilteringFeature,
 	rowSortingFeature,
 	rowPaginationFeature,
 	filteredRowModel: createFilteredRowModel(),
@@ -53,7 +56,6 @@ export type WikiTableColumnDef<TData extends RowData> = ColumnDef<
 	unknown
 >;
 
-// ソート用の矢印SVGコンポーネント
 interface SortIndicatorArrowProps {
 	direction: "up" | "down";
 	active: boolean;
@@ -98,6 +100,7 @@ interface SortableTableProps<TData extends RowData> {
 		sorting?: SortingState;
 		columnFilters?: ColumnFiltersState;
 		pagination?: PaginationState;
+		globalFilter?: string;
 	};
 	initialSorting?: SortingState;
 	rowComponent?: React.FC<{ row: Row<WikiTableFeatures, TData> }>;
@@ -115,8 +118,7 @@ function PaginationControls<TData extends RowData>({ table }: PaginationControls
 
 	return (
 		<div className="overflow-x-auto max-w-full">
-			<div className="flex items-center px-1 py-2 gap-4 min-w-[720px] max-w-[1920px]">
-				{/* ページサイズ指定 */}
+			<div className="flex items-center px-1 pt-2 gap-4 min-w-[720px] max-w-[1920px]">
 				<div className="flex items-center gap-2">
 					<span className="text-sm text-gray-700">1ページあたりの表示件数:</span>
 					<Select
@@ -134,7 +136,6 @@ function PaginationControls<TData extends RowData>({ table }: PaginationControls
 				</div>
 
 				<div className="flex items-center gap-2">
-					{/* ページ移動ボタン */}
 					<div className="flex items-center gap-1">
 						<PaginationButton
 							onClick={() => table.setPageIndex(0)}
@@ -189,7 +190,6 @@ function getFilterText(value: unknown): string {
 	return typeof value === "string" ? value : "";
 }
 
-// デフォルトの行レンダラコンポーネント
 function DefaultRowComponent<TData extends RowData>({
 	row,
 	minHeight,
@@ -228,13 +228,10 @@ export function Table<TData extends RowData>({
 	rowComponent,
 	rowMinHeight,
 }: SortableTableProps<TData>) {
-	// rowComponent が指定されていない場合はデフォルトを使用するのです
 	const RowComponent = rowComponent ?? DefaultRowComponent;
 
-	// localStorageのキー
 	const storageKeyPrefix = `wiki-nanodesu.Table.${tableId}`;
 
-	// localStorageから状態を取得するヘルパー関数
 	const getStoredState = <T,>(key: string, defaultValue: T): T => {
 		if (typeof window === "undefined") return defaultValue;
 
@@ -247,13 +244,16 @@ export function Table<TData extends RowData>({
 		}
 	};
 
-	// 状態管理: 初期ソートがあれば優先して適用するのです
 	const [sorting, setSorting] = useState<SortingState>(
 		() => initialSorting ?? initialState?.sorting ?? [],
 	);
 
 	const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
 		() => initialState?.columnFilters || [],
+	);
+
+	const [globalFilter, setGlobalFilter] = useState<string>(
+		() => initialState?.globalFilter ?? "",
 	);
 
 	const [pagination, setPagination] = useState<PaginationState>(
@@ -275,10 +275,20 @@ export function Table<TData extends RowData>({
 		[storageKeyPrefix],
 	);
 
-	// ページネーション状態が変更されたときlocalStorageに保存
+	// ページネーション設定を保存するのです
 	useEffect(() => {
 		storeStateCallback("pagination", pagination);
 	}, [pagination, storeStateCallback]);
+
+	const globalFilterFn = useMemo(
+		() =>
+			createGlobalFilterFn<TData>((columnId) => {
+				const columnDef = columns.find((col) => col.id === columnId);
+				return typeof columnDef?.filterFn === "function" ? columnDef.filterFn : undefined;
+			}),
+		[columns],
+	);
+
 	const table = useTable({
 		features,
 		data,
@@ -286,14 +296,19 @@ export function Table<TData extends RowData>({
 		state: {
 			sorting,
 			columnFilters,
+			globalFilter,
 			pagination,
 		},
 		onSortingChange: setSorting,
 		onColumnFiltersChange: setColumnFilters,
+		onGlobalFilterChange: setGlobalFilter,
 		onPaginationChange: setPagination,
 		enableSorting: true,
 		enableFilters: true,
 		enableColumnFilters: true,
+		enableGlobalFilter: true,
+		getColumnCanGlobalFilter: () => true,
+		globalFilterFn,
 		manualSorting: false,
 		manualFiltering: false,
 		defaultColumn: {
@@ -304,10 +319,39 @@ export function Table<TData extends RowData>({
 		},
 	});
 
+	const globalFilterText = typeof globalFilter === "string" ? globalFilter : "";
+
 	return (
 		<div>
-			{/* テーブル上部のページネーションコントロール */}
 			<PaginationControls table={table} />
+
+			{/* ページングとの間隔を抑えるのです */}
+			<div className="flex items-center gap-2 pt-1 pb-2 max-w-[1920px]">
+				<div className="relative ml-0.5 w-full max-w-md">
+					<SearchIcon className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+					<input
+						className="w-full p-1.5 pl-8 text-sm border-[0.175rem] border-gray-200 rounded-lg bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500"
+						type="text"
+						aria-label="表全体を検索"
+						value={globalFilterText}
+						onChange={(e) => {
+							table.setGlobalFilter(e.target.value);
+						}}
+						placeholder="表全体を検索..."
+					/>
+					{globalFilterText && (
+						<button
+							onClick={() => {
+								table.resetGlobalFilter(true);
+							}}
+							className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+							aria-label="全体検索をクリア"
+						>
+							<CancelIcon />
+						</button>
+					)}
+				</div>
+			</div>
 
 			<table className="border-collapse min-w-fit max-w-[1920px] [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
 				<colgroup>
@@ -346,7 +390,6 @@ export function Table<TData extends RowData>({
 												header.column.getCanSort()
 													? (e) => {
 															e.preventDefault();
-															// 現在のソート状態を取得
 															const currentSortDirection =
 																header.column.getIsSorted();
 															// 未ソート → 降順 → 昇順 → 未ソートの順番でトグル
@@ -374,7 +417,6 @@ export function Table<TData extends RowData>({
 														header.getContext(),
 													)}
 												</span>
-												{/* ソートインジケーター */}
 												{header.column.getCanSort() && (
 													<span className="inline-flex flex-col text-gray-700 h-3">
 														<SortIndicatorArrow
@@ -398,7 +440,6 @@ export function Table<TData extends RowData>({
 									);
 								})}
 							</tr>
-							{/* 列ごとのフィルター用の行 */}
 							<tr>
 								{headerGroup.headers.map((header) => (
 									<th key={header.id} className="bg-gray-50 p-2 py-2">
@@ -443,7 +484,6 @@ export function Table<TData extends RowData>({
 				</tbody>
 			</table>
 
-			{/* テーブル下部のページネーションコントロール */}
 			<PaginationControls table={table} />
 		</div>
 	);
