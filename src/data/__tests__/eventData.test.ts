@@ -8,9 +8,12 @@ describe("getEventData", () => {
 		expect(events.length).toBeGreaterThan(0);
 	});
 
-	it("先頭イベントの列を変換できる", async () => {
-		const firstEvent = (await getEventData())[0];
-		expect(firstEvent).toEqual({
+	it("特定イベントの列を変換できる", async () => {
+		// 新規レコードは先頭行に追加されるため、名前で検索する
+		const targetEvent = (await getEventData()).find(
+			(event) => event.name === "かがやけリクホク☆じょーとーの段！",
+		);
+		expect(targetEvent).toEqual({
 			name: "かがやけリクホク☆じょーとーの段！",
 			bannerImageUrl:
 				"https://image02.seesaawiki.jp/k/h/kemono_friends3_5ch/5c9e7033d01c83ce.PNG",
@@ -26,8 +29,11 @@ describe("getEventData", () => {
 
 describe("getEventDisplayData", () => {
 	it("フレンズとフォトを表示用データへ解決できる", async () => {
-		const firstEvent = (await getEventDisplayData())[0];
-		expect(firstEvent.friends).toEqual([
+		// 新規レコードは先頭行に追加されるため、名前で検索する
+		const targetEvent = (await getEventDisplayData()).find(
+			(event) => event.name === "かがやけリクホク☆じょーとーの段！",
+		);
+		expect(targetEvent?.friends).toEqual([
 			{
 				id: "《村落獅子》シーサー・ライト",
 				name: "シーサー・ライト",
@@ -41,7 +47,7 @@ describe("getEventDisplayData", () => {
 				iconUrl: expect.any(String),
 			},
 		]);
-		expect(firstEvent.photos.map((photo) => photo.name)).toEqual([
+		expect(targetEvent?.photos.map((photo) => photo.name)).toEqual([
 			"守り神の度胸試し",
 			"悪い奴はさよ～なら～！",
 			"なないろのアーチへ！",
