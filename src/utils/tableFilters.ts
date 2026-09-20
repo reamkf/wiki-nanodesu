@@ -50,6 +50,25 @@ export const defaultCustomFilterFn = createCustomFilterFn<any>((row, columnId) =
 	return value != null ? String(value) : "";
 });
 
+// 列定義からcolumnIdに対応するfilterFnを解決するのです
+// id指定の列だけでなくaccessorKeyのみの列にも対応するのです
+// TanStackのColumnDefはfilterFnがstringとのユニオン型なのでunknown経由で判定するのです
+interface ColumnDefLike {
+	id?: unknown;
+	accessorKey?: unknown;
+	filterFn?: unknown;
+}
+
+export const resolveColumnFilterFn = <T extends CustomFilterFnRowType>(
+	columns: readonly ColumnDefLike[],
+	columnId: string,
+): FilterFn<any, T> | undefined => {
+	const columnDef = columns.find((col) => col.id === columnId || col.accessorKey === columnId);
+	return typeof columnDef?.filterFn === "function"
+		? (columnDef.filterFn as FilterFn<any, T>)
+		: undefined;
+};
+
 // 全体検索は列ごとのfilterFnへ委譲するのです
 export const createGlobalFilterFn = <T extends CustomFilterFnRowType>(
 	getColumnFilterFn: (columnId: string) => FilterFn<any, T> | undefined,

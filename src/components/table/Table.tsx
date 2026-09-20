@@ -32,7 +32,11 @@ import FirstPage from "@mui/icons-material/FirstPage";
 import LastPage from "@mui/icons-material/LastPage";
 import NavigateNext from "@mui/icons-material/NavigateNext";
 import NavigateBefore from "@mui/icons-material/NavigateBefore";
-import { defaultCustomFilterFn, createGlobalFilterFn } from "@/utils/tableFilters";
+import {
+	defaultCustomFilterFn,
+	createGlobalFilterFn,
+	resolveColumnFilterFn,
+} from "@/utils/tableFilters";
 
 const features = createTableFeatures({
 	columnFilteringFeature,
@@ -281,11 +285,7 @@ export function Table<TData extends RowData>({
 	}, [pagination, storeStateCallback]);
 
 	const globalFilterFn = useMemo(
-		() =>
-			createGlobalFilterFn<TData>((columnId) => {
-				const columnDef = columns.find((col) => col.id === columnId);
-				return typeof columnDef?.filterFn === "function" ? columnDef.filterFn : undefined;
-			}),
+		() => createGlobalFilterFn<TData>((columnId) => resolveColumnFilterFn(columns, columnId)),
 		[columns],
 	);
 
