@@ -9,7 +9,6 @@ on:
             - ".vscode/*"
             - ".cursor/*"
             - ".cursorignore"
-            - "gas/*"
     workflow_dispatch:
 
 permissions:
