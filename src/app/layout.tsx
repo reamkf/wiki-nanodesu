@@ -1,6 +1,7 @@
 import { generateMetadata } from "./metadata";
 import { Viewport } from "next";
 import { Header } from "@/components/Header";
+import { NavigationProgressBar } from "@/components/NavigationProgressBar";
 import { Footer } from "@/components/Footer";
 import { Sidebar } from "@/components/Sidebar";
 import { SidebarProvider } from "@/contexts/SidebarContext";
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 				<SidebarProvider>
 					<div className="min-h-screen bg-white flex flex-col">
 						<Header />
+						<NavigationProgressBar />
 						<div className="w-full p-0 m-0 mr-2 mt-2 flex grow">
 							<Sidebar />
 							<div className="flex flex-col grow overflow-hidden overflow-x-auto @container">

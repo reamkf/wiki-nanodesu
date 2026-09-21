@@ -31,6 +31,7 @@
 		"kuroshiro": "^1.2.0",
 		"kuroshiro-analyzer-kuromoji": "^1.1.0",
 		"next": "16.3.3",
+		"next-transition-bar": "^1.1.2",
 		"papaparse": "^5.6.0",
 		"react": "19.2.8",
 		"react-dom": "19.2.8",
