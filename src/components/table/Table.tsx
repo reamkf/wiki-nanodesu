@@ -121,8 +121,8 @@ function PaginationControls<TData extends RowData>({ table }: PaginationControls
 	}
 
 	return (
-		<div className="overflow-x-auto max-w-full">
-			<div className="flex items-center px-1 pt-2 gap-4 min-w-[720px] max-w-[1920px]">
+		<div className="overflow-x-auto max-w-full min-w-0">
+			<div className="flex items-center px-1 py-1 gap-4 max-w-[1920px]">
 				<div className="flex items-center gap-2">
 					<span className="text-sm text-gray-700">1ページあたりの表示件数:</span>
 					<Select
@@ -321,36 +321,52 @@ export function Table<TData extends RowData>({
 
 	const globalFilterText = typeof globalFilter === "string" ? globalFilter : "";
 
-	return (
-		<div>
-			<PaginationControls table={table} />
+	// グローバル検索の入力欄なのです
+	// 1行表示では左・縦積みでは下に配置されるのです
+	const searchBox = (
+		<div className="relative w-full min-w-[240px] flex-1 max-w-md">
+			<SearchIcon className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
+			<input
+				className="w-full p-1.5 pl-8 text-sm border-[0.175rem] border-gray-200 rounded-lg bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500"
+				type="text"
+				aria-label="表全体を検索"
+				value={globalFilterText}
+				onChange={(e) => {
+					table.setGlobalFilter(e.target.value);
+				}}
+				placeholder="表全体を検索..."
+			/>
+			{globalFilterText && (
+				<button
+					onClick={() => {
+						table.resetGlobalFilter(true);
+					}}
+					className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+					aria-label="全体検索をクリア"
+				>
+					<CancelIcon />
+				</button>
+			)}
+		</div>
+	);
 
-			{/* ページングとの間隔を抑えるのです */}
-			<div className="flex items-center gap-2 pt-1 pb-2 max-w-[1920px]">
-				<div className="relative ml-0.5 w-full max-w-md">
-					<SearchIcon className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" />
-					<input
-						className="w-full p-1.5 pl-8 text-sm border-[0.175rem] border-gray-200 rounded-lg bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-500"
-						type="text"
-						aria-label="表全体を検索"
-						value={globalFilterText}
-						onChange={(e) => {
-							table.setGlobalFilter(e.target.value);
-						}}
-						placeholder="表全体を検索..."
-					/>
-					{globalFilterText && (
-						<button
-							onClick={() => {
-								table.resetGlobalFilter(true);
-							}}
-							className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-							aria-label="全体検索をクリア"
-						>
-							<CancelIcon />
-						</button>
-					)}
-				</div>
+	// ページネーションのラッパーなのです
+	// 1行表示では右端・縦積みでは左端に配置され、表が画面より広いときは画面右端に追従するのです
+	const paginationBox = (
+		<div className="min-w-0 max-w-full @min-[976px]:sticky @min-[976px]:right-0">
+			<PaginationControls table={table} />
+		</div>
+	);
+
+	return (
+		// 表の内容幅で包み、ヘッダー・下部を表幅に揃えるのです
+		// ヘッダー・下部はcontainで親の幅決定に影響させないのです
+		<div className="w-max">
+			{/* ページ幅が狭いときは縦積み、広いときは表幅に応じてflex-wrapで自動判定するのです */}
+			{/* wrap-reverseで折り返し時にページネーションが上・検索が下になるのです */}
+			<div className="w-full py-2 flex flex-col-reverse [contain:inline-size] @min-[976px]:flex-row @min-[976px]:flex-wrap-reverse @min-[976px]:items-center justify-between gap-x-4 gap-y-2">
+				{searchBox}
+				{paginationBox}
 			</div>
 
 			<table className="border-collapse min-w-fit max-w-[1920px] [&_th]:border-[1px] [&_th]:border-gray-300 [&_td]:border-[1px] [&_td]:border-gray-300">
@@ -484,7 +500,11 @@ export function Table<TData extends RowData>({
 				</tbody>
 			</table>
 
-			<PaginationControls table={table} />
+			{/* 下部はヘッダーと同じ折り返しになるよう空き要素と組にするのです */}
+			<div className="w-full flex flex-col-reverse [contain:inline-size] @min-[976px]:flex-row @min-[976px]:flex-wrap-reverse @min-[976px]:items-center justify-between gap-x-4">
+				<div aria-hidden="true" className="flex-1 min-w-[240px] max-w-md" />
+				{paginationBox}
+			</div>
 		</div>
 	);
 }
