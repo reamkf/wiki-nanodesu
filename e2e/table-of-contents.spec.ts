@@ -58,11 +58,17 @@ test.describe("目次ダイアログ", () => {
 	});
 
 	test("キーボードショートカットで目次ダイアログが開く", async ({ page }) => {
-		// Ctrl+Shift+O で目次ダイアログを開く
-		await page.keyboard.press("Control+Shift+O");
+		// 目次ボタンが見えてから押すのです
+		// (ハイドレーション前だとキー入力が届かないため、開くまで繰り返すのです)
+		const tocButton = page.getByRole("button", { name: "目次" });
+		await expect(tocButton.first()).toBeVisible({ timeout: 15000 });
 
 		const heading = page.getByRole("heading", { name: "目次" });
-		await expect(heading).toBeVisible();
+		await expect(async () => {
+			// Ctrl+Shift+O で目次ダイアログを開く
+			await page.keyboard.press("Control+Shift+O");
+			await expect(heading).toBeVisible({ timeout: 2000 });
+		}).toPass({ timeout: 20000 });
 	});
 
 	test("検索文字列なしの下矢印で選択が始まる", async ({ page }) => {
