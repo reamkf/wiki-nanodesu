@@ -90,7 +90,8 @@ test.describe("フレンズステータスランキングページ", () => {
 		await pageSizeSelect.click();
 
 		// ドロップダウンメニューからオプションを選択
-		const option = page.getByRole("option", { name: "50", exact: true });
+		// (ページネーションの選択肢は「50件」のように件数付きで表示されるのです)
+		const option = page.getByRole("option", { name: "50件", exact: true });
 		await option.click();
 
 		// テーブルが更新されるのを待つ
