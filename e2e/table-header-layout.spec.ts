@@ -5,7 +5,7 @@ import { test, expect, type Page, type Locator } from "@playwright/test";
 // - 縦積み(幅不足): ページネーションが上・左揃え
 // - いずれの場合もページネーションは表より右にはみ出さないのです
 
-const PAGINATION_LABEL = "1ページあたりの表示件数:";
+const PAGINATION_LABEL = "1ページあたり";
 const SEARCH_INPUT_LABEL = "表全体を検索";
 // はみ出し・整列の許容誤差(px)なのです
 const OVERFLOW_TOLERANCE = 1;

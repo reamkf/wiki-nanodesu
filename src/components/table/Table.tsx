@@ -124,7 +124,7 @@ function PaginationControls<TData extends RowData>({ table }: PaginationControls
 		<div className="overflow-x-auto max-w-full min-w-0">
 			<div className="flex items-center px-1 py-1 gap-4 max-w-[1920px]">
 				<div className="flex items-center gap-2">
-					<span className="text-sm text-gray-700">1ページあたりの表示件数:</span>
+					<span className="text-sm text-gray-700">1ページあたり</span>
 					<Select
 						value={table.state.pagination.pageSize}
 						onChange={(e) => table.setPageSize(Number(e.target.value))}
@@ -133,7 +133,7 @@ function PaginationControls<TData extends RowData>({ table }: PaginationControls
 					>
 						{PAGE_SIZE_OPTIONS.map((pageSize) => (
 							<MenuItem key={pageSize} value={pageSize}>
-								{pageSize}
+								{pageSize}件
 							</MenuItem>
 						))}
 					</Select>
