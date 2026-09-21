@@ -122,7 +122,7 @@ function PaginationControls<TData extends RowData>({ table }: PaginationControls
 
 	return (
 		<div className="overflow-x-auto max-w-full min-w-0">
-			<div className="flex items-center px-1 py-1 gap-4 max-w-[1920px]">
+			<div className="flex items-center px-1 py-1 gap-2 max-w-[1920px]">
 				<div className="flex items-center gap-2">
 					<span className="text-sm text-gray-700">1ページあたり</span>
 					<Select
@@ -140,7 +140,7 @@ function PaginationControls<TData extends RowData>({ table }: PaginationControls
 				</div>
 
 				<div className="flex items-center gap-2">
-					<div className="flex items-center gap-1">
+					<div className="flex items-center gap-0">
 						<PaginationButton
 							onClick={() => table.setPageIndex(0)}
 							disabled={!table.getCanPreviousPage()}
