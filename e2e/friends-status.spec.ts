@@ -123,28 +123,50 @@ test.describe("フレンズステータスランキングページ", () => {
 	});
 
 	test("チェックボックスの状態がリロード後に保持される", async ({ page }) => {
+		// 全並列実行時のdevサーバー混雑でも落ちないよう余裕を持たせる
+		test.slow();
 		const table = page.locator("table");
-		await expect(table).toBeVisible();
+		await expect(table).toBeVisible({ timeout: 15000 });
 
 		// Lv200/野生4チェックボックスをクリックして切り替える
 		const lv200Checkbox = page.getByRole("checkbox", { name: "Lv200/野生4" });
+		await expect(lv200Checkbox).toBeVisible({ timeout: 15000 });
+		const checkedBefore = await lv200Checkbox.isChecked();
 		await lv200Checkbox.click();
-		await page.waitForTimeout(500);
+
+		// LocalStorageへの永続化が完了するのを待つ（固定waitの代わりに状態で待機）
+		await expect
+			.poll(
+				async () => {
+					return await page.evaluate(() => {
+						const saved = localStorage.getItem(
+							"wiki-nanodesu.friends-status.selectedStatusTypes",
+						);
+						return saved ?? "";
+					});
+				},
+				{ timeout: 10000 },
+			)
+			.not.toBe("");
 
 		// テーブルにデータが表示されていることを確認
 		const rowCountBefore = await table.locator("tbody tr").count();
 		expect(rowCountBefore).toBeGreaterThan(0);
 
 		// ページをリロード
-		await page.reload();
+		await page.reload({ waitUntil: "domcontentloaded" });
 
 		// テーブルが再表示されるのを待つ
-		await expect(page.locator("table")).toBeVisible();
-		await page.waitForTimeout(500);
+		await expect(page.locator("table")).toBeVisible({ timeout: 15000 });
+		// チェックボックスの状態がリロード前と一致するまで待つ
+		await expect
+			.poll(async () => await lv200Checkbox.isChecked(), { timeout: 15000 })
+			.toBe(!checkedBefore);
 
 		// リロード後もテーブルにデータが存在することを確認（LocalStorageで保持される）
-		const rowCountAfterReload = await page.locator("table tbody tr").count();
-		expect(rowCountAfterReload).toBeGreaterThan(0);
+		await expect
+			.poll(async () => await page.locator("table tbody tr").count(), { timeout: 15000 })
+			.toBeGreaterThan(0);
 	});
 
 	test("複数列の検索フィルターを同時に使用できる", async ({ page }) => {

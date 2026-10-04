@@ -49,12 +49,16 @@ test.describe("目次ダイアログ", () => {
 		await tocButton.first().click();
 
 		const searchField = page.getByPlaceholder("目次を検索...");
-		await expect(searchField).toBeVisible();
+		await expect(searchField).toBeVisible({ timeout: 15000 });
+		// ダイアログのフォーカス移動（200msのsetTimeout）が完了してからEscを送る
+		// 全並列実行時の遅延でも確実に閉じられるように入力欄へフォーカスしてから操作する
+		await searchField.focus();
+		await expect(searchField).toBeFocused({ timeout: 10000 });
 
 		// Escキーでダイアログを閉じる
-		await page.keyboard.press("Escape");
+		await searchField.press("Escape");
 
-		await expect(searchField).toBeHidden();
+		await expect(searchField).toBeHidden({ timeout: 10000 });
 	});
 
 	test("キーボードショートカットで目次ダイアログが開く", async ({ page }) => {
