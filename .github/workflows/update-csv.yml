@@ -1,0 +1,61 @@
+name: Update CSV from Google Sheets
+
+on:
+    schedule:
+        # 毎日06:00 JST (前日21:00 UTC) に定期実行
+        - cron: "0 21 * * *"
+    workflow_dispatch:
+
+permissions:
+    contents: write
+    pull-requests: write
+
+concurrency:
+    group: "update-csv"
+    cancel-in-progress: false
+
+jobs:
+    update-csv:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+              with:
+                  bun-version-file: ".bun-version"
+
+            - name: Restore node_modules cache
+              uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-bun-modules-${{ hashFiles('**/bun.lock') }}
+
+            - name: Install dependencies
+              run: bun install --frozen-lockfile
+
+            - name: Fetch CSV from Google Sheets
+              env:
+                  GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+              run: bun scripts/fetch-csv-from-sheets.ts
+
+            - name: Create Pull Request
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+                  git checkout -B bot/update-csv
+                  git add -- 'csv/*.csv'
+                  if git diff --cached --quiet; then
+                    echo "CSVに差分はないのです。"
+                    exit 0
+                  fi
+                  git commit -m "chore: update csv files"
+                  git push -u --force-with-lease origin bot/update-csv
+                  if gh pr view bot/update-csv --json number --jq .number > /dev/null 2>&1; then
+                    echo "既存のPRを更新したのです。"
+                  else
+                    gh pr create --head bot/update-csv --base main --title "chore: Google SheetsからCSVを更新" --body "Google SheetsからCSVファイルを自動取得したのです。差分を確認してマージしてほしいのです。マージ後にPagesへのデプロイが実行されるのです。"
+                  fi
