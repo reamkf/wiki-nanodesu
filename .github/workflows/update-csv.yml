@@ -6,17 +6,17 @@ on:
         - cron: "0 21 * * *"
     workflow_dispatch:
 
-permissions:
-    contents: write
-    pull-requests: write
-
 concurrency:
     group: "update-csv"
     cancel-in-progress: false
 
 jobs:
-    update-csv:
+    fetch-csv:
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        outputs:
+            changed: ${{ steps.check-diff.outputs.changed }}
         steps:
             - name: Checkout
               uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -40,6 +40,41 @@ jobs:
                   GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
               run: bun scripts/fetch-csv-from-sheets.ts
 
+            - name: Check CSV diff
+              id: check-diff
+              run: |
+                  git add -- 'csv/*.csv'
+                  if git diff --cached --quiet; then
+                    echo "changed=false" >> "$GITHUB_OUTPUT"
+                    echo "CSVに差分はないのです。"
+                  else
+                    echo "changed=true" >> "$GITHUB_OUTPUT"
+                  fi
+
+            - name: Upload CSV artifact
+              if: steps.check-diff.outputs.changed == 'true'
+              uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+              with:
+                  name: fetched-csv
+                  path: csv/
+
+    commit-and-pr:
+        needs: fetch-csv
+        if: needs.fetch-csv.outputs.changed == 'true'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pull-requests: write
+        steps:
+            - name: Checkout
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+            - name: Download CSV artifact
+              uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+              with:
+                  name: fetched-csv
+                  path: csv/
+
             - name: Create Pull Request
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,10 +84,6 @@ jobs:
                   git checkout -B bot/update-csv
                   git fetch origin bot/update-csv --depth=1 || true
                   git add -- 'csv/*.csv'
-                  if git diff --cached --quiet; then
-                    echo "CSVに差分はないのです。"
-                    exit 0
-                  fi
                   git commit -m "chore: update csv files"
                   git push -u --force-with-lease origin bot/update-csv
                   if gh pr view bot/update-csv --json number --jq .number > /dev/null 2>&1; then
