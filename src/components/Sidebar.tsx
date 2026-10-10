@@ -3,12 +3,13 @@ import { getFriendsData } from "@/data/friendsData";
 import { FriendsDataRow } from "@/types/friends";
 import { getPhotoData } from "@/data/photoData";
 import { getWikiNanodaPageUrl } from "@/utils/wikiNanodaUrl";
-import { getCurrentSeasonCount } from "@/utils/dojoSeason";
+import { getCurrentSeasonCount, getDojoSeasonPageNames } from "@/utils/dojoSeason";
 import { toHiragana } from "@/utils/kanjiToHiragana";
 
 export interface SidebarLinkItem {
 	href: string;
 	text: string;
+	searchOnly?: boolean;
 	/** 検索用：漢字をひらがなに変換した読み仮名（漢字の読みでもヒットするように） */
 	textHiragana?: string;
 }
@@ -61,6 +62,8 @@ export async function Sidebar() {
 		},
 	];
 
+	const dojoSeasonPages = getDojoSeasonPageNames(getCurrentSeasonCount());
+	const pastDojoSeasonPageSet = new Set(dojoSeasonPages.slice(1));
 	const sideBarPagesNanoda = [
 		"初心者指南",
 		"Ｑ＆Ａ",
@@ -76,8 +79,9 @@ export async function Sidebar() {
 		"家具",
 		"シーサーバル道場・概要",
 		"シーサーバル道場・基本戦術",
-		`シーサーバル道場（β2-${getCurrentSeasonCount()}）`,
+		dojoSeasonPages[0],
 		"じょーとー獅子道場・概要",
+		...dojoSeasonPages.slice(1),
 		"ちからくらべ",
 		"とくべつくんれん",
 		"むちゃ攻略",
@@ -158,6 +162,7 @@ export async function Sidebar() {
 		(page) => ({
 			href: getWikiNanodaPageUrl(page),
 			text: page,
+			searchOnly: pastDojoSeasonPageSet.has(page),
 		}),
 	);
 

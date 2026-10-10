@@ -13,7 +13,7 @@ import Image from "next/image";
 import { useSidebar } from "@/contexts/SidebarContext";
 import { SidebarLinkItem } from "./Sidebar";
 import CancelIcon from "@mui/icons-material/Cancel";
-import { includesNormalizeQuery } from "@/utils/queryNormalizer";
+import { includesNormalizeQuery, normalizeQuery } from "@/utils/queryNormalizer";
 import { NanodesuLink } from "@/components/common/NanodesuLink";
 import { OwlIcon } from "@/components/OwlIcon";
 import { useLinearNavigation } from "@/components/common/navigation/useLinearNavigation";
@@ -66,6 +66,8 @@ export function SidebarClient({
 	const isMac = useSyncExternalStore(subscribeToPlatform, isMacPlatform, getServerIsMacPlatform);
 	const searchInputRef = useRef<HTMLInputElement>(null);
 	const isSearching = searchQuery.length > 0;
+	const showPastDojoSeasons =
+		searchQuery.includes("道場") || normalizeQuery(searchQuery).includes("どうじょ");
 
 	const matchesSearch = useCallback(
 		(link: SidebarLinkItem) =>
@@ -78,11 +80,21 @@ export function SidebarClient({
 	const navigationItems = useMemo(
 		() => [
 			...createNavigationItems(sideBarLinksNanodesu, "nanodesu"),
-			...createNavigationItems(sideBarLinksNanoda, "nanoda"),
+			...createNavigationItems(
+				sideBarLinksNanoda.filter((link) => showPastDojoSeasons || !link.searchOnly),
+				"nanoda",
+			),
 			...(isSearching ? createNavigationItems(friendsLinks, "friend") : []),
 			...(isSearching ? createNavigationItems(photoLinks, "photo") : []),
 		],
-		[isSearching, sideBarLinksNanodesu, sideBarLinksNanoda, friendsLinks, photoLinks],
+		[
+			isSearching,
+			showPastDojoSeasons,
+			sideBarLinksNanodesu,
+			sideBarLinksNanoda,
+			friendsLinks,
+			photoLinks,
+		],
 	);
 	const visibleNavigationItems = useMemo(
 		() => navigationItems.filter(matchesSearch),

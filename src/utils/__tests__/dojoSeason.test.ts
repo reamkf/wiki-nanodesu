@@ -1,5 +1,5 @@
 import { describe, test, expect } from "bun:test";
-import { calculateSeasonCount } from "../dojoSeason";
+import { calculateSeasonCount, getDojoSeasonPageNames } from "../dojoSeason";
 
 describe("calculateSeasonCount", () => {
 	test("2020-08-01のカウントが正しい", () => {
@@ -40,5 +40,17 @@ describe("calculateSeasonCount", () => {
 
 	test("2024-09-30のカウントが正しい", () => {
 		expect(calculateSeasonCount(new Date("2024-09-30"))).toBe(26);
+	});
+});
+
+describe("getDojoSeasonPageNames", () => {
+	test("全シーズンを降順で返し、β2-1とβ1のページ名を使う", () => {
+		expect(getDojoSeasonPageNames(4)).toEqual([
+			"シーサーバル道場（β2-4）",
+			"シーサーバル道場（β2-3）",
+			"シーサーバル道場（β2-2）",
+			"シーサーバル道場（β2）",
+			"シーサーバル道場",
+		]);
 	});
 });

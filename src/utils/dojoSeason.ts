@@ -34,3 +34,14 @@ export function getCurrentSeasonCount() {
 	const currentJST = getJSTDate(new Date());
 	return calculateSeasonCount(currentJST);
 }
+
+export function getDojoSeasonPageNames(currentSeasonCount: number): string[] {
+	return [
+		...Array.from(
+			{ length: Math.max(0, currentSeasonCount - 1) },
+			(_, index) => `シーサーバル道場（β2-${currentSeasonCount - index}）`,
+		),
+		"シーサーバル道場（β2）",
+		"シーサーバル道場",
+	];
+}
