@@ -86,7 +86,7 @@ jobs:
                   git add -- 'csv/*.csv'
                   git commit -m "chore: update csv files"
                   git push -u --force-with-lease origin bot/update-csv
-                  if gh pr view bot/update-csv --json number --jq .number > /dev/null 2>&1; then
+                  if [ "$(gh pr list --head bot/update-csv --state open --json number --jq 'length')" -gt 0 ]; then
                     echo "既存のPRを更新したのです。"
                   else
                     gh pr create --head bot/update-csv --base main --title "chore: Google SheetsからCSVを更新" --body "Google SheetsからCSVファイルを自動取得したのです。差分を確認してマージしてほしいのです。マージ後にPagesへのデプロイが実行されるのです。"
