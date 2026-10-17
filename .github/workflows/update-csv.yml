@@ -91,3 +91,5 @@ jobs:
                   else
                     gh pr create --head bot/update-csv --base main --title "chore: Google SheetsからCSVを更新" --body "Google SheetsからCSVファイルを自動取得したのです。差分を確認してマージしてほしいのです。マージ後にPagesへのデプロイが実行されるのです。"
                   fi
+                  pr_url=$(gh pr view bot/update-csv --json url --jq '.url')
+                  echo "[CSV更新PRを開く]($pr_url)" >> "$GITHUB_STEP_SUMMARY"
