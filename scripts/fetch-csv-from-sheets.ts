@@ -338,7 +338,7 @@ async function processSheet(apiKey: string, config: SheetConfig): Promise<void> 
 		}
 
 		// CSVファイルとして保存
-		fs.writeFileSync(config.filePath, csvData, "utf8");
+		fs.writeFileSync(config.filePath, `${csvData}\n`, "utf8");
 	} catch (error) {
 		logError(`   ❌ シート「${config.sheetName}」の処理でエラーが発生しました:`, error);
 		throw error;
