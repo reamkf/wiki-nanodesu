@@ -1,4 +1,6 @@
-name: Deploy Next.js site to GitHub Pages
+name: Next.js CI / GitHub Pages
+run-name: >-
+    ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && 'Check & deploy' || 'Check' }} · ${{ github.head_ref || github.ref_name }}
 
 on:
     pull_request:
