@@ -4,7 +4,7 @@
  * Google Sheets APIを使用してスプレッドシートからデータを取得し、CSVファイルとして保存するスクリプト
  *
  * 使用方法:
- * 1. .envファイルにGOOGLE_SPREADSHEET_IDとGOOGLE_API_KEYを設定
+ * 1. .envファイルにGOOGLE_APPLICATION_CREDENTIALSを設定
  * 2. bun run fetch-csv を実行
  * 3. --commit オプションを指定すると、変更があった場合に自動的にgit add/commitを実行します
  *    例: bun run fetch-csv --commit
@@ -14,6 +14,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as dotenv from "dotenv";
 import { execSync } from "child_process";
+import { getSheetsAccessToken } from "./sheets-auth";
 
 // 環境変数を読み込み
 dotenv.config();
@@ -76,12 +77,12 @@ async function waitForCooldown(): Promise<void> {
 	}
 }
 
-async function fetchWithRetry(url: string): Promise<Response> {
+async function fetchWithRetry(url: string, token: string): Promise<Response> {
 	for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
 		await waitForCooldown();
 		lastRequestAt = Date.now();
 		try {
-			const response = await fetch(url);
+			const response = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
 			if (response.ok) {
 				return response;
 			}
@@ -185,19 +186,6 @@ export const sheetConfigs: SheetConfig[] = [
 ];
 
 /**
- * 環境変数をチェックしてAPIキーを取得
- */
-function getApiKey(): string {
-	const apiKey = process.env.GOOGLE_API_KEY;
-
-	if (!apiKey) {
-		throw new Error("GOOGLE_API_KEYが設定されていません。.envファイルを確認してください。");
-	}
-
-	return apiKey;
-}
-
-/**
  * A1記法でセル範囲を指定する文字列を生成
  */
 export function generateA1Notation(sheetName: string, config: SheetConfig): string {
@@ -274,13 +262,13 @@ function arrayToCsv(data: unknown[][], expectedColumns?: number): string {
 /**
  * Google Sheets APIからデータを取得
  */
-async function fetchSheetData(apiKey: string, config: SheetConfig): Promise<unknown[][]> {
+export async function fetchSheetData(token: string, config: SheetConfig): Promise<unknown[][]> {
 	const range = generateA1Notation(config.sheetName, config);
 
-	const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(range)}?key=${apiKey}`;
+	const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${encodeURIComponent(range)}`;
 
 	try {
-		const response = await fetchWithRetry(url);
+		const response = await fetchWithRetry(url, token);
 
 		if (!response.ok) {
 			const errorText = await response.text();
@@ -310,10 +298,10 @@ async function fetchSheetData(apiKey: string, config: SheetConfig): Promise<unkn
 /**
  * シートからデータを取得してCSVとして保存
  */
-async function processSheet(apiKey: string, config: SheetConfig): Promise<void> {
+async function processSheet(token: string, config: SheetConfig): Promise<void> {
 	try {
 		// シートからデータを取得
-		const values = await fetchSheetData(apiKey, config);
+		const values = await fetchSheetData(token, config);
 
 		if (values.length === 0) {
 			return;
@@ -355,8 +343,7 @@ async function main(): Promise<void> {
 	const shouldCommit = args.includes("--commit");
 
 	try {
-		// APIキーを取得
-		const apiKey = getApiKey();
+		const token = await getSheetsAccessToken();
 
 		// 各シート設定に基づいてデータを処理
 		let successCount = 0;
@@ -364,7 +351,7 @@ async function main(): Promise<void> {
 
 		for (const config of sheetConfigs) {
 			try {
-				await processSheet(apiKey, config);
+				await processSheet(token, config);
 				successCount++;
 			} catch (error) {
 				logError(`シート「${config.sheetName}」の処理に失敗しました:`, error);

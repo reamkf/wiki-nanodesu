@@ -37,8 +37,13 @@ jobs:
 
             - name: Fetch CSV from Google Sheets
               env:
-                  GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-              run: bun scripts/fetch-csv-from-sheets.ts
+                  GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+                  GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/sheets-service-account.json
+              run: |
+                  umask 077
+                  printf '%s' "$GOOGLE_SERVICE_ACCOUNT_JSON" > "$GOOGLE_APPLICATION_CREDENTIALS"
+                  trap 'rm -f "$GOOGLE_APPLICATION_CREDENTIALS"' EXIT
+                  bun scripts/fetch-csv-from-sheets.ts
 
             - name: Check CSV diff
               id: check-diff

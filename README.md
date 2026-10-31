@@ -84,31 +84,17 @@
 
 ### Google Sheets APIからのデータ取得
 
-スプレッドシートからローカルでCSVファイルを取得するには、以下の手順で設定してください。
+下記のサービスアカウント設定を行い、`.env`に`GOOGLE_APPLICATION_CREDENTIALS`を設定する。`push-csv`と同じJSON鍵を使用でき、APIキーやシートの一般公開は不要。取得だけならサービスアカウントの共有権限は「閲覧者」でよい。
 
-1. **Google Cloud ConsoleでAPIキーを作成**
-    - [Google Cloud Console](https://console.cloud.google.com/) にアクセス
-    - 「APIとサービス」→「ライブラリ」で「Google Sheets API」を有効にする
-    - 「APIとサービス」→「認証情報」で「認証情報を作成」→「APIキー」を選択
-    - 作成したAPIキーを「キーを制限」で「Google Sheets API」のみに制限することを推奨
+```sh
+# CSVを取得（自動コミットなし）
+bun scripts/fetch-csv-from-sheets.ts
 
-2. **スプレッドシートを公開設定にする**
-    - 対象のスプレッドシートで「共有」をクリック
-    - 「リンクを知っている全員が閲覧可」に設定
-    - （注意: APIキー認証では公開されたスプレッドシートのみアクセス可能）
+# CSVを取得して変更を自動コミット
+bun run fetch-csv
+```
 
-3. **環境変数を設定**
-
-    ```sh
-    cp .env.example .env
-    ```
-
-    .envファイルを編集して`GOOGLE_API_KEY`を設定
-
-4. **CSVファイルを取得**
-    ```sh
-    bun fetch-csv
-    ```
+GitHub Actionsの定期取得には、リポジトリの「Settings」→「Secrets and variables」→「Actions」で`GOOGLE_SERVICE_ACCOUNT_JSON`というSecretを追加し、JSON鍵の内容全体を保存する。ワークフローは一時ファイルに鍵を書き出し、処理終了時に削除する。旧`GOOGLE_API_KEY`は使用しない。
 
 ### CSVをGoogle Sheetsへ反映
 

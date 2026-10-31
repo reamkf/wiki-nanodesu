@@ -4,12 +4,8 @@ import { tmpdir } from "os";
 import { join } from "path";
 import { JWT } from "google-auth-library";
 import { sheetConfigs } from "../../../scripts/fetch-csv-from-sheets";
-import {
-	createUpdates,
-	getFormulaCells,
-	getSheetsAccessToken,
-	parseCsv,
-} from "../../../scripts/push-csv-to-sheets";
+import { createUpdates, getFormulaCells, parseCsv } from "../../../scripts/push-csv-to-sheets";
+import { getSheetsAccessToken } from "../../../scripts/sheets-auth";
 
 const config = {
 	sheetName: "フレンズ'掛け合い",

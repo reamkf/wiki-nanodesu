@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 
-import { createReadStream, readFileSync } from "fs";
-import { JWT } from "google-auth-library";
+import { readFileSync } from "fs";
+import { getSheetsAccessToken } from "./sheets-auth";
 import Papa from "papaparse";
 import {
 	generateA1Notation,
@@ -89,21 +89,6 @@ export function getFormulaCells(sheet: SheetGrid): Set<string> {
 		}
 	}
 	return cells;
-}
-
-export async function getSheetsAccessToken(
-	env: Record<string, string | undefined> = process.env,
-): Promise<string> {
-	if (!env.GOOGLE_APPLICATION_CREDENTIALS) {
-		throw new Error("GOOGLE_APPLICATION_CREDENTIALSを設定してください。");
-	}
-	const auth = new JWT({
-		scopes: ["https://www.googleapis.com/auth/spreadsheets"],
-	});
-	await auth.fromStream(createReadStream(env.GOOGLE_APPLICATION_CREDENTIALS));
-	const { token } = await auth.getAccessToken();
-	if (!token) throw new Error("サービスアカウントのアクセストークンを取得できませんでした。");
-	return token;
 }
 
 export async function main(args = process.argv.slice(2)): Promise<void> {
