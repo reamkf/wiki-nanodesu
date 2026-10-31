@@ -32,6 +32,7 @@ export function createUpdates(
 	local: string[][],
 	remote: string[][],
 	skipEmpty = true,
+	formulaCells: Set<string> = new Set(),
 ) {
 	const width = config.range?.endColumn
 		? config.range.endColumn - (config.range.startColumn ?? 1) + 1
@@ -39,6 +40,12 @@ export function createUpdates(
 	const updates: { range: string; values: string[][] }[] = [];
 	for (let row = 0; row < Math.max(local.length, remote.length); row++) {
 		for (let col = 0; col < width; col++) {
+			if (
+				formulaCells.has(
+					`${row + (config.range?.startRow ?? 1)}:${col + (config.range?.startColumn ?? 1)}`,
+				)
+			)
+				continue;
 			const value = local[row]?.[col] ?? "";
 			if (skipEmpty && value === "") continue;
 			if (value === (remote[row]?.[col] ?? "")) continue;
@@ -57,6 +64,31 @@ export function createUpdates(
 		}
 	}
 	return updates;
+}
+
+type SheetGrid = {
+	properties: { title: string };
+	data?: {
+		startRow?: number;
+		startColumn?: number;
+		rowData?: { values?: { userEnteredValue?: { formulaValue?: string } }[] }[];
+	}[];
+};
+
+export function getFormulaCells(sheet: SheetGrid): Set<string> {
+	const cells = new Set<string>();
+	for (const block of sheet.data ?? []) {
+		for (const [row, data] of (block.rowData ?? []).entries()) {
+			for (const [col, cell] of (data.values ?? []).entries()) {
+				if (cell.userEnteredValue?.formulaValue) {
+					cells.add(
+						`${(block.startRow ?? 0) + row + 1}:${(block.startColumn ?? 0) + col + 1}`,
+					);
+				}
+			}
+		}
+	}
+	return cells;
 }
 
 export async function getSheetsAccessToken(
@@ -115,12 +147,22 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
 	const remote = (await request(`${base}/values:batchGet?${query}`)) as {
 		valueRanges: { values?: string[][] }[];
 	};
+	const gridQuery = new URLSearchParams({
+		includeGridData: "true",
+		fields: "sheets(properties(title),data(startRow,startColumn,rowData(values(userEnteredValue))))",
+	});
+	for (const { config } of files)
+		gridQuery.append("ranges", generateA1Notation(config.sheetName, config));
+	const grid = (await request(`${base}?${gridQuery}`)) as { sheets: SheetGrid[] };
 	const data = files.flatMap(({ config, values }, index) => {
+		const sheet = grid.sheets.find((sheet) => sheet.properties.title === config.sheetName);
+		if (!sheet) throw new Error(`数式情報を取得できませんでした: ${config.sheetName}`);
 		const updates = createUpdates(
 			config,
 			values,
 			remote.valueRanges[index].values ?? [],
 			skipEmpty,
+			getFormulaCells(sheet),
 		);
 		console.log(`${config.sheetName}: ${updates.length}セルの差分`);
 		return updates;

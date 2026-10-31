@@ -4,7 +4,12 @@ import { tmpdir } from "os";
 import { join } from "path";
 import { JWT } from "google-auth-library";
 import { sheetConfigs } from "../../../scripts/fetch-csv-from-sheets";
-import { createUpdates, getSheetsAccessToken, parseCsv } from "../../../scripts/push-csv-to-sheets";
+import {
+	createUpdates,
+	getFormulaCells,
+	getSheetsAccessToken,
+	parseCsv,
+} from "../../../scripts/push-csv-to-sheets";
 
 const config = {
 	sheetName: "フレンズ'掛け合い",
@@ -13,6 +18,61 @@ const config = {
 };
 
 describe("push-csv", () => {
+	test("数式セルの位置を開始行・列のオフセット込みで取得する", () => {
+		expect(
+			getFormulaCells({
+				properties: { title: "テスト" },
+				data: [
+					{
+						startRow: 2,
+						startColumn: 3,
+						rowData: [{ values: [{ userEnteredValue: { formulaValue: "=1+1" } }, {}] }],
+					},
+					{
+						rowData: [
+							{ values: [{ userEnteredValue: { formulaValue: "=SUM(A2:A3)" } }] },
+						],
+					},
+				],
+			}),
+		).toEqual(new Set(["3:4", "1:1"]));
+	});
+	test("数式セルは値の変更時も空セルによる削除時も更新しない", () => {
+		for (const skipEmpty of [true, false]) {
+			expect(
+				createUpdates(
+					config,
+					[
+						["変更", ""],
+						["通常", "更新"],
+					],
+					[
+						["計算結果", "計算結果"],
+						["以前", "以前"],
+					],
+					skipEmpty,
+					new Set(["1:4", "1:5"]),
+				),
+			).toEqual([
+				{ range: "'フレンズ''掛け合い'!D2", values: [["通常"]] },
+				{ range: "'フレンズ''掛け合い'!E2", values: [["更新"]] },
+			]);
+		}
+	});
+	test("CSVに存在しない行の数式も削除しない", () => {
+		expect(
+			createUpdates(
+				config,
+				[["同じ", "同じ"]],
+				[
+					["同じ", "同じ"],
+					["数式", "数式"],
+				],
+				false,
+				new Set(["2:4", "2:5"]),
+			),
+		).toEqual([]);
+	});
 	test("サービスアカウントでSheetsスコープのトークンを取得する", async () => {
 		const dir = mkdtempSync(join(tmpdir(), "sheets-auth-"));
 		const keyFile = join(dir, "service-account.json");
