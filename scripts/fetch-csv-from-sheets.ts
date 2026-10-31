@@ -43,7 +43,7 @@ function logError(message: string, ...args: unknown[]): void {
 }
 
 // シート設定（GASのsheetConfigsと同等）
-interface SheetConfig {
+export interface SheetConfig {
 	sheetName: string;
 	filePath: string;
 	range?: {
@@ -55,7 +55,7 @@ interface SheetConfig {
 }
 
 // スプレッドシートID（README.mdに記載のURL内のID）
-const SPREADSHEET_ID = "1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk";
+export const SPREADSHEET_ID = "1p-C3wbkYZf_2Uce2J2J6w6T1V6X5eJmk-PtC4I__olk";
 // リクエスト制御: クールタイムと再試行設定
 const COOLDOWN_MS = Number(process.env.SHEETS_COOLDOWN_MS ?? "1200");
 const MAX_RETRIES = Number(process.env.SHEETS_MAX_RETRIES ?? "5");
@@ -133,7 +133,7 @@ async function fetchWithRetry(url: string): Promise<Response> {
 	throw new Error("Google Sheets API 呼び出しに失敗しました。");
 }
 
-const sheetConfigs: SheetConfig[] = [
+export const sheetConfigs: SheetConfig[] = [
 	{
 		sheetName: "フレンズデータ",
 		filePath: "csv/フレンズデータ.csv",
@@ -200,7 +200,7 @@ function getApiKey(): string {
 /**
  * A1記法でセル範囲を指定する文字列を生成
  */
-function generateA1Notation(sheetName: string, config: SheetConfig): string {
+export function generateA1Notation(sheetName: string, config: SheetConfig): string {
 	if (!config.range) {
 		return sheetName;
 	}

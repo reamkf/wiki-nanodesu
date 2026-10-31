@@ -110,6 +110,39 @@
     bun fetch-csv
     ```
 
+### CSVをGoogle Sheetsへ反映
+
+サービスアカウントを設定すると、実行時にアクセストークンを自動取得できる。APIキーだけでは書き込めない。
+
+1. [Google Cloud Console](https://console.cloud.google.com/)でプロジェクトを選び、「APIとサービス」→「ライブラリ」でGoogle Sheets APIを有効にする。
+2. 「IAMと管理」→「サービスアカウント」でサービスアカウントを作成する。プロジェクトのIAMロール付与は不要。
+3. 作成したアカウントの「キー」→「鍵を追加」→「新しい鍵を作成」でJSONを選び、ダウンロードする。組織のポリシーで鍵作成が禁止されている場合は管理者に確認する。
+4. JSON鍵をリポジトリ外の安全な場所（例: `/home/ユーザー名/.config/wiki-nanodesu/service-account.json`）に保存し、所有者だけが読めるようにする（Linuxでは `chmod 600 ファイルパス`）。鍵をGitにコミットしたり、他人に共有したりしない。
+5. 対象スプレッドシートの「共有」で、JSON内の`client_email`を「編集者」として追加する。書き込みのためにシートを一般公開する必要はない。
+6. `.env`に鍵ファイルの絶対パスを設定する。Bunが`.env`を自動で読み込む。
+
+```dotenv
+GOOGLE_APPLICATION_CREDENTIALS=/home/ユーザー名/.config/wiki-nanodesu/service-account.json
+```
+
+```sh
+# 全CSVの差分を確認（書き込みなし）
+bun run push-csv --dry-run
+
+# 全CSVを反映
+bun run push-csv
+
+# ローカルの空セルでリモートの値を消去
+bun run push-csv --overwrite-empty
+
+# シート名で対象を指定（複数指定可）
+bun run push-csv フレンズデータ
+```
+
+fetch-csvと同じスプレッドシート・列範囲を使用する。表示値が異なるセルのみ文字列として更新する。変更のないセルの数式や型、セルの書式は維持するが、変更対象セルの数式はCSVの値で置き換わる。数値や日付も文字列として反映されるため、シート内で計算に使う列は事前に差分を確認すること。
+
+デフォルトではローカルの空文字セルとCSVに存在しない行・列は更新せず、リモートの値や数式を保持する。`--skip-empty`の明示指定も可能。`--overwrite-empty`を指定すると、空セルやCSVから削除された行・列の値もシート側で消去する。両オプションは同時に指定できない。スペースだけのセルは更新対象となる。`--dry-run`やシート名の指定と併用できる。
+
 ### デプロイ
 
 [GitHub](https://github.com/reamkf/wiki-nanodesu) のmainブランチへpushすると、GitHub Actionsにより自動でGitHub Pagesへデプロイされる
