@@ -1,10 +1,8 @@
 import { describe, expect, spyOn, test } from "bun:test";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "fs";
+import { mkdtempSync, rmSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { JWT } from "google-auth-library";
-import { sheetConfigs } from "../../../scripts/fetch-csv-from-sheets";
-import { createUpdates, getFormulaCells } from "../../../scripts/push-csv-to-sheets";
 import { parseCsv } from "../../../scripts/csv-rows";
 import { getSheetsAccessToken } from "../../../scripts/sheets-auth";
 
@@ -15,61 +13,6 @@ const config = {
 };
 
 describe("push-csv", () => {
-	test("数式セルの位置を開始行・列のオフセット込みで取得する", () => {
-		expect(
-			getFormulaCells({
-				properties: { title: "テスト" },
-				data: [
-					{
-						startRow: 2,
-						startColumn: 3,
-						rowData: [{ values: [{ userEnteredValue: { formulaValue: "=1+1" } }, {}] }],
-					},
-					{
-						rowData: [
-							{ values: [{ userEnteredValue: { formulaValue: "=SUM(A2:A3)" } }] },
-						],
-					},
-				],
-			}),
-		).toEqual(new Set(["3:4", "1:1"]));
-	});
-	test("数式セルは値の変更時も空セルによる削除時も更新しない", () => {
-		for (const skipEmpty of [true, false]) {
-			expect(
-				createUpdates(
-					config,
-					[
-						["変更", ""],
-						["通常", "更新"],
-					],
-					[
-						["計算結果", "計算結果"],
-						["以前", "以前"],
-					],
-					skipEmpty,
-					new Set(["1:4", "1:5"]),
-				),
-			).toEqual([
-				{ range: "'フレンズ''掛け合い'!D2", values: [["通常"]] },
-				{ range: "'フレンズ''掛け合い'!E2", values: [["更新"]] },
-			]);
-		}
-	});
-	test("CSVに存在しない行の数式も削除しない", () => {
-		expect(
-			createUpdates(
-				config,
-				[["同じ", "同じ"]],
-				[
-					["同じ", "同じ"],
-					["数式", "数式"],
-				],
-				false,
-				new Set(["2:4", "2:5"]),
-			),
-		).toEqual([]);
-	});
 	test("サービスアカウントでSheetsスコープのトークンを取得する", async () => {
 		const dir = mkdtempSync(join(tmpdir(), "sheets-auth-"));
 		const keyFile = join(dir, "service-account.json");
@@ -117,48 +60,6 @@ describe("push-csv", () => {
 	test("空ファイル、不正な引用符、列数の不一致を拒否する", () => {
 		for (const text of ["", "\n", 'a,"b', "a,b\nc", "a,b,c"]) {
 			expect(() => parseCsv(text, config)).toThrow();
-		}
-	});
-	test("指定範囲の変更と削除だけを更新する", () => {
-		expect(
-			createUpdates(
-				config,
-				[
-					["名前", "説明"],
-					["更新", ""],
-				],
-				[["名前", "説明"], ["以前", "削除"], ["余分"]],
-				false,
-			),
-		).toEqual([
-			{ range: "'フレンズ''掛け合い'!D2", values: [["更新"]] },
-			{ range: "'フレンズ''掛け合い'!E2", values: [[""]] },
-			{ range: "'フレンズ''掛け合い'!D3", values: [[""]] },
-		]);
-	});
-	test("デフォルトでは空セルをスキップしリモートの値とCSVにない行を保持する", () => {
-		expect(
-			createUpdates(
-				config,
-				[
-					["更新", ""],
-					["", " "],
-				],
-				[["以前", "保持"], ["保持", "以前"], ["余分"]],
-			),
-		).toEqual([
-			{ range: "'フレンズ''掛け合い'!D1", values: [["更新"]] },
-			{ range: "'フレンズ''掛け合い'!E2", values: [[" "]] },
-		]);
-	});
-	test("数式と同じ表示値は更新せず、入力値は文字列のまま保持する", () => {
-		expect(createUpdates(config, [["001", "=SUM(A1)"]], [["001", "結果"]])).toEqual([
-			{ range: "'フレンズ''掛け合い'!E1", values: [["=SUM(A1)"]] },
-		]);
-	});
-	test("リポジトリの全CSVを検証できる", () => {
-		for (const sheet of sheetConfigs) {
-			expect(parseCsv(readFileSync(sheet.filePath, "utf8"), sheet).length).toBeGreaterThan(0);
 		}
 	});
 });

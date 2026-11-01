@@ -97,28 +97,38 @@ GitHub Actionsで取得するためには、リポジトリの「Settings」→�
     ```sh
     bun run serve
     ```
-- Google スプレッドシートからのCSV取得
+
+## Googleスプレッドシート / CSV操作
+
+- GOogleスプレッドシートのデータを取得し、ローカルへ保存
     ```sh
-    # CSVを取得（自動コミットなし）
+    # CSVを取得
     bun scripts/fetch-csv-from-sheets.ts
 
     # CSVを取得して変更を自動コミット
-    bun run fetch-csv
+    bun run fetch-csv # -> bun scripts/fetch-csv-from-sheets.ts --commit
     ```
+
 - ローカルのCSVをGoogle スプレッドシートへ反映
     ```sh
     # 全CSVの差分を確認（書き込みなし）
     bun run push-csv --dry-run
 
-    # 全CSVを反映
+    # 全CSVの差分を表示し、確認後に反映
     bun run push-csv
 
-    # ローカルの空セルでリモートの値を消去
+    # ローカルの空セルでリモートの値を消去。未指定時は空セルはスキップ
     bun run push-csv --overwrite-empty
 
     # シート名で対象を指定（複数指定可）
     bun run push-csv フレンズデータ
     ```
+
+
+CSVとSheetsの行は、フレンズの `ID`、フォトの `フォト名`、イベントの `イベント名` と `開催開始` で照合します。
+既存・新規行とも数式は上書きしません。数式の計算結果がCSVと異なる場合は、Sheets上の数式や値を確認・修正してください。
+
+実行結果を確定できない場合や、中断後にCSV・Sheetsが変更された場合は停止します。その場合は表示された保存先の記録とSheetsを照合し、反映状況を確認してから `pending.json` と `journal.json` を削除して再実行してください。強制終了で `lock` が残った場合も、他の同期が実行中でないことを確認してから削除します。
 
 ### CSV行の原文取得
 
