@@ -248,6 +248,43 @@ describe("Sheets安全適用の状態遷移", () => {
 		}
 	});
 
+	test("特別衣装数が数値で読戻されても再送せず同期を完了する", async () => {
+		const friendHeaders = ["ID", "特別衣装数"];
+		const base = [friendHeaders, ["スカイフィッシュ", "1"]];
+		const local = [friendHeaders, ["スカイフィッシュ", "2"]];
+		const state = fixture();
+		try {
+			state.snapshot = {
+				sheetId: 42,
+				rowCount: 20,
+				formatted: structuredClone(base),
+				raw: [["ID", "特別衣装数"], ["スカイフィッシュ", 1]],
+				formulas: [[], []],
+			};
+			state.plan.sheets[0] = createSheetPlan(
+				{ sheetName: "フレンズデータ", filePath: "friends.csv" },
+				local,
+				"csv-hash",
+				state.snapshot,
+			);
+			const options = {
+				...state.options,
+				request: async (suffix: string, body: unknown) => {
+					await state.options.request(suffix, body);
+					state.snapshot.raw[1][1] = 2;
+					throw new Error("反映後に応答喪失");
+				},
+			};
+			await expect(applySyncPlan(state.plan, options)).rejects.toThrow("再送せず停止");
+			const result = await applySyncPlan(state.plan, state.options);
+			expect(result.completed).toBe(true);
+			expect(state.calls).toHaveLength(1);
+			expect(state.snapshot.raw[1][1]).toBe(2);
+		} finally {
+			state.cleanup();
+		}
+	});
+
 	test("既存の一致する数式を保持したまま通常セルだけRAW更新する", async () => {
 		const baseValues = [headers, [...oldRow.slice(0, 3), "3"]];
 		const local = [headers, [oldRow[0], oldRow[1], "更新リンク", "3"]];
