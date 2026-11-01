@@ -2,30 +2,13 @@
 
 import { readFileSync } from "fs";
 import { getSheetsAccessToken } from "./sheets-auth";
-import Papa from "papaparse";
+import { parseCsv } from "./csv-rows";
 import {
 	generateA1Notation,
 	sheetConfigs,
 	SPREADSHEET_ID,
 	type SheetConfig,
 } from "./fetch-csv-from-sheets";
-
-export function parseCsv(text: string, config: SheetConfig): string[][] {
-	const result = Papa.parse<string[]>(text.replace(/^\uFEFF/, "").replace(/\r?\n$/, ""), {
-		delimiter: ",",
-		skipEmptyLines: false,
-	});
-	if (result.errors.length > 0 || !text.trim()) {
-		throw new Error(`${config.filePath}: 空または不正なCSVです。`);
-	}
-	const width = config.range?.endColumn
-		? config.range.endColumn - (config.range.startColumn ?? 1) + 1
-		: result.data[0].length;
-	if (result.data.some((row) => row.length !== width)) {
-		throw new Error(`${config.filePath}: 列数が一致しません（期待値: ${width}）。`);
-	}
-	return result.data;
-}
 
 export function createUpdates(
 	config: SheetConfig,

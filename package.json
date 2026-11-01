@@ -18,7 +18,8 @@
 		"precommit": "bun test && bun run lint && bun run format:check && bun run build && bun run test:e2e",
 		"licenses:generate": "bun scripts/generate-licenses.ts",
 		"fetch-csv": "bun scripts/fetch-csv-from-sheets.ts --commit",
-		"push-csv": "bun scripts/push-csv-to-sheets.ts"
+		"push-csv": "bun scripts/push-csv-to-sheets.ts",
+		"get-csv-row": "bun scripts/get-csv-row.ts"
 	},
 	"dependencies": {
 		"@emotion/react": "^11.14.0",

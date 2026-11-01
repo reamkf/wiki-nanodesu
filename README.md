@@ -34,12 +34,12 @@
 ### セットアップ
 
 1. Git、Bunをインストールする
-3. リポジトリをcloneする
+2. リポジトリをcloneする
     ```sh
     git clone https://github.com/reamkf/wiki-nanodesu.git
     cd wiki-nanodesu
     ```
-4. パッケージをインストールする
+3. パッケージをインストールする
     ```sh
     bun install
     ```
@@ -98,27 +98,36 @@ GitHub Actionsで取得するためには、リポジトリの「Settings」→�
     bun run serve
     ```
 - Google スプレッドシートからのCSV取得
-  ```sh
-  # CSVを取得（自動コミットなし）
-  bun scripts/fetch-csv-from-sheets.ts
+    ```sh
+    # CSVを取得（自動コミットなし）
+    bun scripts/fetch-csv-from-sheets.ts
 
-  # CSVを取得して変更を自動コミット
-  bun run fetch-csv
-  ```
+    # CSVを取得して変更を自動コミット
+    bun run fetch-csv
+    ```
 - ローカルのCSVをGoogle スプレッドシートへ反映
-  ```sh
-  # 全CSVの差分を確認（書き込みなし）
-  bun run push-csv --dry-run
+    ```sh
+    # 全CSVの差分を確認（書き込みなし）
+    bun run push-csv --dry-run
 
-  # 全CSVを反映
-  bun run push-csv
+    # 全CSVを反映
+    bun run push-csv
 
-  # ローカルの空セルでリモートの値を消去
-  bun run push-csv --overwrite-empty
+    # ローカルの空セルでリモートの値を消去
+    bun run push-csv --overwrite-empty
 
-  # シート名で対象を指定（複数指定可）
-  bun run push-csv フレンズデータ
-  ```
+    # シート名で対象を指定（複数指定可）
+    bun run push-csv フレンズデータ
+    ```
+
+### CSV行の原文取得
+
+```sh
+bun run get-csv-row --file csv/フレンズデータ.csv --key '{"ID":"シロツチノコ"}' --format json
+bun run get-csv-row --file csv/イベントデータ.csv --key '{"イベント名":"対象名","開催開始":"CSVと同じ文字列"}' --format tsv
+```
+
+`--key` で指定した1行を、CSVの文字列と列順を保ったまま標準出力に出力します。JSONには列名の `headers`、1始まりの行番号 `rowNumber`、配列の `values`、列名で引ける `record` が入ります。改行やタブを含むセルはJSON形式で出力してください。ファイルに保存する場合はシェルのリダイレクトを使用します。既存ファイルの上書きに注意してください。
 
 ### デプロイ
 
