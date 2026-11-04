@@ -101,6 +101,7 @@ GitHub Actionsで取得するためには、リポジトリの「Settings」→�
 ## Googleスプレッドシート / CSV操作
 
 - GOogleスプレッドシートのデータを取得し、ローカルへ保存
+
     ```sh
     # CSVを取得
     bun scripts/fetch-csv-from-sheets.ts
@@ -123,7 +124,6 @@ GitHub Actionsで取得するためには、リポジトリの「Settings」→�
     # シート名で対象を指定（複数指定可）
     bun run push-csv フレンズデータ
     ```
-
 
 CSVとSheetsの行は、フレンズの `ID`、フォトの `フォト名`、イベントの `イベント名` と `開催開始` で照合します。
 既存・新規行とも数式は上書きしません。数式の計算結果がCSVと異なる場合は、Sheets上の数式や値を確認・修正してください。

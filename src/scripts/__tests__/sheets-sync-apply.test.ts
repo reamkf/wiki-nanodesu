@@ -258,7 +258,10 @@ describe("Sheets安全適用の状態遷移", () => {
 				sheetId: 42,
 				rowCount: 20,
 				formatted: structuredClone(base),
-				raw: [["ID", "特別衣装数"], ["スカイフィッシュ", 1]],
+				raw: [
+					["ID", "特別衣装数"],
+					["スカイフィッシュ", 1],
+				],
 				formulas: [[], []],
 			};
 			state.plan.sheets[0] = createSheetPlan(

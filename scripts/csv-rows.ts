@@ -46,22 +46,20 @@ export function selectRow(rows: string[][], key: Record<string, string>): CsvRow
 	const indices = Object.entries(key).map(
 		([name, value]) => [headers.indexOf(name), value] as const,
 	);
-	const matches = rows
-		.slice(1)
-		.flatMap((values, index) =>
-			indices.every(([column, value]) => values[column] === value)
-				? [
-						{
-							headers,
-							rowNumber: index + 2,
-							values,
-							record: Object.fromEntries(
-								headers.map((name, column) => [name, values[column]]),
-							),
-						},
-					]
-				: [],
-		);
+	const matches = rows.slice(1).flatMap((values, index) =>
+		indices.every(([column, value]) => values[column] === value)
+			? [
+					{
+						headers,
+						rowNumber: index + 2,
+						values,
+						record: Object.fromEntries(
+							headers.map((name, column) => [name, values[column]]),
+						),
+					},
+				]
+			: [],
+	);
 	if (matches.length !== 1) throw new Error(`一致する行は1件必要です（${matches.length}件）。`);
 	return matches[0];
 }

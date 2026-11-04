@@ -4,9 +4,7 @@ import { parseCsv, rowToTsv, selectRow } from "./csv-rows";
 
 export function main(args = process.argv.slice(2)): void {
 	if (args.includes("--help")) {
-		console.log(
-			"Usage: get-csv-row --file <CSV> --key '<JSON object>' [--format json|tsv]",
-		);
+		console.log("Usage: get-csv-row --file <CSV> --key '<JSON object>' [--format json|tsv]");
 		return;
 	}
 	const options = new Map<string, string>();
