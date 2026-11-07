@@ -38,6 +38,9 @@ const KEY_HEADERS: Record<string, readonly string[]> = {
 	フレンズデータ: ["ID"],
 	フォトデータ: ["フォト名"],
 	イベントデータ: ["イベント名", "開催開始"],
+	状態異常スキル一覧: ["フレンズID/フォト名", "わざ種別", "状態異常", "効果種別", "威力", "対象"],
+	スキル別フレンズ一覧: ["フレンズID", "わざ種別", "効果種別", "威力"],
+	フレンズ掛け合い一覧: ["掛け合い元"],
 };
 
 const PERCENT_HEADERS: Record<string, true> = {
@@ -195,21 +198,33 @@ function alignment(
 		headers.some((header, column) => header !== (base.formatted[0]?.[column] ?? ""))
 	)
 		throw new Error(`${config.sheetName}: SheetsのヘッダーがCSVと一致しません。`);
-	function keys(rows: string[][], label: string): string[] {
-		const seen = new Set<string>();
-		return rows.slice(1).map((row) => {
+	const allowDuplicateKeys =
+		config.sheetName === "状態異常スキル一覧" || config.sheetName === "スキル別フレンズ一覧";
+	function keys(rows: string[][], label: string, allowTrailingEmpty = false): string[] {
+		const seen = new Map<string, number>();
+		let trailingEmpty = false;
+		return rows.slice(1).flatMap((row) => {
 			const values = columns.map((column) => row[column] ?? "");
+			if (values.every((value) => value === "")) {
+				if (!allowTrailingEmpty)
+					throw new Error(`${config.sheetName}: ${label}の識別キーが空です。`);
+				trailingEmpty = true;
+				return [];
+			}
+			if (trailingEmpty)
+				throw new Error(`${config.sheetName}: ${label}の識別キーが空です。`);
 			if (values.some((value) => value === ""))
 				throw new Error(`${config.sheetName}: ${label}の識別キーが空です。`);
 			const key = JSON.stringify(values);
-			if (seen.has(key))
+			const occurrence = seen.get(key) ?? 0;
+			if (occurrence > 0 && !allowDuplicateKeys)
 				throw new Error(`${config.sheetName}: ${label}の識別キーが重複しています: ${key}`);
-			seen.add(key);
-			return key;
+			seen.set(key, occurrence + 1);
+			return [`${key}#${occurrence}`];
 		});
 	}
 	const localKeys = keys(local, "CSV");
-	const remoteKeys = keys(base.formatted, "Sheets");
+	const remoteKeys = keys(base.formatted, "Sheets", true);
 	const localPositions = new Map(localKeys.map((key, index) => [key, index]));
 	let previous = -1;
 	for (const key of remoteKeys) {

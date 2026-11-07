@@ -201,6 +201,7 @@ function assertFormulaResults(plan: SheetPlan, snapshot: SheetSnapshot): void {
 	}
 }
 
+
 function mutationMatches(
 	plan: SheetPlan,
 	before: SheetSnapshot,
@@ -218,15 +219,8 @@ function mutationMatches(
 			const value = touched.get(`${row}:${column}`);
 			if (value !== undefined) {
 				const actual = after.raw[row]?.[column] ?? "";
-				const numericCostumeCount =
-					plan.config.sheetName === "フレンズデータ" &&
-					plan.local[0]?.[column] === "特別衣装数" &&
-					/^(0|[1-9]\d*)$/.test(value) &&
-					typeof actual === "number" &&
-					Number.isSafeInteger(actual) &&
-					String(actual) === value &&
-					after.formatted[row]?.[column] === value;
-				if ((actual !== value && !numericCostumeCount) || after.formulas[row]?.[column])
+				const formatted = after.formatted[row]?.[column] ?? "";
+				if ((actual !== value && formatted !== value) || after.formulas[row]?.[column])
 					return false;
 			} else if (before.formulas[row]?.[column]) {
 				if (before.formulas[row][column] !== after.formulas[row]?.[column]) return false;
