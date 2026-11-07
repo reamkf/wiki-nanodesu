@@ -164,7 +164,7 @@ export const sheetConfigs: SheetConfig[] = [
 		filePath: "csv/フレンズ掛け合い一覧.csv",
 		range: {
 			startColumn: 4,
-			endColumn: 15,
+			endColumn: 18,
 		},
 	},
 	{
