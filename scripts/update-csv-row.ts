@@ -1,6 +1,9 @@
 #!/usr/bin/env bun
 import { readFileSync, writeFileSync } from "node:fs";
 import { parseCsv, selectRow } from "./csv-rows";
+import { reportViolations, validateCsv } from "./csv-validation";
+import rules from "./csv-validation-rules.json";
+import { basename } from "node:path";
 
 // CSVの各フィールドの位置を記録し、変更対象以外の書式を保持する。
 function fieldSpans(text: string): [number, number][][] {
@@ -83,6 +86,19 @@ export function main(args = process.argv.slice(2)): void {
 			after: value as string,
 		}))
 		.filter((change) => change.before !== change.after);
+	const candidate = rows.map((values) => [...values]);
+	for (const change of changes)
+		candidate[row.rowNumber - 1][row.headers.indexOf(change.column)] = change.after;
+	if (basename(file, ".csv") in rules) {
+		reportViolations(
+			file,
+			validateCsv(
+				file,
+				candidate,
+				new Map([[row.rowNumber, new Set(changes.map((change) => change.column))]]),
+			),
+		);
+	}
 	let result = text;
 	for (const change of changes.toSorted(
 		(a, b) => row.headers.indexOf(b.column) - row.headers.indexOf(a.column),

@@ -14,6 +14,7 @@ import { join } from "node:path";
 import { createInterface } from "node:readline/promises";
 import { getSheetsAccessToken } from "./sheets-auth";
 import { parseCsv } from "./csv-rows";
+import { reportViolations, validateCsv } from "./csv-validation";
 import {
 	generateA1Notation,
 	sheetConfigs,
@@ -215,6 +216,21 @@ export async function main(
 						overwriteEmpty,
 					),
 				);
+		}
+		for (const sheet of plan.sheets) {
+			const selected = new Map<number, Set<string>>();
+			for (const cell of sheet.comparisons) {
+				if (cell.kind !== "different" || !cell.local) continue;
+				const row = cell.row - (sheet.config.range?.startRow ?? 1) + 1;
+				const column = sheet.local[0][cell.column - (sheet.config.range?.startColumn ?? 1)];
+				if (!column || row < 2 || row > sheet.local.length) continue;
+				if (!selected.has(row)) selected.set(row, new Set());
+				selected.get(row)!.add(column);
+			}
+			reportViolations(
+				sheet.config.filePath,
+				validateCsv(sheet.config.filePath, sheet.local, selected),
+			);
 		}
 		for (const sheet of plan.sheets) {
 			const start = sheet.config.range?.startRow ?? 1;
