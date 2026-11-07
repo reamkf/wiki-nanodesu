@@ -56,6 +56,7 @@ jobs:
                     echo "CSVに差分はないのです。"
                   else
                     echo "changed=true" >> "$GITHUB_OUTPUT"
+                    bun scripts/csv-diff.ts --pr-body > csv/csv-diff.md
                   fi
 
             - name: Upload CSV artifact
@@ -97,9 +98,10 @@ jobs:
                   git commit -m "chore: update csv files"
                   git push -u --force-with-lease origin bot/update-csv
                   if [ "$(gh pr list --head bot/update-csv --state open --json number --jq 'length')" -gt 0 ]; then
+                    gh pr edit bot/update-csv --body-file csv/csv-diff.md
                     echo "既存のPRを更新したのです。"
                   else
-                    gh pr create --head bot/update-csv --base main --title "chore: Google SheetsからCSVを更新" --body "Google SheetsからCSVファイルを自動取得したのです。差分を確認してマージしてほしいのです。マージ後にPagesへのデプロイが実行されるのです。"
+                    gh pr create --head bot/update-csv --base main --title "chore: Google SheetsからCSVを更新" --body-file csv/csv-diff.md
                   fi
                   pr_url=$(gh pr view bot/update-csv --json url --jq '.url')
                   echo "[CSV更新PRを開く]($pr_url)" >> "$GITHUB_STEP_SUMMARY"

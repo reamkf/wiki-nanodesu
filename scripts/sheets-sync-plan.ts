@@ -34,7 +34,7 @@ export interface SyncPlan {
 	sheets: SheetPlan[];
 }
 
-const KEY_HEADERS: Record<string, readonly string[]> = {
+export const KEY_HEADERS: Record<string, readonly string[]> = {
 	フレンズデータ: ["ID"],
 	フォトデータ: ["フォト名"],
 	イベントデータ: ["イベント名", "開催開始"],

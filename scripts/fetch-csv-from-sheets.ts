@@ -14,6 +14,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as dotenv from "dotenv";
 import { execSync } from "child_process";
+import { csvDiffReport } from "./csv-diff";
 import { getSheetsAccessToken } from "./sheets-auth";
 
 // 環境変数を読み込み
@@ -367,6 +368,8 @@ async function main(): Promise<void> {
 		if (errorCount > 0) {
 			process.exit(1);
 		}
+
+		console.log(csvDiffReport());
 
 		if (shouldCommit) {
 			try {

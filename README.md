@@ -110,6 +110,8 @@ GitHub Actionsで取得するためには、リポジトリの「Settings」→�
     bun run fetch-csv # -> bun scripts/fetch-csv-from-sheets.ts --commit
     ```
 
+    取得後、GitのHEADとの差分を表で表示します。既存行は変更された列と変更前後の値、追加・削除行は行番号と先頭列の値を表示します。取得前からある未コミットのCSV変更も含みます。GitHub Actionsでは同じ差分表をPR本文に載せ、既存PRの本文も更新します。PR本文が大きい場合は表を途中で省略するため、全差分はActionsのログかPRのFiles changedで確認してください。
+
 - ローカルのCSVをGoogle スプレッドシートへ反映
     ```sh
     # 全CSVの差分を確認（書き込みなし）
