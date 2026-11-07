@@ -140,6 +140,15 @@ bun run get-csv-row --file csv/イベントデータ.csv --key '{"イベント�
 
 `--key` で指定した1行を、CSVの文字列と列順を保ったまま標準出力に出力します。JSONには列名の `headers`、1始まりの行番号 `rowNumber`、配列の `values`、列名で引ける `record` が入ります。改行やタブを含むセルはJSON形式で出力してください。ファイルに保存する場合はシェルのリダイレクトを使用します。既存ファイルの上書きに注意してください。
 
+### CSVの値変更
+
+```sh
+bun run update-csv-row --file csv/フレンズデータ.csv --key '{"ID":"シロツチノコ"}' --set '{"特別衣装数":"2"}'
+bun run update-csv-row --file csv/フレンズデータ.csv --key '{"ID":"シロツチノコ"}' --set '{"特別衣装数":"2"}' --write
+```
+
+キーを完全一致する1行に限定し、指定列だけを文字列として変更します。複合キーと複数列を指定でき、空文字列も指定できます。既定は変更前後のJSONを表示するだけで、`--write` を指定した場合のみローカルCSVに書き込みます。一致行が0件・複数件の場合、未知の列名や文字列以外の値の場合は停止します。対象外セルと改行・引用形式は保持します。Google Sheetsへの反映は別操作です。
+
 ### デプロイ
 
 [GitHub](https://github.com/reamkf/wiki-nanodesu) のmainブランチへpushすると、GitHub Actionsにより自動でGitHub Pagesへデプロイされます。

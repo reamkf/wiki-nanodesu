@@ -19,7 +19,8 @@
 		"licenses:generate": "bun scripts/generate-licenses.ts",
 		"fetch-csv": "bun scripts/fetch-csv-from-sheets.ts --commit",
 		"push-csv": "bun scripts/push-csv-to-sheets.ts",
-		"get-csv-row": "bun scripts/get-csv-row.ts"
+		"get-csv-row": "bun scripts/get-csv-row.ts",
+		"update-csv-row": "bun scripts/update-csv-row.ts"
 	},
 	"dependencies": {
 		"@emotion/react": "^11.14.0",
