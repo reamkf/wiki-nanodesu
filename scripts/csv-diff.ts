@@ -56,6 +56,8 @@ export function csvDiffReport(prBody = false): string {
 		const headers = current[0] ?? old[0] ?? [];
 		const name = basename(file, ".csv");
 		const keys = KEY_HEADERS[name] ?? (name === "フォト火力データ" ? ["フォトID", "変化前・後", "条件"] : [headers[0]]);
+		// 行ラベルには識別キーの先頭列を使う（フォトデータの先頭列はレア度のため）
+		const labelColumn = keys.find((column) => headers.includes(column)) ?? headers[0];
 		const key = (row: string[], header: string[]) => {
 			const values = keys.map((column) => row[header.indexOf(column)] ?? "");
 			return values.every(Boolean) ? JSON.stringify(values) : undefined;
@@ -93,12 +95,12 @@ export function csvDiffReport(prBody = false): string {
 		if (old.length && current.length) compare(old[0], current[0], "ヘッダー");
 		for (let i = 1; i < current.length; i++) {
 			const index = matches.get(i);
-			const label = `${i + 1}行目: ${current[i][0] ?? ""}`;
+			const label = `${i + 1}行目: ${current[i][headers.indexOf(labelColumn)] ?? ""}`;
 			if (index === undefined) add([file, label, "追加", "", "", ""]);
 			else compare(old[index], current[i], label);
 		}
 		for (let i = 1; i < old.length; i++) {
-			if (!used.has(i)) add([file, `${i + 1}行目: ${old[i][0] ?? ""}`, "削除", "", "", ""]);
+			if (!used.has(i)) add([file, `${i + 1}行目: ${old[i][headers.indexOf(labelColumn)] ?? ""}`, "削除", "", "", ""]);
 		}
 		if (truncated) break;
 	}
