@@ -112,15 +112,24 @@ function percentValue(value: string): number | undefined {
 	return Number.isFinite(number) ? number : undefined;
 }
 
+function numbersEqual(left: number, right: number): boolean {
+	return (
+		Math.abs(left - right) <= Number.EPSILON * Math.max(1, Math.abs(left), Math.abs(right)) * 4
+	);
+}
+
+/** 表記ゆれ（5%と5.0%など）を無視して%表記の値を比較する。 */
+export function percentValuesEqual(left: string, right: string): boolean {
+	const leftValue = percentValue(left);
+	const rightValue = percentValue(right);
+	return leftValue !== undefined && rightValue !== undefined && numbersEqual(leftValue, rightValue);
+}
+
 function percentEqual(local: string, remote: string, raw: string | number | boolean): boolean {
 	const expected = percentValue(local);
 	if (expected === undefined) return false;
 	const actual = typeof raw === "number" ? raw : percentValue(remote);
-	return (
-		actual !== undefined &&
-		Math.abs(expected - actual) <=
-			Number.EPSILON * Math.max(1, Math.abs(expected), Math.abs(actual)) * 4
-	);
+	return actual !== undefined && numbersEqual(expected, actual);
 }
 
 // 空セルも数式の計算結果も比較し、更新を省略したことを一致とは扱わない。

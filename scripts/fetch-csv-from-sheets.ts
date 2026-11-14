@@ -14,8 +14,10 @@ import * as fs from "fs";
 import * as path from "path";
 import * as dotenv from "dotenv";
 import { execSync } from "child_process";
+import Papa from "papaparse";
 import { csvDiffReport } from "./csv-diff";
 import { getSheetsAccessToken } from "./sheets-auth";
+import { percentValuesEqual } from "./sheets-sync-plan";
 
 // 環境変数を読み込み
 dotenv.config();
@@ -240,6 +242,23 @@ function formatCellForCsv(cell: unknown): string {
 }
 
 /**
+ * 数値として同じ百分率は、既存CSVの表記（5%と5.0%など）を保持する
+ */
+export function keepPercentFormatting(previousCsv: string, nextValues: unknown[][]): unknown[][] {
+	if (!previousCsv) return nextValues;
+	const previous = Papa.parse<string[]>(
+		previousCsv.replace(/^\uFEFF/, "").replace(/\r?\n$/, ""),
+	).data;
+	return nextValues.map((row, rowIndex) =>
+		row.map((cell, columnIndex) => {
+			const before = previous[rowIndex]?.[columnIndex];
+			const after = cell === null || cell === undefined ? "" : String(cell);
+			return before && percentValuesEqual(before, after) ? before : cell;
+		}),
+	);
+}
+
+/**
  * 2次元配列をCSV文字列に変換
  * Google Sheets APIは行の末尾の空セルを省略するため、行の長さを統一する
  */
@@ -317,8 +336,11 @@ async function processSheet(token: string, config: SheetConfig): Promise<void> {
 		// 実際のデータの最大列数
 		// const actualMaxColumns = Math.max(...values.map(row => row.length));
 
-		// CSVデータに変換
-		const csvData = arrayToCsv(values, expectedColumns);
+		// 百分率の表記ゆれだけの変更は差分にしない
+		const previousCsv = fs.existsSync(config.filePath)
+			? fs.readFileSync(config.filePath, "utf8")
+			: "";
+		const csvData = arrayToCsv(keepPercentFormatting(previousCsv, values), expectedColumns);
 
 		// ファイルパスのディレクトリを作成（存在しない場合）
 		const dir = path.dirname(config.filePath);

@@ -2,7 +2,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { basename } from "node:path";
 import Papa from "papaparse";
-import { KEY_HEADERS } from "./sheets-sync-plan";
+import { KEY_HEADERS, percentValuesEqual } from "./sheets-sync-plan";
 
 function git(...args: string[]): string {
 	return execFileSync("git", args, { encoding: "utf8", maxBuffer: 100 * 1024 * 1024 });
@@ -89,7 +89,9 @@ export function csvDiffReport(prBody = false): string {
 			for (let column = 0; column < Math.max(previous.length, next.length); column++) {
 				const before = previous[column] ?? "";
 				const after = next[column] ?? "";
-				if (before !== after) add([file, label, "更新", headers[column] || `列${column + 1}`, before, after]);
+				// 5%と5.0%のような表記ゆれは差分として扱わない。
+				if (before === after || percentValuesEqual(before, after)) continue;
+				add([file, label, "更新", headers[column] || `列${column + 1}`, before, after]);
 			}
 		}
 		if (old.length && current.length) compare(old[0], current[0], "ヘッダー");

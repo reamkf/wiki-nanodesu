@@ -37,6 +37,31 @@ test("フォトデータの行ラベルはレア度ではなくフォト名を�
 	}
 });
 
+test("5%と5.0%のような百分率の表記ゆれは差分にしない", () => {
+	const dir = mkdtempSync(join(tmpdir(), "csv-diff-percent-"));
+	const run = (command: string, ...args: string[]) =>
+		execFileSync(command, args, { cwd: dir, encoding: "utf8" });
+	try {
+		run("git", "init", "-q");
+		run("git", "config", "user.name", "Test");
+		run("git", "config", "user.email", "test@example.com");
+		mkdirSync(join(dir, "csv"));
+		const file = join(dir, "csv", "フォトデータ.csv");
+		writeFileSync(file, "フォト名,与ダメ増加\nA,5%\nB,12.5%\n");
+		run("git", "add", "csv");
+		run("git", "commit", "-qm", "initial");
+		writeFileSync(file, "フォト名,与ダメ増加\nA,5.0%\nB,12.6%\n");
+		run("git", "add", "csv");
+		const report = run("bun", script);
+		expect(report).not.toContain("| csv/フォトデータ.csv | 2行目: A |");
+		expect(report).toContain(
+			"| csv/フォトデータ.csv | 3行目: B | 更新 | 与ダメ増加 | 12.5% | 12.6% |",
+		);
+	} finally {
+		rmSync(dir, { recursive: true, force: true });
+	}
+});
+
 test("既存行のセルを比較し、追加・削除行は行単位で表示する", () => {
 	const dir = mkdtempSync(join(tmpdir(), "csv-diff-"));
 	const run = (command: string, ...args: string[]) =>
