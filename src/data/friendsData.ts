@@ -234,7 +234,7 @@ export async function getFriendsData(): Promise<FriendsDataRow[]> {
 					iconUrl: row.アイコンURL || "",
 					rarity: row.初期けも級 || 0,
 					hasYasei5: convertToBoolean(row.野生大解放),
-					has12poke: convertToBoolean(row["12ポケ"]),
+					hasPartyDress: convertToBoolean(row.パーティードレス),
 					numOfClothes: row.特別衣装数 || 0,
 					cv: row.CV || "",
 					status: parseFriendsStatus(row),

@@ -249,9 +249,9 @@ export interface FriendsStatusListItemWithDisplayValue extends FriendsStatusList
 }
 
 // 衣装補正の計算
-function calculateCostumeBonus(numCostumes: number, has12poke: boolean): BasicStatus {
+function calculateCostumeBonus(numCostumes: number, hasPartyDress: boolean): BasicStatus {
 	// ☆6衣装所持想定
-	const n = numCostumes + 2 + (has12poke ? 2 : 0);
+	const n = numCostumes + 2 + (hasPartyDress ? 2 : 0);
 	return {
 		kemosute: 280 * n,
 		hp: 100 * n,
@@ -338,7 +338,7 @@ export async function getFriendsStatusList(): Promise<FriendsStatusListItemWithD
 			const kemosute = calcKemosute(statusType.status);
 
 			// 衣装補正込みのステータスを計算
-			const costumeBonus = calculateCostumeBonus(friend.numOfClothes, friend.has12poke);
+			const costumeBonus = calculateCostumeBonus(friend.numOfClothes, friend.hasPartyDress);
 			const kemosuteWithCostume = calculateStatusWithCostume(
 				kemosute,
 				costumeBonus.kemosute ?? 0,

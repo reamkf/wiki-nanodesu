@@ -59,8 +59,8 @@ describe("getFriendsData", () => {
 				expect(sampleFriendsData?.hasYasei5).toBe(true);
 			});
 
-			it("12ポケがfalseである", () => {
-				expect(sampleFriendsData?.has12poke).toBe(false);
+			it("パーティードレスが未実装である", () => {
+				expect(sampleFriendsData?.hasPartyDress).toBe(false);
 			});
 
 			it("けものミラクル必要MPが120である", () => {

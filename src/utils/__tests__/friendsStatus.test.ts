@@ -41,7 +41,7 @@ describe("calculateFriendsStatus", () => {
 			iconUrl: "",
 			rarity,
 			hasYasei5: false,
-			has12poke: false,
+			hasPartyDress: false,
 			numOfClothes: 0,
 			cv: "",
 			miracleRequiredMp: null,

@@ -113,7 +113,7 @@ export interface FriendsDataRow {
 	iconUrl: string;
 	rarity: number;
 	hasYasei5: boolean;
-	has12poke: boolean;
+	hasPartyDress: boolean;
 	numOfClothes: number;
 	cv: string;
 	status: FriendsStatus;
@@ -156,7 +156,7 @@ export interface RawFriendsCSV {
 	アイコンURL: string;
 	初期けも級: number;
 	野生大解放: boolean;
-	"12ポケ": boolean;
+	パーティードレス: boolean;
 	特別衣装数: number;
 	CV: string;
 	かいひ: number;
