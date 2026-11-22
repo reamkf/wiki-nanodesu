@@ -279,6 +279,26 @@ function arrayToCsv(data: unknown[][], expectedColumns?: number): string {
 		.join("\n");
 }
 
+export function fetchedCsv(previousCsv: string, values: unknown[][], expectedColumns?: number): string {
+	const nextCsv = `${arrayToCsv(keepPercentFormatting(previousCsv, values), expectedColumns)}\n`;
+	if (!previousCsv) return nextCsv;
+	const parse = (csv: string) =>
+		Papa.parse<string[]>(csv.replace(/^\uFEFF/, "").replace(/\r?\n$/, ""));
+	const previous = parse(previousCsv);
+	const next = parse(nextCsv);
+	if (
+		previous.errors.length === 0 &&
+		next.errors.length === 0 &&
+		previous.data.length === next.data.length &&
+		previous.data.every(
+			(row, i) => row.length === next.data[i].length && row.every((cell, j) => cell === next.data[i][j]),
+		)
+	) {
+		return previousCsv;
+	}
+	return nextCsv;
+}
+
 /**
  * Google Sheets APIからデータを取得
  */
@@ -340,7 +360,7 @@ async function processSheet(token: string, config: SheetConfig): Promise<void> {
 		const previousCsv = fs.existsSync(config.filePath)
 			? fs.readFileSync(config.filePath, "utf8")
 			: "";
-		const csvData = arrayToCsv(keepPercentFormatting(previousCsv, values), expectedColumns);
+		const csvData = fetchedCsv(previousCsv, values, expectedColumns);
 
 		// ファイルパスのディレクトリを作成（存在しない場合）
 		const dir = path.dirname(config.filePath);
@@ -349,7 +369,7 @@ async function processSheet(token: string, config: SheetConfig): Promise<void> {
 		}
 
 		// CSVファイルとして保存
-		fs.writeFileSync(config.filePath, `${csvData}\n`, "utf8");
+		fs.writeFileSync(config.filePath, csvData, "utf8");
 	} catch (error) {
 		logError(`   ❌ シート「${config.sheetName}」の処理でエラーが発生しました:`, error);
 		throw error;
