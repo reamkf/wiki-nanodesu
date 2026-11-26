@@ -105,6 +105,79 @@ describe("Sheets同期計画のキー対応", () => {
 		);
 	});
 
+	test("可変キーの変更は旧キーを示して停止し、手動照合と再確認を案内する", () => {
+		for (const [sheetName, keyHeaders, oldKey, newKey] of [
+			[
+				"スキル別フレンズ一覧",
+				["フレンズID", "わざ種別", "効果種別", "威力"],
+				["フレンズA", "とくせい", "与ダメージ増加", "10%"],
+				["フレンズA", "とくせい", "与ダメージ増加", "15%"],
+			],
+			[
+				"状態異常スキル一覧",
+				["フレンズID/フォト名", "わざ種別", "状態異常", "効果種別", "威力", "対象"],
+				["フレンズA", "とくせい", "くらくら", "耐性増加", "10%", "自身"],
+				["フレンズA", "とくせい", "くらくら", "耐性増加", "15%", "自身"],
+			],
+		] as const) {
+			const config: SheetConfig = { sheetName, filePath: "skills.csv" };
+			const headers = [...keyHeaders, "備考"];
+			const oldRow = [...oldKey, "既存"];
+			const newRow = [...newKey, "既存"];
+			const base = snapshot([headers, oldRow]);
+			let message = "";
+			try {
+				createSheetPlan(config, [headers, newRow], "hash", base);
+			} catch (error) {
+				message = String(error);
+			}
+			expect(message).toContain("既存行の削除は計画できません");
+			expect(message).toContain(`${JSON.stringify(oldKey)}#0`);
+			expect(message).toContain(`Sheets 2行目、キー列: ${keyHeaders.join("・")}`);
+			expect(message).toContain("可変の識別キーが変更された可能性");
+			expect(message).toContain("Sheetsの旧キーとCSVの新キー");
+			expect(message).toContain("自動では対応付けません");
+			expect(message).toContain("数式");
+			expect(message).toContain("個別に修正");
+			expect(message).toContain("差分を再確認");
+			expect(base.formatted).toEqual([headers, oldRow]);
+		}
+	});
+
+	test("スキル一覧の重複キーも件数と順序を保ち、数式を保護する", () => {
+		const config = { sheetName: "スキル別フレンズ一覧", filePath: "skills.csv" };
+		const headers = ["フレンズID", "わざ種別", "効果種別", "威力", "備考"];
+		const first = ["フレンズA", "とくせい", "与ダメージ増加", "10%", "計算結果"];
+		const duplicate = ["フレンズA", "とくせい", "与ダメージ増加", "10%", "別の行"];
+		const other = ["フレンズB", "とくせい", "与ダメージ増加", "20%", "備考"];
+		const base = snapshot([headers, first, duplicate, other], [[], ["", "", "", "", "=A2"]]);
+		expect(() => createSheetPlan(config, [headers, first, other], "hash", base)).toThrow(
+			`${JSON.stringify(first.slice(0, 4))}#1`,
+		);
+		expect(() =>
+			createSheetPlan(config, [headers, other, first, duplicate], "hash", base),
+		).toThrow("並べ替え");
+		const changed = [...first.slice(0, 4), "別結果"];
+		const plan = createSheetPlan(config, [headers, changed, duplicate, other], "hash", base, true);
+		expect(plan.inserts).toEqual([]);
+		expect(plan.updates).toEqual([]);
+		expect(plan.comparisons.find((cell) => cell.row === 2 && cell.column === 5)).toMatchObject({
+			kind: "protected-formula-mismatch",
+			formula: "=A2",
+		});
+	});
+
+	test("範囲指定時の削除エラーは実際のSheets行番号を示す", () => {
+		const config = {
+			sheetName: "イベントデータ",
+			filePath: "events.csv",
+			range: { startRow: 10 },
+		};
+		expect(() =>
+			createSheetPlan(config, [headers, oldA], "hash", snapshot([headers, oldA, oldB])),
+		).toThrow("Sheets 12行目");
+	});
+
 	test("ローカルとSheets双方の重複キー、空キーを拒否する", () => {
 		expect(() =>
 			createSheetPlan(eventConfig, [headers, oldA, oldA], "hash", snapshot([headers, oldA])),

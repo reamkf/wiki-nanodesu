@@ -236,10 +236,14 @@ function alignment(
 	const remoteKeys = keys(base.formatted, "Sheets", true);
 	const localPositions = new Map(localKeys.map((key, index) => [key, index]));
 	let previous = -1;
-	for (const key of remoteKeys) {
+	for (const [index, key] of remoteKeys.entries()) {
 		const position = localPositions.get(key);
 		if (position === undefined)
-			throw new Error(`${config.sheetName}: 既存行の削除は計画できません: ${key}`);
+			throw new Error(
+				`${config.sheetName}: 既存行の削除は計画できません: ${key}（#以降は同一キーの出現順、0始まり。Sheets ${index + (config.range?.startRow ?? 1) + 1}行目、キー列: ${keyHeaders.join("・")}）。` +
+					"行の削除だけでなく、威力など可変の識別キーが変更された可能性があります。Sheetsの旧キーとCSVの新キーを列・行ごとに明示的に照合してください。" +
+					"同じ行と確認できた場合も自動では対応付けません。根拠と数式を確認し、権限・依頼範囲内で正しい側を個別に修正した後、差分を再確認してください。",
+			);
 		if (position <= previous)
 			throw new Error(`${config.sheetName}: 既存行の並べ替えは計画できません。`);
 		previous = position;
